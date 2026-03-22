@@ -1,140 +1,53 @@
-import React, { useState } from "react";
-import { useCloudinaryUpload } from "../hooks/useCloudinaryUpload";
-// (Optional) import { useR2Upload } from "../hooks/useR2Upload";
+// Example: CreatePost.jsx
+import { useState } from "react";
+import axios from "axios";
 
 export default function CreatePost() {
-  const [file, setFile] = useState(null);
-  const [caption, setCaption] = useState("");
-  const [type, setType] = useState("image"); // image | video
+  const [content, setContent] = useState("");
+  const [mediaFiles, setMediaFiles] = useState([]);
 
-  const { uploadImage, loading, url, error } = useCloudinaryUpload();
-
-  // OPTIONAL for video later
-  // const { uploadVideo, videoUrl } = useR2Upload();
-
-  const token = localStorage.getItem("token");
-
-  /* ================= HANDLE FILE ================= */
-  const handleFileChange = (e) => {
-    const selected = e.target.files[0];
-    if (!selected) return;
-
-    setFile(selected);
-
-    // auto-detect type
-    if (selected.type.startsWith("video")) {
-      setType("video");
-    } else {
-      setType("image");
-    }
+  const handleFilesChange = (e) => {
+    setMediaFiles([...e.target.files]); // multiple files
   };
 
-  /* ================= UPLOAD ================= */
-  const handleUpload = async () => {
-    if (!file) return alert("Select a file first");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    if (type === "image") {
-      await uploadImage(file);
-    }
+    const formData = new FormData();
+    formData.append("content", content);
 
-    // Uncomment when R2 hook is ready
-    /*
-    if (type === "video") {
-      await uploadVideo(file);
-    }
-    */
-  };
-
-  /* ================= SUBMIT POST ================= */
-  const handleSubmit = async () => {
-    const mediaUrl = url; // or videoUrl when using R2
-
-    if (!mediaUrl) {
-      return alert("Upload media first");
-    }
+    // Append each file to 'media' key (matches backend)
+    mediaFiles.forEach((file) => {
+      formData.append("media", file);
+    });
 
     try {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_BASE}/api/posts`,
+      const token = localStorage.getItem("token"); // your JWT
+      const res = await axios.post(
+        "https://afribook-backend.onrender.com/api/posts",
+        formData,
         {
-          method: "POST",
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type": "multipart/form-data",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({
-            caption,
-            media: mediaUrl,
-            type, // image or video
-          }),
         }
       );
-
-      const data = await res.json();
-
-      if (!res.ok) throw new Error(data.error);
-
-      alert("Post created!");
-
-      // Reset
-      setFile(null);
-      setCaption("");
-      window.location.href = "/"; // go to feed
+      console.log("Post created:", res.data);
     } catch (err) {
-      alert(err.message);
+      console.error("Upload error:", err.response?.data || err.message);
     }
   };
 
   return (
-    <div style={{ maxWidth: 500, margin: "auto", padding: 20 }}>
-      <h2>Create Post</h2>
-
-      {/* FILE INPUT */}
-      <input type="file" onChange={handleFileChange} />
-
-      {/* PREVIEW */}
-      {file && (
-        <div style={{ marginTop: 10 }}>
-          {type === "image" ? (
-            <img
-              src={URL.createObjectURL(file)}
-              alt="preview"
-              style={{ width: "100%" }}
-            />
-          ) : (
-            <video
-              src={URL.createObjectURL(file)}
-              controls
-              style={{ width: "100%" }}
-            />
-          )}
-        </div>
-      )}
-
-      {/* CAPTION */}
+    <form onSubmit={handleSubmit}>
       <textarea
-        placeholder="Write a caption..."
-        value={caption}
-        onChange={(e) => setCaption(e.target.value)}
-        style={{ width: "100%", marginTop: 10 }}
+        placeholder="What's on your mind?"
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
       />
-
-      {/* UPLOAD BUTTON */}
-      <button onClick={handleUpload} disabled={loading}>
-        {loading ? "Uploading..." : "Upload Media"}
-      </button>
-
-      {/* SUBMIT BUTTON */}
-      <button onClick={handleSubmit} style={{ marginLeft: 10 }}>
-        Post
-      </button>
-
-      {/* RESULT */}
-      {url && (
-        <p style={{ color: "green" }}>✅ Media uploaded successfully</p>
-      )}
-
-      {error && <p style={{ color: "red" }}>{error}</p>}
-    </div>
+      <input type="file" multiple onChange={handleFilesChange} />
+      <button type="submit">Post</button>
+    </form>
   );
 }
