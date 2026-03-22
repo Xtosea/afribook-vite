@@ -6,6 +6,8 @@ import EmojiPicker from "emoji-picker-react";
 import { useCloudinaryUpload } from "../hooks/useCloudinaryUpload";
 import { useR2Upload } from "../hooks/useR2Upload";
 
+const R2_CUSTOM_DOMAIN = "https://media.africbook.globelynks.com";
+
 const Home = () => {
   const token = localStorage.getItem("token");
   const currentUserId = localStorage.getItem("userId");
@@ -34,10 +36,23 @@ const Home = () => {
 
       const fixedPosts = data.map(post => ({
         ...post,
-        media: post.media?.map(m => ({
-          ...m,
-          url: m.url.startsWith("http") ? m.url : `${API_BASE}${m.url}`,
-        })),
+        media: post.media?.map(m => {
+          // Use Cloudinary for images, R2 custom domain for videos
+          if (m.type === "image") {
+            return {
+              ...m,
+              url: m.url.startsWith("http") ? m.url : `${API_BASE}${m.url}`,
+            };
+          } else if (m.type === "video") {
+            // Ensure R2_CUSTOM_DOMAIN is used
+            const filename = m.url.split("/").pop();
+            return {
+              ...m,
+              url: `${R2_CUSTOM_DOMAIN}/${filename}`,
+            };
+          }
+          return m;
+        }),
         user: {
           ...post.user,
           profilePic: post.user?.profilePic
@@ -78,7 +93,6 @@ const Home = () => {
   const handleSubmitPost = async (e) => {
     e.preventDefault();
     if (posting) return;
-
     if (!newPost.trim() && mediaFiles.length === 0) return;
 
     setPosting(true);
@@ -91,13 +105,9 @@ const Home = () => {
         let url = null;
 
         if (file.type.startsWith("image")) {
-          url = await uploadImage(file, (progress) => {
-            setUploadProgress(progress);
-          });
+          url = await uploadImage(file, (progress) => setUploadProgress(progress));
         } else if (file.type.startsWith("video")) {
-          url = await uploadVideo(file, (progress) => {
-            setUploadProgress(progress);
-          });
+          url = await uploadVideo(file, (progress) => setUploadProgress(progress));
         }
 
         if (url) {
@@ -114,18 +124,11 @@ const Home = () => {
       formData.append("feeling", feeling);
       formData.append("location", location);
       formData.append("taggedFriends", JSON.stringify(taggedFriends));
-
-      uploadedMedia.forEach((m) => {
-        // create Blob from URL? backend expects array of objects
-        // but simplest is to send as JSON
-        formData.append("media", JSON.stringify(m));
-      });
+      uploadedMedia.forEach(m => formData.append("media", JSON.stringify(m)));
 
       const res = await fetch(`${API_BASE}/api/posts`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
 
@@ -134,7 +137,7 @@ const Home = () => {
 
       setPosts(prev => [data.post, ...prev]);
 
-      // reset
+      // Reset
       setNewPost("");
       setMediaFiles([]);
       setLocation("");
@@ -174,10 +177,7 @@ const Home = () => {
         p._id === postId
           ? {
               ...p,
-              comments: [
-                ...(p.comments || []),
-                { _id: Date.now(), text, user: { name: "You" } },
-              ],
+              comments: [...(p.comments || []), { _id: Date.now(), text, user: { name: "You" } }],
             }
           : p
       )
@@ -194,10 +194,7 @@ const Home = () => {
     <div className="container mx-auto py-6 max-w-2xl space-y-6">
 
       {/* CREATE POST */}
-      <form
-        onSubmit={handleSubmitPost}
-        className="bg-white p-4 rounded-xl shadow space-y-3"
-      >
+      <form onSubmit={handleSubmitPost} className="bg-white p-4 rounded-xl shadow space-y-3">
         <textarea
           value={newPost}
           onChange={(e) => setNewPost(e.target.value)}
@@ -231,11 +228,7 @@ const Home = () => {
                 />
               </label>
 
-              <button
-                type="button"
-                onClick={() => setShowEmoji(prev => !prev)}
-                className="px-3 py-1 border rounded-full text-sm"
-              >
+              <button type="button" onClick={() => setShowEmoji(prev => !prev)} className="px-3 py-1 border rounded-full text-sm">
                 😊 Emoji
               </button>
 
@@ -260,11 +253,7 @@ const Home = () => {
               type="text"
               placeholder="Tag friends"
               value={taggedFriends.join(", ")}
-              onChange={(e) =>
-                setTaggedFriends(
-                  e.target.value.split(",").map(f => f.trim())
-                )
-              }
+              onChange={(e) => setTaggedFriends(e.target.value.split(",").map(f => f.trim()))}
               className="border rounded-lg px-3 py-2 w-full text-sm"
             />
 
@@ -272,25 +261,11 @@ const Home = () => {
               <div className="flex gap-3 overflow-x-auto">
                 {mediaFiles.map((file, i) => (
                   <div key={i} className="relative">
-                    <button
-                      type="button"
-                      onClick={() => removeMedia(i)}
-                      className="absolute top-0 right-0 bg-black text-white rounded-full px-2 text-xs"
-                    >
-                      ✕
-                    </button>
-
+                    <button type="button" onClick={() => removeMedia(i)} className="absolute top-0 right-0 bg-black text-white rounded-full px-2 text-xs">✕</button>
                     {file.type.startsWith("image") ? (
-                      <img
-                        src={URL.createObjectURL(file)}
-                        className="w-24 h-24 rounded object-contain bg-gray-100"
-                      />
+                      <img src={URL.createObjectURL(file)} className="w-24 h-24 rounded object-contain bg-gray-100" />
                     ) : (
-                      <video
-                        src={URL.createObjectURL(file)}
-                        className="w-24 h-24 rounded object-contain bg-gray-100"
-                        controls
-                      />
+                      <video src={URL.createObjectURL(file)} className="w-24 h-24 rounded object-contain bg-gray-100" controls />
                     )}
                   </div>
                 ))}
@@ -299,18 +274,11 @@ const Home = () => {
 
             {uploadProgress > 0 && (
               <div className="w-full bg-gray-200 h-2 rounded">
-                <div
-                  className="bg-blue-500 h-2 rounded"
-                  style={{ width: `${uploadProgress}%` }}
-                />
+                <div className="bg-blue-500 h-2 rounded" style={{ width: `${uploadProgress}%` }} />
               </div>
             )}
 
-            <button
-              type="submit"
-              disabled={posting}
-              className="px-6 py-2 bg-blue-600 text-white rounded-full"
-            >
+            <button type="submit" disabled={posting} className="px-6 py-2 bg-blue-600 text-white rounded-full">
               {posting ? "Posting..." : "Post"}
             </button>
           </>
