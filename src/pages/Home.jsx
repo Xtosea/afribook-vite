@@ -1,13 +1,9 @@
 import React, { useEffect, useState, useRef } from "react";
-import { API_BASE, fetchWithToken } from "../api/api";
+import { API_BASE } from "../api/api";
 import PostCard from "../components/PostCard";
 import { FiUpload } from "react-icons/fi";
-import EmojiPicker from "emoji-picker-react";
 import { useCloudinaryUpload } from "../hooks/useCloudinaryUpload";
 import { useR2Upload } from "../hooks/useR2Upload";
-
-// ...imports stay the same
-const R2_CUSTOM_DOMAIN = import.meta.env.VITE_R2_CUSTOM_DOMAIN;
 
 const Home = () => {
   const token = localStorage.getItem("token");
@@ -16,90 +12,138 @@ const Home = () => {
   const [posts, setPosts] = useState([]);
   const [newPost, setNewPost] = useState("");
   const [mediaFiles, setMediaFiles] = useState([]);
-  const [location, setLocation] = useState("");
-  const [feeling, setFeeling] = useState("");
-  const [taggedFriends, setTaggedFriends] = useState([]);
-  const [expanded, setExpanded] = useState(false);
   const [posting, setPosting] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
 
   const fileInputRef = useRef();
   const { uploadImage } = useCloudinaryUpload();
   const { uploadVideo } = useR2Upload();
 
+  /* ================= FETCH POSTS ================= */
   const fetchPosts = async () => {
     try {
-      const data = await fetch(`${API_BASE}/api/posts`, { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json());
+      console.log("Fetching posts...");
+
+      const res = await fetch(`${API_BASE}/api/posts`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const data = await res.json();
+
+      console.log("POSTS RESPONSE:", data);
+
+      if (!res.ok) throw new Error("Failed to fetch posts");
+
       setPosts(data);
     } catch (err) {
-      console.error(err);
+      console.error("FETCH POSTS ERROR:", err);
     }
   };
 
-  useEffect(() => { fetchPosts(); }, []);
+  useEffect(() => {
+    fetchPosts();
+  }, []);
 
+  /* ================= MEDIA ================= */
   const handleMediaChange = (e) => {
     const files = Array.from(e.target.files);
-    if (files.length + mediaFiles.length > 5) {
-      alert("Max 5 files allowed");
-      return;
-    }
-    setMediaFiles(prev => [...prev, ...files]);
+    setMediaFiles((prev) => [...prev, ...files]);
   };
 
-  const removeMedia = (index) => setMediaFiles(prev => prev.filter((_, i) => i !== index));
-
+  /* ================= CREATE POST ================= */
   const handleSubmitPost = async (e) => {
     e.preventDefault();
     if (posting) return;
-    if (!newPost.trim() && mediaFiles.length === 0) return;
 
     setPosting(true);
-    const uploadedMedia = [];
 
     try {
+      const uploadedMedia = [];
+
       for (const file of mediaFiles) {
         let url = null;
-        if (file.type.startsWith("image")) url = await uploadImage(file, setUploadProgress);
-        else if (file.type.startsWith("video")) url = await uploadVideo(file, setUploadProgress);
 
-        if (url) uploadedMedia.push({ url, type: file.type.startsWith("image") ? "image" : "video" });
+        if (file.type.startsWith("image")) {
+          url = await uploadImage(file);
+        } else if (file.type.startsWith("video")) {
+          url = await uploadVideo(file);
+        }
+
+        if (url) {
+          uploadedMedia.push({
+            url,
+            type: file.type.startsWith("image") ? "image" : "video",
+          });
+        }
       }
 
       const res = await fetch(`${API_BASE}/api/posts`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           content: newPost,
-          feeling,
-          location,
-          taggedFriends,
           media: uploadedMedia,
         }),
       });
 
       const data = await res.json();
+
       if (!res.ok) throw new Error(data.error);
 
-      setPosts(prev => [data.post, ...prev]);
-      setNewPost(""); setMediaFiles([]); setLocation(""); setFeeling(""); setTaggedFriends([]);
-      setExpanded(false); setUploadProgress(0); fileInputRef.current.value = null;
+      setPosts((prev) => [data.post, ...prev]);
+
+      setNewPost("");
+      setMediaFiles([]);
+      fileInputRef.current.value = null;
 
     } catch (err) {
-      console.error("Post creation error:", err);
-      alert("Upload failed");
-    } finally { setPosting(false); }
+      console.error("POST ERROR:", err);
+    } finally {
+      setPosting(false);
+    }
   };
 
+  /* ================= UI ================= */
   return (
     <div className="container mx-auto py-6 max-w-2xl space-y-6">
-      {/* ...your form JSX here (same as before, just ensure multiple file input name="video") */}
-      {/* Display posts */}
-      {posts.map(post => (
-        <PostCard key={post._id} post={post} currentUserId={currentUserId} />
-      ))}
+
+      {/* CREATE POST */}
+      <form onSubmit={handleSubmitPost} className="bg-white p-4 rounded shadow space-y-3">
+        <textarea
+          value={newPost}
+          onChange={(e) => setNewPost(e.target.value)}
+          placeholder="What's on your mind?"
+          className="w-full border p-2 rounded"
+        />
+
+        <input
+          ref={fileInputRef}
+          type="file"
+          multiple
+          onChange={handleMediaChange}
+        />
+
+        <button
+          type="submit"
+          disabled={posting}
+          className="bg-blue-500 text-white px-4 py-2 rounded"
+        >
+          {posting ? "Posting..." : "Post"}
+        </button>
+      </form>
+
+      {/* POSTS */}
+      {posts.length === 0 ? (
+        <p className="text-center text-gray-500">No posts yet</p>
+      ) : (
+        posts.map((post) => (
+          <PostCard key={post._id} post={post} currentUserId={currentUserId} />
+        ))
+      )}
     </div>
   );
 };
 
-export default Home;e;
+export default Home;
