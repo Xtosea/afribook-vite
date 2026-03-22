@@ -17,13 +17,16 @@ const Profile = () => {
   const [intro, setIntro] = useState("");
   const [saving, setSaving] = useState(false);
 
+  const [activeTab, setActiveTab] = useState("posts");
+  const [showModal, setShowModal] = useState(false);
+  const [modalType, setModalType] = useState("followers");
+
   const token = localStorage.getItem("token");
   const currentUserId = localStorage.getItem("userId");
   const finalUserId = userId || currentUserId;
 
   const feedRef = useRef([]);
-  
-  // Video lazy play
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       entries => {
@@ -112,9 +115,12 @@ const Profile = () => {
       setPosts(prev =>
         prev.map(p =>
           p._id === postId
-            ? { ...p, likes: p.likes.includes(currentUserId) 
-                ? p.likes.filter(id => id !== currentUserId)
-                : [...(p.likes || []), currentUserId] }
+            ? {
+                ...p,
+                likes: p.likes.includes(currentUserId)
+                  ? p.likes.filter(id => id !== currentUserId)
+                  : [...(p.likes || []), currentUserId],
+              }
             : p
         )
       );
@@ -128,8 +134,13 @@ const Profile = () => {
       const { comment } = await fetchWithToken(
         `${API_BASE}/api/posts/${postId}/comment`,
         token,
-        { method: "POST", body: JSON.stringify({ text }), headers: { "Content-Type": "application/json" } }
+        {
+          method: "POST",
+          body: JSON.stringify({ text }),
+          headers: { "Content-Type": "application/json" },
+        }
       );
+
       setPosts(prev =>
         prev.map(p =>
           p._id === postId
@@ -150,10 +161,14 @@ const Profile = () => {
       formData.append("bio", bio);
       formData.append("intro", intro);
 
-      const updatedUser = await fetchWithToken(`${API_BASE}/api/users/${finalUserId}`, token, {
-        method: "PUT",
-        body: formData,
-      });
+      const updatedUser = await fetchWithToken(
+        `${API_BASE}/api/users/${finalUserId}`,
+        token,
+        {
+          method: "PUT",
+          body: formData,
+        }
+      );
 
       setUser(updatedUser.user || updatedUser);
       setIsEditing(false);
@@ -164,16 +179,56 @@ const Profile = () => {
     }
   };
 
+  const reelPosts = posts.filter(p =>
+    p.media?.some(m => m.isReel)
+  );
+
+  const PostItem = ({ post, idx }) => (
+    <div className="bg-white rounded shadow overflow-hidden">
+      {post.media && post.media.length > 0 && (
+        <div className="flex overflow-x-auto snap-x snap-mandatory">
+          {post.media.map((m, i) => (
+            <div key={i} className="flex-shrink-0 w-full h-64 relative snap-start">
+              {m.type === "image" ? (
+                <img src={m.url} className="w-full h-full object-cover" />
+              ) : (
+                <>
+                  <video
+                    src={m.url}
+                    className="w-full h-full object-cover"
+                    muted
+                    controls
+                  />
+                  {m.isReel && (
+                    <span className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 text-xs rounded">
+                      Reel
+                    </span>
+                  )}
+                </>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      <PostCard
+        post={post}
+        onLike={handleLike}
+        onComment={handleComment}
+        currentUserId={currentUserId}
+      />
+    </div>
+  );
+
   if (!user) return <p className="text-center mt-10">Loading profile...</p>;
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <div className="container mx-auto py-6 px-2 md:px-6 space-y-6">
 
-      {/* COVER PHOTO */}
-      <div className="w-full h-48 bg-gray-200 rounded overflow-hidden relative">
+      {/* COVER */}
+      <div className="w-full h-40 md:h-56 bg-gray-200 rounded overflow-hidden relative">
         <img
           src={fixUrl(user.coverPhoto, "/uploads/profiles/default-cover.png")}
-          alt="cover"
           className="w-full h-full object-cover"
         />
         {isEditing && (
@@ -183,100 +238,85 @@ const Profile = () => {
         )}
       </div>
 
-      {/* PROFILE CARD */}
-      <div className="flex items-center space-x-6 bg-white p-4 rounded shadow relative">
-        <img
-          src={fixUrl(user.profilePic, "/uploads/profiles/default-profile.png")}
-          alt="profile"
-          className="w-24 h-24 rounded-full object-cover"
-        />
-        {isEditing && (
-          <div className="absolute -mt-12 ml-4">
-            <ProfilePicUploader onUploaded={(url) => setUser(prev => ({ ...prev, profilePic: url }))} />
-          </div>
-        )}
-        <div className="flex-1">
-          <h1 className="text-2xl font-bold">
-            <Link to={`/profile/${finalUserId}`}>{user.name}</Link>
-          </h1>
+      {/* PROFILE */}
+      <div className="bg-white p-4 rounded shadow space-y-4">
 
-          {!isEditing ? (
-            <>
-              {user.intro && <p className="text-gray-600">{user.intro}</p>}
-              {user.bio && <p className="text-gray-500 mt-1">{user.bio}</p>}
-            </>
-          ) : (
-            <div className="space-y-2 mt-1">
-              <input value={intro} onChange={e => setIntro(e.target.value)} placeholder="Intro" className="border rounded w-full p-1" />
-              <textarea value={bio} onChange={e => setBio(e.target.value)} placeholder="Bio" className="border rounded w-full p-1" />
-              <button onClick={handleUpdateProfile} disabled={saving} className="px-4 py-2 bg-green-500 text-white rounded">
-                {saving ? "Saving..." : "Save"}
-              </button>
+        <div className="flex flex-col md:flex-row items-center md:items-start gap-4">
+
+          <img
+            src={fixUrl(user.profilePic, "/uploads/profiles/default-profile.png")}
+            className="w-24 h-24 rounded-full object-cover"
+          />
+
+          <div className="flex-1 text-center md:text-left">
+            <h1 className="text-2xl font-bold">{user.name}</h1>
+
+            <p>{user.intro}</p>
+            <p className="text-gray-500">{user.bio}</p>
+
+            <div className="flex justify-center md:justify-start gap-4 mt-3 text-sm">
+              <span>{user.points || 0} points</span>
+
+              <span className="cursor-pointer" onClick={() => {setModalType("followers"); setShowModal(true);}}>
+                {user.followers?.length || 0} Followers
+              </span>
+
+              <span className="cursor-pointer" onClick={() => {setModalType("following"); setShowModal(true);}}>
+                {user.following?.length || 0} Following
+              </span>
             </div>
-          )}
-
-          <div className="flex gap-4 mt-2 text-sm">
-            <span>{user.points || 0} points</span>
-            <span>{user.followers?.length || 0} Followers</span>
-            <span>{user.following?.length || 0} Following</span>
           </div>
         </div>
 
-        {finalUserId === currentUserId ? (
-          <button onClick={() => setIsEditing(!isEditing)} className="px-4 py-2 bg-blue-500 text-white rounded">
-            {isEditing ? "Cancel" : "Edit Profile"}
-          </button>
-        ) : (
-          <button onClick={handleFollow} className={`px-4 py-2 rounded ${isFollowing ? "bg-gray-300 text-black" : "bg-blue-500 text-white"}`}>
-            {isFollowing ? "Unfollow" : "Follow"}
-          </button>
-        )}
+        <div className="flex justify-center md:justify-end">
+          {finalUserId === currentUserId ? (
+            <button onClick={() => setIsEditing(!isEditing)} className="px-6 py-2 bg-blue-500 text-white rounded">
+              {isEditing ? "Cancel" : "Edit Profile"}
+            </button>
+          ) : (
+            <button onClick={handleFollow} className="px-6 py-2 bg-blue-500 text-white rounded">
+              {isFollowing ? "Unfollow" : "Follow"}
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* POSTS */}
+      {/* TABS */}
+      <div className="bg-white rounded shadow flex justify-around py-3 text-sm font-semibold">
+        <button onClick={() => setActiveTab("posts")} className={activeTab === "posts" ? "text-blue-500" : "text-gray-500"}>Posts</button>
+        <button onClick={() => setActiveTab("reels")} className={activeTab === "reels" ? "text-blue-500" : "text-gray-500"}>Reels</button>
+        <button onClick={() => setActiveTab("about")} className={activeTab === "about" ? "text-blue-500" : "text-gray-500"}>About</button>
+      </div>
+
+      {/* CONTENT */}
       <div className="space-y-6">
-        {posts.length === 0 ? (
-          <p className="text-center text-gray-500">No posts yet.</p>
-        ) : (
-          posts.map((post, idx) => (
-            <div key={post._id} className="bg-white rounded shadow overflow-hidden">
-              {post.media && post.media.length > 0 ? (
-                <div className="flex overflow-x-auto snap-x snap-mandatory">
-                  {post.media.map((m, i) => (
-                    <div key={i} className="flex-shrink-0 w-full h-64 relative snap-start">
-                      {m.type === "image" ? (
-                        <img src={m.url} className="w-full h-full object-cover" />
-                      ) : (
-                        <>
-                          <video
-                            ref={el => (feedRef.current[idx * 10 + i] = el)}
-                            src={m.url}
-                            className="w-full h-full object-cover"
-                            muted
-                            playsInline
-                            preload="metadata"
-                            controls
-                          />
-                          {m.isReel && (
-                            <span className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 text-xs rounded">Reel</span>
-                          )}
-                        </>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              ) : null}
-
-              <PostCard
-                post={post}
-                onLike={handleLike}
-                onComment={handleComment}
-                currentUserId={currentUserId}
-              />
-            </div>
-          ))
+        {activeTab === "posts" && posts.map((p,i)=><PostItem key={p._id} post={p} idx={i}/>)}
+        {activeTab === "reels" && reelPosts.map((p,i)=><PostItem key={p._id} post={p} idx={i}/>)}
+        {activeTab === "about" && (
+          <div className="bg-white p-4 rounded shadow">
+            <p><b>Name:</b> {user.name}</p>
+            <p><b>Intro:</b> {user.intro}</p>
+            <p><b>Bio:</b> {user.bio}</p>
+          </div>
         )}
       </div>
+
+      {/* MODAL */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white w-11/12 md:w-1/3 rounded p-4">
+            <h2 className="font-bold mb-3">{modalType}</h2>
+            {(user[modalType] || []).map((u,i)=>(
+              <div key={i} className="flex justify-between items-center mb-2">
+                <span>{u.name}</span>
+                <button onClick={()=>navigate(`/profile/${u._id}`)} className="text-blue-500">View</button>
+              </div>
+            ))}
+            <button onClick={()=>setShowModal(false)} className="mt-4">Close</button>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
