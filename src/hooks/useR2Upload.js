@@ -1,39 +1,66 @@
 // src/hooks/useR2Upload.js
-import { R2_CUSTOM_DOMAIN, R2_BUCKET_NAME, R2_ENDPOINT, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY } from "../config"; // or process.env
+import { useState } from "react";
 
 export const useR2Upload = () => {
-  const uploadVideo = async (file) => {
+  const [progress, setProgress] = useState(0);
+
+  const R2_CUSTOM_DOMAIN = import.meta.env.VITE_R2_CUSTOM_DOMAIN;
+  const R2_BUCKET_NAME = import.meta.env.VITE_R2_BUCKET_NAME;
+  const R2_ENDPOINT = import.meta.env.VITE_R2_ENDPOINT;
+  const R2_ACCESS_KEY_ID = import.meta.env.VITE_R2_ACCESS_KEY_ID;
+  const R2_SECRET_ACCESS_KEY = import.meta.env.VITE_R2_SECRET_ACCESS_KEY;
+
+  const uploadVideo = async (file, onProgress) => {
     try {
-      // Generate a unique filename
-      const timestamp = Date.now();
-      const filename = `${timestamp}-${file.name}`;
+      const fileName = `${Date.now()}-${file.name}`;
+      const url = `${R2_ENDPOINT}/${R2_BUCKET_NAME}/${fileName}`;
 
-      // Prepare FormData for direct upload to R2 (S3 API compatible)
-      const formData = new FormData();
-      formData.append("file", file);
+      const headers = {
+        "Content-Type": file.type,
+        "Authorization":
+          "Basic " +
+          btoa(`${R2_ACCESS_KEY_ID}:${R2_SECRET_ACCESS_KEY}`),
+      };
 
-      // Backend endpoint to handle upload
-      // You can create an endpoint like /api/upload-video that signs the request or directly uploads via AWS SDK
-      const res = await fetch(`${R2_ENDPOINT}/${R2_BUCKET_NAME}/${filename}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": file.type,
-          "Authorization": `Basic ${btoa(`${R2_ACCESS_KEY_ID}:${R2_SECRET_ACCESS_KEY}`)}`,
-        },
-        body: file,
+      // Browser fetch doesn’t support upload progress by default.
+      // If you want progress, you can use XMLHttpRequest instead:
+      await new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open("PUT", url);
+        xhr.setRequestHeader("Content-Type", file.type);
+        xhr.setRequestHeader(
+          "Authorization",
+          "Basic " + btoa(`${R2_ACCESS_KEY_ID}:${R2_SECRET_ACCESS_KEY}`)
+        );
+
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable) {
+            const percent = Math.round((e.loaded / e.total) * 100);
+            setProgress(percent);
+            if (onProgress) onProgress(percent);
+          }
+        };
+
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            resolve(xhr.response);
+          } else {
+            reject(new Error(`R2 upload failed: ${xhr.statusText}`));
+          }
+        };
+
+        xhr.onerror = () => reject(new Error("R2 upload failed"));
+        xhr.send(file);
       });
 
-      if (!res.ok) {
-        throw new Error("Upload failed");
-      }
-
-      // Return the full URL via your custom domain
-      return `${R2_CUSTOM_DOMAIN}/${filename}`;
+      // Return public URL using custom domain
+      const publicUrl = `${R2_CUSTOM_DOMAIN}/${fileName}`;
+      return publicUrl;
     } catch (err) {
-      console.error("R2 VIDEO UPLOAD ERROR:", err);
+      console.error("R2 UPLOAD ERROR:", err);
       return null;
     }
   };
 
-  return { uploadVideo };
+  return { uploadVideo, progress };
 };
