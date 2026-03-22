@@ -1,10 +1,11 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { API_BASE, fetchWithToken } from "../api/api";
 import PostCard from "../components/PostCard";
 import { FiUpload } from "react-icons/fi";
 import EmojiPicker from "emoji-picker-react";
 import { useCloudinaryUpload } from "../hooks/useCloudinaryUpload";
 import { useR2Upload } from "../hooks/useR2Upload";
+import { useNavigate } from "react-router-dom";
 
 // Utility: Generate video thumbnail
 const generateVideoThumbnail = (file) => {
@@ -46,6 +47,7 @@ const useLazyVideo = (ref) => {
 const Home = () => {
   const token = localStorage.getItem("token");
   const currentUserId = localStorage.getItem("userId");
+  const navigate = useNavigate();
 
   const [posts, setPosts] = useState([]);
   const [newPost, setNewPost] = useState("");
@@ -60,11 +62,12 @@ const Home = () => {
 
   const fileInputRef = useRef();
   const feedRef = useRef();
+  const videoRefs = useRef([]);
 
   const { uploadImage } = useCloudinaryUpload();
   const { uploadVideo } = useR2Upload();
 
-  useLazyVideo(feedRef); // Lazy load videos
+  useLazyVideo(feedRef);
 
   /* ================= FETCH POSTS ================= */
   const fetchPosts = async () => {
@@ -131,6 +134,7 @@ const Home = () => {
             url,
             type: file.type.startsWith("image") ? "image" : "video",
             thumbnail,
+            isReel: file.type.startsWith("video") && mediaFiles.length === 1,
           });
       }
 
@@ -162,7 +166,7 @@ const Home = () => {
       setTaggedFriends([]);
       setUploadProgress({});
       setExpanded(false);
-      fileInputRef.current.value = null;
+      if (fileInputRef.current) fileInputRef.current.value = null;
     } catch (err) {
       console.error("UPLOAD ERROR:", err);
       alert("Upload failed");
@@ -181,12 +185,11 @@ const Home = () => {
               likes: p.likes?.includes(currentUserId)
                 ? p.likes.filter((id) => id !== currentUserId)
                 : [...(p.likes || []), currentUserId],
-              likedAnimation: true, // trigger ❤️ animation
+              likedAnimation: true,
             }
           : p
       )
     );
-    // remove animation flag after short time
     setTimeout(() => {
       setPosts((prev) =>
         prev.map((p) => (p._id === postId ? { ...p, likedAnimation: false } : p))
@@ -262,7 +265,10 @@ const Home = () => {
                     {file.type.startsWith("image") ? (
                       <img src={URL.createObjectURL(file)} className="w-full h-full object-cover rounded" />
                     ) : (
-                      <video src={URL.createObjectURL(file)} className="w-full h-full object-cover rounded" controls onClick={() => handleLike(`video-${i}`)} />
+                      <>
+                        <video src={URL.createObjectURL(file)} className="w-full h-full object-cover rounded" controls onClick={() => handleLike(`video-${i}`)} />
+                        {mediaFiles.length === 1 && <span className="absolute top-1 left-1 bg-blue-500 text-white text-xs px-1 rounded">Reel</span>}
+                      </>
                     )}
                     {uploadProgress[file.name] && (
                       <div className="absolute bottom-0 left-0 w-full h-1 bg-gray-200">
@@ -292,9 +298,30 @@ const Home = () => {
         {posts.length === 0 ? (
           <p className="text-center text-gray-500">No posts yet</p>
         ) : (
-          posts.map((post) => (
-            <PostCard key={post._id} post={post} currentUserId={currentUserId} onLike={handleLike} onComment={handleComment} onShare={handleShare} />
-          ))
+          posts.map((post, idx) =>
+            post.media?.some((m) => m.type === "video" && m.isReel) ? (
+              post.media
+                .filter((m) => m.type === "video" && m.isReel)
+                .map((m, i) => (
+                  <div key={i} className="h-screen w-full snap-start relative">
+                    <video
+                      ref={(el) => (videoRefs.current[idx * 10 + i] = el)}
+                      src={m.url}
+                      className="h-full w-full object-cover"
+                      muted
+                      playsInline
+                      preload="metadata"
+                      onClick={() => handleLike(post._id)}
+                    />
+                    <div className="absolute bottom-6 left-4 text-white">
+                      <p className="text-sm opacity-80">Tap video ❤️ to like</p>
+                    </div>
+                  </div>
+                ))
+            ) : (
+              <PostCard key={post._id} post={post} currentUserId={currentUserId} onLike={handleLike} onComment={handleComment} onShare={handleShare} />
+            )
+          )
         )}
       </div>
     </div>
