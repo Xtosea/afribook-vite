@@ -13,10 +13,11 @@ export default function CreatePost() {
     e.preventDefault();
 
     const formData = new FormData();
+
     formData.append("content", content);
 
     mediaFiles.forEach((file) => {
-      formData.append("media", file); // MUST be "media"
+      formData.append("media", file); // ✅ VERY IMPORTANT NAME
     });
 
     try {
@@ -28,15 +29,14 @@ export default function CreatePost() {
         {
           headers: {
             Authorization: `Bearer ${token}`,
+            // ❌ DO NOT manually set Content-Type
           },
         }
       );
 
-      console.log("SUCCESS:", res.data);
-      alert("Post created!");
-
+      console.log("Post created:", res.data);
     } catch (err) {
-      console.error("UPLOAD ERROR:", err.response?.data || err.message);
+      console.error("Upload error:", err.response?.data || err.message);
     }
   };
 
