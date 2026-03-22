@@ -3,6 +3,8 @@ import { API_BASE, fetchWithToken } from "../api/api";
 import PostCard from "../components/PostCard";
 import { FiUpload } from "react-icons/fi";
 import EmojiPicker from "emoji-picker-react";
+import { useCloudinaryUpload } from "../hooks/useCloudinaryUpload";
+import { useR2Upload } from "../hooks/useR2Upload";
 
 const Home = () => {
   const token = localStorage.getItem("token");
@@ -17,8 +19,11 @@ const Home = () => {
   const [showEmoji, setShowEmoji] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [posting, setPosting] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const fileInputRef = useRef();
+  const { uploadImage } = useCloudinaryUpload();
+  const { uploadVideo } = useR2Upload();
 
   /* ================= FETCH POSTS ================= */
   const fetchPosts = async () => {
@@ -31,9 +36,7 @@ const Home = () => {
         ...post,
         media: post.media?.map(m => ({
           ...m,
-          url: m.url.startsWith("http")
-            ? m.url
-            : `${API_BASE}${m.url}`,
+          url: m.url.startsWith("http") ? m.url : `${API_BASE}${m.url}`,
         })),
         user: {
           ...post.user,
@@ -55,7 +58,7 @@ const Home = () => {
     fetchPosts();
   }, []);
 
-  /* ================= MEDIA ================= */
+  /* ================= MEDIA HANDLERS ================= */
   const handleMediaChange = (e) => {
     const files = Array.from(e.target.files);
 
@@ -76,35 +79,57 @@ const Home = () => {
     e.preventDefault();
     if (posting) return;
 
+    if (!newPost.trim() && mediaFiles.length === 0) return;
+
     setPosting(true);
+    setUploadProgress(0);
 
     try {
-      const formData = new FormData();
+      const uploadedMedia = [];
 
+      for (const file of mediaFiles) {
+        let url = null;
+
+        if (file.type.startsWith("image")) {
+          url = await uploadImage(file, (progress) => {
+            setUploadProgress(progress);
+          });
+        } else if (file.type.startsWith("video")) {
+          url = await uploadVideo(file, (progress) => {
+            setUploadProgress(progress);
+          });
+        }
+
+        if (url) {
+          uploadedMedia.push({
+            url,
+            type: file.type.startsWith("image") ? "image" : "video",
+          });
+        }
+      }
+
+      // Send post to backend
+      const formData = new FormData();
       formData.append("content", newPost);
       formData.append("feeling", feeling);
       formData.append("location", location);
+      formData.append("taggedFriends", JSON.stringify(taggedFriends));
 
-      formData.append(
-        "taggedFriends",
-        JSON.stringify(taggedFriends)
-      );
-
-      // ✅ VERY IMPORTANT
-      mediaFiles.forEach((file) => {
-        formData.append("media", file);
+      uploadedMedia.forEach((m) => {
+        // create Blob from URL? backend expects array of objects
+        // but simplest is to send as JSON
+        formData.append("media", JSON.stringify(m));
       });
 
       const res = await fetch(`${API_BASE}/api/posts`, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${token}`, // ❌ no content-type
+          Authorization: `Bearer ${token}`,
         },
         body: formData,
       });
 
       const data = await res.json();
-
       if (!res.ok) throw new Error(data.error);
 
       setPosts(prev => [data.post, ...prev]);
@@ -116,16 +141,18 @@ const Home = () => {
       setFeeling("");
       setTaggedFriends([]);
       setExpanded(false);
+      setUploadProgress(0);
+      fileInputRef.current.value = null;
 
     } catch (err) {
-      console.error(err);
+      console.error("UPLOAD ERROR:", err);
       alert("Upload failed");
     } finally {
       setPosting(false);
     }
   };
 
-  /* ================= ACTIONS ================= */
+  /* ================= UI ACTIONS ================= */
   const handleLike = (postId) => {
     setPosts(prev =>
       prev.map(p =>
@@ -256,17 +283,26 @@ const Home = () => {
                     {file.type.startsWith("image") ? (
                       <img
                         src={URL.createObjectURL(file)}
-                        className="w-24 h-24 rounded object-cover"
+                        className="w-24 h-24 rounded object-contain bg-gray-100"
                       />
                     ) : (
                       <video
                         src={URL.createObjectURL(file)}
-                        className="w-24 h-24 rounded object-cover"
+                        className="w-24 h-24 rounded object-contain bg-gray-100"
                         controls
                       />
                     )}
                   </div>
                 ))}
+              </div>
+            )}
+
+            {uploadProgress > 0 && (
+              <div className="w-full bg-gray-200 h-2 rounded">
+                <div
+                  className="bg-blue-500 h-2 rounded"
+                  style={{ width: `${uploadProgress}%` }}
+                />
               </div>
             )}
 
