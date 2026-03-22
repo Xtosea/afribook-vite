@@ -13,7 +13,7 @@ import VerifyEmail from "./pages/VerifyEmail";
 import VerifySuccess from "./pages/VerifySuccess";
 import VerifyFailed from "./pages/VerifyFailed";
 import CreatePost from "./pages/CreatePost";
-
+import Reels from "./pages/Reels";
 
 function App() {
   return (
@@ -29,6 +29,8 @@ function App() {
   <Route path="/verify-email/:token" element={<VerifyEmail />} />
   <Route path="/verify-success" element={<VerifySuccess />} />
   <Route path="/verify-failed" element={<VerifyFailed />} />
+
+<Route path="/reels" element={<Reels />} />
 
   {/* Protected routes */}
   <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
