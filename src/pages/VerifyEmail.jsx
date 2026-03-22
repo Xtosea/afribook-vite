@@ -15,7 +15,7 @@ export default function VerifyEmail() {
     const verify = async () => {
       try {
         const res = await fetch(
-          `http://localhost:5000/api/auth/verify/${token}?email=${email}`
+          `https://afribook-backend.onrender.com/api/auth/verify/${token}?email=${email}`
         );
 
         const data = await res.json();
