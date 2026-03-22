@@ -3,6 +3,8 @@ import { API_BASE, fetchWithToken } from "../api/api";
 import PostCard from "../components/PostCard";
 import { FiUpload } from "react-icons/fi";
 import EmojiPicker from "emoji-picker-react";
+import { useCloudinaryUpload } from "../hooks/useCloudinaryUpload";
+import { useR2Upload } from "../hooks/useR2Upload";
 
 const Home = () => {
   const token = localStorage.getItem("token");
@@ -74,89 +76,75 @@ const Home = () => {
   };
 
   /* ================= SUBMIT POST ================= */
-  const handleSubmitPost = async (e) => {
-    e.preventDefault();
-    if (posting) return;
+  // inside component
+const { uploadImage } = useCloudinaryUpload();
+const { uploadVideo } = useR2Upload();
 
-    if (!newPost.trim() && mediaFiles.length === 0) return;
+const handleSubmitPost = async (e) => {
+  e.preventDefault();
+  if (posting) return;
 
-    setPosting(true);
+  if (!newPost.trim() && mediaFiles.length === 0) return;
 
-    const formData = new FormData();
-    formData.append("content", newPost);
+  setPosting(true);
 
-    if (location) formData.append("location", location);
-    if (feeling) formData.append("feeling", feeling);
-    if (taggedFriends.length) {
-      formData.append("taggedFriends", JSON.stringify(taggedFriends));
+  try {
+    const uploadedMedia = [];
+
+    for (const file of mediaFiles) {
+      let url = null;
+
+      if (file.type.startsWith("image")) {
+        url = await uploadImage(file);
+      } else if (file.type.startsWith("video")) {
+        url = await uploadVideo(file);
+      }
+
+      if (url) {
+        uploadedMedia.push({
+          url,
+          type: file.type.startsWith("image") ? "image" : "video",
+        });
+      }
     }
 
-    mediaFiles.forEach(file => formData.append("media", file));
+    // ✅ Send to backend
+    const res = await fetch(`${API_BASE}/api/posts`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        content: newPost,
+        location,
+        feeling,
+        taggedFriends,
+        media: uploadedMedia,
+      }),
+    });
 
-    try {
-      const xhr = new XMLHttpRequest();
-      xhr.open("POST", `${API_BASE}/api/posts`);
-      xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+    const data = await res.json();
 
-      xhr.upload.onprogress = (event) => {
-        if (event.lengthComputable) {
-          setUploadProgress(Math.round((event.loaded / event.total) * 100));
-        }
-      };
+    if (!res.ok) throw new Error(data.error);
 
-      xhr.onload = () => {
-        setPosting(false);
+    setPosts(prev => [data.post, ...prev]);
 
-        if (xhr.status === 200 || xhr.status === 201) {
-          const res = JSON.parse(xhr.responseText);
-          const createdPost = res.post || res;
+    // reset
+    setNewPost("");
+    setMediaFiles([]);
+    setLocation("");
+    setFeeling("");
+    setTaggedFriends([]);
+    setExpanded(false);
 
-          const fixedPost = {
-            ...createdPost,
-            media: createdPost.media?.map(m => ({
-              ...m,
-              url: m.url.startsWith("http")
-                ? m.url
-                : `${API_BASE}${m.url}`,
-            })),
-            user: {
-              ...createdPost.user,
-              profilePic: createdPost.user?.profilePic
-                ? createdPost.user.profilePic.startsWith("http")
-                  ? createdPost.user.profilePic
-                  : `${API_BASE}${createdPost.user.profilePic}`
-                : `${API_BASE}/uploads/profiles/default-profile.png`,
-            },
-          };
-
-          setPosts(prev => [fixedPost, ...prev]);
-
-          // RESET
-          setNewPost("");
-          setMediaFiles([]);
-          setLocation("");
-          setFeeling("");
-          setTaggedFriends([]);
-          setUploadProgress(0);
-          setExpanded(false);
-
-          if (fileInputRef.current) fileInputRef.current.value = "";
-        } else {
-          console.error(xhr.responseText);
-        }
-      };
-
-      xhr.onerror = () => {
-        setPosting(false);
-        console.error("Upload failed");
-      };
-
-      xhr.send(formData);
-    } catch (err) {
-      setPosting(false);
-      console.error(err);
-    }
-  };
+  } catch (err) {
+    console.error(err);
+    alert("Upload failed");
+  } finally {
+    setPosting(false);
+  }
+};
 
   /* ================= UI ACTIONS ================= */
   const handleLike = (postId) => {
