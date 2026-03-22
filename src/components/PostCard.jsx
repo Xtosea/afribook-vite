@@ -2,16 +2,27 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { API_BASE } from "../api/api";
 
-const PostCard = ({ post, currentUserId, onLike, onComment, onShare }) => {
+const PostCard = ({ post, currentUserId, onLike, onComment, onShare, user: currentUser }) => {
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [modalIndex, setModalIndex] = useState(null);
 
   const likedByUser = post.likes?.includes(currentUserId);
-  const user = post.user || {
+
+  // Safe user object
+  const postUser = post.user || {
+    _id: null,
     name: "Deleted User",
     profilePic: `${API_BASE}/uploads/profiles/default-profile.png`,
-    _id: null,
+  };
+
+  // Use latest profilePic if current user matches post author
+  const user = {
+    ...postUser,
+    profilePic:
+      currentUser?._id === postUser._id
+        ? currentUser.profilePic || postUser.profilePic
+        : postUser.profilePic,
   };
 
   const handleCommentSubmit = (e) => {
@@ -23,13 +34,18 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare }) => {
 
   const openModal = (index) => setModalIndex(index);
   const closeModal = () => setModalIndex(null);
-  const prevMedia = () => setModalIndex((prev) => (prev === 0 ? post.media.length - 1 : prev - 1));
-  const nextMedia = () => setModalIndex((prev) => (prev === post.media.length - 1 ? 0 : prev + 1));
+  const prevMedia = () =>
+    setModalIndex((prev) => (prev === 0 ? post.media.length - 1 : prev - 1));
+  const nextMedia = () =>
+    setModalIndex((prev) => (prev === post.media.length - 1 ? 0 : prev + 1));
 
-  /* ===== Helper: Transform Cloudinary images ===== */
+  // Cloudinary image optimization helper
   const transformImage = (url, width = 600, height = 600) => {
-    if (!url.includes("res.cloudinary.com")) return url; // Non-Cloudinary URLs
-    return url.replace("/upload/", `/upload/w_${width},h_${height},c_fill,q_auto,f_auto/`);
+    if (!url.includes("res.cloudinary.com")) return url;
+    return url.replace(
+      "/upload/",
+      `/upload/w_${width},h_${height},c_fill,q_auto,f_auto/`
+    );
   };
 
   return (
@@ -59,7 +75,9 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare }) => {
             With:{" "}
             {post.taggedFriends.map((f, i) => (
               <React.Fragment key={f._id}>
-                <Link to={`/profile/${f._id}`} className="hover:underline">{f.name}</Link>
+                <Link to={`/profile/${f._id}`} className="hover:underline">
+                  {f.name}
+                </Link>
                 {i < post.taggedFriends.length - 1 && ", "}
               </React.Fragment>
             ))}
@@ -98,7 +116,9 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare }) => {
       <div className="flex items-center gap-4 mt-2 text-sm">
         <button
           onClick={() => onLike && onLike(post._id)}
-          className={`px-2 py-1 rounded ${likedByUser ? "bg-red-400 text-white" : "bg-gray-200"}`}
+          className={`px-2 py-1 rounded ${
+            likedByUser ? "bg-red-400 text-white" : "bg-gray-200"
+          }`}
         >
           {likedByUser ? "❤️ Liked" : "🤍 Like"} ({post.likes?.length || 0})
         </button>
@@ -152,7 +172,7 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare }) => {
         </div>
       )}
 
-      {/* MEDIA MODAL / GALLERY */}
+      {/* MEDIA MODAL */}
       {modalIndex !== null && (
         <div
           className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4"
