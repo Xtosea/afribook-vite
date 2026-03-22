@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { API_BASE, fetchWithToken } from "../api/api";
 import PostCard from "../components/PostCard";
 import { FiUpload } from "react-icons/fi";
@@ -6,8 +6,9 @@ import EmojiPicker from "emoji-picker-react";
 import { useCloudinaryUpload } from "../hooks/useCloudinaryUpload";
 import { useR2Upload } from "../hooks/useR2Upload";
 
-const generateVideoThumbnail = (file) =>
-  new Promise((resolve) => {
+// Utility: Generate video thumbnail
+const generateVideoThumbnail = (file) => {
+  return new Promise((resolve) => {
     const video = document.createElement("video");
     video.src = URL.createObjectURL(file);
     video.currentTime = 1;
@@ -20,6 +21,27 @@ const generateVideoThumbnail = (file) =>
       canvas.toBlob((blob) => resolve(blob), "image/jpeg", 0.7);
     };
   });
+};
+
+// Intersection Observer hook for lazy loading videos
+const useLazyVideo = (ref) => {
+  useEffect(() => {
+    if (!ref.current) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const video = entry.target;
+          if (entry.isIntersecting) video.play().catch(() => {});
+          else video.pause();
+        });
+      },
+      { threshold: 0.5 }
+    );
+    const videos = ref.current.querySelectorAll("video");
+    videos.forEach((v) => observer.observe(v));
+    return () => videos.forEach((v) => observer.unobserve(v));
+  }, [ref]);
+};
 
 const Home = () => {
   const token = localStorage.getItem("token");
@@ -37,9 +59,12 @@ const Home = () => {
   const [uploadProgress, setUploadProgress] = useState({});
 
   const fileInputRef = useRef();
+  const feedRef = useRef();
+
   const { uploadImage } = useCloudinaryUpload();
   const { uploadVideo } = useR2Upload();
-  const videoRefs = useRef([]);
+
+  useLazyVideo(feedRef); // Lazy load videos
 
   /* ================= FETCH POSTS ================= */
   const fetchPosts = async () => {
@@ -51,19 +76,7 @@ const Home = () => {
         media: post.media?.map((m) => ({
           ...m,
           url: m.url.startsWith("http") ? m.url : `${API_BASE}${m.url}`,
-          thumbnail:
-            m.thumbnail && !m.thumbnail.startsWith("http")
-              ? `${API_BASE}${m.thumbnail}`
-              : m.thumbnail,
         })),
-        user: {
-          ...post.user,
-          profilePic: post.user?.profilePic
-            ? post.user.profilePic.startsWith("http")
-              ? post.user.profilePic
-              : `${API_BASE}${post.user.profilePic}`
-            : `${API_BASE}/uploads/profiles/default-profile.png`,
-        },
       }));
       setPosts(fixedPosts);
     } catch (err) {
@@ -89,22 +102,19 @@ const Home = () => {
     setMediaFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
-  /* ================= SUBMIT POST ================= */
+  /* ================= CREATE POST ================= */
   const handleSubmitPost = async (e) => {
     e.preventDefault();
-    if (posting) return;
-    if (!newPost.trim() && mediaFiles.length === 0) return;
+    if (posting || (!newPost.trim() && mediaFiles.length === 0)) return;
 
     setPosting(true);
     setUploadProgress({});
 
     try {
       const uploadedMedia = [];
-
       for (const file of mediaFiles) {
         let url = null;
         let thumbnail = null;
-
         if (file.type.startsWith("image")) {
           url = await uploadImage(file, (p) =>
             setUploadProgress((prev) => ({ ...prev, [file.name]: p }))
@@ -116,14 +126,12 @@ const Home = () => {
           );
           thumbnail = await uploadImage(thumbBlob);
         }
-
-        if (url) {
+        if (url)
           uploadedMedia.push({
             url,
             type: file.type.startsWith("image") ? "image" : "video",
             thumbnail,
           });
-        }
       }
 
       const res = await fetch(`${API_BASE}/api/posts`, {
@@ -134,10 +142,10 @@ const Home = () => {
         },
         body: JSON.stringify({
           content: newPost,
-          feeling,
-          location,
-          taggedFriends,
           media: uploadedMedia,
+          location,
+          feeling,
+          taggedFriends,
         }),
       });
 
@@ -145,13 +153,15 @@ const Home = () => {
       if (!res.ok) throw new Error(data.error);
 
       setPosts((prev) => [data.post, ...prev]);
+
+      // reset form
       setNewPost("");
       setMediaFiles([]);
       setLocation("");
       setFeeling("");
       setTaggedFriends([]);
-      setExpanded(false);
       setUploadProgress({});
+      setExpanded(false);
       fileInputRef.current.value = null;
     } catch (err) {
       console.error("UPLOAD ERROR:", err);
@@ -161,7 +171,7 @@ const Home = () => {
     }
   };
 
-  /* ================= LIKE, COMMENT, SHARE ================= */
+  /* ================= UI ACTIONS ================= */
   const handleLike = (postId) => {
     setPosts((prev) =>
       prev.map((p) =>
@@ -171,10 +181,17 @@ const Home = () => {
               likes: p.likes?.includes(currentUserId)
                 ? p.likes.filter((id) => id !== currentUserId)
                 : [...(p.likes || []), currentUserId],
+              likedAnimation: true, // trigger ❤️ animation
             }
           : p
       )
     );
+    // remove animation flag after short time
+    setTimeout(() => {
+      setPosts((prev) =>
+        prev.map((p) => (p._id === postId ? { ...p, likedAnimation: false } : p))
+      );
+    }, 800);
   };
 
   const handleComment = (postId, text) => {
@@ -195,31 +212,9 @@ const Home = () => {
     alert("Link copied!");
   };
 
-  /* ================= VIDEO AUTO PLAY / LAZY ================= */
-  const handleScroll = useCallback(() => {
-    if (!videoRefs.current.length) return;
-
-    videoRefs.current.forEach((vid) => {
-      if (!vid) return;
-      const rect = vid.getBoundingClientRect();
-      if (rect.top >= 0 && rect.bottom <= window.innerHeight) {
-        vid.play().catch(() => {});
-      } else {
-        vid.pause();
-      }
-    });
-  }, []);
-
-  useEffect(() => {
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [posts, handleScroll]);
-
   /* ================= UI ================= */
   return (
     <div className="container mx-auto py-6 max-w-2xl space-y-6">
-
       {/* CREATE POST */}
       <form onSubmit={handleSubmitPost} className="bg-white p-4 rounded-xl shadow space-y-3">
         <textarea
@@ -250,50 +245,24 @@ const Home = () => {
                 😊 Emoji
               </button>
 
-              <input
-                type="text"
-                placeholder="Feeling"
-                value={feeling}
-                onChange={(e) => setFeeling(e.target.value)}
-                className="px-3 py-1 border rounded-full text-sm"
-              />
-
-              <input
-                type="text"
-                placeholder="Location"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                className="px-3 py-1 border rounded-full text-sm"
-              />
-
-              <input
-                type="text"
-                placeholder="Tag friends"
-                value={taggedFriends.join(", ")}
-                onChange={(e) => setTaggedFriends(e.target.value.split(",").map((f) => f.trim()))}
-                className="px-3 py-1 border rounded-full text-sm"
-              />
+              <input type="text" placeholder="Feeling" value={feeling} onChange={(e) => setFeeling(e.target.value)} className="px-3 py-1 border rounded-full text-sm" />
+              <input type="text" placeholder="Location" value={location} onChange={(e) => setLocation(e.target.value)} className="px-3 py-1 border rounded-full text-sm" />
+              <input type="text" placeholder="Tag friends" value={taggedFriends.join(", ")} onChange={(e) => setTaggedFriends(e.target.value.split(",").map((f) => f.trim()))} className="px-3 py-1 border rounded-full text-sm" />
             </div>
 
-            {showEmoji && (
-              <EmojiPicker onEmojiClick={(e) => setNewPost((prev) => prev + e.emoji)} />
-            )}
+            {showEmoji && <EmojiPicker onEmojiClick={(e) => setNewPost((prev) => prev + e.emoji)} />}
 
             {mediaFiles.length > 0 && (
               <div className="flex gap-3 overflow-x-auto mb-2">
                 {mediaFiles.map((file, i) => (
                   <div key={i} className="relative w-24 h-24 flex-shrink-0">
-                    <button
-                      type="button"
-                      onClick={() => removeMedia(i)}
-                      className="absolute top-0 right-0 bg-black text-white rounded-full px-1 text-xs z-10"
-                    >
+                    <button type="button" onClick={() => removeMedia(i)} className="absolute top-0 right-0 bg-black text-white rounded-full px-1 text-xs z-10">
                       ✕
                     </button>
                     {file.type.startsWith("image") ? (
                       <img src={URL.createObjectURL(file)} className="w-full h-full object-cover rounded" />
                     ) : (
-                      <video src={URL.createObjectURL(file)} className="w-full h-full object-cover rounded" controls />
+                      <video src={URL.createObjectURL(file)} className="w-full h-full object-cover rounded" controls onClick={() => handleLike(`video-${i}`)} />
                     )}
                     {uploadProgress[file.name] && (
                       <div className="absolute bottom-0 left-0 w-full h-1 bg-gray-200">
@@ -305,29 +274,29 @@ const Home = () => {
               </div>
             )}
 
-            <button type="submit" disabled={posting} className="px-6 py-2 bg-blue-600 text-white rounded-full">
-              {posting ? "Posting..." : "Post"}
-            </button>
+            <div className="flex gap-2">
+              <button type="submit" disabled={posting} className="px-6 py-2 bg-blue-600 text-white rounded-full">
+                {posting ? "Posting..." : "Post"}
+              </button>
+
+              <button type="button" onClick={() => { setExpanded(false); setNewPost(""); setMediaFiles([]); setLocation(""); setFeeling(""); setTaggedFriends([]); setUploadProgress({}); if (fileInputRef.current) fileInputRef.current.value = null; }} className="px-6 py-2 bg-gray-300 text-black rounded-full">
+                Cancel
+              </button>
+            </div>
           </>
         )}
       </form>
 
-      {/* POSTS */}
-      {posts.length === 0 ? (
-        <p className="text-center text-gray-500">No posts yet</p>
-      ) : (
-        posts.map((post, idx) => (
-          <PostCard
-            key={post._id}
-            post={post}
-            currentUserId={currentUserId}
-            onLike={handleLike}
-            onComment={handleComment}
-            onShare={handleShare}
-            videoRef={(el) => (videoRefs.current[idx] = el)}
-          />
-        ))
-      )}
+      {/* POSTS FEED */}
+      <div ref={feedRef} className="space-y-6">
+        {posts.length === 0 ? (
+          <p className="text-center text-gray-500">No posts yet</p>
+        ) : (
+          posts.map((post) => (
+            <PostCard key={post._id} post={post} currentUserId={currentUserId} onLike={handleLike} onComment={handleComment} onShare={handleShare} />
+          ))
+        )}
+      </div>
     </div>
   );
 };
