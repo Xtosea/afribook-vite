@@ -14,7 +14,7 @@ export default function ResetPassword() {
 
     try {
       const res = await fetch(
-        `http://localhost:5000/api/auth/reset-password/${token}`,
+        `https://afribook-backend.onrender.com/api/auth/reset-password/${token}`,
         {
           method: "POST",
           headers: {
