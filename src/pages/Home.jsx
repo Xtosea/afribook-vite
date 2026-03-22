@@ -6,6 +6,7 @@ import EmojiPicker from "emoji-picker-react";
 import { useCloudinaryUpload } from "../hooks/useCloudinaryUpload";
 import { useR2Upload } from "../hooks/useR2Upload";
 
+// Use your R2 custom domain here
 const R2_CUSTOM_DOMAIN = "https://media.africbook.globelynks.com";
 
 const Home = () => {
@@ -34,17 +35,16 @@ const Home = () => {
     try {
       const data = await fetchWithToken(`${API_BASE}/api/posts`, token);
 
-      const fixedPosts = data.map(post => ({
+      const fixedPosts = data.map((post) => ({
         ...post,
-        media: post.media?.map(m => {
-          // Use Cloudinary for images, R2 custom domain for videos
+        media: post.media?.map((m) => {
           if (m.type === "image") {
             return {
               ...m,
               url: m.url.startsWith("http") ? m.url : `${API_BASE}${m.url}`,
             };
           } else if (m.type === "video") {
-            // Ensure R2_CUSTOM_DOMAIN is used
+            // Use R2 custom domain for videos
             const filename = m.url.split("/").pop();
             return {
               ...m,
@@ -82,11 +82,11 @@ const Home = () => {
       return;
     }
 
-    setMediaFiles(prev => [...prev, ...files]);
+    setMediaFiles((prev) => [...prev, ...files]);
   };
 
   const removeMedia = (index) => {
-    setMediaFiles(prev => prev.filter((_, i) => i !== index));
+    setMediaFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
   /* ================= SUBMIT POST ================= */
@@ -124,7 +124,7 @@ const Home = () => {
       formData.append("feeling", feeling);
       formData.append("location", location);
       formData.append("taggedFriends", JSON.stringify(taggedFriends));
-      uploadedMedia.forEach(m => formData.append("media", JSON.stringify(m)));
+      uploadedMedia.forEach((m) => formData.append("media", JSON.stringify(m)));
 
       const res = await fetch(`${API_BASE}/api/posts`, {
         method: "POST",
@@ -135,7 +135,7 @@ const Home = () => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
 
-      setPosts(prev => [data.post, ...prev]);
+      setPosts((prev) => [data.post, ...prev]);
 
       // Reset
       setNewPost("");
@@ -146,7 +146,6 @@ const Home = () => {
       setExpanded(false);
       setUploadProgress(0);
       fileInputRef.current.value = null;
-
     } catch (err) {
       console.error("UPLOAD ERROR:", err);
       alert("Upload failed");
@@ -157,13 +156,13 @@ const Home = () => {
 
   /* ================= UI ACTIONS ================= */
   const handleLike = (postId) => {
-    setPosts(prev =>
-      prev.map(p =>
+    setPosts((prev) =>
+      prev.map((p) =>
         p._id === postId
           ? {
               ...p,
               likes: p.likes?.includes(currentUserId)
-                ? p.likes.filter(id => id !== currentUserId)
+                ? p.likes.filter((id) => id !== currentUserId)
                 : [...(p.likes || []), currentUserId],
             }
           : p
@@ -172,8 +171,8 @@ const Home = () => {
   };
 
   const handleComment = (postId, text) => {
-    setPosts(prev =>
-      prev.map(p =>
+    setPosts((prev) =>
+      prev.map((p) =>
         p._id === postId
           ? {
               ...p,
@@ -209,7 +208,7 @@ const Home = () => {
             {showEmoji && (
               <EmojiPicker
                 onEmojiClick={(e) => {
-                  setNewPost(prev => prev + e.emoji);
+                  setNewPost((prev) => prev + e.emoji);
                   setShowEmoji(false);
                 }}
               />
@@ -228,7 +227,7 @@ const Home = () => {
                 />
               </label>
 
-              <button type="button" onClick={() => setShowEmoji(prev => !prev)} className="px-3 py-1 border rounded-full text-sm">
+              <button type="button" onClick={() => setShowEmoji((prev) => !prev)} className="px-3 py-1 border rounded-full text-sm">
                 😊 Emoji
               </button>
 
@@ -286,7 +285,7 @@ const Home = () => {
       </form>
 
       {/* POSTS */}
-      {posts.map(post => (
+      {posts.map((post) => (
         <PostCard
           key={post._id}
           post={post}
