@@ -60,6 +60,7 @@ const Home = () => {
   const [posting, setPosting] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({});
 
+  const [modal, setModal] = useState({ open: false, postIndex: null, mediaIndex: 0 });
   const fileInputRef = useRef();
   const feedRef = useRef();
   const videoRefs = useRef([]);
@@ -215,6 +216,32 @@ const Home = () => {
     alert("Link copied!");
   };
 
+  /* ================= MODAL HANDLERS ================= */
+  const openModal = (postIndex, mediaIndex = 0) =>
+    setModal({ open: true, postIndex, mediaIndex });
+  const closeModal = () => setModal({ open: false, postIndex: null, mediaIndex: 0 });
+  const prevMedia = () => {
+    setModal((prev) => {
+      const total = posts[prev.postIndex].media.length;
+      return { ...prev, mediaIndex: (prev.mediaIndex - 1 + total) % total };
+    });
+  };
+  const nextMedia = () => {
+    setModal((prev) => {
+      const total = posts[prev.postIndex].media.length;
+      return { ...prev, mediaIndex: (prev.mediaIndex + 1) % total };
+    });
+  };
+
+  /* ================= SWIPE SUPPORT ================= */
+  const swipeStartX = useRef(0);
+  const handleTouchStart = (e) => { swipeStartX.current = e.touches[0].clientX; };
+  const handleTouchEnd = (e) => {
+    const diff = e.changedTouches[0].clientX - swipeStartX.current;
+    if (diff > 50) prevMedia();
+    else if (diff < -50) nextMedia();
+  };
+
   /* ================= UI ================= */
   return (
     <div className="container mx-auto py-6 max-w-2xl space-y-6">
@@ -259,14 +286,12 @@ const Home = () => {
               <div className="flex gap-3 overflow-x-auto mb-2">
                 {mediaFiles.map((file, i) => (
                   <div key={i} className="relative w-24 h-24 flex-shrink-0">
-                    <button type="button" onClick={() => removeMedia(i)} className="absolute top-0 right-0 bg-black text-white rounded-full px-1 text-xs z-10">
-                      ✕
-                    </button>
+                    <button type="button" onClick={() => removeMedia(i)} className="absolute top-0 right-0 bg-black text-white rounded-full px-1 text-xs z-10">✕</button>
                     {file.type.startsWith("image") ? (
                       <img src={URL.createObjectURL(file)} className="w-full h-full object-cover rounded" />
                     ) : (
                       <>
-                        <video src={URL.createObjectURL(file)} className="w-full h-full object-cover rounded" controls onClick={() => handleLike(`video-${i}`)} />
+                        <video src={URL.createObjectURL(file)} className="w-full h-full object-cover rounded" controls />
                         {mediaFiles.length === 1 && <span className="absolute top-1 left-1 bg-blue-500 text-white text-xs px-1 rounded">Reel</span>}
                       </>
                     )}
@@ -281,13 +306,8 @@ const Home = () => {
             )}
 
             <div className="flex gap-2">
-              <button type="submit" disabled={posting} className="px-6 py-2 bg-blue-600 text-white rounded-full">
-                {posting ? "Posting..." : "Post"}
-              </button>
-
-              <button type="button" onClick={() => { setExpanded(false); setNewPost(""); setMediaFiles([]); setLocation(""); setFeeling(""); setTaggedFriends([]); setUploadProgress({}); if (fileInputRef.current) fileInputRef.current.value = null; }} className="px-6 py-2 bg-gray-300 text-black rounded-full">
-                Cancel
-              </button>
+              <button type="submit" disabled={posting} className="px-6 py-2 bg-blue-600 text-white rounded-full">{posting ? "Posting..." : "Post"}</button>
+              <button type="button" onClick={() => { setExpanded(false); setNewPost(""); setMediaFiles([]); setLocation(""); setFeeling(""); setTaggedFriends([]); setUploadProgress({}); if (fileInputRef.current) fileInputRef.current.value = null; }} className="px-6 py-2 bg-gray-300 text-black rounded-full">Cancel</button>
             </div>
           </>
         )}
@@ -319,11 +339,43 @@ const Home = () => {
                   </div>
                 ))
             ) : (
-              <PostCard key={post._id} post={post} currentUserId={currentUserId} onLike={handleLike} onComment={handleComment} onShare={handleShare} />
+              <PostCard key={post._id} post={post} currentUserId={currentUserId} onLike={handleLike} onComment={handleComment} onShare={handleShare} openModal={openModal} />
             )
           )
         )}
       </div>
+
+      {/* MEDIA MODAL */}
+      {modal.open && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4"
+          onClick={closeModal}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
+          <button
+            onClick={(e) => { e.stopPropagation(); prevMedia(); }}
+            className="absolute left-2 text-white text-2xl font-bold"
+          >◀</button>
+          <button
+            onClick={(e) => { e.stopPropagation(); nextMedia(); }}
+            className="absolute right-2 text-white text-2xl font-bold"
+          >▶</button>
+
+          <div className="flex max-w-full max-h-full overflow-x-hidden relative" onClick={(e) => e.stopPropagation()}>
+            {posts[modal.postIndex].media.map((m, i) => (
+              <div key={i} className="flex-shrink-0 w-full h-full flex items-center justify-center transition-transform duration-300" style={{ transform: `translateX(-${modal.mediaIndex * 100}%)` }}>
+                {m.type === "image" ? (
+                  <img src={m.url} className="max-h-full max-w-full rounded" />
+                ) : (
+                  <video key={m.url} src={m.url} controls autoPlay={i === modal.mediaIndex} muted className="max-h-full max-w-full rounded" />
+                )}
+                {m.isReel && <span className="absolute top-2 left-2 bg-blue-500 text-white text-xs px-1 rounded">Reel</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
