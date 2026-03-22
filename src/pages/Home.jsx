@@ -3,8 +3,6 @@ import { API_BASE, fetchWithToken } from "../api/api";
 import PostCard from "../components/PostCard";
 import { FiUpload } from "react-icons/fi";
 import EmojiPicker from "emoji-picker-react";
-import { useCloudinaryUpload } from "../hooks/useCloudinaryUpload";
-import { useR2Upload } from "../hooks/useR2Upload";
 
 const Home = () => {
   const token = localStorage.getItem("token");
@@ -13,7 +11,6 @@ const Home = () => {
   const [posts, setPosts] = useState([]);
   const [newPost, setNewPost] = useState("");
   const [mediaFiles, setMediaFiles] = useState([]);
-  const [uploadProgress, setUploadProgress] = useState(0);
   const [location, setLocation] = useState("");
   const [feeling, setFeeling] = useState("");
   const [taggedFriends, setTaggedFriends] = useState([]);
@@ -62,7 +59,6 @@ const Home = () => {
   const handleMediaChange = (e) => {
     const files = Array.from(e.target.files);
 
-    // Limit (optional)
     if (files.length + mediaFiles.length > 5) {
       alert("Max 5 media files allowed");
       return;
@@ -76,77 +72,60 @@ const Home = () => {
   };
 
   /* ================= SUBMIT POST ================= */
-  // inside component
-const { uploadImage } = useCloudinaryUpload();
-const { uploadVideo } = useR2Upload();
+  const handleSubmitPost = async (e) => {
+    e.preventDefault();
+    if (posting) return;
 
-const handleSubmitPost = async (e) => {
-  e.preventDefault();
-  if (posting) return;
+    setPosting(true);
 
-  if (!newPost.trim() && mediaFiles.length === 0) return;
+    try {
+      const formData = new FormData();
 
-  setPosting(true);
+      formData.append("content", newPost);
+      formData.append("feeling", feeling);
+      formData.append("location", location);
 
-  try {
-    const uploadedMedia = [];
+      formData.append(
+        "taggedFriends",
+        JSON.stringify(taggedFriends)
+      );
 
-    for (const file of mediaFiles) {
-      let url = null;
+      // ✅ VERY IMPORTANT
+      mediaFiles.forEach((file) => {
+        formData.append("media", file);
+      });
 
-      if (file.type.startsWith("image")) {
-        url = await uploadImage(file);
-      } else if (file.type.startsWith("video")) {
-        url = await uploadVideo(file);
-      }
+      const res = await fetch(`${API_BASE}/api/posts`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`, // ❌ no content-type
+        },
+        body: formData,
+      });
 
-      if (url) {
-        uploadedMedia.push({
-          url,
-          type: file.type.startsWith("image") ? "image" : "video",
-        });
-      }
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error);
+
+      setPosts(prev => [data.post, ...prev]);
+
+      // reset
+      setNewPost("");
+      setMediaFiles([]);
+      setLocation("");
+      setFeeling("");
+      setTaggedFriends([]);
+      setExpanded(false);
+
+    } catch (err) {
+      console.error(err);
+      alert("Upload failed");
+    } finally {
+      setPosting(false);
     }
+  };
 
-    // ✅ Send to backend
-    const res = await fetch(`${API_BASE}/api/posts`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        content: newPost,
-        location,
-        feeling,
-        taggedFriends,
-        media: uploadedMedia,
-      }),
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) throw new Error(data.error);
-
-    setPosts(prev => [data.post, ...prev]);
-
-    // reset
-    setNewPost("");
-    setMediaFiles([]);
-    setLocation("");
-    setFeeling("");
-    setTaggedFriends([]);
-    setExpanded(false);
-
-  } catch (err) {
-    console.error(err);
-    alert("Upload failed");
-  } finally {
-    setPosting(false);
-  }
-};
-
-  /* ================= UI ACTIONS ================= */
+  /* ================= ACTIONS ================= */
   const handleLike = (postId) => {
     setPosts(prev =>
       prev.map(p =>
@@ -192,7 +171,6 @@ const handleSubmitPost = async (e) => {
         onSubmit={handleSubmitPost}
         className="bg-white p-4 rounded-xl shadow space-y-3"
       >
-        {/* TEXT */}
         <textarea
           value={newPost}
           onChange={(e) => setNewPost(e.target.value)}
@@ -204,7 +182,6 @@ const handleSubmitPost = async (e) => {
 
         {expanded && (
           <>
-            {/* EMOJI */}
             {showEmoji && (
               <EmojiPicker
                 onEmojiClick={(e) => {
@@ -214,7 +191,6 @@ const handleSubmitPost = async (e) => {
               />
             )}
 
-            {/* ACTIONS */}
             <div className="flex flex-wrap gap-2">
               <label className="flex items-center gap-1 cursor-pointer px-3 py-1 border rounded-full text-sm">
                 <FiUpload /> Media
@@ -253,7 +229,6 @@ const handleSubmitPost = async (e) => {
               />
             </div>
 
-            {/* TAG */}
             <input
               type="text"
               placeholder="Tag friends"
@@ -266,7 +241,6 @@ const handleSubmitPost = async (e) => {
               className="border rounded-lg px-3 py-2 w-full text-sm"
             />
 
-            {/* MEDIA PREVIEW */}
             {mediaFiles.length > 0 && (
               <div className="flex gap-3 overflow-x-auto">
                 {mediaFiles.map((file, i) => (
@@ -296,17 +270,6 @@ const handleSubmitPost = async (e) => {
               </div>
             )}
 
-            {/* PROGRESS */}
-            {uploadProgress > 0 && (
-              <div className="w-full bg-gray-200 h-2 rounded">
-                <div
-                  className="bg-blue-500 h-2 rounded"
-                  style={{ width: `${uploadProgress}%` }}
-                />
-              </div>
-            )}
-
-            {/* BUTTON */}
             <button
               type="submit"
               disabled={posting}
