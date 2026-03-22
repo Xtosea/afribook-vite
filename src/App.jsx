@@ -12,6 +12,8 @@ import ResetPassword from "./pages/ResetPassword";
 import VerifyEmail from "./pages/VerifyEmail";
 import VerifySuccess from "./pages/VerifySuccess";
 import VerifyFailed from "./pages/VerifyFailed";
+import CreatePost from "./pages/CreatePost";
+
 
 function App() {
   return (
@@ -32,6 +34,15 @@ function App() {
   <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
   <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
   <Route path="/profile/:userId" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+
+  <Route
+    path="/create"
+    element={
+      <ProtectedRoute>
+        <CreatePost />
+      </ProtectedRoute>
+    }
+  />
 </Routes>
       </div>
       <Footer />
