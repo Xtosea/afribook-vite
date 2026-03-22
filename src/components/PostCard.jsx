@@ -23,12 +23,18 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare }) => {
 
   const openModal = (index) => setModalIndex(index);
   const closeModal = () => setModalIndex(null);
-
   const prevMedia = () => setModalIndex((prev) => (prev === 0 ? post.media.length - 1 : prev - 1));
   const nextMedia = () => setModalIndex((prev) => (prev === post.media.length - 1 ? 0 : prev + 1));
 
+  /* ===== Helper: Transform Cloudinary images ===== */
+  const transformImage = (url, width = 600, height = 600) => {
+    if (!url.includes("res.cloudinary.com")) return url; // Non-Cloudinary URLs
+    return url.replace("/upload/", `/upload/w_${width},h_${height},c_fill,q_auto,f_auto/`);
+  };
+
   return (
     <div className="bg-white p-4 rounded shadow space-y-3">
+
       {/* USER INFO */}
       <div className="flex items-center gap-3">
         <Link to={`/profile/${user._id}`}>
@@ -53,9 +59,7 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare }) => {
             With:{" "}
             {post.taggedFriends.map((f, i) => (
               <React.Fragment key={f._id}>
-                <Link to={`/profile/${f._id}`} className="hover:underline">
-                  {f.name}
-                </Link>
+                <Link to={`/profile/${f._id}`} className="hover:underline">{f.name}</Link>
                 {i < post.taggedFriends.length - 1 && ", "}
               </React.Fragment>
             ))}
@@ -70,17 +74,19 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare }) => {
             m.type.startsWith("image") ? (
               <img
                 key={i}
-                src={m.url}
+                src={transformImage(m.url)}
                 alt={`media-${i}`}
-                className="w-full h-48 object-cover rounded cursor-pointer"
+                className="w-full h-48 object-cover rounded cursor-pointer hover:scale-105 transition-transform"
                 onClick={() => openModal(i)}
+                loading="lazy"
               />
             ) : (
               <video
                 key={i}
                 src={m.url}
                 controls
-                className="w-full h-48 rounded object-cover cursor-pointer"
+                preload="metadata"
+                className="w-full h-48 rounded object-cover cursor-pointer hover:scale-105 transition-transform"
                 onClick={() => openModal(i)}
               />
             )
@@ -162,7 +168,7 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare }) => {
           <div className="max-h-full max-w-full" onClick={(e) => e.stopPropagation()}>
             {post.media[modalIndex].type.startsWith("image") ? (
               <img
-                src={post.media[modalIndex].url}
+                src={transformImage(post.media[modalIndex].url, 1000, 1000)}
                 alt="fullscreen"
                 className="max-h-full max-w-full rounded"
               />
@@ -171,6 +177,7 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare }) => {
                 src={post.media[modalIndex].url}
                 controls
                 autoPlay
+                preload="metadata"
                 className="max-h-full max-w-full rounded"
               />
             )}
