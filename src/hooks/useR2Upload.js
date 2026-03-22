@@ -1,31 +1,34 @@
 import { useState } from "react";
 
-const R2_UPLOAD_URL = import.meta.env.VITE_R2_UPLOAD_URL; // backend route
+const R2_ENDPOINT = import.meta.env.VITE_R2_ENDPOINT;
+const R2_BUCKET_NAME = import.meta.env.VITE_R2_BUCKET_NAME;
+const R2_ACCESS_KEY_ID = import.meta.env.VITE_R2_ACCESS_KEY_ID;
+const R2_SECRET_ACCESS_KEY = import.meta.env.VITE_R2_SECRET_ACCESS_KEY;
 const R2_CUSTOM_DOMAIN = import.meta.env.VITE_R2_CUSTOM_DOMAIN;
 
 export const useR2Upload = () => {
   const [progress, setProgress] = useState(0);
 
-  const uploadVideo = async (file, onProgress = () => {}) => {
-    try {
-      const formData = new FormData();
-      formData.append("video", file); // must match backend Multer field name
+  const uploadVideo = async (file, onProgress) => {
+    const fileName = `${Date.now()}-${file.name}`;
+    const url = `${R2_ENDPOINT}/${R2_BUCKET_NAME}/${fileName}`;
 
-      const res = await fetch(`${R2_UPLOAD_URL}`, {
-        method: "POST",
-        body: formData,
+    try {
+      const response = await fetch(url, {
+        method: "PUT",
+        headers: {
+          "Content-Type": file.type,
+          "Authorization": "Basic " + btoa(`${R2_ACCESS_KEY_ID}:${R2_SECRET_ACCESS_KEY}`),
+        },
+        body: file,
       });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Upload failed");
+      if (!response.ok) throw new Error("Upload failed");
 
-      // Ensure URL uses custom domain
-      if (data.url && !data.url.startsWith("http")) {
-        return `${R2_CUSTOM_DOMAIN}/${data.url.split("/").pop()}`;
-      }
-      return data.url;
+      onProgress && onProgress(100);
+      return `${R2_CUSTOM_DOMAIN}/${fileName}`;
     } catch (err) {
-      console.error("R2 UPLOAD ERROR:", err);
+      console.error("R2 Upload Error:", err);
       return null;
     }
   };
