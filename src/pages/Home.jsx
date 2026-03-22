@@ -6,8 +6,7 @@ import EmojiPicker from "emoji-picker-react";
 import { useCloudinaryUpload } from "../hooks/useCloudinaryUpload";
 import { useR2Upload } from "../hooks/useR2Upload";
 
-// Use your R2 custom domain here
-const R2_CUSTOM_DOMAIN = "https://media.africbook.globelynks.com";
+const R2_CUSTOM_DOMAIN = import.meta.env.VITE_R2_CUSTOM_DOMAIN;
 
 const Home = () => {
   const token = localStorage.getItem("token");
@@ -35,21 +34,14 @@ const Home = () => {
     try {
       const data = await fetchWithToken(`${API_BASE}/api/posts`, token);
 
-      const fixedPosts = data.map((post) => ({
+      const fixedPosts = data.map(post => ({
         ...post,
-        media: post.media?.map((m) => {
+        media: post.media?.map(m => {
           if (m.type === "image") {
-            return {
-              ...m,
-              url: m.url.startsWith("http") ? m.url : `${API_BASE}${m.url}`,
-            };
+            return { ...m, url: m.url.startsWith("http") ? m.url : `${API_BASE}${m.url}` };
           } else if (m.type === "video") {
-            // Use R2 custom domain for videos
             const filename = m.url.split("/").pop();
-            return {
-              ...m,
-              url: `${R2_CUSTOM_DOMAIN}/${filename}`,
-            };
+            return { ...m, url: `${R2_CUSTOM_DOMAIN}/${filename}` };
           }
           return m;
         }),
@@ -82,11 +74,11 @@ const Home = () => {
       return;
     }
 
-    setMediaFiles((prev) => [...prev, ...files]);
+    setMediaFiles(prev => [...prev, ...files]);
   };
 
   const removeMedia = (index) => {
-    setMediaFiles((prev) => prev.filter((_, i) => i !== index));
+    setMediaFiles(prev => prev.filter((_, i) => i !== index));
   };
 
   /* ================= SUBMIT POST ================= */
@@ -111,20 +103,17 @@ const Home = () => {
         }
 
         if (url) {
-          uploadedMedia.push({
-            url,
-            type: file.type.startsWith("image") ? "image" : "video",
-          });
+          uploadedMedia.push({ url, type: file.type.startsWith("image") ? "image" : "video" });
         }
       }
 
-      // Send post to backend
       const formData = new FormData();
       formData.append("content", newPost);
       formData.append("feeling", feeling);
       formData.append("location", location);
       formData.append("taggedFriends", JSON.stringify(taggedFriends));
-      uploadedMedia.forEach((m) => formData.append("media", JSON.stringify(m)));
+
+      uploadedMedia.forEach(m => formData.append("media", JSON.stringify(m)));
 
       const res = await fetch(`${API_BASE}/api/posts`, {
         method: "POST",
@@ -135,9 +124,8 @@ const Home = () => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
 
-      setPosts((prev) => [data.post, ...prev]);
+      setPosts(prev => [data.post, ...prev]);
 
-      // Reset
       setNewPost("");
       setMediaFiles([]);
       setLocation("");
@@ -146,6 +134,7 @@ const Home = () => {
       setExpanded(false);
       setUploadProgress(0);
       fileInputRef.current.value = null;
+
     } catch (err) {
       console.error("UPLOAD ERROR:", err);
       alert("Upload failed");
@@ -156,28 +145,20 @@ const Home = () => {
 
   /* ================= UI ACTIONS ================= */
   const handleLike = (postId) => {
-    setPosts((prev) =>
-      prev.map((p) =>
+    setPosts(prev =>
+      prev.map(p =>
         p._id === postId
-          ? {
-              ...p,
-              likes: p.likes?.includes(currentUserId)
-                ? p.likes.filter((id) => id !== currentUserId)
-                : [...(p.likes || []), currentUserId],
-            }
+          ? { ...p, likes: p.likes?.includes(currentUserId) ? p.likes.filter(id => id !== currentUserId) : [...(p.likes || []), currentUserId] }
           : p
       )
     );
   };
 
   const handleComment = (postId, text) => {
-    setPosts((prev) =>
-      prev.map((p) =>
+    setPosts(prev =>
+      prev.map(p =>
         p._id === postId
-          ? {
-              ...p,
-              comments: [...(p.comments || []), { _id: Date.now(), text, user: { name: "You" } }],
-            }
+          ? { ...p, comments: [...(p.comments || []), { _id: Date.now(), text, user: { name: "You" } }] }
           : p
       )
     );
@@ -192,7 +173,6 @@ const Home = () => {
   return (
     <div className="container mx-auto py-6 max-w-2xl space-y-6">
 
-      {/* CREATE POST */}
       <form onSubmit={handleSubmitPost} className="bg-white p-4 rounded-xl shadow space-y-3">
         <textarea
           value={newPost}
@@ -205,14 +185,7 @@ const Home = () => {
 
         {expanded && (
           <>
-            {showEmoji && (
-              <EmojiPicker
-                onEmojiClick={(e) => {
-                  setNewPost((prev) => prev + e.emoji);
-                  setShowEmoji(false);
-                }}
-              />
-            )}
+            {showEmoji && <EmojiPicker onEmojiClick={(e) => { setNewPost(prev => prev + e.emoji); setShowEmoji(false); }} />}
 
             <div className="flex flex-wrap gap-2">
               <label className="flex items-center gap-1 cursor-pointer px-3 py-1 border rounded-full text-sm">
@@ -220,6 +193,7 @@ const Home = () => {
                 <input
                   ref={fileInputRef}
                   type="file"
+                  name="video" // must match backend
                   multiple
                   accept="image/*,video/*"
                   onChange={handleMediaChange}
@@ -227,34 +201,14 @@ const Home = () => {
                 />
               </label>
 
-              <button type="button" onClick={() => setShowEmoji((prev) => !prev)} className="px-3 py-1 border rounded-full text-sm">
-                😊 Emoji
-              </button>
+              <button type="button" onClick={() => setShowEmoji(prev => !prev)} className="px-3 py-1 border rounded-full text-sm">😊 Emoji</button>
 
-              <input
-                type="text"
-                placeholder="Feeling"
-                value={feeling}
-                onChange={(e) => setFeeling(e.target.value)}
-                className="px-3 py-1 border rounded-full text-sm"
-              />
+              <input type="text" placeholder="Feeling" value={feeling} onChange={(e) => setFeeling(e.target.value)} className="px-3 py-1 border rounded-full text-sm" />
 
-              <input
-                type="text"
-                placeholder="Location"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                className="px-3 py-1 border rounded-full text-sm"
-              />
+              <input type="text" placeholder="Location" value={location} onChange={(e) => setLocation(e.target.value)} className="px-3 py-1 border rounded-full text-sm" />
             </div>
 
-            <input
-              type="text"
-              placeholder="Tag friends"
-              value={taggedFriends.join(", ")}
-              onChange={(e) => setTaggedFriends(e.target.value.split(",").map(f => f.trim()))}
-              className="border rounded-lg px-3 py-2 w-full text-sm"
-            />
+            <input type="text" placeholder="Tag friends" value={taggedFriends.join(", ")} onChange={(e) => setTaggedFriends(e.target.value.split(",").map(f => f.trim()))} className="border rounded-lg px-3 py-2 w-full text-sm" />
 
             {mediaFiles.length > 0 && (
               <div className="flex gap-3 overflow-x-auto">
@@ -277,23 +231,13 @@ const Home = () => {
               </div>
             )}
 
-            <button type="submit" disabled={posting} className="px-6 py-2 bg-blue-600 text-white rounded-full">
-              {posting ? "Posting..." : "Post"}
-            </button>
+            <button type="submit" disabled={posting} className="px-6 py-2 bg-blue-600 text-white rounded-full">{posting ? "Posting..." : "Post"}</button>
           </>
         )}
       </form>
 
-      {/* POSTS */}
-      {posts.map((post) => (
-        <PostCard
-          key={post._id}
-          post={post}
-          currentUserId={currentUserId}
-          onLike={handleLike}
-          onComment={handleComment}
-          onShare={handleShare}
-        />
+      {posts.map(post => (
+        <PostCard key={post._id} post={post} currentUserId={currentUserId} onLike={handleLike} onComment={handleComment} onShare={handleShare} />
       ))}
 
     </div>
