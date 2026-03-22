@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import PostCard from "../components/PostCard";
 import { fetchWithToken, API_BASE } from "../api/api";
+import ProfilePicUploader from "../components/ProfilePicUploader";
+import CoverPicUploader from "../components/CoverPicUploader";
 
 const Profile = () => {
   const { userId } = useParams();
@@ -14,8 +16,6 @@ const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [bio, setBio] = useState("");
   const [intro, setIntro] = useState("");
-  const [profilePic, setProfilePic] = useState(null);
-  const [coverPhoto, setCoverPhoto] = useState(null);
   const [saving, setSaving] = useState(false);
 
   const token = location.state?.token || localStorage.getItem("token");
@@ -26,13 +26,11 @@ const Profile = () => {
     if (!token) navigate("/login");
   }, [token, navigate]);
 
-  // Helper to fix URLs with fallback
   const fixUrl = (url, fallback) => {
     if (!url) return `${API_BASE}${fallback}`;
     return url.startsWith("http") ? url : `${API_BASE}${url}`;
   };
 
-  // Fetch user info
   const fetchUser = async () => {
     if (!token) return;
     try {
@@ -51,12 +49,10 @@ const Profile = () => {
     }
   };
 
-  // Fetch user's posts
   const fetchUserPosts = async () => {
     if (!token) return;
     try {
       const data = await fetchWithToken(`${API_BASE}/api/posts/user/${finalUserId}`, token);
-
       const fixedPosts = data.map(post => ({
         ...post,
         media: post.media?.map(m => ({
@@ -70,14 +66,12 @@ const Profile = () => {
             : `${API_BASE}/uploads/profiles/default-profile.png`,
         },
       }));
-
       setPosts(fixedPosts);
     } catch (err) {
       console.error("FETCH POSTS ERROR:", err);
     }
   };
 
-  // Follow / Unfollow
   const handleFollow = async () => {
     try {
       await fetchWithToken(`${API_BASE}/api/users/${finalUserId}/follow`, token, { method: "PUT" });
@@ -88,11 +82,9 @@ const Profile = () => {
     }
   };
 
-  // Like & comment placeholders
-  const handleLike = async (postId) => { /* implement if needed */ };
-  const handleComment = async (postId, text) => { /* implement if needed */ };
+  const handleLike = async (postId) => {};
+  const handleComment = async (postId, text) => {};
 
-  // Update profile (text + profile + cover)
   const handleUpdateProfile = async () => {
     if (!token) return;
     setSaving(true);
@@ -100,8 +92,6 @@ const Profile = () => {
       const formData = new FormData();
       formData.append("bio", bio);
       formData.append("intro", intro);
-      if (profilePic) formData.append("profilePic", profilePic);
-      if (coverPhoto) formData.append("coverPhoto", coverPhoto);
 
       const updatedUser = await fetchWithToken(`${API_BASE}/api/users/${finalUserId}`, token, {
         method: "PUT",
@@ -109,8 +99,6 @@ const Profile = () => {
       });
 
       setUser(updatedUser.user || updatedUser);
-      setProfilePic(null);
-      setCoverPhoto(null);
       setIsEditing(false);
     } catch (err) {
       console.error("UPDATE PROFILE ERROR:", err);
@@ -128,32 +116,39 @@ const Profile = () => {
 
   if (!user) return <p className="text-center mt-10">Loading profile...</p>;
 
-  const profilePicUrl = profilePic
-    ? URL.createObjectURL(profilePic)
-    : fixUrl(user.profilePic, "/uploads/profiles/default-profile.png");
-
-  const coverPhotoUrl = coverPhoto
-    ? URL.createObjectURL(coverPhoto)
-    : fixUrl(user.coverPhoto, "/uploads/profiles/default-cover.png");
-
   return (
     <div className="container mx-auto py-6 space-y-6">
+
       {/* COVER PHOTO */}
       <div className="w-full h-48 bg-gray-200 rounded overflow-hidden relative">
-        <img src={coverPhotoUrl} alt="cover" className="w-full h-full object-cover" />
+        <img
+          src={fixUrl(user.coverPhoto, "/uploads/profiles/default-cover.png")}
+          alt="cover"
+          className="w-full h-full object-cover"
+        />
         {isEditing && (
-          <input
-            type="file"
-            accept="image/*"
-            onChange={e => setCoverPhoto(e.target.files[0])}
-            className="absolute top-2 left-2 bg-white p-1 rounded"
-          />
+          <div className="absolute top-2 left-2 bg-white p-2 rounded shadow">
+            <CoverPicUploader
+              onUploaded={(url) => setUser(prev => ({ ...prev, coverPhoto: url }))}
+            />
+          </div>
         )}
       </div>
 
       {/* PROFILE CARD */}
       <div className="flex items-center space-x-6 bg-white p-4 rounded shadow">
-        <img src={profilePicUrl} alt="profile" className="w-24 h-24 rounded-full object-cover" />
+        <img
+          src={fixUrl(user.profilePic, "/uploads/profiles/default-profile.png")}
+          alt="profile"
+          className="w-24 h-24 rounded-full object-cover"
+        />
+        {isEditing && (
+          <div className="absolute -mt-12 ml-4">
+            <ProfilePicUploader
+              onUploaded={(url) => setUser(prev => ({ ...prev, profilePic: url }))}
+            />
+          </div>
+        )}
         <div className="flex-1">
           <h1 className="text-2xl font-bold">
             <Link to={`/profile/${finalUserId}`}>{user.name}</Link>
@@ -178,7 +173,6 @@ const Profile = () => {
                 placeholder="Bio"
                 className="border rounded w-full p-1"
               />
-              <input type="file" accept="image/*" onChange={e => setProfilePic(e.target.files[0])} />
               <button
                 onClick={handleUpdateProfile}
                 disabled={saving}
