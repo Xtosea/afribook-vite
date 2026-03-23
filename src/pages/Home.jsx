@@ -4,6 +4,7 @@ import { API_BASE, fetchWithToken } from "../api/api";
 import { socket } from "../socket";
 import { useCloudinaryUpload } from "../hooks/useCloudinaryUpload";
 import { useR2Upload } from "../hooks/useR2Upload";
+import MediaUpload from "../components/MediaUpload";
 
 /* ================= LAZY VIDEO ================= */
 const useLazyVideo = (ref) => {
@@ -243,6 +244,10 @@ const Home = () => {
         <button type="submit" disabled={posting} className="bg-blue-500 text-white px-4 py-2 rounded">
           {posting ? "Posting..." : "Post"}
         </button>
+  
+ // Inside the form:
+<MediaUpload mediaFiles={mediaFiles} setMediaFiles={setMediaFiles} />
+
       </form>
 
       {/* POSTS FEED */}
