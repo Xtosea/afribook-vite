@@ -14,11 +14,15 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare }) => {
 
   const likedByUser = likes.includes(currentUserId);
 
-  const postUser = post.user || {
-    _id: null,
-    name: "Deleted User",
-    profilePic: `${API_BASE}/uploads/profiles/default-profile.png`,
-  };
+  // ✅ SAFETY CHECK: ensure post.user is a plain object
+  const postUser =
+    post.user && typeof post.user === "object" && !post.user.$$typeof
+      ? post.user
+      : {
+          _id: null,
+          name: "Deleted User",
+          profilePic: `${API_BASE}/uploads/profiles/default-profile.png`,
+        };
 
   /* ================= VIDEO LAZY PLAY ================= */
   useEffect(() => {
