@@ -5,7 +5,7 @@ import SidebarLeft from "../components/layout/SidebarLeft";
 import SidebarRight from "../components/layout/SidebarRight";
 import StoriesBar from "../components/layout/StoriesBar";
 import MediaUpload from "../components/MediaUpload";
-
+import imageCompression from "browser-image-compression";
 import { API_BASE, fetchWithToken } from "../api/api";
 import { socket } from "../socket";
 import { useCloudinaryUpload } from "../hooks/useCloudinaryUpload";
