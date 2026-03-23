@@ -13,7 +13,6 @@ import EditProfileModal from "../components/profile/EditProfileModal";
 const Profile = () => {
   const { userId } = useParams();
   const navigate = useNavigate();
-
   const token = localStorage.getItem("token");
   const currentUserId = localStorage.getItem("userId");
   const finalUserId = userId || currentUserId;
@@ -26,7 +25,6 @@ const Profile = () => {
   const [editing, setEditing] = useState(false);
   const [activeTab, setActiveTab] = useState("Posts");
 
-  // form data
   const [formData, setFormData] = useState({
     name: "",
     bio: "",
@@ -41,30 +39,34 @@ const Profile = () => {
     coverPhoto: null,
   });
 
-  // live previews
   const [previewProfilePic, setPreviewProfilePic] = useState(null);
   const [previewCoverPhoto, setPreviewCoverPhoto] = useState(null);
 
-  /* ================= FETCH USER & POSTS ================= */
+  /* ================= FETCH PROFILE & POSTS ================= */
   useEffect(() => {
     if (!token) return navigate("/login");
 
     const fetchProfile = async () => {
       try {
-        const [userData, postsData] = await Promise.all([
-          fetchWithToken(`${API_BASE}/api/users/${finalUserId}`, token),
-          fetchWithToken(`${API_BASE}/api/posts/user/${finalUserId}`, token),
-        ]);
-
-        if (!userData) return console.error("Failed to fetch user data");
-        if (!postsData) return console.error("Failed to fetch posts");
+        // ✅ User data
+        const userData = await fetchWithToken(
+          `${API_BASE}/api/users/${finalUserId}`,
+          token
+        );
 
         setUser(userData);
         setPreviewProfilePic(userData.profilePic || null);
         setPreviewCoverPhoto(userData.coverPhoto || null);
 
+        // Check following
         const followerIds = (userData.followers || []).map(f => f._id || f);
         setIsFollowing(followerIds.includes(currentUserId));
+
+        // ✅ Posts
+        const postsData = await fetchWithToken(
+          `${API_BASE}/api/posts/user/${finalUserId}`,
+          token
+        );
 
         const fixedPosts = postsData.map(post => ({
           ...post,
@@ -78,6 +80,7 @@ const Profile = () => {
 
         setPosts(fixedPosts);
 
+        // Prefill form
         setFormData({
           name: userData.name || "",
           bio: userData.bio || "",
@@ -91,23 +94,21 @@ const Profile = () => {
           profilePic: null,
           coverPhoto: null,
         });
-
       } catch (err) {
-        console.error("Error fetching profile:", err);
+        console.error("PROFILE FETCH ERROR:", err);
+        navigate("/login");
       } finally {
         setLoadingPosts(false);
       }
     };
 
     fetchProfile();
-  }, [finalUserId, token, navigate, currentUserId]);
+  }, [finalUserId, token, currentUserId, navigate]);
 
-  /* ================= SOCKET EVENTS ================= */
+  /* ================= SOCKET ================= */
   useEffect(() => {
     socket.on("new-video", post => {
-      if (post.user?._id === finalUserId) {
-        setPosts(prev => [post, ...prev]);
-      }
+      if (post.user?._id === finalUserId) setPosts(prev => [post, ...prev]);
     });
 
     socket.on("video-liked", ({ videoId, userId }) => {
@@ -142,7 +143,7 @@ const Profile = () => {
     };
   }, [finalUserId]);
 
-  /* ================= ACTION HANDLERS ================= */
+  /* ================= ACTIONS ================= */
   const handleLike = (postId) => {
     socket.emit("like-video", { videoId: postId, userId: currentUserId });
   };
@@ -151,9 +152,19 @@ const Profile = () => {
     socket.emit("comment-video", { videoId: postId, text });
   };
 
-  const handleFollow = () => {
-    socket.emit("follow-user", { userId: finalUserId, followerId: currentUserId });
-    setIsFollowing(prev => !prev);
+  const handleFollow = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/api/users/${finalUserId}/follow`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+
+      if (res.ok) setIsFollowing(prev => !prev);
+      else console.error("Follow error:", data.error);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleInputChange = (e) => {
@@ -163,7 +174,6 @@ const Profile = () => {
 
   const handleFileChange = (e, field) => {
     const file = e.target.files[0];
-    if (!file) return;
     setFormData(prev => ({ ...prev, [field]: file }));
 
     const url = URL.createObjectURL(file);
@@ -173,9 +183,7 @@ const Profile = () => {
 
   const handleSave = async () => {
     const data = new FormData();
-    for (const key in formData) {
-      if (formData[key]) data.append(key, formData[key]);
-    }
+    for (const key in formData) if (formData[key]) data.append(key, formData[key]);
 
     try {
       const res = await fetch(`${API_BASE}/api/users/${finalUserId}`, {
@@ -191,10 +199,10 @@ const Profile = () => {
         setPreviewCoverPhoto(result.user.coverPhoto || null);
         setEditing(false);
       } else {
-        alert(result.error || "Failed to update profile");
+        alert(result.error);
       }
     } catch (err) {
-      console.error("Error updating profile:", err);
+      console.error("UPDATE PROFILE ERROR:", err);
     }
   };
 
@@ -202,7 +210,6 @@ const Profile = () => {
 
   return (
     <div className="container mx-auto py-6 space-y-6">
-      {/* HEADER */}
       <ProfileHeader
         user={user}
         isOwner={finalUserId === currentUserId}
@@ -211,7 +218,6 @@ const Profile = () => {
         previewCoverPhoto={previewCoverPhoto}
       />
 
-      {/* FOLLOW BUTTON */}
       {finalUserId !== currentUserId && (
         <div className="flex justify-end">
           <button
@@ -223,10 +229,8 @@ const Profile = () => {
         </div>
       )}
 
-      {/* TABS */}
       <ProfileTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      {/* POSTS */}
       {activeTab === "Posts" && (
         <div className="space-y-4">
           {loadingPosts ? (
@@ -247,10 +251,8 @@ const Profile = () => {
         </div>
       )}
 
-      {/* ABOUT */}
       {activeTab === "About" && <UserInfoCard user={user} />}
 
-      {/* PHOTOS */}
       {activeTab === "Photos" && (
         <div className="grid grid-cols-3 gap-2">
           {posts
@@ -266,7 +268,6 @@ const Profile = () => {
         </div>
       )}
 
-      {/* EDIT MODAL */}
       <EditProfileModal
         editing={editing}
         setEditing={setEditing}
