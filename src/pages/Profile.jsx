@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useRef } from "react";
+// src/pages/Profile.jsx
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import PostCard from "../components/PostCard";
 import { fetchWithToken, API_BASE } from "../api/api";
@@ -16,9 +17,7 @@ const Profile = () => {
   const [isFollowing, setIsFollowing] = useState(false);
   const [loadingPosts, setLoadingPosts] = useState(true);
 
-  const feedRef = useRef([]);
-
-  // ================= FETCH PROFILE =================
+  // ================= FETCH PROFILE & POSTS =================
   useEffect(() => {
     if (!token) return navigate("/login");
 
@@ -66,36 +65,51 @@ const Profile = () => {
     return () => { isMounted = false; };
   }, [finalUserId, token, currentUserId, navigate]);
 
-  // ================= SOCKET.IO =================
+  // ================= SOCKET.IO REAL-TIME =================
   useEffect(() => {
+    // New post by this user
+    socket.on("new-video", post => {
+      if (post.user?._id === finalUserId) setPosts(prev => [post, ...prev]);
+    });
+
+    // New comment
     socket.on("new-video-comment", ({ videoId, comment }) => {
-      setPosts(prev => prev.map(p => p._id === videoId ? { ...p, comments: [...p.comments, comment] } : p));
+      setPosts(prev =>
+        prev.map(p => (p._id === videoId ? { ...p, comments: [...p.comments, comment] } : p))
+      );
     });
 
+    // Likes
     socket.on("video-liked", ({ videoId, userId: likerId }) => {
-      setPosts(prev => prev.map(p => {
-        if (p._id === videoId) {
-          const likes = p.likes.includes(likerId)
-            ? p.likes
-            : [...p.likes, likerId];
-          return { ...p, likes };
-        }
-        return p;
-      }));
+      setPosts(prev =>
+        prev.map(p => {
+          if (p._id === videoId) {
+            const likes = p.likes.includes(likerId)
+              ? p.likes.filter(id => id !== likerId)
+              : [...p.likes, likerId];
+            return { ...p, likes };
+          }
+          return p;
+        })
+      );
     });
 
+    // Follow/unfollow
     socket.on("user-followed", ({ userId: followedUserId, followerId }) => {
-      if (followedUserId === finalUserId) setIsFollowing(prev => followerId === currentUserId ? true : prev);
+      if (followedUserId === finalUserId) {
+        setIsFollowing(prev => (followerId === currentUserId ? true : prev));
+      }
     });
 
     return () => {
+      socket.off("new-video");
       socket.off("new-video-comment");
       socket.off("video-liked");
       socket.off("user-followed");
     };
   }, [finalUserId, currentUserId]);
 
-  // ================= HANDLERS =================
+  // ================= ACTION HANDLERS =================
   const handleLike = (postId) => {
     socket.emit("like-video", { videoId: postId, userId: currentUserId });
   };
@@ -118,6 +132,7 @@ const Profile = () => {
         <div className="flex items-center gap-4">
           <img
             src={user.profilePic || `${API_BASE}/uploads/profiles/default-profile.png`}
+            alt="profile"
             className="w-24 h-24 rounded-full object-cover"
           />
           <div>
@@ -126,20 +141,23 @@ const Profile = () => {
           </div>
         </div>
         {finalUserId !== currentUserId && (
-          <button onClick={handleFollow} className="px-6 py-2 bg-blue-500 text-white rounded">
+          <button
+            onClick={handleFollow}
+            className="px-6 py-2 bg-blue-500 text-white rounded"
+          >
             {isFollowing ? "Unfollow" : "Follow"}
           </button>
         )}
       </div>
 
       {/* POSTS */}
-      <div className="space-y-6" ref={feedRef}>
+      <div className="space-y-6">
         {loadingPosts ? (
           <p className="text-center text-gray-500">Loading posts...</p>
         ) : posts.length === 0 ? (
           <p className="text-center text-gray-500">No posts yet</p>
         ) : (
-          posts.map((post, idx) => (
+          posts.map(post => (
             <PostCard
               key={post._id}
               post={post}
