@@ -40,7 +40,7 @@ const Profile = () => {
     coverPhoto: null,
   });
 
-  /* ================= FETCH ================= */
+  /* ================= FETCH USER & POSTS ================= */
   useEffect(() => {
     if (!token) return navigate("/login");
 
@@ -53,9 +53,11 @@ const Profile = () => {
 
         setUser(userData);
 
+        // Check following
         const followerIds = (userData.followers || []).map(f => f._id || f);
         setIsFollowing(followerIds.includes(currentUserId));
 
+        // Format posts
         const fixedPosts = postsData.map(post => ({
           ...post,
           media: post.media?.map(m => ({
@@ -68,6 +70,7 @@ const Profile = () => {
 
         setPosts(fixedPosts);
 
+        // Populate formData for modal
         setFormData({
           name: userData.name || "",
           bio: userData.bio || "",
@@ -81,7 +84,6 @@ const Profile = () => {
           profilePic: null,
           coverPhoto: null,
         });
-
       } catch (err) {
         console.error(err);
         navigate("/login");
@@ -93,7 +95,7 @@ const Profile = () => {
     fetchProfile();
   }, [finalUserId]);
 
-  /* ================= SOCKET ================= */
+  /* ================= SOCKET EVENTS ================= */
   useEffect(() => {
     socket.on("new-video", post => {
       if (post.user?._id === finalUserId) setPosts(prev => [post, ...prev]);
@@ -151,10 +153,13 @@ const Profile = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    setUser(prev => ({ ...prev, [name]: value })); // instant preview in header
   };
 
   const handleFileChange = (e, field) => {
-    setFormData(prev => ({ ...prev, [field]: e.target.files[0] }));
+    const file = e.target.files[0];
+    setFormData(prev => ({ ...prev, [field]: file }));
+    setUser(prev => ({ ...prev, [field]: file })); // instant preview
   };
 
   const handleSave = async () => {
@@ -169,8 +174,8 @@ const Profile = () => {
         headers: { Authorization: `Bearer ${token}` },
         body: data,
       });
-      const result = await res.json();
 
+      const result = await res.json();
       if (res.ok) {
         setUser(result.user);
         setEditing(false);
@@ -206,10 +211,10 @@ const Profile = () => {
         </div>
       )}
 
-      {/* TABS */}
+      {/* PROFILE TABS */}
       <ProfileTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      {/* TAB CONTENT */}
+      {/* POSTS */}
       {activeTab === "Posts" && (
         <div className="space-y-4">
           {loadingPosts ? (
@@ -230,8 +235,10 @@ const Profile = () => {
         </div>
       )}
 
+      {/* ABOUT */}
       {activeTab === "About" && <UserInfoCard user={user} />}
 
+      {/* PHOTOS */}
       {activeTab === "Photos" && (
         <div className="grid grid-cols-3 gap-2">
           {posts
@@ -241,7 +248,6 @@ const Profile = () => {
               <img
                 key={i}
                 src={m.url}
-                alt="post"
                 className="w-full h-32 object-cover rounded"
               />
             ))}
@@ -259,6 +265,7 @@ const Profile = () => {
         handleFileChange={handleFileChange}
         user={user}
       />
+
     </div>
   );
 };
