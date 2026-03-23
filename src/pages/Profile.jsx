@@ -20,6 +20,7 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState("posts");
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState("followers");
+const [loadingPosts, setLoadingPosts] = useState(true);
 
   const token = localStorage.getItem("token");
   const currentUserId = localStorage.getItem("userId");
