@@ -17,8 +17,8 @@ const Profile = () => {
   const [isFollowing, setIsFollowing] = useState(false);
   const [loadingPosts, setLoadingPosts] = useState(true);
 
-  // ================= EDIT MODAL =================
   const [editing, setEditing] = useState(false);
+
   const [formData, setFormData] = useState({
     name: "",
     bio: "",
@@ -33,31 +33,24 @@ const Profile = () => {
     coverPhoto: null,
   });
 
-  // ================= FETCH PROFILE & POSTS =================
+  /* ================= FETCH ================= */
   useEffect(() => {
     if (!token) return navigate("/login");
 
-    let isMounted = true;
     const fetchProfile = async () => {
       try {
         const [userData, postsData] = await Promise.all([
           fetchWithToken(`${API_BASE}/api/users/${finalUserId}`, token),
-          fetchWithToken(`${API_BASE}/api/posts/user/${finalUserId}?limit=10&page=1`, token),
+          fetchWithToken(`${API_BASE}/api/posts/user/${finalUserId}`, token),
         ]);
 
-        if (!isMounted) return;
-
         setUser(userData);
-        const followerIds = (userData.followers || []).map(f => (f._id ? f._id : f));
+
+        const followerIds = (userData.followers || []).map(f => f._id || f);
         setIsFollowing(followerIds.includes(currentUserId));
 
         const fixedPosts = postsData.map(post => ({
           ...post,
-          user: post.user || {
-            _id: null,
-            name: "Deleted User",
-            profilePic: `${API_BASE}/uploads/profiles/default-profile.png`,
-          },
           media: post.media?.map(m => ({
             ...m,
             url: m.url.startsWith("http") ? m.url : `${API_BASE}${m.url}`,
@@ -68,7 +61,6 @@ const Profile = () => {
 
         setPosts(fixedPosts);
 
-        // Prefill form data for editing
         setFormData({
           name: userData.name || "",
           bio: userData.bio || "",
@@ -85,8 +77,6 @@ const Profile = () => {
 
       } catch (err) {
         console.error(err);
-        localStorage.removeItem("token");
-        localStorage.removeItem("userId");
         navigate("/login");
       } finally {
         setLoadingPosts(false);
@@ -94,56 +84,55 @@ const Profile = () => {
     };
 
     fetchProfile();
-    return () => { isMounted = false; };
-  }, [finalUserId, token, currentUserId, navigate]);
+  }, [finalUserId]);
 
-  // ================= SOCKET.IO REAL-TIME =================
+  /* ================= SOCKET ================= */
   useEffect(() => {
     socket.on("new-video", post => {
-      if (post.user?._id === finalUserId) setPosts(prev => [post, ...prev]);
+      if (post.user?._id === finalUserId) {
+        setPosts(prev => [post, ...prev]);
+      }
+    });
+
+    socket.on("video-liked", ({ videoId, userId }) => {
+      setPosts(prev =>
+        prev.map(p =>
+          p._id === videoId
+            ? {
+                ...p,
+                likes: p.likes.includes(userId)
+                  ? p.likes.filter(id => id !== userId)
+                  : [...p.likes, userId],
+              }
+            : p
+        )
+      );
     });
 
     socket.on("new-video-comment", ({ videoId, comment }) => {
       setPosts(prev =>
-        prev.map(p => (p._id === videoId ? { ...p, comments: [...p.comments, comment] } : p))
+        prev.map(p =>
+          p._id === videoId
+            ? { ...p, comments: [...p.comments, comment] }
+            : p
+        )
       );
-    });
-
-    socket.on("video-liked", ({ videoId, userId: likerId }) => {
-      setPosts(prev =>
-        prev.map(p => {
-          if (p._id === videoId) {
-            const likes = p.likes.includes(likerId)
-              ? p.likes.filter(id => id !== likerId)
-              : [...p.likes, likerId];
-            return { ...p, likes };
-          }
-          return p;
-        })
-      );
-    });
-
-    socket.on("user-followed", ({ userId: followedUserId, followerId }) => {
-      if (followedUserId === finalUserId) {
-        setIsFollowing(prev => (followerId === currentUserId ? true : prev));
-      }
     });
 
     return () => {
       socket.off("new-video");
-      socket.off("new-video-comment");
       socket.off("video-liked");
-      socket.off("user-followed");
+      socket.off("new-video-comment");
     };
-  }, [finalUserId, currentUserId]);
+  }, []);
 
-  // ================= ACTION HANDLERS =================
+  /* ================= ACTIONS ================= */
   const handleLike = (postId) => {
     socket.emit("like-video", { videoId: postId, userId: currentUserId });
   };
 
   const handleComment = (postId, text) => {
-    socket.emit("comment-video", { videoId: postId, userId: currentUserId, text });
+    socket.emit("comment-video", { videoId: postId, text });
   };
 
   const handleFollow = () => {
@@ -162,9 +151,9 @@ const Profile = () => {
 
   const handleSave = async () => {
     const data = new FormData();
+
     for (const key in formData) {
-      if (formData[key] instanceof File) data.append(key, formData[key]);
-      else data.append(key, formData[key]);
+      if (formData[key]) data.append(key, formData[key]);
     }
 
     try {
@@ -175,149 +164,146 @@ const Profile = () => {
       });
 
       const result = await res.json();
+
       if (res.ok) {
         setUser(result.user);
         setEditing(false);
       } else {
-        alert(result.error || "Failed to update profile");
+        alert(result.error);
       }
     } catch (err) {
       console.error(err);
-      alert("Server error");
     }
   };
 
-  if (!user) return <p className="text-center mt-10">Loading profile...</p>;
+  if (!user) return <p className="text-center mt-10">Loading...</p>;
 
   return (
-    <div className="container mx-auto py-6 px-2 md:px-6 space-y-6">
-      {/* PROFILE INFO */}
-      <div className="bg-white p-4 rounded shadow space-y-4">
-        <div className="relative">
-          <img
-            src={formData.coverPhoto ? URL.createObjectURL(formData.coverPhoto) : (user.coverPhoto || `${API_BASE}/uploads/profiles/default-cover.png`)}
-            alt="cover"
-            className="w-full h-48 object-cover rounded mb-4"
-          />
-          {finalUserId === currentUserId && (
-            <button
-              onClick={() => setEditing(true)}
-              className="absolute top-2 right-2 bg-white px-2 py-1 rounded shadow"
-            >
-              Edit Profile
-            </button>
-          )}
-        </div>
+    <div className="container mx-auto py-6 space-y-6">
 
-        <div className="flex items-center gap-4">
-          <img
-            src={formData.profilePic ? URL.createObjectURL(formData.profilePic) : (user.profilePic || `${API_BASE}/uploads/profiles/default-profile.png`)}
-            alt="profile"
-            className="w-24 h-24 rounded-full object-cover"
-          />
-          <div>
-            <h1 className="text-2xl font-bold">{user.name}</h1>
-            <p className="text-gray-500">{user.bio}</p>
-            <p className="text-gray-400">{user.intro}</p>
-            <p className="text-gray-400">DOB: {user.dob}</p>
-            <p className="text-gray-400">Phone: {user.phone}</p>
-            <p className="text-gray-400">Email: {user.email}</p>
-            <p className="text-gray-400">Education: {user.education}</p>
-            <p className="text-gray-400">Origin: {user.origin}</p>
-            <p className="text-gray-400">Marital Status: {user.maritalStatus}</p>
-          </div>
-        </div>
+      {/* COVER */}
+      <div className="relative">
+        <img
+          src={
+            formData.coverPhoto
+              ? URL.createObjectURL(formData.coverPhoto)
+              : user.coverPhoto || `${API_BASE}/uploads/profiles/default-cover.png`
+          }
+          className="w-full h-48 object-cover rounded"
+        />
 
-        {finalUserId !== currentUserId && (
+        {finalUserId === currentUserId && (
           <button
-            onClick={handleFollow}
-            className="px-6 py-2 bg-blue-500 text-white rounded"
+            onClick={() => setEditing(true)}
+            className="absolute top-2 right-2 bg-white px-3 py-1 rounded shadow"
           >
-            {isFollowing ? "Unfollow" : "Follow"}
+            Edit Profile
           </button>
         )}
       </div>
 
-      {/* POSTS */}
-      <div className="space-y-6">
-        {loadingPosts ? (
-          <p className="text-center text-gray-500">Loading posts...</p>
-        ) : posts.length === 0 ? (
-          <p className="text-center text-gray-500">No posts yet</p>
-        ) : (
-          posts.map(post => (
-            <PostCard
-              key={post._id}
-              post={post}
-              currentUserId={currentUserId}
-              onLike={handleLike}
-              onComment={handleComment}
-            />
-          ))
-        )}
+      {/* PROFILE INFO */}
+      <div className="flex gap-4 items-center">
+        <img
+          src={
+            formData.profilePic
+              ? URL.createObjectURL(formData.profilePic)
+              : user.profilePic || `${API_BASE}/uploads/profiles/default-profile.png`
+          }
+          className="w-24 h-24 rounded-full object-cover"
+        />
+
+        <div>
+          <h1 className="text-2xl font-bold">{user.name}</h1>
+          <p>{user.bio}</p>
+          <p>{user.intro}</p>
+        </div>
       </div>
 
-      {/* ================= EDIT PROFILE MODAL ================= */}
+      {/* POSTS */}
+      {posts.map(post => (
+        <PostCard
+          key={post._id}
+          post={post}
+          currentUserId={currentUserId}
+          onLike={handleLike}
+          onComment={handleComment}
+        />
+      ))}
+
+      {/* ================= MODAL ================= */}
       {editing && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2">
-          <div className="bg-white w-full max-w-xl p-6 rounded shadow-lg relative">
-            <h2 className="text-xl font-bold mb-4">Edit Profile</h2>
-            <button
-              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
-              onClick={() => setEditing(false)}
-            >
-              ✕
-            </button>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-2">
+          <div className="bg-white w-full max-w-3xl rounded-xl overflow-hidden">
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[70vh] overflow-y-auto">
-              {["name", "bio", "intro", "dob", "phone", "education", "origin", "maritalStatus", "email"].map(field => (
-                <input
-                  key={field}
-                  type="text"
-                  name={field}
-                  value={formData[field]}
-                  onChange={handleInputChange}
-                  placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
-                  className="w-full border px-2 py-1 rounded"
+            {/* HEADER */}
+            <div className="flex justify-between p-4 border-b">
+              <h2 className="font-semibold">Edit Profile</h2>
+              <button onClick={() => setEditing(false)}>✕</button>
+            </div>
+
+            {/* COVER */}
+            <div className="relative">
+              <img
+                src={
+                  formData.coverPhoto
+                    ? URL.createObjectURL(formData.coverPhoto)
+                    : user.coverPhoto || `${API_BASE}/uploads/profiles/default-cover.png`
+                }
+                className="w-full h-40 object-cover"
+              />
+              <label className="absolute bottom-2 right-2 bg-white px-2 py-1 rounded cursor-pointer">
+                Change Cover
+                <input type="file" hidden onChange={(e) => handleFileChange(e, "coverPhoto")} />
+              </label>
+            </div>
+
+            <div className="p-4 flex gap-6 flex-col md:flex-row">
+
+              {/* PROFILE PIC */}
+              <div className="flex flex-col items-center">
+                <img
+                  src={
+                    formData.profilePic
+                      ? URL.createObjectURL(formData.profilePic)
+                      : user.profilePic || `${API_BASE}/uploads/profiles/default-profile.png`
+                  }
+                  className="w-28 h-28 rounded-full"
                 />
-              ))}
-
-              {/* Profile Picture Upload + Preview */}
-              <div className="col-span-1 md:col-span-2">
-                <label className="block">Profile Picture:</label>
-                <input type="file" accept="image/*" onChange={e => handleFileChange(e, "profilePic")} className="mt-1"/>
-                {formData.profilePic && (
-                  <img
-                    src={URL.createObjectURL(formData.profilePic)}
-                    alt="Preview"
-                    className="w-24 h-24 rounded-full object-cover mt-2"
-                  />
-                )}
+                <label className="mt-2 cursor-pointer">
+                  Change Photo
+                  <input type="file" hidden onChange={(e) => handleFileChange(e, "profilePic")} />
+                </label>
               </div>
 
-              {/* Cover Photo Upload + Preview */}
-              <div className="col-span-1 md:col-span-2">
-                <label className="block">Cover Photo:</label>
-                <input type="file" accept="image/*" onChange={e => handleFileChange(e, "coverPhoto")} className="mt-1"/>
-                {formData.coverPhoto && (
-                  <img
-                    src={URL.createObjectURL(formData.coverPhoto)}
-                    alt="Preview"
-                    className="w-full h-48 object-cover rounded mt-2"
-                  />
+              {/* INPUTS */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 flex-1">
+                {Object.keys(formData).map((field) =>
+                  field !== "profilePic" && field !== "coverPhoto" ? (
+                    <input
+                      key={field}
+                      name={field}
+                      value={formData[field]}
+                      onChange={handleInputChange}
+                      placeholder={field}
+                      className="border px-2 py-2 rounded"
+                    />
+                  ) : null
                 )}
               </div>
             </div>
 
-            <button
-              onClick={handleSave}
-              className="px-4 py-2 bg-blue-500 text-white rounded mt-4"
-            >
-              Save Changes
-            </button>
+            <div className="flex justify-end gap-3 p-4 border-t">
+              <button onClick={() => setEditing(false)}>Cancel</button>
+              <button onClick={handleSave} className="bg-blue-500 text-white px-4 py-2 rounded">
+                Save
+              </button>
+            </div>
+
           </div>
         </div>
       )}
+
     </div>
   );
 };
