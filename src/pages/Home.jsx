@@ -1,4 +1,3 @@
-// src/pages/Home.jsx
 import React, { useEffect, useRef, useState } from "react";
 import PostCard from "../components/PostCard";
 import { API_BASE, fetchWithToken } from "../api/api";
@@ -52,9 +51,11 @@ const Home = () => {
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [newPost, setNewPost] = useState("");
+  const [mediaFiles, setMediaFiles] = useState([]);
   const [posting, setPosting] = useState(false);
 
   const feedRef = useRef();
+  const fileInputRef = useRef();
   const observerRef = useRef();
 
   const { uploadImage } = useCloudinaryUpload();
@@ -78,7 +79,6 @@ const Home = () => {
   /* ================= FETCH POSTS ================= */
   const fetchPosts = async (pageNum = 1) => {
     if (!token) return;
-
     try {
       pageNum === 1 ? setLoadingPosts(true) : setLoadingMore(true);
 
@@ -111,7 +111,6 @@ const Home = () => {
   /* ================= INFINITE SCROLL ================= */
   const lastPostRef = (node) => {
     if (loadingMore) return;
-
     if (observerRef.current) observerRef.current.disconnect();
 
     observerRef.current = new IntersectionObserver((entries) => {
@@ -125,6 +124,12 @@ const Home = () => {
     if (node) observerRef.current.observe(node);
   };
 
+  /* ================= MEDIA UPLOAD ================= */
+  const handleMediaChange = (e) => {
+    const files = Array.from(e.target.files);
+    setMediaFiles((prev) => [...prev, ...files]);
+  };
+
   /* ================= CREATE POST ================= */
   const handleSubmitPost = async (e) => {
     e.preventDefault();
@@ -132,17 +137,33 @@ const Home = () => {
 
     setPosting(true);
     try {
+      const uploadedMedia = [];
+
+      for (const file of mediaFiles) {
+        let url = null;
+        if (file.type.startsWith("image")) url = await uploadImage(file);
+        else if (file.type.startsWith("video")) url = await uploadVideo(file);
+
+        if (url) uploadedMedia.push({ url, type: file.type.startsWith("image") ? "image" : "video" });
+      }
+
       const res = await fetch(`${API_BASE}/api/posts`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ content: newPost }),
+        body: JSON.stringify({ content: newPost, media: uploadedMedia }),
       });
+
       const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+
       setPosts((prev) => [data.post, ...prev]);
       setNewPost("");
+      setMediaFiles([]);
+      if (fileInputRef.current) fileInputRef.current.value = null;
+
       socket.emit("new-video", data.post);
     } catch (err) {
-      console.error(err);
+      console.error("POST ERROR:", err);
     } finally {
       setPosting(false);
     }
@@ -191,11 +212,11 @@ const Home = () => {
 
   const handleComment = async (postId, text) => {
     try {
-      const { comment } = await fetchWithToken(`${API_BASE}/api/posts/${postId}/comment`, token, {
-        method: "POST",
-        body: JSON.stringify({ text }),
-        headers: { "Content-Type": "application/json" },
-      });
+      const { comment } = await fetchWithToken(
+        `${API_BASE}/api/posts/${postId}/comment`,
+        token,
+        { method: "POST", body: JSON.stringify({ text }), headers: { "Content-Type": "application/json" } }
+      );
       socket.emit("comment-video", { videoId: postId, comment });
     } catch (err) {
       console.error("COMMENT ERROR:", err);
@@ -211,14 +232,15 @@ const Home = () => {
   return (
     <div className="container mx-auto py-6 max-w-2xl space-y-6">
       {/* CREATE POST */}
-      <form onSubmit={handleSubmitPost} className="bg-white p-4 rounded shadow space-y-2">
+      <form onSubmit={handleSubmitPost} className="bg-white p-4 rounded shadow space-y-3">
         <textarea
           value={newPost}
           onChange={(e) => setNewPost(e.target.value)}
           placeholder="What's on your mind?"
-          className="w-full border rounded p-2"
+          className="w-full border p-2 rounded"
         />
-        <button className="px-4 py-2 bg-blue-600 text-white rounded">
+        <input ref={fileInputRef} type="file" multiple onChange={handleMediaChange} />
+        <button type="submit" disabled={posting} className="bg-blue-500 text-white px-4 py-2 rounded">
           {posting ? "Posting..." : "Post"}
         </button>
       </form>
