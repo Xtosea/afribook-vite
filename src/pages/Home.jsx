@@ -243,12 +243,15 @@ const Home = () => {
         <input ref={fileInputRef} type="file" multiple onChange={handleMediaChange} />
         <button type="submit" disabled={posting} className="bg-blue-500 text-white px-4 py-2 rounded">
           {posting ? "Posting..." : "Post"}
-        </button>
-  
- // Inside the form:
+       
+        
+       // Inside the form:
 <MediaUpload mediaFiles={mediaFiles} setMediaFiles={setMediaFiles} />
 
-      </form>
+        
+         </button>
+  
+ </form>
 
       {/* POSTS FEED */}
       <div ref={feedRef} className="space-y-6">
