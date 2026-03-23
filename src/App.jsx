@@ -14,6 +14,9 @@ import VerifySuccess from "./pages/VerifySuccess";
 import VerifyFailed from "./pages/VerifyFailed";
 import CreatePost from "./pages/CreatePost";
 import Reels from "./pages/Reels";
+import Messages from "./pages/Messages";
+
+<Route path="/messages" element={<Messages />} />
 
 function App() {
   return (
@@ -31,6 +34,7 @@ function App() {
   <Route path="/verify-failed" element={<VerifyFailed />} />
 
 <Route path="/reels" element={<Reels />} />
+<Route path="/messages" element={<Messages />} />
 
   {/* Protected routes */}
   <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
