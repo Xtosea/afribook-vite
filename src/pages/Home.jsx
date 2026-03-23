@@ -1,9 +1,39 @@
 // src/pages/Home.jsx
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import PostCard from "../components/PostCard";
 import { API_BASE, fetchWithToken } from "../api/api";
 import { socket } from "../socket";
+import { useCloudinaryUpload } from "../hooks/useCloudinaryUpload";
+import { useR2Upload } from "../hooks/useR2Upload";
 
+/* ================= LAZY VIDEO ================= */
+const useLazyVideo = (ref) => {
+  useEffect(() => {
+    if (!ref.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const video = entry.target;
+          if (entry.isIntersecting) {
+            if (!video.src) video.src = video.dataset.src;
+            video.play().catch(() => {});
+          } else {
+            video.pause();
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+
+    const videos = ref.current.querySelectorAll("video");
+    videos.forEach((v) => observer.observe(v));
+
+    return () => videos.forEach((v) => observer.unobserve(v));
+  }, [ref]);
+};
+
+/* ================= SKELETON ================= */
 const SkeletonPost = () => (
   <div className="bg-white p-4 rounded shadow animate-pulse space-y-3">
     <div className="h-4 bg-gray-300 rounded w-1/3"></div>
@@ -27,17 +57,36 @@ const Home = () => {
   const feedRef = useRef();
   const observerRef = useRef();
 
+  const { uploadImage } = useCloudinaryUpload();
+  const { uploadVideo } = useR2Upload();
+
+  useLazyVideo(feedRef);
+
+  /* ================= CACHE ================= */
+  useEffect(() => {
+    const cached = localStorage.getItem("feed_posts");
+    if (cached) {
+      setPosts(JSON.parse(cached));
+      setLoadingPosts(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (posts.length > 0) localStorage.setItem("feed_posts", JSON.stringify(posts));
+  }, [posts]);
+
   /* ================= FETCH POSTS ================= */
   const fetchPosts = async (pageNum = 1) => {
     if (!token) return;
-    pageNum === 1 ? setLoadingPosts(true) : setLoadingMore(true);
 
     try {
+      pageNum === 1 ? setLoadingPosts(true) : setLoadingMore(true);
+
       const data = await fetchWithToken(`${API_BASE}/api/posts?limit=10&page=${pageNum}`, token);
 
-      const fixedPosts = data.map(post => ({
+      const fixedPosts = data.map((post) => ({
         ...post,
-        media: post.media?.map(m => ({
+        media: post.media?.map((m) => ({
           ...m,
           url: m.url.startsWith("http") ? m.url : `${API_BASE}${m.url}`,
         })),
@@ -45,10 +94,12 @@ const Home = () => {
         comments: post.comments || [],
       }));
 
-      pageNum === 1 ? setPosts(fixedPosts) : setPosts(prev => [...prev, ...fixedPosts]);
+      if (pageNum === 1) setPosts(fixedPosts);
+      else setPosts((prev) => [...prev, ...fixedPosts]);
+
       if (data.length < 10) setHasMore(false);
     } catch (err) {
-      console.error(err);
+      console.error("FETCH POSTS ERROR:", err);
     } finally {
       setLoadingPosts(false);
       setLoadingMore(false);
@@ -57,33 +108,28 @@ const Home = () => {
 
   useEffect(() => fetchPosts(1), []);
 
-  /* ================= SOCKET.IO REAL-TIME ================= */
-  useEffect(() => {
-    socket.on("new-video", (post) => setPosts(prev => [post, ...prev]));
-    socket.on("new-video-comment", ({ videoId, comment }) =>
-      setPosts(prev => prev.map(p => p._id === videoId ? { ...p, comments: [...p.comments, comment] } : p))
-    );
-    socket.on("video-liked", ({ videoId, userId }) =>
-      setPosts(prev => prev.map(p => {
-        if (p._id === videoId) {
-          const likes = p.likes.includes(userId) ? p.likes.filter(id => id !== userId) : [...p.likes, userId];
-          return { ...p, likes };
-        }
-        return p;
-      }))
-    );
+  /* ================= INFINITE SCROLL ================= */
+  const lastPostRef = (node) => {
+    if (loadingMore) return;
 
-    return () => {
-      socket.off("new-video");
-      socket.off("new-video-comment");
-      socket.off("video-liked");
-    };
-  }, []);
+    if (observerRef.current) observerRef.current.disconnect();
+
+    observerRef.current = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && hasMore) {
+        const nextPage = page + 1;
+        setPage(nextPage);
+        fetchPosts(nextPage);
+      }
+    });
+
+    if (node) observerRef.current.observe(node);
+  };
 
   /* ================= CREATE POST ================= */
   const handleSubmitPost = async (e) => {
     e.preventDefault();
     if (posting || !newPost.trim()) return;
+
     setPosting(true);
     try {
       const res = await fetch(`${API_BASE}/api/posts`, {
@@ -92,7 +138,7 @@ const Home = () => {
         body: JSON.stringify({ content: newPost }),
       });
       const data = await res.json();
-      setPosts(prev => [data.post, ...prev]);
+      setPosts((prev) => [data.post, ...prev]);
       setNewPost("");
       socket.emit("new-video", data.post);
     } catch (err) {
@@ -102,12 +148,45 @@ const Home = () => {
     }
   };
 
-  /* ================= LIKE & COMMENT ================= */
+  /* ================= SOCKET.IO REAL-TIME ================= */
+  useEffect(() => {
+    socket.on("new-video", (newPost) => setPosts((prev) => [newPost, ...prev]));
+
+    socket.on("new-video-comment", ({ videoId, comment }) => {
+      setPosts((prev) =>
+        prev.map((p) => (p._id === videoId ? { ...p, comments: [...p.comments, comment] } : p))
+      );
+    });
+
+    socket.on("video-liked", ({ videoId, userId }) => {
+      setPosts((prev) =>
+        prev.map((p) => {
+          if (p._id === videoId) {
+            const likes = p.likes.includes(userId)
+              ? p.likes.filter((id) => id !== userId)
+              : [...p.likes, userId];
+            return { ...p, likes };
+          }
+          return p;
+        })
+      );
+    });
+
+    return () => {
+      socket.off("new-video");
+      socket.off("new-video-comment");
+      socket.off("video-liked");
+    };
+  }, []);
+
+  /* ================= POST INTERACTIONS ================= */
   const handleLike = async (postId) => {
     try {
       await fetchWithToken(`${API_BASE}/api/posts/${postId}/like`, token, { method: "PUT" });
       socket.emit("like-video", { videoId: postId, userId: currentUserId });
-    } catch (err) { console.error(err); }
+    } catch (err) {
+      console.error("LIKE ERROR:", err);
+    }
   };
 
   const handleComment = async (postId, text) => {
@@ -118,17 +197,20 @@ const Home = () => {
         headers: { "Content-Type": "application/json" },
       });
       socket.emit("comment-video", { videoId: postId, comment });
-    } catch (err) { console.error(err); }
+    } catch (err) {
+      console.error("COMMENT ERROR:", err);
+    }
   };
 
   const handleShare = (post) => {
     navigator.clipboard.writeText(`${window.location.origin}/posts/${post._id}`);
-    alert("Post link copied!");
+    alert("Post link copied to clipboard!");
   };
 
   /* ================= RENDER ================= */
   return (
     <div className="container mx-auto py-6 max-w-2xl space-y-6">
+      {/* CREATE POST */}
       <form onSubmit={handleSubmitPost} className="bg-white p-4 rounded shadow space-y-2">
         <textarea
           value={newPost}
@@ -141,23 +223,48 @@ const Home = () => {
         </button>
       </form>
 
+      {/* POSTS FEED */}
       <div ref={feedRef} className="space-y-6">
         {loadingPosts ? (
           <>
-            <SkeletonPost /><SkeletonPost /><SkeletonPost />
+            <SkeletonPost />
+            <SkeletonPost />
+            <SkeletonPost />
           </>
         ) : posts.length === 0 ? (
           <p className="text-center text-gray-500">No posts yet</p>
         ) : (
-          posts.map(post => (
-            <PostCard
+          posts.map((post, idx) => (
+            <div
               key={post._id}
-              post={post}
-              currentUserId={currentUserId}
-              onLike={handleLike}
-              onComment={handleComment}
-              onShare={handleShare}
-            />
+              ref={idx === posts.length - 1 ? lastPostRef : null}
+              className="bg-white rounded shadow overflow-hidden space-y-3"
+            >
+              {post.media?.map((m, i) => (
+                <div key={i}>
+                  {m.type === "image" ? (
+                    <img src={m.url} className="w-full h-64 object-cover" loading="lazy" />
+                  ) : (
+                    <video
+                      data-src={m.url}
+                      className="w-full h-64 object-cover"
+                      muted
+                      playsInline
+                      preload="none"
+                      controls
+                    />
+                  )}
+                </div>
+              ))}
+
+              <PostCard
+                post={post}
+                currentUserId={currentUserId}
+                onLike={handleLike}
+                onComment={handleComment}
+                onShare={handleShare}
+              />
+            </div>
           ))
         )}
         {loadingMore && <p className="text-center text-gray-400">Loading more...</p>}
