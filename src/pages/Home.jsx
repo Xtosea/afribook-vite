@@ -6,6 +6,7 @@ import SidebarRight from "../components/layout/SidebarRight";
 import StoriesBar from "../components/layout/StoriesBar";
 import MediaUpload from "../components/MediaUpload";
 import imageCompression from "browser-image-compression";
+
 import { API_BASE, fetchWithToken } from "../api/api";
 import { socket } from "../socket";
 import { useCloudinaryUpload } from "../hooks/useCloudinaryUpload";
@@ -68,6 +69,7 @@ const Home = () => {
 
   const [newPost, setNewPost] = useState("");
   const [mediaFiles, setMediaFiles] = useState([]);
+  const [uploadProgress, setUploadProgress] = useState({}); // ✅ NEW
 
   const [expanded, setExpanded] = useState(false);
   const [posting, setPosting] = useState(false);
@@ -111,23 +113,50 @@ const Home = () => {
     if (!newPost && mediaFiles.length === 0) return;
 
     setPosting(true);
+    setUploadProgress({}); // reset
 
     try {
       const uploadedMedia = [];
 
-      for (const file of mediaFiles) {
-        let url;
+      for (let i = 0; i < mediaFiles.length; i++) {
+        let file = mediaFiles[i];
 
-        if (file.type.startsWith("image")) {
-          url = await uploadImage(file);
-        } else {
-          url = await uploadVideo(file);
+        try {
+          // ✅ COMPRESS IMAGE
+          if (file.type.startsWith("image")) {
+            file = await imageCompression(file, {
+              maxSizeMB: 1,
+              maxWidthOrHeight: 1280,
+              useWebWorker: true,
+            });
+          }
+
+          let url;
+
+          if (file.type.startsWith("image")) {
+            url = await uploadImage(file, (progress) => {
+              setUploadProgress((prev) => ({
+                ...prev,
+                [i]: progress,
+              }));
+            });
+          } else {
+            url = await uploadVideo(file, (progress) => {
+              setUploadProgress((prev) => ({
+                ...prev,
+                [i]: progress,
+              }));
+            });
+          }
+
+          uploadedMedia.push({
+            url,
+            type: file.type.startsWith("image") ? "image" : "video",
+          });
+
+        } catch (err) {
+          console.error("UPLOAD ERROR:", err);
         }
-
-        uploadedMedia.push({
-          url,
-          type: file.type.startsWith("image") ? "image" : "video",
-        });
       }
 
       const res = await fetch(`${API_BASE}/api/posts`, {
@@ -147,8 +176,10 @@ const Home = () => {
       setPosts((prev) => [data.post, ...prev]);
       socket.emit("new-video", data.post);
 
+      // RESET
       setNewPost("");
       setMediaFiles([]);
+      setUploadProgress({});
       setExpanded(false);
 
     } catch (err) {
@@ -184,15 +215,14 @@ const Home = () => {
   return (
     <div className="max-w-7xl mx-auto px-2 md:px-6 py-6 grid grid-cols-1 md:grid-cols-4 gap-6">
 
-      {/* LEFT SIDEBAR */}
+      {/* LEFT */}
       <div className="hidden md:block">
         <SidebarLeft />
       </div>
 
-      {/* MAIN FEED */}
+      {/* CENTER */}
       <div className="md:col-span-2 space-y-4">
 
-        {/* STORIES */}
         <StoriesBar posts={posts} />
 
         {/* CREATE POST */}
@@ -207,15 +237,13 @@ const Home = () => {
 
           {expanded && (
             <>
-              <div className="flex gap-2 flex-wrap">
-                <button
-                  type="button"
-                  onClick={() => setShowEmoji(!showEmoji)}
-                  className="border px-3 py-1 rounded-full"
-                >
-                  😊 Emoji
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={() => setShowEmoji(!showEmoji)}
+                className="border px-3 py-1 rounded-full"
+              >
+                😊 Emoji
+              </button>
 
               {showEmoji && (
                 <EmojiPicker
@@ -225,10 +253,11 @@ const Home = () => {
                 />
               )}
 
-              {/* ✅ MEDIA UPLOAD COMPONENT */}
+              {/* ✅ MEDIA UPLOAD */}
               <MediaUpload
                 mediaFiles={mediaFiles}
                 setMediaFiles={setMediaFiles}
+                uploadProgress={uploadProgress}
               />
 
               <button className="bg-blue-500 text-white px-4 py-2 rounded">
@@ -260,7 +289,7 @@ const Home = () => {
         </div>
       </div>
 
-      {/* RIGHT SIDEBAR */}
+      {/* RIGHT */}
       <div className="hidden md:block">
         <SidebarRight />
       </div>
