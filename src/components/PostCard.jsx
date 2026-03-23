@@ -1,3 +1,4 @@
+// src/components/PostCard.jsx
 import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { API_BASE } from "../api/api";
@@ -16,6 +17,7 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, user: curre
 
   const likedByUser = likes.includes(currentUserId);
 
+  // ================= SAFE USER OBJECT =================
   const postUser = post.user || {
     _id: null,
     name: "Deleted User",
@@ -30,21 +32,23 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, user: curre
         : postUser.profilePic,
   };
 
-  /* ================= SOCKET.IO ================= */
+  // ================= SOCKET.IO =================
   useEffect(() => {
     socketRef.current = socketIOClient(API_BASE, { transports: ["websocket"] });
 
-    // Join room for post updates (post._id as room)
+    // Join room for post updates
     socketRef.current.emit("join-post", post._id);
 
+    // Listen for likes
     socketRef.current.on("post-like", (data) => {
-      if (data.postId === post._id) {
+      if (data.postId === post._id && !likes.includes(data.userId)) {
         setLikes((prev) => [...prev, data.userId]);
         setNewActivity(true);
         setTimeout(() => setNewActivity(false), 2000);
       }
     });
 
+    // Listen for comments
     socketRef.current.on("post-comment", (data) => {
       if (data.postId === post._id) {
         setComments((prev) => [...prev, data.comment]);
@@ -56,9 +60,9 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, user: curre
     return () => {
       socketRef.current.disconnect();
     };
-  }, [post._id]);
+  }, [post._id, likes]);
 
-  /* ================= COMMENT HANDLER ================= */
+  // ================= COMMENT HANDLER =================
   const handleCommentSubmit = (e) => {
     e.preventDefault();
     if (!commentText.trim()) return;
@@ -67,7 +71,7 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, user: curre
     setCommentText("");
   };
 
-  /* ================= VIDEO LAZY LOAD ================= */
+  // ================= VIDEO LAZY LOAD =================
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -84,13 +88,14 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, user: curre
     return () => videoRefs.current.forEach((v) => v && observer.unobserve(v));
   }, [post.media]);
 
-  /* ================= TAP TO LIKE ================= */
+  // ================= TAP TO LIKE =================
   const handleVideoTapLike = (postId) => {
     onLike && onLike(postId);
     setLikedAnimation(true);
     setTimeout(() => setLikedAnimation(false), 800);
   };
 
+  // ================= IMAGE TRANSFORM =================
   const transformImage = (url, width = 600, height = 600) => {
     if (!url.includes("res.cloudinary.com")) return url;
     return url.replace("/upload/", `/upload/w_${width},h_${height},c_fill,q_auto,f_auto/`);
