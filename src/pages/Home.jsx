@@ -1,11 +1,14 @@
-// src/pages/Home.jsx
 import React, { useEffect, useRef, useState } from "react";
 import PostCard from "../components/PostCard";
-import MediaUpload from "../components/MediaUpload";
+import SidebarLeft from "../components/layout/SidebarLeft";
+import SidebarRight from "../components/layout/SidebarRight";
+import StoriesBar from "../components/layout/StoriesBar";
+
 import { API_BASE, fetchWithToken } from "../api/api";
 import { socket } from "../socket";
 import { useCloudinaryUpload } from "../hooks/useCloudinaryUpload";
 import { useR2Upload } from "../hooks/useR2Upload";
+
 import EmojiPicker from "emoji-picker-react";
 import { FiUpload } from "react-icons/fi";
 
@@ -61,22 +64,17 @@ const Home = () => {
 
   const [posts, setPosts] = useState([]);
   const [loadingPosts, setLoadingPosts] = useState(true);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
 
   const [newPost, setNewPost] = useState("");
   const [mediaFiles, setMediaFiles] = useState([]);
-  const [location, setLocation] = useState("");
-  const [feeling, setFeeling] = useState("");
-  const [taggedFriends, setTaggedFriends] = useState([]);
-  const [showEmoji, setShowEmoji] = useState(false);
+
   const [expanded, setExpanded] = useState(false);
   const [posting, setPosting] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
 
+  const [showEmoji, setShowEmoji] = useState(false);
+
   const feedRef = useRef();
-  const observerRef = useRef();
   const fileInputRef = useRef();
 
   const { uploadImage } = useCloudinaryUpload();
@@ -84,298 +82,187 @@ const Home = () => {
 
   useLazyVideo(feedRef);
 
-  /* ================= CACHE ================= */
+  /* ================= FETCH POSTS ================= */
   useEffect(() => {
-    const cached = localStorage.getItem("feed_posts");
-    if (cached) {
-      setPosts(JSON.parse(cached));
-      setLoadingPosts(false);
-    }
+    const fetchPosts = async () => {
+      try {
+        const data = await fetchWithToken(`${API_BASE}/api/posts`, token);
+
+        const fixed = data.map((post) => ({
+          ...post,
+          media: post.media?.map((m) => ({
+            ...m,
+            url: m.url.startsWith("http") ? m.url : `${API_BASE}${m.url}`,
+          })),
+        }));
+
+        setPosts(fixed);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoadingPosts(false);
+      }
+    };
+
+    fetchPosts();
   }, []);
 
-  useEffect(() => {
-    if (posts.length > 0) localStorage.setItem("feed_posts", JSON.stringify(posts));
-  }, [posts]);
-
-  /* ================= FETCH POSTS ================= */
-  const fetchPosts = async (pageNum = 1) => {
-    if (!token) return;
-    try {
-      pageNum === 1 ? setLoadingPosts(true) : setLoadingMore(true);
-
-      const data = await fetchWithToken(`${API_BASE}/api/posts?limit=10&page=${pageNum}`, token);
-
-      const fixedPosts = data.map((post) => ({
-        ...post,
-        media: post.media?.map((m) => ({
-          ...m,
-          url: m.url.startsWith("http") ? m.url : `${API_BASE}${m.url}`,
-        })),
-        user: {
-          ...post.user,
-          profilePic: post.user?.profilePic
-            ? post.user.profilePic.startsWith("http")
-              ? post.user.profilePic
-              : `${API_BASE}${post.user.profilePic}`
-            : `${API_BASE}/uploads/profiles/default-profile.png`,
-        },
-        likes: post.likes || [],
-        comments: post.comments || [],
-      }));
-
-      if (pageNum === 1) setPosts(fixedPosts);
-      else setPosts((prev) => [...prev, ...fixedPosts]);
-
-      if (data.length < 10) setHasMore(false);
-    } catch (err) {
-      console.error("FETCH POSTS ERROR:", err);
-    } finally {
-      setLoadingPosts(false);
-      setLoadingMore(false);
-    }
-  };
-
-  useEffect(() => fetchPosts(1), []);
-
-  /* ================= INFINITE SCROLL ================= */
-  const lastPostRef = (node) => {
-    if (loadingMore) return;
-    if (observerRef.current) observerRef.current.disconnect();
-
-    observerRef.current = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && hasMore) {
-        const nextPage = page + 1;
-        setPage(nextPage);
-        fetchPosts(nextPage);
-      }
-    });
-
-    if (node) observerRef.current.observe(node);
-  };
-
   /* ================= CREATE POST ================= */
-  const handleMediaChange = (e) => {
-    const files = Array.from(e.target.files);
-    if (files.length + mediaFiles.length > 5) {
-      alert("Max 5 media files allowed");
-      return;
-    }
-    setMediaFiles(prev => [...prev, ...files]);
-  };
-
-  const removeMedia = (index) => setMediaFiles(prev => prev.filter((_, i) => i !== index));
-
   const handleSubmitPost = async (e) => {
     e.preventDefault();
-    if (posting || (!newPost.trim() && mediaFiles.length === 0)) return;
+    if (!newPost && mediaFiles.length === 0) return;
 
     setPosting(true);
-    setUploadProgress(0);
 
     try {
       const uploadedMedia = [];
 
       for (const file of mediaFiles) {
-        let url = null;
+        let url;
         if (file.type.startsWith("image")) {
-          url = await uploadImage(file, (p) => setUploadProgress(p));
-        } else if (file.type.startsWith("video")) {
-          url = await uploadVideo(file, (p) => setUploadProgress(p));
+          url = await uploadImage(file);
+        } else {
+          url = await uploadVideo(file);
         }
-        if (url) uploadedMedia.push({ url, type: file.type.startsWith("image") ? "image" : "video" });
+        uploadedMedia.push({ url, type: file.type.startsWith("image") ? "image" : "video" });
       }
 
       const res = await fetch(`${API_BASE}/api/posts`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           content: newPost,
           media: uploadedMedia,
-          feeling,
-          location,
-          taggedFriends,
         }),
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
 
       setPosts((prev) => [data.post, ...prev]);
-      setNewPost(""); setMediaFiles([]); setFeeling(""); setLocation(""); setTaggedFriends([]);
-      setExpanded(false); setUploadProgress(0);
-      fileInputRef.current.value = null;
-
       socket.emit("new-video", data.post);
+
+      setNewPost("");
+      setMediaFiles([]);
+      setExpanded(false);
     } catch (err) {
-      console.error("POST ERROR:", err);
-      alert("Upload failed");
+      console.error(err);
     } finally {
       setPosting(false);
     }
   };
 
-  /* ================= SOCKET.IO REAL-TIME ================= */
-  useEffect(() => {
-    socket.on("new-video", (newPost) => setPosts((prev) => [newPost, ...prev]));
-    socket.on("new-video-comment", ({ videoId, comment }) => {
-      setPosts((prev) =>
-        prev.map((p) => (p._id === videoId ? { ...p, comments: [...p.comments, comment] } : p))
-      );
-    });
-    socket.on("video-liked", ({ videoId, userId }) => {
-      setPosts((prev) =>
-        prev.map((p) => {
-          if (p._id === videoId) {
-            const likes = p.likes.includes(userId)
-              ? p.likes.filter((id) => id !== userId)
-              : [...p.likes, userId];
-            return { ...p, likes };
-          }
-          return p;
-        })
-      );
-    });
-
-    return () => {
-      socket.off("new-video");
-      socket.off("new-video-comment");
-      socket.off("video-liked");
-    };
-  }, []);
-
-  /* ================= POST INTERACTIONS ================= */
-  const handleLike = async (postId) => {
-    try {
-      await fetchWithToken(`${API_BASE}/api/posts/${postId}/like`, token, { method: "PUT" });
-      socket.emit("like-video", { videoId: postId, userId: currentUserId });
-    } catch (err) { console.error("LIKE ERROR:", err); }
+  /* ================= INTERACTIONS ================= */
+  const handleLike = (postId) => {
+    socket.emit("like-video", { videoId: postId, userId: currentUserId });
   };
 
-  const handleComment = async (postId, text) => {
-    try {
-      const { comment } = await fetchWithToken(`${API_BASE}/api/posts/${postId}/comment`, token, {
-        method: "POST",
-        body: JSON.stringify({ text }),
-        headers: { "Content-Type": "application/json" },
-      });
-      socket.emit("comment-video", { videoId: postId, comment });
-    } catch (err) { console.error("COMMENT ERROR:", err); }
+  const handleComment = (postId, text) => {
+    socket.emit("comment-video", { videoId: postId, text });
   };
 
   const handleShare = (post) => {
     navigator.clipboard.writeText(`${window.location.origin}/posts/${post._id}`);
-    alert("Post link copied!");
+    alert("Copied!");
   };
 
-  /* ================= RENDER ================= */
+  /* ================= SOCKET ================= */
+  useEffect(() => {
+    socket.on("new-video", (post) => setPosts((prev) => [post, ...prev]));
+
+    return () => {
+      socket.off("new-video");
+    };
+  }, []);
+
   return (
-    <div className="container mx-auto py-6 max-w-2xl space-y-6">
+    <div className="max-w-7xl mx-auto px-2 md:px-6 py-6 grid grid-cols-1 md:grid-cols-4 gap-6">
 
-      {/* CREATE POST */}
-      <form onSubmit={handleSubmitPost} className="bg-white p-4 rounded-xl shadow space-y-3">
-        <textarea
-          value={newPost}
-          onChange={(e) => setNewPost(e.target.value)}
-          onFocus={() => setExpanded(true)}
-          placeholder="What's on your mind?"
-          className="w-full border rounded-lg p-3 resize-none"
-          rows={expanded ? 4 : 2}
-        />
+      {/* LEFT SIDEBAR */}
+      <div className="hidden md:block">
+        <SidebarLeft />
+      </div>
 
-        {expanded && (
-          <>
-            {showEmoji && (
-              <EmojiPicker
-                onEmojiClick={(e) => { setNewPost(prev => prev + e.emoji); setShowEmoji(false); }}
-              />
-            )}
+      {/* MAIN FEED */}
+      <div className="md:col-span-2 space-y-4">
 
-            <div className="flex flex-wrap gap-2">
-              <label className="flex items-center gap-1 cursor-pointer px-3 py-1 border rounded-full text-sm">
-                <FiUpload /> Media
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  multiple
-                  accept="image/*,video/*"
-                  onChange={handleMediaChange}
-                  className="hidden"
+        {/* STORIES */}
+        <StoriesBar posts={posts} />
+
+        {/* CREATE POST */}
+        <form onSubmit={handleSubmitPost} className="bg-white p-4 rounded-xl shadow space-y-3">
+          <textarea
+            value={newPost}
+            onChange={(e) => setNewPost(e.target.value)}
+            onFocus={() => setExpanded(true)}
+            placeholder="What's on your mind?"
+            className="w-full border rounded-lg p-3"
+          />
+
+          {expanded && (
+            <>
+              <div className="flex gap-2 flex-wrap">
+                <label className="cursor-pointer flex items-center gap-1 border px-3 py-1 rounded-full">
+                  <FiUpload />
+                  Media
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    multiple
+                    hidden
+                    onChange={(e) => setMediaFiles([...e.target.files])}
+                  />
+                </label>
+
+                <button
+                  type="button"
+                  onClick={() => setShowEmoji(!showEmoji)}
+                  className="border px-3 py-1 rounded-full"
+                >
+                  😊
+                </button>
+              </div>
+
+              {showEmoji && (
+                <EmojiPicker
+                  onEmojiClick={(e) => setNewPost((prev) => prev + e.emoji)}
                 />
-              </label>
+              )}
 
-              <button
-                type="button"
-                onClick={() => setShowEmoji(prev => !prev)}
-                className="px-3 py-1 border rounded-full text-sm"
-              >😊 Emoji</button>
+              <button className="bg-blue-500 text-white px-4 py-2 rounded">
+                {posting ? "Posting..." : "Post"}
+              </button>
+            </>
+          )}
+        </form>
 
-              <input type="text" placeholder="Feeling" value={feeling} onChange={(e)=>setFeeling(e.target.value)} className="px-3 py-1 border rounded-full text-sm"/>
-              <input type="text" placeholder="Location" value={location} onChange={(e)=>setLocation(e.target.value)} className="px-3 py-1 border rounded-full text-sm"/>
-            </div>
-
-            <input type="text" placeholder="Tag friends" value={taggedFriends.join(", ")} onChange={(e)=>setTaggedFriends(e.target.value.split(",").map(f=>f.trim()))} className="border rounded-lg px-3 py-2 w-full text-sm"/>
-
-            {mediaFiles.length > 0 && (
-              <div className="flex gap-3 overflow-x-auto">
-                {mediaFiles.map((file, i) => (
-                  <div key={i} className="relative">
-                    <button type="button" onClick={()=>removeMedia(i)} className="absolute top-0 right-0 bg-black text-white rounded-full px-2 text-xs">✕</button>
-                    {file.type.startsWith("image") ? (
-                      <img src={URL.createObjectURL(file)} className="w-24 h-24 rounded object-contain bg-gray-100"/>
-                    ) : (
-                      <video src={URL.createObjectURL(file)} className="w-24 h-24 rounded object-contain bg-gray-100" controls/>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {uploadProgress > 0 && (
-              <div className="w-full bg-gray-200 h-2 rounded">
-                <div className="bg-blue-500 h-2 rounded" style={{ width: `${uploadProgress}%` }} />
-              </div>
-            )}
-
-            <button type="submit" disabled={posting} className="px-6 py-2 bg-blue-600 text-white rounded-full">
-              {posting ? "Posting..." : "Post"}
-            </button>
-          </>
-        )}
-      </form>
-
-      {/* POSTS FEED */}
-      <div ref={feedRef} className="space-y-6">
-        {loadingPosts ? (
-          <>
-            <SkeletonPost />
-            <SkeletonPost />
-            <SkeletonPost />
-          </>
-        ) : posts.length === 0 ? (
-          <p className="text-center text-gray-500">No posts yet</p>
-        ) : (
-          posts.map((post, idx) => (
-            <div key={post._id} ref={idx === posts.length - 1 ? lastPostRef : null} className="bg-white rounded shadow overflow-hidden space-y-3">
-              {post.media?.map((m, i) => (
-                <div key={i}>
-                  {m.type === "image" ? (
-                    <img src={m.url} className="w-full h-64 object-cover" loading="lazy"/>
-                  ) : (
-                    <video data-src={m.url} className="w-full h-64 object-cover" muted playsInline preload="none" controls/>
-                  )}
-                </div>
-              ))}
+        {/* POSTS */}
+        <div ref={feedRef} className="space-y-4">
+          {loadingPosts ? (
+            <>
+              <SkeletonPost />
+              <SkeletonPost />
+            </>
+          ) : (
+            posts.map((post) => (
               <PostCard
+                key={post._id}
                 post={post}
                 currentUserId={currentUserId}
                 onLike={handleLike}
                 onComment={handleComment}
                 onShare={handleShare}
               />
-            </div>
-          ))
-        )}
-        {loadingMore && <p className="text-center text-gray-400">Loading more...</p>}
+            ))
+          )}
+        </div>
+      </div>
+
+      {/* RIGHT SIDEBAR */}
+      <div className="hidden md:block">
+        <SidebarRight />
       </div>
 
     </div>
