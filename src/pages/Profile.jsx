@@ -96,9 +96,7 @@ const Profile = () => {
   /* ================= SOCKET ================= */
   useEffect(() => {
     socket.on("new-video", post => {
-      if (post.user?._id === finalUserId) {
-        setPosts(prev => [post, ...prev]);
-      }
+      if (post.user?._id === finalUserId) setPosts(prev => [post, ...prev]);
     });
 
     socket.on("video-liked", ({ videoId, userId }) => {
@@ -161,7 +159,6 @@ const Profile = () => {
 
   const handleSave = async () => {
     const data = new FormData();
-
     for (const key in formData) {
       if (formData[key]) data.append(key, formData[key]);
     }
@@ -172,7 +169,6 @@ const Profile = () => {
         headers: { Authorization: `Bearer ${token}` },
         body: data,
       });
-
       const result = await res.json();
 
       if (res.ok) {
@@ -191,14 +187,14 @@ const Profile = () => {
   return (
     <div className="container mx-auto py-6 space-y-6">
 
-      {/* HEADER */}
+      {/* PROFILE HEADER */}
       <ProfileHeader
         user={user}
         isOwner={finalUserId === currentUserId}
         onEdit={() => setEditing(true)}
       />
 
-      {/* FOLLOW BUTTON (if not owner) */}
+      {/* FOLLOW BUTTON */}
       {finalUserId !== currentUserId && (
         <div className="flex justify-end">
           <button
@@ -213,7 +209,7 @@ const Profile = () => {
       {/* TABS */}
       <ProfileTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      {/* POSTS TAB */}
+      {/* TAB CONTENT */}
       {activeTab === "Posts" && (
         <div className="space-y-4">
           {loadingPosts ? (
@@ -234,10 +230,8 @@ const Profile = () => {
         </div>
       )}
 
-      {/* ABOUT TAB */}
       {activeTab === "About" && <UserInfoCard user={user} />}
 
-      {/* PHOTOS TAB */}
       {activeTab === "Photos" && (
         <div className="grid grid-cols-3 gap-2">
           {posts
@@ -247,13 +241,14 @@ const Profile = () => {
               <img
                 key={i}
                 src={m.url}
+                alt="post"
                 className="w-full h-32 object-cover rounded"
               />
             ))}
         </div>
       )}
 
-      {/* EDIT MODAL */}
+      {/* EDIT PROFILE MODAL */}
       <EditProfileModal
         editing={editing}
         setEditing={setEditing}
@@ -264,7 +259,6 @@ const Profile = () => {
         handleFileChange={handleFileChange}
         user={user}
       />
-
     </div>
   );
 };
