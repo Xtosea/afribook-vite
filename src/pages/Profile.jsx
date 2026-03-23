@@ -82,6 +82,7 @@ const Profile = () => {
           profilePic: null,
           coverPhoto: null,
         });
+
       } catch (err) {
         console.error(err);
         localStorage.removeItem("token");
@@ -194,27 +195,27 @@ const Profile = () => {
       <div className="bg-white p-4 rounded shadow space-y-4">
         <div className="relative">
           <img
-            src={user.coverPhoto || `${API_BASE}/uploads/profiles/default-cover.png`}
+            src={formData.coverPhoto ? URL.createObjectURL(formData.coverPhoto) : (user.coverPhoto || `${API_BASE}/uploads/profiles/default-cover.png`)}
             alt="cover"
             className="w-full h-48 object-cover rounded mb-4"
           />
           {finalUserId === currentUserId && (
             <button
               onClick={() => setEditing(true)}
-              className="absolute top-4 right-4 bg-white px-3 py-1 rounded shadow hover:bg-gray-100 transition"
+              className="absolute top-2 right-2 bg-white px-2 py-1 rounded shadow"
             >
               Edit Profile
             </button>
           )}
         </div>
 
-        <div className="flex items-center gap-4 flex-wrap">
+        <div className="flex items-center gap-4">
           <img
-            src={user.profilePic || `${API_BASE}/uploads/profiles/default-profile.png`}
+            src={formData.profilePic ? URL.createObjectURL(formData.profilePic) : (user.profilePic || `${API_BASE}/uploads/profiles/default-profile.png`)}
             alt="profile"
             className="w-24 h-24 rounded-full object-cover"
           />
-          <div className="flex-1 min-w-[200px]">
+          <div>
             <h1 className="text-2xl font-bold">{user.name}</h1>
             <p className="text-gray-500">{user.bio}</p>
             <p className="text-gray-400">{user.intro}</p>
@@ -256,9 +257,9 @@ const Profile = () => {
         )}
       </div>
 
-      {/* ================= MODAL ================= */}
+      {/* ================= EDIT PROFILE MODAL ================= */}
       {editing && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2">
           <div className="bg-white w-full max-w-xl p-6 rounded shadow-lg relative">
             <h2 className="text-xl font-bold mb-4">Edit Profile</h2>
             <button
@@ -268,7 +269,7 @@ const Profile = () => {
               ✕
             </button>
 
-            <div className="space-y-3 max-h-[70vh] overflow-y-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[70vh] overflow-y-auto">
               {["name", "bio", "intro", "dob", "phone", "education", "origin", "maritalStatus", "email"].map(field => (
                 <input
                   key={field}
@@ -281,15 +282,10 @@ const Profile = () => {
                 />
               ))}
 
-              {/* Profile Picture Upload */}
-              <div className="flex flex-col gap-2">
-                <label className="font-semibold">Profile Picture:</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={e => handleFileChange(e, "profilePic")}
-                  className="border rounded px-2 py-1 w-full"
-                />
+              {/* Profile Picture Upload + Preview */}
+              <div className="col-span-1 md:col-span-2">
+                <label className="block">Profile Picture:</label>
+                <input type="file" accept="image/*" onChange={e => handleFileChange(e, "profilePic")} className="mt-1"/>
                 {formData.profilePic && (
                   <img
                     src={URL.createObjectURL(formData.profilePic)}
@@ -299,15 +295,10 @@ const Profile = () => {
                 )}
               </div>
 
-              {/* Cover Photo Upload */}
-              <div className="flex flex-col gap-2">
-                <label className="font-semibold">Cover Photo:</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={e => handleFileChange(e, "coverPhoto")}
-                  className="border rounded px-2 py-1 w-full"
-                />
+              {/* Cover Photo Upload + Preview */}
+              <div className="col-span-1 md:col-span-2">
+                <label className="block">Cover Photo:</label>
+                <input type="file" accept="image/*" onChange={e => handleFileChange(e, "coverPhoto")} className="mt-1"/>
                 {formData.coverPhoto && (
                   <img
                     src={URL.createObjectURL(formData.coverPhoto)}
@@ -316,14 +307,14 @@ const Profile = () => {
                   />
                 )}
               </div>
-
-              <button
-                onClick={handleSave}
-                className="px-4 py-2 bg-blue-500 text-white rounded mt-2"
-              >
-                Save Changes
-              </button>
             </div>
+
+            <button
+              onClick={handleSave}
+              className="px-4 py-2 bg-blue-500 text-white rounded mt-4"
+            >
+              Save Changes
+            </button>
           </div>
         </div>
       )}
