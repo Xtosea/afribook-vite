@@ -83,6 +83,8 @@ const Navbar = () => {
         Afribook
       </Link>
 
+import { Link } from "react-router-dom"
+
       {/* Right side */}
       <div className="space-x-4 flex items-center">
         {isLoggedIn ? (
