@@ -1,16 +1,20 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { API_BASE } from "../api/api";
+import { io as socketIOClient } from "socket.io-client";
 
 const PostCard = ({ post, currentUserId, onLike, onComment, onShare, user: currentUser }) => {
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState("");
-  const [modalIndex, setModalIndex] = useState(null);
   const [likedAnimation, setLikedAnimation] = useState(false);
+  const [likes, setLikes] = useState(post.likes || []);
+  const [comments, setComments] = useState(post.comments || []);
+  const [newActivity, setNewActivity] = useState(false);
 
   const videoRefs = useRef([]);
+  const socketRef = useRef(null);
 
-  const likedByUser = post.likes?.includes(currentUserId);
+  const likedByUser = likes.includes(currentUserId);
 
   const postUser = post.user || {
     _id: null,
@@ -26,23 +30,44 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, user: curre
         : postUser.profilePic,
   };
 
+  /* ================= SOCKET.IO ================= */
+  useEffect(() => {
+    socketRef.current = socketIOClient(API_BASE, { transports: ["websocket"] });
+
+    // Join room for post updates (post._id as room)
+    socketRef.current.emit("join-post", post._id);
+
+    socketRef.current.on("post-like", (data) => {
+      if (data.postId === post._id) {
+        setLikes((prev) => [...prev, data.userId]);
+        setNewActivity(true);
+        setTimeout(() => setNewActivity(false), 2000);
+      }
+    });
+
+    socketRef.current.on("post-comment", (data) => {
+      if (data.postId === post._id) {
+        setComments((prev) => [...prev, data.comment]);
+        setNewActivity(true);
+        setTimeout(() => setNewActivity(false), 2000);
+      }
+    });
+
+    return () => {
+      socketRef.current.disconnect();
+    };
+  }, [post._id]);
+
   /* ================= COMMENT HANDLER ================= */
   const handleCommentSubmit = (e) => {
     e.preventDefault();
     if (!commentText.trim()) return;
+
     onComment && onComment(post._id, commentText);
     setCommentText("");
   };
 
-  /* ================= MEDIA MODAL ================= */
-  const openModal = (index) => setModalIndex(index);
-  const closeModal = () => setModalIndex(null);
-  const prevMedia = () =>
-    setModalIndex((prev) => (prev === 0 ? post.media.length - 1 : prev - 1));
-  const nextMedia = () =>
-    setModalIndex((prev) => (prev === post.media.length - 1 ? 0 : prev + 1));
-
-  /* ================= VIDEO LAZY LOAD & AUTOPLAY ================= */
+  /* ================= VIDEO LAZY LOAD ================= */
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -56,7 +81,6 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, user: curre
     );
 
     videoRefs.current.forEach((v) => v && observer.observe(v));
-
     return () => videoRefs.current.forEach((v) => v && observer.unobserve(v));
   }, [post.media]);
 
@@ -67,7 +91,6 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, user: curre
     setTimeout(() => setLikedAnimation(false), 800);
   };
 
-  /* ================= IMAGE TRANSFORM ================= */
   const transformImage = (url, width = 600, height = 600) => {
     if (!url.includes("res.cloudinary.com")) return url;
     return url.replace("/upload/", `/upload/w_${width},h_${height},c_fill,q_auto,f_auto/`);
@@ -75,6 +98,13 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, user: curre
 
   return (
     <div className="bg-white p-4 rounded-xl shadow space-y-3 relative">
+
+      {/* NEW ACTIVITY BADGE */}
+      {newActivity && (
+        <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 text-xs rounded animate-pulse">
+          New Activity
+        </div>
+      )}
 
       {/* USER INFO */}
       <div className="flex items-center gap-3">
@@ -95,17 +125,6 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, user: curre
         <p>{post.content}</p>
         {post.feeling && <p className="text-gray-500 text-sm">Feeling {post.feeling}</p>}
         {post.location && <p className="text-gray-500 text-sm">📍 {post.location}</p>}
-        {post.taggedFriends?.length > 0 && (
-          <p className="text-gray-500 text-sm">
-            With:{" "}
-            {post.taggedFriends.map((f, i) => (
-              <React.Fragment key={f._id}>
-                <Link to={`/profile/${f._id}`} className="hover:underline">{f.name}</Link>
-                {i < post.taggedFriends.length - 1 && ", "}
-              </React.Fragment>
-            ))}
-          </p>
-        )}
       </div>
 
       {/* MEDIA */}
@@ -118,8 +137,6 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, user: curre
                 src={transformImage(m.url)}
                 alt={`media-${i}`}
                 className="w-full h-48 object-cover rounded cursor-pointer hover:scale-105 transition-transform"
-                onClick={() => openModal(i)}
-                loading="lazy"
               />
             ) : (
               <div key={i} className="relative">
@@ -148,11 +165,11 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, user: curre
           onClick={() => onLike && onLike(post._id)}
           className={`px-2 py-1 rounded ${likedByUser ? "bg-red-400 text-white" : "bg-gray-200"}`}
         >
-          {likedByUser ? "❤️ Liked" : "🤍 Like"} ({post.likes?.length || 0})
+          {likedByUser ? "❤️ Liked" : "🤍 Like"} ({likes.length})
         </button>
 
         <button onClick={() => setShowComments(!showComments)} className="px-2 py-1 bg-gray-200 rounded">
-          💬 Comments ({post.comments?.length || 0})
+          💬 Comments ({comments.length})
         </button>
 
         <button onClick={() => onShare && onShare(post)} className="px-2 py-1 bg-gray-200 rounded">
@@ -163,10 +180,10 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, user: curre
       {/* COMMENTS */}
       {showComments && (
         <div className="mt-2 space-y-2">
-          {post.comments?.length === 0 ? (
+          {comments.length === 0 ? (
             <p className="text-gray-400 text-sm">No comments yet.</p>
           ) : (
-            post.comments.map((c) => (
+            comments.map((c) => (
               <div key={c._id} className="text-sm">
                 <span className="font-semibold">{c.user?.name || "Deleted"}: </span>
                 {c.text}
@@ -174,37 +191,18 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, user: curre
             ))
           )}
 
-          {onComment && (
-            <form onSubmit={handleCommentSubmit} className="flex gap-2 mt-1">
-              <input
-                type="text"
-                placeholder="Write a comment..."
-                value={commentText}
-                onChange={(e) => setCommentText(e.target.value)}
-                className="flex-1 border rounded px-2 py-1 text-sm"
-              />
-              <button type="submit" className="px-3 py-1 bg-blue-500 text-white rounded text-sm">
-                Send
-              </button>
-            </form>
-          )}
-        </div>
-      )}
-
-      {/* MEDIA MODAL */}
-      {modalIndex !== null && (
-        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4" onClick={closeModal}>
-          <button onClick={(e) => { e.stopPropagation(); prevMedia(); }} className="absolute left-2 text-white text-2xl font-bold">◀</button>
-
-          <div className="max-h-full max-w-full" onClick={(e) => e.stopPropagation()}>
-            {post.media[modalIndex].type.startsWith("image") ? (
-              <img src={transformImage(post.media[modalIndex].url, 1000, 1000)} alt="fullscreen" className="max-h-full max-w-full rounded" />
-            ) : (
-              <video src={post.media[modalIndex].url} controls autoPlay preload="metadata" className="max-h-full max-w-full rounded" />
-            )}
-          </div>
-
-          <button onClick={(e) => { e.stopPropagation(); nextMedia(); }} className="absolute right-2 text-white text-2xl font-bold">▶</button>
+          <form onSubmit={handleCommentSubmit} className="flex gap-2 mt-1">
+            <input
+              type="text"
+              placeholder="Write a comment..."
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              className="flex-1 border rounded px-2 py-1 text-sm"
+            />
+            <button type="submit" className="px-3 py-1 bg-blue-500 text-white rounded text-sm">
+              Send
+            </button>
+          </form>
         </div>
       )}
     </div>
