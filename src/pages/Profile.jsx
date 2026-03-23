@@ -1,9 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import PostCard from "../components/PostCard";
 import { fetchWithToken, API_BASE } from "../api/api";
-import ProfilePicUploader from "../components/ProfilePicUploader";
-import CoverPicUploader from "../components/CoverPicUploader";
+import { io as socketIOClient } from "socket.io-client";
 
 const Profile = () => {
   const { userId } = useParams();
@@ -16,10 +15,6 @@ const Profile = () => {
   const [bio, setBio] = useState("");
   const [intro, setIntro] = useState("");
   const [saving, setSaving] = useState(false);
-
-  const [activeTab, setActiveTab] = useState("posts");
-  const [showModal, setShowModal] = useState(false);
-  const [modalType, setModalType] = useState("followers");
   const [loadingPosts, setLoadingPosts] = useState(true);
 
   const token = localStorage.getItem("token");
@@ -27,42 +22,67 @@ const Profile = () => {
   const finalUserId = userId || currentUserId;
 
   const feedRef = useRef([]);
+  const socketRef = useRef(null);
 
-  /* ================= LAZY VIDEO ================= */
+  /* ================= SOCKET.IO ================= */
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      entries => {
-        entries.forEach(entry => {
-          const video = entry.target;
+    if (!token) return;
 
-          if (entry.isIntersecting) {
-            if (!video.src) video.src = video.dataset.src; // ✅ load only when visible
-            video.play().catch(() => {});
-          } else {
-            video.pause();
-          }
-        });
-      },
-      { threshold: 0.5 }
-    );
+    socketRef.current = socketIOClient(API_BASE, {
+      transports: ["websocket"],
+      auth: { token },
+    });
 
-    feedRef.current.forEach(v => v && observer.observe(v));
+    // Join current user room for private notifications
+    socketRef.current.emit("join", currentUserId);
+
+    // Listen for notifications
+    socketRef.current.on("notification", (data) => {
+      console.log("Notification received:", data);
+
+      // Update follower/following count
+      if (data.type === "new-follower" && data.from) {
+        setUser((prev) => ({
+          ...prev,
+          followers: [...(prev.followers || []), { _id: data.from }],
+        }));
+      }
+
+      // Update post likes/comments live
+      if (data.type === "like" && data.postId) {
+        setPosts((prev) =>
+          prev.map((p) =>
+            p._id === data.postId
+              ? { ...p, likes: [...p.likes, data.from] }
+              : p
+          )
+        );
+      }
+
+      if (data.type === "comment" && data.postId && data.comment) {
+        setPosts((prev) =>
+          prev.map((p) =>
+            p._id === data.postId
+              ? { ...p, comments: [...p.comments, data.comment] }
+              : p
+          )
+        );
+      }
+    });
+
+    // Listen for new videos/reels
+    socketRef.current.on("new-video", (video) => {
+      setPosts((prev) => [video, ...prev]);
+    });
 
     return () => {
-      feedRef.current.forEach(v => v && observer.unobserve(v));
+      socketRef.current.disconnect();
     };
-  }, [posts]);
+  }, [token, currentUserId]);
 
-  /* ================= URL FIX ================= */
-  const fixUrl = (url, fallback) => {
-    if (!url) return `${API_BASE}${fallback}`;
-    return url.startsWith("http") ? url : `${API_BASE}${url}`;
-  };
-
-  /* ================= FETCH ================= */
+  /* ================= FETCH PROFILE & POSTS ================= */
   useEffect(() => {
     if (!token) navigate("/login");
-
     let isMounted = true;
 
     const fetchProfile = async () => {
@@ -83,28 +103,17 @@ const Profile = () => {
         setBio(userData.bio || "");
         setIntro(userData.intro || "");
 
-        const followerIds = (userData.followers || []).map(f =>
+        const followerIds = (userData.followers || []).map((f) =>
           typeof f === "object" ? f._id : f
         );
         setIsFollowing(followerIds.includes(currentUserId));
 
-        const fixedPosts = postsData.map(post => ({
-          _id: post._id,
-          content: post.content,
-          likes: post.likes || [],
-          comments: post.comments || [],
-          media: post.media?.map(m => ({
+        const fixedPosts = postsData.map((post) => ({
+          ...post,
+          media: post.media?.map((m) => ({
+            ...m,
             url: m.url.startsWith("http") ? m.url : `${API_BASE}${m.url}`,
-            type: m.type,
-            isReel: m.isReel,
           })),
-          user: {
-            name: post.user?.name,
-            profilePic: fixUrl(
-              post.user?.profilePic,
-              "/uploads/profiles/default-profile.png"
-            ),
-          },
         }));
 
         setPosts(fixedPosts);
@@ -119,11 +128,29 @@ const Profile = () => {
     };
 
     fetchProfile();
-
     return () => {
       isMounted = false;
     };
   }, [finalUserId, token, currentUserId, navigate]);
+
+  /* ================= LAZY VIDEO PLAY ================= */
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const video = entry.target;
+          if (entry.isIntersecting) {
+            if (!video.src) video.src = video.dataset.src;
+            video.play().catch(() => {});
+          } else video.pause();
+        });
+      },
+      { threshold: 0.5 }
+    );
+
+    feedRef.current.forEach((v) => v && observer.observe(v));
+    return () => feedRef.current.forEach((v) => v && observer.unobserve(v));
+  }, [posts]);
 
   /* ================= ACTIONS ================= */
   const handleFollow = async () => {
@@ -141,24 +168,9 @@ const Profile = () => {
 
   const handleLike = async (postId) => {
     try {
-      await fetchWithToken(
-        `${API_BASE}/api/posts/${postId}/like`,
-        token,
-        { method: "PUT" }
-      );
-
-      setPosts(prev =>
-        prev.map(p =>
-          p._id === postId
-            ? {
-                ...p,
-                likes: p.likes.includes(currentUserId)
-                  ? p.likes.filter(id => id !== currentUserId)
-                  : [...p.likes, currentUserId],
-              }
-            : p
-        )
-      );
+      await fetchWithToken(`${API_BASE}/api/posts/${postId}/like`, token, {
+        method: "PUT",
+      });
     } catch (err) {
       console.error("LIKE ERROR:", err);
     }
@@ -166,56 +178,15 @@ const Profile = () => {
 
   const handleComment = async (postId, text) => {
     try {
-      const { comment } = await fetchWithToken(
-        `${API_BASE}/api/posts/${postId}/comment`,
-        token,
-        {
-          method: "POST",
-          body: JSON.stringify({ text }),
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-
-      setPosts(prev =>
-        prev.map(p =>
-          p._id === postId
-            ? { ...p, comments: [...p.comments, comment] }
-            : p
-        )
-      );
+      await fetchWithToken(`${API_BASE}/api/posts/${postId}/comment`, token, {
+        method: "POST",
+        body: JSON.stringify({ text }),
+        headers: { "Content-Type": "application/json" },
+      });
     } catch (err) {
       console.error("COMMENT ERROR:", err);
     }
   };
-
-  const handleUpdateProfile = async () => {
-    if (!token) return;
-
-    setSaving(true);
-
-    try {
-      const formData = new FormData();
-      formData.append("bio", bio);
-      formData.append("intro", intro);
-
-      const updatedUser = await fetchWithToken(
-        `${API_BASE}/api/users/${finalUserId}`,
-        token,
-        { method: "PUT", body: formData }
-      );
-
-      setUser(updatedUser.user || updatedUser);
-      setIsEditing(false);
-    } catch (err) {
-      console.error("UPDATE PROFILE ERROR:", err);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const reelPosts = posts.filter(p =>
-    p.media?.some(m => m.isReel)
-  );
 
   /* ================= POST ITEM ================= */
   const PostItem = ({ post, idx }) => (
@@ -227,34 +198,21 @@ const Profile = () => {
               {m.type === "image" ? (
                 <img src={m.url} className="w-full h-full object-cover" />
               ) : (
-                <>
-                  <video
-                    ref={el => (feedRef.current[idx * 10 + i] = el)}
-                    data-src={m.url}
-                    className="w-full h-full object-cover"
-                    muted
-                    playsInline
-                    preload="none"
-                    controls
-                  />
-                  {m.isReel && (
-                    <span className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 text-xs rounded">
-                      Reel
-                    </span>
-                  )}
-                </>
+                <video
+                  ref={(el) => (feedRef.current[idx * 10 + i] = el)}
+                  data-src={m.url}
+                  className="w-full h-full object-cover"
+                  muted
+                  playsInline
+                  preload="none"
+                  controls
+                />
               )}
             </div>
           ))}
         </div>
       )}
-
-      <PostCard
-        post={post}
-        onLike={handleLike}
-        onComment={handleComment}
-        currentUserId={currentUserId}
-      />
+      <PostCard post={post} onLike={handleLike} onComment={handleComment} currentUserId={currentUserId} />
     </div>
   );
 
@@ -265,7 +223,7 @@ const Profile = () => {
       {/* COVER */}
       <div className="w-full h-40 md:h-56 bg-gray-200 rounded overflow-hidden relative">
         <img
-          src={fixUrl(user.coverPhoto, "/uploads/profiles/default-cover.png")}
+          src={user.coverPhoto?.startsWith("http") ? user.coverPhoto : `${API_BASE}${user.coverPhoto}`}
           className="w-full h-full object-cover"
         />
       </div>
@@ -274,10 +232,9 @@ const Profile = () => {
       <div className="bg-white p-4 rounded shadow space-y-4">
         <div className="flex flex-col md:flex-row items-center gap-4">
           <img
-            src={fixUrl(user.profilePic, "/uploads/profiles/default-profile.png")}
+            src={user.profilePic?.startsWith("http") ? user.profilePic : `${API_BASE}${user.profilePic}`}
             className="w-24 h-24 rounded-full object-cover"
           />
-
           <div className="flex-1 text-center md:text-left">
             <h1 className="text-2xl font-bold">{user.name}</h1>
             <p>{user.intro}</p>
