@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import Messages from "./pages/Messages";
 
 const Navbar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
