@@ -1,7 +1,7 @@
 // src/pages/Profile.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import PostCard from "../components/// src/pages/Profile.jsx
+import PostCard from "../components/// src/pages/Profile.jsx";
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import PostCard from "../components/PostCard";
