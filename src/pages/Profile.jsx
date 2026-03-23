@@ -45,7 +45,7 @@ const Profile = () => {
   const [previewProfilePic, setPreviewProfilePic] = useState(null);
   const [previewCoverPhoto, setPreviewCoverPhoto] = useState(null);
 
-  /* ================= FETCH ================= */
+  /* ================= FETCH USER & POSTS ================= */
   useEffect(() => {
     if (!token) return navigate("/login");
 
@@ -55,6 +55,9 @@ const Profile = () => {
           fetchWithToken(`${API_BASE}/api/users/${finalUserId}`, token),
           fetchWithToken(`${API_BASE}/api/posts/user/${finalUserId}`, token),
         ]);
+
+        if (!userData) return console.error("Failed to fetch user data");
+        if (!postsData) return console.error("Failed to fetch posts");
 
         setUser(userData);
         setPreviewProfilePic(userData.profilePic || null);
@@ -90,17 +93,16 @@ const Profile = () => {
         });
 
       } catch (err) {
-        console.error(err);
-        navigate("/login");
+        console.error("Error fetching profile:", err);
       } finally {
         setLoadingPosts(false);
       }
     };
 
     fetchProfile();
-  }, [finalUserId]);
+  }, [finalUserId, token, navigate, currentUserId]);
 
-  /* ================= SOCKET ================= */
+  /* ================= SOCKET EVENTS ================= */
   useEffect(() => {
     socket.on("new-video", post => {
       if (post.user?._id === finalUserId) {
@@ -138,9 +140,9 @@ const Profile = () => {
       socket.off("video-liked");
       socket.off("new-video-comment");
     };
-  }, []);
+  }, [finalUserId]);
 
-  /* ================= ACTIONS ================= */
+  /* ================= ACTION HANDLERS ================= */
   const handleLike = (postId) => {
     socket.emit("like-video", { videoId: postId, userId: currentUserId });
   };
@@ -150,10 +152,7 @@ const Profile = () => {
   };
 
   const handleFollow = () => {
-    socket.emit("follow-user", {
-      userId: finalUserId,
-      followerId: currentUserId,
-    });
+    socket.emit("follow-user", { userId: finalUserId, followerId: currentUserId });
     setIsFollowing(prev => !prev);
   };
 
@@ -164,6 +163,7 @@ const Profile = () => {
 
   const handleFileChange = (e, field) => {
     const file = e.target.files[0];
+    if (!file) return;
     setFormData(prev => ({ ...prev, [field]: file }));
 
     const url = URL.createObjectURL(file);
@@ -185,17 +185,16 @@ const Profile = () => {
       });
 
       const result = await res.json();
-
       if (res.ok) {
         setUser(result.user);
         setPreviewProfilePic(result.user.profilePic || null);
         setPreviewCoverPhoto(result.user.coverPhoto || null);
         setEditing(false);
       } else {
-        alert(result.error);
+        alert(result.error || "Failed to update profile");
       }
     } catch (err) {
-      console.error(err);
+      console.error("Error updating profile:", err);
     }
   };
 
@@ -203,7 +202,6 @@ const Profile = () => {
 
   return (
     <div className="container mx-auto py-6 space-y-6">
-
       {/* HEADER */}
       <ProfileHeader
         user={user}
@@ -273,7 +271,6 @@ const Profile = () => {
         editing={editing}
         setEditing={setEditing}
         formData={formData}
-        setFormData={setFormData}
         handleSave={handleSave}
         handleInputChange={handleInputChange}
         handleFileChange={handleFileChange}
