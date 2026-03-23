@@ -6,3 +6,4 @@ const token = localStorage.getItem("token");
 export const socket = io("https://afribook-backend.onrender.com", {
   transports: ["polling", "websocket"], // polling first for Render
   auth: { token }, // pass JWT
+});
