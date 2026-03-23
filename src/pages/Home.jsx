@@ -11,6 +11,7 @@ import { useR2Upload } from "../hooks/useR2Upload";
 
 import EmojiPicker from "emoji-picker-react";
 import { FiUpload } from "react-icons/fi";
+import MediaUpload from "../components/MediaUpload";
 
 /* ================= LAZY VIDEO ================= */
 const useLazyVideo = (ref) => {
@@ -77,6 +78,8 @@ const Home = () => {
   const feedRef = useRef();
   const fileInputRef = useRef();
 
+const [mediaFiles, setMediaFiles] = useState([]);
+
   const { uploadImage } = useCloudinaryUpload();
   const { uploadVideo } = useR2Upload();
 
@@ -109,50 +112,55 @@ const Home = () => {
 
   /* ================= CREATE POST ================= */
   const handleSubmitPost = async (e) => {
-    e.preventDefault();
-    if (!newPost && mediaFiles.length === 0) return;
+  e.preventDefault();
+  if (!newPost && mediaFiles.length === 0) return;
 
-    setPosting(true);
+  setPosting(true);
 
-    try {
-      const uploadedMedia = [];
+  try {
+    const uploadedMedia = [];
 
-      for (const file of mediaFiles) {
-        let url;
-        if (file.type.startsWith("image")) {
-          url = await uploadImage(file);
-        } else {
-          url = await uploadVideo(file);
-        }
-        uploadedMedia.push({ url, type: file.type.startsWith("image") ? "image" : "video" });
+    for (const file of mediaFiles) {
+      let url;
+      if (file.type.startsWith("image")) {
+        url = await uploadImage(file);
+      } else {
+        url = await uploadVideo(file);
       }
 
-      const res = await fetch(`${API_BASE}/api/posts`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          content: newPost,
-          media: uploadedMedia,
-        }),
+      uploadedMedia.push({
+        url,
+        type: file.type.startsWith("image") ? "image" : "video",
       });
-
-      const data = await res.json();
-
-      setPosts((prev) => [data.post, ...prev]);
-      socket.emit("new-video", data.post);
-
-      setNewPost("");
-      setMediaFiles([]);
-      setExpanded(false);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setPosting(false);
     }
-  };
+
+    const res = await fetch(`${API_BASE}/api/posts`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        content: newPost,
+        media: uploadedMedia,
+      }),
+    });
+
+    const data = await res.json();
+
+    setPosts((prev) => [data.post, ...prev]);
+    socket.emit("new-video", data.post);
+
+    setNewPost("");
+    setMediaFiles([]); // ✅ correct
+    setExpanded(false);
+
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setPosting(false);
+  }
+};
 
   /* ================= INTERACTIONS ================= */
   const handleLike = (postId) => {
