@@ -82,7 +82,6 @@ const Profile = () => {
           profilePic: null,
           coverPhoto: null,
         });
-
       } catch (err) {
         console.error(err);
         localStorage.removeItem("token");
@@ -202,20 +201,20 @@ const Profile = () => {
           {finalUserId === currentUserId && (
             <button
               onClick={() => setEditing(true)}
-              className="absolute top-2 right-2 bg-white px-2 py-1 rounded shadow"
+              className="absolute top-4 right-4 bg-white px-3 py-1 rounded shadow hover:bg-gray-100 transition"
             >
               Edit Profile
             </button>
           )}
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 flex-wrap">
           <img
             src={user.profilePic || `${API_BASE}/uploads/profiles/default-profile.png`}
             alt="profile"
             className="w-24 h-24 rounded-full object-cover"
           />
-          <div>
+          <div className="flex-1 min-w-[200px]">
             <h1 className="text-2xl font-bold">{user.name}</h1>
             <p className="text-gray-500">{user.bio}</p>
             <p className="text-gray-400">{user.intro}</p>
@@ -282,10 +281,15 @@ const Profile = () => {
                 />
               ))}
 
-              {/* Profile Picture Upload + Preview */}
-              <div>
-                <label className="block">Profile Picture:</label>
-                <input type="file" accept="image/*" onChange={e => handleFileChange(e, "profilePic")} />
+              {/* Profile Picture Upload */}
+              <div className="flex flex-col gap-2">
+                <label className="font-semibold">Profile Picture:</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={e => handleFileChange(e, "profilePic")}
+                  className="border rounded px-2 py-1 w-full"
+                />
                 {formData.profilePic && (
                   <img
                     src={URL.createObjectURL(formData.profilePic)}
@@ -295,10 +299,15 @@ const Profile = () => {
                 )}
               </div>
 
-              {/* Cover Photo Upload + Preview */}
-              <div>
-                <label className="block">Cover Photo:</label>
-                <input type="file" accept="image/*" onChange={e => handleFileChange(e, "coverPhoto")} />
+              {/* Cover Photo Upload */}
+              <div className="flex flex-col gap-2">
+                <label className="font-semibold">Cover Photo:</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={e => handleFileChange(e, "coverPhoto")}
+                  className="border rounded px-2 py-1 w-full"
+                />
                 {formData.coverPhoto && (
                   <img
                     src={URL.createObjectURL(formData.coverPhoto)}
