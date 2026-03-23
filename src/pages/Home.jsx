@@ -1,6 +1,8 @@
+// src/pages/Home.jsx
 import React, { useEffect, useRef, useState } from "react";
-import { API_BASE, fetchWithToken } from "../api/api";
 import PostCard from "../components/PostCard";
+import { API_BASE, fetchWithToken } from "../api/api";
+import { socket } from "../socket"; // import your socket instance
 import { useCloudinaryUpload } from "../hooks/useCloudinaryUpload";
 import { useR2Upload } from "../hooks/useR2Upload";
 
@@ -13,7 +15,6 @@ const useLazyVideo = (ref) => {
       (entries) => {
         entries.forEach((entry) => {
           const video = entry.target;
-
           if (entry.isIntersecting) {
             if (!video.src) video.src = video.dataset.src;
             video.play().catch(() => {});
@@ -47,11 +48,9 @@ const Home = () => {
 
   const [posts, setPosts] = useState([]);
   const [loadingPosts, setLoadingPosts] = useState(true);
-
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-
   const [newPost, setNewPost] = useState("");
   const [posting, setPosting] = useState(false);
 
@@ -73,9 +72,7 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
-    if (posts.length > 0) {
-      localStorage.setItem("feed_posts", JSON.stringify(posts));
-    }
+    if (posts.length > 0) localStorage.setItem("feed_posts", JSON.stringify(posts));
   }, [posts]);
 
   /* ================= FETCH POSTS ================= */
@@ -85,10 +82,7 @@ const Home = () => {
     try {
       pageNum === 1 ? setLoadingPosts(true) : setLoadingMore(true);
 
-      const data = await fetchWithToken(
-        `${API_BASE}/api/posts?limit=10&page=${pageNum}`,
-        token
-      );
+      const data = await fetchWithToken(`${API_BASE}/api/posts?limit=10&page=${pageNum}`, token);
 
       const fixedPosts = data.map((post) => ({
         ...post,
@@ -98,11 +92,8 @@ const Home = () => {
         })),
       }));
 
-      if (pageNum === 1) {
-        setPosts(fixedPosts);
-      } else {
-        setPosts((prev) => [...prev, ...fixedPosts]);
-      }
+      if (pageNum === 1) setPosts(fixedPosts);
+      else setPosts((prev) => [...prev, ...fixedPosts]);
 
       if (data.length < 10) setHasMore(false);
     } catch (err) {
@@ -113,9 +104,7 @@ const Home = () => {
     }
   };
 
-  useEffect(() => {
-    fetchPosts(1);
-  }, []);
+  useEffect(() => fetchPosts(1), []);
 
   /* ================= INFINITE SCROLL ================= */
   const lastPostRef = (node) => {
@@ -140,21 +129,16 @@ const Home = () => {
     if (posting || !newPost.trim()) return;
 
     setPosting(true);
-
     try {
       const res = await fetch(`${API_BASE}/api/posts`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify({ content: newPost }),
       });
-
       const data = await res.json();
-
       setPosts((prev) => [data.post, ...prev]);
       setNewPost("");
+      socket.emit("new-video", data.post); // emit new post
     } catch (err) {
       console.error(err);
     } finally {
@@ -162,19 +146,79 @@ const Home = () => {
     }
   };
 
+  /* ================= REAL-TIME SOCKET UPDATES ================= */
+  useEffect(() => {
+    socket.on("new-video", (newPost) => {
+      setPosts((prev) => [newPost, ...prev]);
+    });
+
+    socket.on("new-video-comment", ({ videoId, comment }) => {
+      setPosts((prev) =>
+        prev.map((p) => (p._id === videoId ? { ...p, comments: [...p.comments, comment] } : p))
+      );
+    });
+
+    socket.on("video-liked", ({ videoId, userId }) => {
+      setPosts((prev) =>
+        prev.map((p) => {
+          if (p._id === videoId) {
+            const likes = p.likes.includes(userId)
+              ? p.likes.filter((id) => id !== userId)
+              : [...p.likes, userId];
+            return { ...p, likes };
+          }
+          return p;
+        })
+      );
+    });
+
+    return () => {
+      socket.off("new-video");
+      socket.off("new-video-comment");
+      socket.off("video-liked");
+    };
+  }, []);
+
+  /* ================= POST INTERACTIONS ================= */
+  const handleLike = async (postId) => {
+    try {
+      await fetchWithToken(`${API_BASE}/api/posts/${postId}/like`, token, { method: "PUT" });
+      socket.emit("like-video", { videoId: postId, userId: currentUserId });
+    } catch (err) {
+      console.error("LIKE ERROR:", err);
+    }
+  };
+
+  const handleComment = async (postId, text) => {
+    try {
+      const { comment } = await fetchWithToken(`${API_BASE}/api/posts/${postId}/comment`, token, {
+        method: "POST",
+        body: JSON.stringify({ text }),
+        headers: { "Content-Type": "application/json" },
+      });
+      socket.emit("comment-video", { videoId: postId, comment });
+    } catch (err) {
+      console.error("COMMENT ERROR:", err);
+    }
+  };
+
+  const handleShare = (post) => {
+    navigator.clipboard.writeText(`${window.location.origin}/posts/${post._id}`);
+    alert("Post link copied to clipboard!");
+  };
+
   /* ================= UI ================= */
   return (
     <div className="container mx-auto py-6 max-w-2xl space-y-6">
-
       {/* CREATE POST */}
-      <form onSubmit={handleSubmitPost} className="bg-white p-4 rounded shadow">
+      <form onSubmit={handleSubmitPost} className="bg-white p-4 rounded shadow space-y-2">
         <textarea
           value={newPost}
           onChange={(e) => setNewPost(e.target.value)}
           placeholder="What's on your mind?"
           className="w-full border rounded p-2"
         />
-        <button className="mt-2 px-4 py-2 bg-blue-600 text-white rounded">
+        <button className="px-4 py-2 bg-blue-600 text-white rounded">
           {posting ? "Posting..." : "Post"}
         </button>
       </form>
@@ -194,12 +238,12 @@ const Home = () => {
             <div
               key={post._id}
               ref={idx === posts.length - 1 ? lastPostRef : null}
-              className="bg-white rounded shadow overflow-hidden"
+              className="bg-white rounded shadow overflow-hidden space-y-3"
             >
               {post.media?.map((m, i) => (
                 <div key={i}>
                   {m.type === "image" ? (
-                    <img src={m.url} className="w-full h-64 object-cover" />
+                    <img src={m.url} className="w-full h-64 object-cover" loading="lazy" />
                   ) : (
                     <video
                       data-src={m.url}
@@ -213,14 +257,18 @@ const Home = () => {
                 </div>
               ))}
 
-              <PostCard post={post} currentUserId={currentUserId} />
+              <PostCard
+                post={post}
+                currentUserId={currentUserId}
+                onLike={handleLike}
+                onComment={handleComment}
+                onShare={handleShare}
+              />
             </div>
           ))
         )}
 
-        {loadingMore && (
-          <p className="text-center text-gray-400">Loading more...</p>
-        )}
+        {loadingMore && <p className="text-center text-gray-400">Loading more...</p>}
       </div>
     </div>
   );
