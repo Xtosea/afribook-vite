@@ -26,6 +26,7 @@ const Profile = () => {
   const [editing, setEditing] = useState(false);
   const [activeTab, setActiveTab] = useState("Posts");
 
+  // form data
   const [formData, setFormData] = useState({
     name: "",
     bio: "",
@@ -40,7 +41,11 @@ const Profile = () => {
     coverPhoto: null,
   });
 
-  /* ================= FETCH USER & POSTS ================= */
+  // live previews
+  const [previewProfilePic, setPreviewProfilePic] = useState(null);
+  const [previewCoverPhoto, setPreviewCoverPhoto] = useState(null);
+
+  /* ================= FETCH ================= */
   useEffect(() => {
     if (!token) return navigate("/login");
 
@@ -52,12 +57,12 @@ const Profile = () => {
         ]);
 
         setUser(userData);
+        setPreviewProfilePic(userData.profilePic || null);
+        setPreviewCoverPhoto(userData.coverPhoto || null);
 
-        // Check following
         const followerIds = (userData.followers || []).map(f => f._id || f);
         setIsFollowing(followerIds.includes(currentUserId));
 
-        // Format posts
         const fixedPosts = postsData.map(post => ({
           ...post,
           media: post.media?.map(m => ({
@@ -70,7 +75,6 @@ const Profile = () => {
 
         setPosts(fixedPosts);
 
-        // Populate formData for modal
         setFormData({
           name: userData.name || "",
           bio: userData.bio || "",
@@ -84,6 +88,7 @@ const Profile = () => {
           profilePic: null,
           coverPhoto: null,
         });
+
       } catch (err) {
         console.error(err);
         navigate("/login");
@@ -95,10 +100,12 @@ const Profile = () => {
     fetchProfile();
   }, [finalUserId]);
 
-  /* ================= SOCKET EVENTS ================= */
+  /* ================= SOCKET ================= */
   useEffect(() => {
     socket.on("new-video", post => {
-      if (post.user?._id === finalUserId) setPosts(prev => [post, ...prev]);
+      if (post.user?._id === finalUserId) {
+        setPosts(prev => [post, ...prev]);
+      }
     });
 
     socket.on("video-liked", ({ videoId, userId }) => {
@@ -153,13 +160,15 @@ const Profile = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    setUser(prev => ({ ...prev, [name]: value })); // instant preview in header
   };
 
   const handleFileChange = (e, field) => {
     const file = e.target.files[0];
     setFormData(prev => ({ ...prev, [field]: file }));
-    setUser(prev => ({ ...prev, [field]: file })); // instant preview
+
+    const url = URL.createObjectURL(file);
+    if (field === "profilePic") setPreviewProfilePic(url);
+    if (field === "coverPhoto") setPreviewCoverPhoto(url);
   };
 
   const handleSave = async () => {
@@ -176,8 +185,11 @@ const Profile = () => {
       });
 
       const result = await res.json();
+
       if (res.ok) {
         setUser(result.user);
+        setPreviewProfilePic(result.user.profilePic || null);
+        setPreviewCoverPhoto(result.user.coverPhoto || null);
         setEditing(false);
       } else {
         alert(result.error);
@@ -192,11 +204,13 @@ const Profile = () => {
   return (
     <div className="container mx-auto py-6 space-y-6">
 
-      {/* PROFILE HEADER */}
+      {/* HEADER */}
       <ProfileHeader
         user={user}
         isOwner={finalUserId === currentUserId}
         onEdit={() => setEditing(true)}
+        previewProfilePic={previewProfilePic}
+        previewCoverPhoto={previewCoverPhoto}
       />
 
       {/* FOLLOW BUTTON */}
@@ -211,7 +225,7 @@ const Profile = () => {
         </div>
       )}
 
-      {/* PROFILE TABS */}
+      {/* TABS */}
       <ProfileTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
       {/* POSTS */}
@@ -254,7 +268,7 @@ const Profile = () => {
         </div>
       )}
 
-      {/* EDIT PROFILE MODAL */}
+      {/* EDIT MODAL */}
       <EditProfileModal
         editing={editing}
         setEditing={setEditing}
@@ -265,7 +279,6 @@ const Profile = () => {
         handleFileChange={handleFileChange}
         user={user}
       />
-
     </div>
   );
 };
