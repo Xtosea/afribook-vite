@@ -20,7 +20,7 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState("posts");
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState("followers");
-const [loadingPosts, setLoadingPosts] = useState(true);
+  const [loadingPosts, setLoadingPosts] = useState(true);
 
   const token = localStorage.getItem("token");
   const currentUserId = localStorage.getItem("userId");
@@ -28,27 +28,38 @@ const [loadingPosts, setLoadingPosts] = useState(true);
 
   const feedRef = useRef([]);
 
+  /* ================= LAZY VIDEO ================= */
   useEffect(() => {
     const observer = new IntersectionObserver(
       entries => {
         entries.forEach(entry => {
           const video = entry.target;
-          if (entry.isIntersecting) video.play().catch(() => {});
-          else video.pause();
+
+          if (entry.isIntersecting) {
+            if (!video.src) video.src = video.dataset.src; // ✅ load only when visible
+            video.play().catch(() => {});
+          } else {
+            video.pause();
+          }
         });
       },
       { threshold: 0.5 }
     );
 
     feedRef.current.forEach(v => v && observer.observe(v));
-    return () => feedRef.current.forEach(v => v && observer.unobserve(v));
+
+    return () => {
+      feedRef.current.forEach(v => v && observer.unobserve(v));
+    };
   }, [posts]);
 
+  /* ================= URL FIX ================= */
   const fixUrl = (url, fallback) => {
     if (!url) return `${API_BASE}${fallback}`;
     return url.startsWith("http") ? url : `${API_BASE}${url}`;
   };
 
+  /* ================= FETCH ================= */
   useEffect(() => {
     if (!token) navigate("/login");
 
@@ -56,9 +67,14 @@ const [loadingPosts, setLoadingPosts] = useState(true);
 
     const fetchProfile = async () => {
       try {
+        setLoadingPosts(true);
+
         const [userData, postsData] = await Promise.all([
           fetchWithToken(`${API_BASE}/api/users/${finalUserId}`, token),
-          fetchWithToken(`${API_BASE}/api/posts/user/${finalUserId}`, token),
+          fetchWithToken(
+            `${API_BASE}/api/posts/user/${finalUserId}?limit=10&page=1`,
+            token
+          ),
         ]);
 
         if (!isMounted) return;
@@ -73,17 +89,21 @@ const [loadingPosts, setLoadingPosts] = useState(true);
         setIsFollowing(followerIds.includes(currentUserId));
 
         const fixedPosts = postsData.map(post => ({
-          ...post,
+          _id: post._id,
+          content: post.content,
+          likes: post.likes || [],
+          comments: post.comments || [],
           media: post.media?.map(m => ({
-            ...m,
             url: m.url.startsWith("http") ? m.url : `${API_BASE}${m.url}`,
-            isReel: m.isReel || (m.type === "video" && post.media.length === 1),
+            type: m.type,
+            isReel: m.isReel,
           })),
           user: {
-            ...post.user,
-            profilePic: post.user?.profilePic
-              ? fixUrl(post.user.profilePic, "/uploads/profiles/default-profile.png")
-              : `${API_BASE}/uploads/profiles/default-profile.png`,
+            name: post.user?.name,
+            profilePic: fixUrl(
+              post.user?.profilePic,
+              "/uploads/profiles/default-profile.png"
+            ),
           },
         }));
 
@@ -93,17 +113,26 @@ const [loadingPosts, setLoadingPosts] = useState(true);
         localStorage.removeItem("token");
         localStorage.removeItem("userId");
         navigate("/login");
+      } finally {
+        setLoadingPosts(false);
       }
     };
 
     fetchProfile();
 
-    return () => { isMounted = false };
+    return () => {
+      isMounted = false;
+    };
   }, [finalUserId, token, currentUserId, navigate]);
 
+  /* ================= ACTIONS ================= */
   const handleFollow = async () => {
     try {
-      await fetchWithToken(`${API_BASE}/api/users/${finalUserId}/follow`, token, { method: "PUT" });
+      await fetchWithToken(
+        `${API_BASE}/api/users/${finalUserId}/follow`,
+        token,
+        { method: "PUT" }
+      );
       setIsFollowing(!isFollowing);
     } catch (err) {
       console.error("FOLLOW ERROR:", err);
@@ -112,7 +141,12 @@ const [loadingPosts, setLoadingPosts] = useState(true);
 
   const handleLike = async (postId) => {
     try {
-      await fetchWithToken(`${API_BASE}/api/posts/${postId}/like`, token, { method: "PUT" });
+      await fetchWithToken(
+        `${API_BASE}/api/posts/${postId}/like`,
+        token,
+        { method: "PUT" }
+      );
+
       setPosts(prev =>
         prev.map(p =>
           p._id === postId
@@ -120,7 +154,7 @@ const [loadingPosts, setLoadingPosts] = useState(true);
                 ...p,
                 likes: p.likes.includes(currentUserId)
                   ? p.likes.filter(id => id !== currentUserId)
-                  : [...(p.likes || []), currentUserId],
+                  : [...p.likes, currentUserId],
               }
             : p
         )
@@ -145,7 +179,7 @@ const [loadingPosts, setLoadingPosts] = useState(true);
       setPosts(prev =>
         prev.map(p =>
           p._id === postId
-            ? { ...p, comments: [...(p.comments || []), comment] }
+            ? { ...p, comments: [...p.comments, comment] }
             : p
         )
       );
@@ -156,7 +190,9 @@ const [loadingPosts, setLoadingPosts] = useState(true);
 
   const handleUpdateProfile = async () => {
     if (!token) return;
+
     setSaving(true);
+
     try {
       const formData = new FormData();
       formData.append("bio", bio);
@@ -165,10 +201,7 @@ const [loadingPosts, setLoadingPosts] = useState(true);
       const updatedUser = await fetchWithToken(
         `${API_BASE}/api/users/${finalUserId}`,
         token,
-        {
-          method: "PUT",
-          body: formData,
-        }
+        { method: "PUT", body: formData }
       );
 
       setUser(updatedUser.user || updatedUser);
@@ -184,9 +217,10 @@ const [loadingPosts, setLoadingPosts] = useState(true);
     p.media?.some(m => m.isReel)
   );
 
+  /* ================= POST ITEM ================= */
   const PostItem = ({ post, idx }) => (
     <div className="bg-white rounded shadow overflow-hidden">
-      {post.media && post.media.length > 0 && (
+      {post.media?.length > 0 && (
         <div className="flex overflow-x-auto snap-x snap-mandatory">
           {post.media.map((m, i) => (
             <div key={i} className="flex-shrink-0 w-full h-64 relative snap-start">
@@ -195,9 +229,12 @@ const [loadingPosts, setLoadingPosts] = useState(true);
               ) : (
                 <>
                   <video
-                    src={m.url}
+                    ref={el => (feedRef.current[idx * 10 + i] = el)}
+                    data-src={m.url}
                     className="w-full h-full object-cover"
                     muted
+                    playsInline
+                    preload="none"
                     controls
                   />
                   {m.isReel && (
@@ -225,25 +262,17 @@ const [loadingPosts, setLoadingPosts] = useState(true);
 
   return (
     <div className="container mx-auto py-6 px-2 md:px-6 space-y-6">
-
       {/* COVER */}
       <div className="w-full h-40 md:h-56 bg-gray-200 rounded overflow-hidden relative">
         <img
           src={fixUrl(user.coverPhoto, "/uploads/profiles/default-cover.png")}
           className="w-full h-full object-cover"
         />
-        {isEditing && (
-          <div className="absolute top-2 left-2 bg-white p-2 rounded shadow">
-            <CoverPicUploader onUploaded={(url) => setUser(prev => ({ ...prev, coverPhoto: url }))} />
-          </div>
-        )}
       </div>
 
       {/* PROFILE */}
       <div className="bg-white p-4 rounded shadow space-y-4">
-
-        <div className="flex flex-col md:flex-row items-center md:items-start gap-4">
-
+        <div className="flex flex-col md:flex-row items-center gap-4">
           <img
             src={fixUrl(user.profilePic, "/uploads/profiles/default-profile.png")}
             className="w-24 h-24 rounded-full object-cover"
@@ -251,21 +280,8 @@ const [loadingPosts, setLoadingPosts] = useState(true);
 
           <div className="flex-1 text-center md:text-left">
             <h1 className="text-2xl font-bold">{user.name}</h1>
-
             <p>{user.intro}</p>
             <p className="text-gray-500">{user.bio}</p>
-
-            <div className="flex justify-center md:justify-start gap-4 mt-3 text-sm">
-              <span>{user.points || 0} points</span>
-
-              <span className="cursor-pointer" onClick={() => {setModalType("followers"); setShowModal(true);}}>
-                {user.followers?.length || 0} Followers
-              </span>
-
-              <span className="cursor-pointer" onClick={() => {setModalType("following"); setShowModal(true);}}>
-                {user.following?.length || 0} Following
-              </span>
-            </div>
           </div>
         </div>
 
@@ -282,42 +298,16 @@ const [loadingPosts, setLoadingPosts] = useState(true);
         </div>
       </div>
 
-      {/* TABS */}
-      <div className="bg-white rounded shadow flex justify-around py-3 text-sm font-semibold">
-        <button onClick={() => setActiveTab("posts")} className={activeTab === "posts" ? "text-blue-500" : "text-gray-500"}>Posts</button>
-        <button onClick={() => setActiveTab("reels")} className={activeTab === "reels" ? "text-blue-500" : "text-gray-500"}>Reels</button>
-        <button onClick={() => setActiveTab("about")} className={activeTab === "about" ? "text-blue-500" : "text-gray-500"}>About</button>
-      </div>
-
-      {/* CONTENT */}
+      {/* POSTS */}
       <div className="space-y-6">
-        {activeTab === "posts" && posts.map((p,i)=><PostItem key={p._id} post={p} idx={i}/>)}
-        {activeTab === "reels" && reelPosts.map((p,i)=><PostItem key={p._id} post={p} idx={i}/>)}
-        {activeTab === "about" && (
-          <div className="bg-white p-4 rounded shadow">
-            <p><b>Name:</b> {user.name}</p>
-            <p><b>Intro:</b> {user.intro}</p>
-            <p><b>Bio:</b> {user.bio}</p>
-          </div>
+        {loadingPosts ? (
+          <p className="text-center text-gray-500">Loading posts...</p>
+        ) : posts.length === 0 ? (
+          <p className="text-center text-gray-500">No posts yet</p>
+        ) : (
+          posts.map((p, i) => <PostItem key={p._id} post={p} idx={i} />)
         )}
       </div>
-
-      {/* MODAL */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white w-11/12 md:w-1/3 rounded p-4">
-            <h2 className="font-bold mb-3">{modalType}</h2>
-            {(user[modalType] || []).map((u,i)=>(
-              <div key={i} className="flex justify-between items-center mb-2">
-                <span>{u.name}</span>
-                <button onClick={()=>navigate(`/profile/${u._id}`)} className="text-blue-500">View</button>
-              </div>
-            ))}
-            <button onClick={()=>setShowModal(false)} className="mt-4">Close</button>
-          </div>
-        </div>
-      )}
-
     </div>
   );
 };
