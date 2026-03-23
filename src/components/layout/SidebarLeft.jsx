@@ -2,16 +2,18 @@ import React from "react";
 import { API_BASE } from "../../api/api";
 
 const SidebarLeft = ({ user }) => {
+  const safeUser = user && typeof user === "object" && !user.$$typeof ? user : {};
+
   return (
     <div className="bg-white p-4 rounded-xl shadow space-y-4">
 
       {/* USER */}
       <div className="flex items-center gap-3">
         <img
-          src={user?.profilePic || `${API_BASE}/uploads/profiles/default-profile.png`}
+          src={safeUser.profilePic || `${API_BASE}/uploads/profiles/default-profile.png`}
           className="w-10 h-10 rounded-full"
         />
-        <span className="font-semibold">{user?.name}</span>
+        <span className="font-semibold">{safeUser.name || "User"}</span>
       </div>
 
       {/* MENU */}
