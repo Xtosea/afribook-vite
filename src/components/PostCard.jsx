@@ -1,8 +1,7 @@
 // src/components/PostCard.jsx
-import React, { useState, useRef, useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { API_BASE } from "../api/api";
-import { io as socketIOClient } from "socket.io-client";
 
 const PostCard = ({ post, currentUserId, onLike, onComment, onShare, user: currentUser }) => {
   const [showComments, setShowComments] = useState(false);
@@ -13,11 +12,9 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, user: curre
   const [newActivity, setNewActivity] = useState(false);
 
   const videoRefs = useRef([]);
-  const socketRef = useRef(null);
 
   const likedByUser = likes.includes(currentUserId);
 
-  // ================= SAFE USER OBJECT =================
   const postUser = post.user || {
     _id: null,
     name: "Deleted User",
@@ -32,46 +29,7 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, user: curre
         : postUser.profilePic,
   };
 
-  // ================= SOCKET.IO =================
-  useEffect(() => {
-    socketRef.current = socketIOClient(API_BASE, { transports: ["websocket"] });
-
-    // Join room for post updates
-    socketRef.current.emit("join-post", post._id);
-
-    // Listen for likes
-    socketRef.current.on("post-like", (data) => {
-      if (data.postId === post._id && !likes.includes(data.userId)) {
-        setLikes((prev) => [...prev, data.userId]);
-        setNewActivity(true);
-        setTimeout(() => setNewActivity(false), 2000);
-      }
-    });
-
-    // Listen for comments
-    socketRef.current.on("post-comment", (data) => {
-      if (data.postId === post._id) {
-        setComments((prev) => [...prev, data.comment]);
-        setNewActivity(true);
-        setTimeout(() => setNewActivity(false), 2000);
-      }
-    });
-
-    return () => {
-      socketRef.current.disconnect();
-    };
-  }, [post._id, likes]);
-
-  // ================= COMMENT HANDLER =================
-  const handleCommentSubmit = (e) => {
-    e.preventDefault();
-    if (!commentText.trim()) return;
-
-    onComment && onComment(post._id, commentText);
-    setCommentText("");
-  };
-
-  // ================= VIDEO LAZY LOAD =================
+  /* ================= VIDEO LAZY PLAY ================= */
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -88,14 +46,23 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, user: curre
     return () => videoRefs.current.forEach((v) => v && observer.unobserve(v));
   }, [post.media]);
 
-  // ================= TAP TO LIKE =================
-  const handleVideoTapLike = (postId) => {
-    onLike && onLike(postId);
+  /* ================= TAP TO LIKE ================= */
+  const handleVideoTapLike = () => {
+    onLike && onLike(post._id);
     setLikedAnimation(true);
     setTimeout(() => setLikedAnimation(false), 800);
   };
 
-  // ================= IMAGE TRANSFORM =================
+  /* ================= COMMENT SUBMIT ================= */
+  const handleCommentSubmit = (e) => {
+    e.preventDefault();
+    if (!commentText.trim()) return;
+
+    onComment && onComment(post._id, commentText);
+    setCommentText("");
+  };
+
+  /* ================= IMAGE TRANSFORM (CLOUDINARY) ================= */
   const transformImage = (url, width = 600, height = 600) => {
     if (!url.includes("res.cloudinary.com")) return url;
     return url.replace("/upload/", `/upload/w_${width},h_${height},c_fill,q_auto,f_auto/`);
@@ -125,7 +92,7 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, user: curre
         </Link>
       </div>
 
-      {/* CONTENT */}
+      {/* POST CONTENT */}
       <div className="text-gray-700 space-y-1">
         <p>{post.content}</p>
         {post.feeling && <p className="text-gray-500 text-sm">Feeling {post.feeling}</p>}
@@ -151,7 +118,9 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, user: curre
                   controls
                   preload="metadata"
                   className="w-full h-48 rounded object-cover cursor-pointer hover:scale-105 transition-transform"
-                  onClick={() => handleVideoTapLike(post._id)}
+                  onClick={handleVideoTapLike}
+                  muted
+                  playsInline
                 />
                 {likedAnimation && likedByUser && (
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -164,20 +133,28 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, user: curre
         </div>
       )}
 
-      {/* ACTIONS */}
+      {/* ACTION BUTTONS */}
       <div className="flex items-center gap-4 mt-2 text-sm">
         <button
           onClick={() => onLike && onLike(post._id)}
-          className={`px-2 py-1 rounded ${likedByUser ? "bg-red-400 text-white" : "bg-gray-200"}`}
+          className={`px-2 py-1 rounded ${
+            likedByUser ? "bg-red-400 text-white" : "bg-gray-200"
+          }`}
         >
           {likedByUser ? "❤️ Liked" : "🤍 Like"} ({likes.length})
         </button>
 
-        <button onClick={() => setShowComments(!showComments)} className="px-2 py-1 bg-gray-200 rounded">
+        <button
+          onClick={() => setShowComments(!showComments)}
+          className="px-2 py-1 bg-gray-200 rounded"
+        >
           💬 Comments ({comments.length})
         </button>
 
-        <button onClick={() => onShare && onShare(post)} className="px-2 py-1 bg-gray-200 rounded">
+        <button
+          onClick={() => onShare && onShare(post)}
+          className="px-2 py-1 bg-gray-200 rounded"
+        >
           🔗 Share
         </button>
       </div>
@@ -204,7 +181,10 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, user: curre
               onChange={(e) => setCommentText(e.target.value)}
               className="flex-1 border rounded px-2 py-1 text-sm"
             />
-            <button type="submit" className="px-3 py-1 bg-blue-500 text-white rounded text-sm">
+            <button
+              type="submit"
+              className="px-3 py-1 bg-blue-500 text-white rounded text-sm"
+            >
               Send
             </button>
           </form>
