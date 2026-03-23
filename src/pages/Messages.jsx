@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import ChatSidebar from "../components/chat/ChatSidebar";
+import ChatSidebar from "../../components/chat/ChatSidebar";
 import ChatWindow from "../../../components/chat/ChatWindow";
 import { socket } from "../socket";
 
