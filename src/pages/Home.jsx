@@ -1,8 +1,10 @@
+// src/pages/Home.jsx
 import React, { useEffect, useRef, useState } from "react";
 import PostCard from "../components/PostCard";
 import SidebarLeft from "../components/layout/SidebarLeft";
 import SidebarRight from "../components/layout/SidebarRight";
 import StoriesBar from "../components/layout/StoriesBar";
+import MediaUpload from "../components/MediaUpload";
 
 import { API_BASE, fetchWithToken } from "../api/api";
 import { socket } from "../socket";
@@ -10,8 +12,6 @@ import { useCloudinaryUpload } from "../hooks/useCloudinaryUpload";
 import { useR2Upload } from "../hooks/useR2Upload";
 
 import EmojiPicker from "emoji-picker-react";
-import { FiUpload } from "react-icons/fi";
-import MediaUpload from "../components/MediaUpload";
 
 /* ================= LAZY VIDEO ================= */
 const useLazyVideo = (ref) => {
@@ -71,14 +71,9 @@ const Home = () => {
 
   const [expanded, setExpanded] = useState(false);
   const [posting, setPosting] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-
   const [showEmoji, setShowEmoji] = useState(false);
 
   const feedRef = useRef();
-  const fileInputRef = useRef();
-
-const [mediaFiles, setMediaFiles] = useState([]);
 
   const { uploadImage } = useCloudinaryUpload();
   const { uploadVideo } = useR2Upload();
@@ -112,55 +107,56 @@ const [mediaFiles, setMediaFiles] = useState([]);
 
   /* ================= CREATE POST ================= */
   const handleSubmitPost = async (e) => {
-  e.preventDefault();
-  if (!newPost && mediaFiles.length === 0) return;
+    e.preventDefault();
+    if (!newPost && mediaFiles.length === 0) return;
 
-  setPosting(true);
+    setPosting(true);
 
-  try {
-    const uploadedMedia = [];
+    try {
+      const uploadedMedia = [];
 
-    for (const file of mediaFiles) {
-      let url;
-      if (file.type.startsWith("image")) {
-        url = await uploadImage(file);
-      } else {
-        url = await uploadVideo(file);
+      for (const file of mediaFiles) {
+        let url;
+
+        if (file.type.startsWith("image")) {
+          url = await uploadImage(file);
+        } else {
+          url = await uploadVideo(file);
+        }
+
+        uploadedMedia.push({
+          url,
+          type: file.type.startsWith("image") ? "image" : "video",
+        });
       }
 
-      uploadedMedia.push({
-        url,
-        type: file.type.startsWith("image") ? "image" : "video",
+      const res = await fetch(`${API_BASE}/api/posts`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          content: newPost,
+          media: uploadedMedia,
+        }),
       });
+
+      const data = await res.json();
+
+      setPosts((prev) => [data.post, ...prev]);
+      socket.emit("new-video", data.post);
+
+      setNewPost("");
+      setMediaFiles([]);
+      setExpanded(false);
+
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setPosting(false);
     }
-
-    const res = await fetch(`${API_BASE}/api/posts`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        content: newPost,
-        media: uploadedMedia,
-      }),
-    });
-
-    const data = await res.json();
-
-    setPosts((prev) => [data.post, ...prev]);
-    socket.emit("new-video", data.post);
-
-    setNewPost("");
-    setMediaFiles([]); // ✅ correct
-    setExpanded(false);
-
-  } catch (err) {
-    console.error(err);
-  } finally {
-    setPosting(false);
-  }
-};
+  };
 
   /* ================= INTERACTIONS ================= */
   const handleLike = (postId) => {
@@ -212,32 +208,28 @@ const [mediaFiles, setMediaFiles] = useState([]);
           {expanded && (
             <>
               <div className="flex gap-2 flex-wrap">
-                <label className="cursor-pointer flex items-center gap-1 border px-3 py-1 rounded-full">
-                  <FiUpload />
-                  Media
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    multiple
-                    hidden
-                    onChange={(e) => setMediaFiles([...e.target.files])}
-                  />
-                </label>
-
                 <button
                   type="button"
                   onClick={() => setShowEmoji(!showEmoji)}
                   className="border px-3 py-1 rounded-full"
                 >
-                  😊
+                  😊 Emoji
                 </button>
               </div>
 
               {showEmoji && (
                 <EmojiPicker
-                  onEmojiClick={(e) => setNewPost((prev) => prev + e.emoji)}
+                  onEmojiClick={(e) =>
+                    setNewPost((prev) => prev + e.emoji)
+                  }
                 />
               )}
+
+              {/* ✅ MEDIA UPLOAD COMPONENT */}
+              <MediaUpload
+                mediaFiles={mediaFiles}
+                setMediaFiles={setMediaFiles}
+              />
 
               <button className="bg-blue-500 text-white px-4 py-2 rounded">
                 {posting ? "Posting..." : "Post"}
@@ -272,7 +264,6 @@ const [mediaFiles, setMediaFiles] = useState([]);
       <div className="hidden md:block">
         <SidebarRight />
       </div>
-
     </div>
   );
 };
