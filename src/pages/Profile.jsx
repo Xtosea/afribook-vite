@@ -25,6 +25,8 @@ const Profile = () => {
   const [loadingPosts, setLoadingPosts] = useState(true);
   const [editing, setEditing] = useState(false);
   const [activeTab, setActiveTab] = useState("Posts");
+  const [saving, setSaving] = useState(false); // spinner
+  const [uploadProgress, setUploadProgress] = useState(0); // progress bar
 
   const [formData, setFormData] = useState({
     name: "",
@@ -108,15 +110,24 @@ const Profile = () => {
   /* ================= SAVE PROFILE ================= */
   const handleSave = async () => {
     try {
+      setSaving(true);
+      setUploadProgress(0);
+
       let profilePicUrl = user.profilePic;
       let coverPhotoUrl = user.coverPhoto;
 
+      // Upload profile picture if selected
       if (formData.profilePic) {
-        profilePicUrl = await uploadImageKit(formData.profilePic, token);
+        profilePicUrl = await uploadImageKit(formData.profilePic, token, (progress) =>
+          setUploadProgress(progress)
+        );
       }
 
+      // Upload cover photo if selected
       if (formData.coverPhoto) {
-        coverPhotoUrl = await uploadImageKit(formData.coverPhoto, token);
+        coverPhotoUrl = await uploadImageKit(formData.coverPhoto, token, (progress) =>
+          setUploadProgress(progress)
+        );
       }
 
       const payload = {
@@ -149,8 +160,12 @@ const Profile = () => {
       setPreviewProfilePic(result.user.profilePic);
       setPreviewCoverPhoto(result.user.coverPhoto);
       setEditing(false);
+      setSaving(false);
+      setUploadProgress(0);
     } catch (err) {
       console.error("Profile update error:", err);
+      setSaving(false);
+      setUploadProgress(0);
     }
   };
 
@@ -180,7 +195,9 @@ const Profile = () => {
         </div>
       )}
 
-      {activeTab === "About" && <UserInfoCard user={user} />}
+      {activeTab === "About" && (
+        <UserInfoCard user={user} editable={true} formData={formData} setFormData={setFormData} />
+      )}
 
       <EditProfileModal
         editing={editing}
@@ -189,6 +206,8 @@ const Profile = () => {
         handleSave={handleSave}
         handleInputChange={handleInputChange}
         handleFileChange={handleFileChange}
+        saving={saving}
+        uploadProgress={uploadProgress}
       />
     </div>
   );
