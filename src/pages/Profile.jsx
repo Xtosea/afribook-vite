@@ -1,8 +1,8 @@
+// src/pages/Profile.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import PostCard from "../components/PostCard";
 import { fetchWithToken, API_BASE } from "../api/api";
-import { getSocket } from "../socket";
 
 import ProfileHeader from "../components/profile/ProfileHeader";
 import UserInfoCard from "../components/profile/UserInfoCard";
@@ -43,100 +43,121 @@ const Profile = () => {
   const [previewProfilePic, setPreviewProfilePic] = useState(null);
   const [previewCoverPhoto, setPreviewCoverPhoto] = useState(null);
 
-  /* ================= FETCH ================= */
-useEffect(() => {
-  if (!token) return navigate("/login");
+  /* ================= FETCH PROFILE & POSTS ================= */
+  useEffect(() => {
+    if (!token) return navigate("/login");
 
-  const fetchProfile = async () => {
-    try {
-      const userData = await fetchWithToken(`${API_BASE}/api/users/${finalUserId}`, token);
-      const postsData = await fetchWithToken(`${API_BASE}/api/posts/user/${finalUserId}`, token);
+    const fetchProfile = async () => {
+      try {
+        const userData = await fetchWithToken(
+          `${API_BASE}/api/users/${finalUserId}`,
+          token
+        );
+        const postsData = await fetchWithToken(
+          `${API_BASE}/api/posts/user/${finalUserId}`,
+          token
+        );
 
-      setUser(userData);
-      setPosts(postsData || []);
+        setUser(userData);
+        setPosts(postsData || []);
 
-      setPreviewProfilePic(userData.profilePic);
-      setPreviewCoverPhoto(userData.coverPhoto);
+        setPreviewProfilePic(userData.profilePic);
+        setPreviewCoverPhoto(userData.coverPhoto);
 
-      setFormData({
-        name: userData.name || "",
-        bio: userData.bio || "",
-        intro: userData.intro || "",
-        dob: userData.dob || "",
-        phone: userData.phone || "",
-        education: userData.education || "",
-        origin: userData.origin || "",
-        maritalStatus: userData.maritalStatus || "",
-        email: userData.email || "",
-        profilePic: null,
-        coverPhoto: null,
-      });
-
-    } catch (err) {
-      console.error("FETCH ERROR:", err);
-    } finally {
-      setLoadingPosts(false); // ✅ ALWAYS STOP LOADING
-    }
-  };
-
-  fetchProfile();
-}, [finalUserId, token]);
-
-/* ================= SAVE ================= */
-const handleSave = async () => {
-  try {
-    let profilePicUrl = user.profilePic;
-    let coverPhotoUrl = user.coverPhoto;
-
-    if (formData.profilePic) {
-      profilePicUrl = await uploadImageKit(formData.profilePic, token);
-    }
-
-    if (formData.coverPhoto) {
-      coverPhotoUrl = await uploadImageKit(formData.coverPhoto, token);
-    }
-
-    const payload = {
-      name: formData.name,
-      bio: formData.bio,
-      intro: formData.intro,
-      dob: formData.dob,
-      phone: formData.phone,
-      education: formData.education,
-      origin: formData.origin,
-      maritalStatus: formData.maritalStatus,
-      email: formData.email,
-      profilePic: profilePicUrl,
-      coverPhoto: coverPhotoUrl,
+        setFormData({
+          name: userData.name || "",
+          bio: userData.bio || "",
+          intro: userData.intro || "",
+          dob: userData.dob || "",
+          phone: userData.phone || "",
+          education: userData.education || "",
+          origin: userData.origin || "",
+          maritalStatus: userData.maritalStatus || "",
+          email: userData.email || "",
+          profilePic: null,
+          coverPhoto: null,
+        });
+      } catch (err) {
+        console.error("FETCH ERROR:", err);
+      } finally {
+        setLoadingPosts(false);
+      }
     };
 
-    const res = await fetch(`${API_BASE}/api/users/${finalUserId}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(payload),
-    });
+    fetchProfile();
+  }, [finalUserId, token, navigate]);
 
-    const result = await res.json();
-    if (!res.ok) throw new Error(result.error);
+  /* ================= INPUT CHANGE HANDLER ================= */
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
-    setUser(result.user);
-    setPreviewProfilePic(result.user.profilePic);
-    setPreviewCoverPhoto(result.user.coverPhoto);
-    setEditing(false);
+  /* ================= FILE CHANGE HANDLER ================= */
+  const handleFileChange = (e, field) => {
+    const file = e.target.files[0];
+    if (!file) return;
 
-  } catch (err) {
-    console.error("Profile update error:", err);
-  }
-};
+    setFormData((prev) => ({ ...prev, [field]: file }));
+
+    const preview = URL.createObjectURL(file);
+    if (field === "profilePic") setPreviewProfilePic(preview);
+    if (field === "coverPhoto") setPreviewCoverPhoto(preview);
+  };
+
+  /* ================= SAVE PROFILE ================= */
+  const handleSave = async () => {
+    try {
+      let profilePicUrl = user.profilePic;
+      let coverPhotoUrl = user.coverPhoto;
+
+      if (formData.profilePic) {
+        profilePicUrl = await uploadImageKit(formData.profilePic, token);
+      }
+
+      if (formData.coverPhoto) {
+        coverPhotoUrl = await uploadImageKit(formData.coverPhoto, token);
+      }
+
+      const payload = {
+        name: formData.name,
+        bio: formData.bio,
+        intro: formData.intro,
+        dob: formData.dob,
+        phone: formData.phone,
+        education: formData.education,
+        origin: formData.origin,
+        maritalStatus: formData.maritalStatus,
+        email: formData.email,
+        profilePic: profilePicUrl,
+        coverPhoto: coverPhotoUrl,
+      };
+
+      const res = await fetch(`${API_BASE}/api/users/${finalUserId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error);
+
+      setUser(result.user);
+      setPreviewProfilePic(result.user.profilePic);
+      setPreviewCoverPhoto(result.user.coverPhoto);
+      setEditing(false);
+    } catch (err) {
+      console.error("Profile update error:", err);
+    }
+  };
 
   if (!user) return <p>Loading profile...</p>;
 
   return (
     <div className="container mx-auto py-6 space-y-6">
-
       <ProfileHeader
         user={user}
         isOwner={true}
@@ -149,24 +170,26 @@ const handleSave = async () => {
 
       {activeTab === "Posts" && (
         <div className="space-y-4">
-          {loadingPosts ? <p>Loading...</p> :
-            posts.map(post => (
+          {loadingPosts ? (
+            <p>Loading...</p>
+          ) : (
+            posts.map((post) => (
               <PostCard key={post._id} post={post} currentUserId={currentUserId} />
             ))
-          }
+          )}
         </div>
       )}
 
       {activeTab === "About" && <UserInfoCard user={user} />}
 
       <EditProfileModal
-  editing={editing}
-  setEditing={setEditing}
-  formData={formData}
-  handleSave={handleSave}
-  handleFileChange={handleFileChange} // ✅ Pass the file handler here
-/>
-
+        editing={editing}
+        setEditing={setEditing}
+        formData={formData}
+        handleSave={handleSave}
+        handleInputChange={handleInputChange}
+        handleFileChange={handleFileChange}
+      />
     </div>
   );
 };
