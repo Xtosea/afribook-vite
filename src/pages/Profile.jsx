@@ -27,19 +27,23 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState("Posts");
 
   const [formData, setFormData] = useState({
-    name: "",
-    bio: "",
-    intro: "",
-    dob: "",
-    phone: "",
-    education: "",
-    origin: "",
-    maritalStatus: "",
-    spouse: "",
-    gender: "",
-    email: "",
-    profilePic: null,
-    coverPhoto: null,
+   const fields = [
+  "name",
+  "bio",
+  "intro",
+  "dob",
+  "phone",
+  "education",
+  "origin",
+  "maritalStatus",
+  "spouse",   // ✅ add this
+  "gender",   // ✅ add this
+  "email",
+  "hubby",
+
+];
+];
+];
   });
 
   const [previewProfilePic, setPreviewProfilePic] = useState(null);
@@ -114,64 +118,56 @@ const Profile = () => {
 
   /* ================= SAVE PROFILE WITH PROGRESS ================= */
   const handleSave = async () => {
-    try {
-      setSaving(true);
-      setUploadProgress(0);
+  try {
+    setSaving(true);
 
-      let profilePicUrl = user.profilePic;
-      let coverPhotoUrl = user.coverPhoto;
+    const form = new FormData();
 
-      if (formData.profilePic) {
-        profilePicUrl = await uploadImageKit(formData.profilePic, token, (percent) =>
-          setUploadProgress(percent)
-        );
-      }
+    // TEXT FIELDS
+    form.append("name", formData.name);
+    form.append("bio", formData.bio);
+    form.append("intro", formData.intro);
+    form.append("dob", formData.dob);
+    form.append("phone", formData.phone);
+    form.append("education", formData.education);
+    form.append("origin", formData.origin);
+    form.append("maritalStatus", formData.maritalStatus);
+    form.append("spouse", formData.spouse);
+    form.append("gender", formData.gender);
+    form.append("email", formData.email);
+form.append("hubby", formData.hubbyl);
 
-      if (formData.coverPhoto) {
-        coverPhotoUrl = await uploadImageKit(formData.coverPhoto, token, (percent) =>
-          setUploadProgress(percent)
-        );
-      }
-
-      const payload = {
-        name: formData.name,
-        bio: formData.bio,
-        intro: formData.intro,
-        dob: formData.dob,
-        phone: formData.phone,
-        education: formData.education,
-        origin: formData.origin,
-        maritalStatus: formData.maritalStatus,
-        spouse: formData.spouse,
-        gender: formData.gender,
-        email: formData.email,
-        profilePic: profilePicUrl,
-        coverPhoto: coverPhotoUrl,
-      };
-
-      const res = await fetch(`${API_BASE}/api/users/${finalUserId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      const result = await res.json();
-      if (!res.ok) throw new Error(result.error);
-
-      setUser(result.user);
-      setPreviewProfilePic(result.user.profilePic);
-      setPreviewCoverPhoto(result.user.coverPhoto);
-      setEditing(false);
-    } catch (err) {
-      console.error("Profile update error:", err);
-    } finally {
-      setSaving(false);
-      setUploadProgress(0);
+    // FILES
+    if (formData.profilePic) {
+      form.append("profilePic", formData.profilePic);
     }
-  };
+
+    if (formData.coverPhoto) {
+      form.append("coverPhoto", formData.coverPhoto);
+    }
+
+    const res = await fetch(`${API_BASE}/api/users/${finalUserId}`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`, // ❌ NO Content-Type here
+      },
+      body: form,
+    });
+
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.error);
+
+    setUser(result.user);
+    setPreviewProfilePic(result.user.profilePic);
+    setPreviewCoverPhoto(result.user.coverPhoto);
+    setEditing(false);
+
+  } catch (err) {
+    console.error("Profile update error:", err);
+  } finally {
+    setSaving(false);
+  }
+};
 
   if (!user) return <p>Loading profile...</p>;
 
