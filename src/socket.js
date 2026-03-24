@@ -16,7 +16,7 @@ export const connectSocket = () => {
   }
 
   if (!socket) {
-    socket = io("https://africbook-backend.onrender.com", { // ✅ Hardcoded backend URL
+    socket = io("https://afribook-backend.onrender.com", { // ✅ Hardcoded backend URL
       auth: { token },
       transports: ["websocket", "polling"],
       withCredentials: true,
