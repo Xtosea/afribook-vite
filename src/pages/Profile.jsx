@@ -1,4 +1,3 @@
-// src/pages/Profile.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import PostCard from "../components/PostCard";
@@ -8,7 +7,6 @@ import ProfileHeader from "../components/profile/ProfileHeader";
 import UserInfoCard from "../components/profile/UserInfoCard";
 import ProfileTabs from "../components/profile/ProfileTabs";
 import EditProfileModal from "../components/profile/EditProfileModal";
-import { useImageKitUpload } from "../hooks/useImageKitUpload";
 
 const Profile = () => {
   const { userId } = useParams();
@@ -17,8 +15,6 @@ const Profile = () => {
   const token = localStorage.getItem("token");
   const currentUserId = localStorage.getItem("userId");
   const finalUserId = userId || currentUserId;
-
-  const { uploadImageKit } = useImageKitUpload();
 
   const [user, setUser] = useState(null);
   const [posts, setPosts] = useState([]);
@@ -45,28 +41,7 @@ const Profile = () => {
 
   const [previewProfilePic, setPreviewProfilePic] = useState(null);
   const [previewCoverPhoto, setPreviewCoverPhoto] = useState(null);
-
   const [saving, setSaving] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState({
-    profilePic: 0,
-    coverPhoto: 0,
-  });
-
-  // ✅ Fields array for looping in handleSave
-  const fields = [
-    "name",
-    "bio",
-    "intro",
-    "dob",
-    "phone",
-    "education",
-    "origin",
-    "maritalStatus",
-    "spouse",
-    "gender",
-    "email",
-    "hubby",
-  ];
 
   /* ================= FETCH PROFILE & POSTS ================= */
   useEffect(() => {
@@ -74,36 +49,19 @@ const Profile = () => {
 
     const fetchProfile = async () => {
       try {
-        const userData = await fetchWithToken(
-          `${API_BASE}/api/users/${finalUserId}`,
-          token
-        );
-        const postsData = await fetchWithToken(
-          `${API_BASE}/api/posts/user/${finalUserId}`,
-          token
-        );
+        const userData = await fetchWithToken(`${API_BASE}/api/users/${finalUserId}`, token);
+        const postsData = await fetchWithToken(`${API_BASE}/api/posts/user/${finalUserId}`, token);
 
         setUser(userData);
         setPosts(postsData || []);
-
         setPreviewProfilePic(userData.profilePic);
         setPreviewCoverPhoto(userData.coverPhoto);
 
         setFormData({
-          name: userData.name || "",
-          bio: userData.bio || "",
-          intro: userData.intro || "",
-          dob: userData.dob || "",
-          phone: userData.phone || "",
-          education: userData.education || "",
-          origin: userData.origin || "",
-          maritalStatus: userData.maritalStatus || "",
-          spouse: userData.spouse || "",
-          gender: userData.gender || "",
-          email: userData.email || "",
+          ...formData,
+          ...userData,
           profilePic: null,
           coverPhoto: null,
-          hubby: userData.hubby || "",
         });
       } catch (err) {
         console.error("FETCH ERROR:", err);
@@ -127,43 +85,27 @@ const Profile = () => {
     if (!file) return;
 
     setFormData((prev) => ({ ...prev, [field]: file }));
-
-    const preview = URL.createObjectURL(file);
-    if (field === "profilePic") setPreviewProfilePic(preview);
-    if (field === "coverPhoto") setPreviewCoverPhoto(preview);
+    if (field === "profilePic") setPreviewProfilePic(URL.createObjectURL(file));
+    if (field === "coverPhoto") setPreviewCoverPhoto(URL.createObjectURL(file));
   };
 
-  /* ================= SAVE PROFILE WITH PROGRESS ================= */
+  /* ================= SAVE PROFILE ================= */
   const handleSave = async () => {
     try {
       setSaving(true);
-
       const form = new FormData();
 
-      // Upload profilePic
-      if (formData.profilePic instanceof File) {
-        const url = await uploadImageKit(formData.profilePic, (p) =>
-          setUploadProgress((prev) => ({ ...prev, profilePic: p }))
-        );
-        form.append("profilePic", url);
-      }
-
-      // Upload coverPhoto
-      if (formData.coverPhoto instanceof File) {
-        const url = await uploadImageKit(formData.coverPhoto, (p) =>
-          setUploadProgress((prev) => ({ ...prev, coverPhoto: p }))
-        );
-        form.append("coverPhoto", url);
-      }
-
-      // Append text fields
-      fields.forEach((field) => form.append(field, formData[field]));
+      Object.entries(formData).forEach(([key, value]) => {
+        if (value instanceof File) {
+          form.append(key, value);
+        } else {
+          form.append(key, value || "");
+        }
+      });
 
       const res = await fetch(`${API_BASE}/api/users/${finalUserId}`, {
         method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
         body: form,
       });
 
@@ -197,24 +139,12 @@ const Profile = () => {
 
       {activeTab === "Posts" && (
         <div className="space-y-4">
-          {loadingPosts ? (
-            <p>Loading...</p>
-          ) : (
-            posts.map((post) => (
-              <PostCard key={post._id} post={post} currentUserId={currentUserId} />
-            ))
-          )}
+          {loadingPosts ? <p>Loading...</p> : posts.map((post) => <PostCard key={post._id} post={post} currentUserId={currentUserId} />)}
         </div>
       )}
 
       {activeTab === "About" && (
-        <UserInfoCard
-          user={user}
-          editable={editing}
-          formData={formData}
-          setFormData={setFormData}
-          handleSave={handleSave}
-        />
+        <UserInfoCard user={user} editable={editing} formData={formData} setFormData={setFormData} handleSave={handleSave} />
       )}
 
       <EditProfileModal
@@ -225,7 +155,6 @@ const Profile = () => {
         handleInputChange={handleInputChange}
         handleFileChange={handleFileChange}
         uploading={saving}
-        uploadProgress={uploadProgress}
       />
     </div>
   );
