@@ -91,13 +91,13 @@ const Profile = () => {
     fetchProfile();
   }, [finalUserId, token, navigate]);
 
-  // Handle text input changes
+  // Text input change
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // Handle file input changes
+  // File input change
   const handleFileChange = (e, field) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -113,10 +113,9 @@ const Profile = () => {
   const handleSave = async () => {
     try {
       setSaving(true);
-
       const form = new FormData();
 
-      // Upload profilePic
+      // Upload profilePic if new
       if (formData.profilePic instanceof File) {
         const url = await uploadImageKit(formData.profilePic, p =>
           setUploadProgress(prev => ({ ...prev, profilePic: p }))
@@ -124,7 +123,7 @@ const Profile = () => {
         form.append("profilePic", url);
       }
 
-      // Upload coverPhoto
+      // Upload coverPhoto if new
       if (formData.coverPhoto instanceof File) {
         const url = await uploadImageKit(formData.coverPhoto, p =>
           setUploadProgress(prev => ({ ...prev, coverPhoto: p }))
@@ -148,7 +147,6 @@ const Profile = () => {
       setPreviewProfilePic(result.user.profilePic);
       setPreviewCoverPhoto(result.user.coverPhoto);
       setEditing(false);
-
     } catch (err) {
       console.error("Profile update error:", err);
     } finally {
@@ -201,6 +199,8 @@ const Profile = () => {
         handleFileChange={handleFileChange}
         uploading={saving}
         uploadProgress={uploadProgress}
+        previewProfilePic={previewProfilePic}
+        previewCoverPhoto={previewCoverPhoto}
       />
     </div>
   );
