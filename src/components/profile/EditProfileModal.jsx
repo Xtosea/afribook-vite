@@ -8,6 +8,8 @@ const EditProfileModal = ({
   handleSave,
   handleInputChange,
   handleFileChange,
+  previewProfilePic,
+  previewCoverPhoto,
   saving,
   uploadProgress,
 }) => {
@@ -18,32 +20,125 @@ const EditProfileModal = ({
       <div className="bg-white rounded-lg p-6 w-96 overflow-y-auto max-h-[90vh]">
         <h2 className="text-xl font-bold mb-4">Edit Profile</h2>
 
-        {[
-          { name: "name", placeholder: "Name" },
-          { name: "bio", placeholder: "Bio" },
-          { name: "intro", placeholder: "Intro" },
-          { name: "dob", placeholder: "DOB", type: "date" },
-          { name: "phone", placeholder: "Phone" },
-          { name: "education", placeholder: "Education" },
-          { name: "origin", placeholder: "Origin" },
-          { name: "maritalStatus", placeholder: "Marital Status" },
-          { name: "spouse", placeholder: "Spouse Name" },
-          { name: "gender", placeholder: "Gender" },
-          { name: "email", placeholder: "Email", type: "email" },
-        ].map((field) => (
-          <input
-            key={field.name}
-            type={field.type || "text"}
-            name={field.name}
-            placeholder={field.placeholder}
-            value={formData[field.name] || ""}
-            onChange={handleInputChange}
-            className="border p-2 w-full mb-3"
-          />
-        ))}
+        {/* Name */}
+        <input
+          type="text"
+          name="name"
+          placeholder="Name"
+          value={formData.name}
+          onChange={handleInputChange}
+          className="border p-2 w-full mb-3"
+        />
+
+        {/* Bio */}
+        <input
+          type="text"
+          name="bio"
+          placeholder="Bio"
+          value={formData.bio}
+          onChange={handleInputChange}
+          className="border p-2 w-full mb-3"
+        />
+
+        {/* Intro */}
+        <input
+          type="text"
+          name="intro"
+          placeholder="Intro"
+          value={formData.intro}
+          onChange={handleInputChange}
+          className="border p-2 w-full mb-3"
+        />
+
+        {/* DOB */}
+        <input
+          type="date"
+          name="dob"
+          placeholder="DOB"
+          value={formData.dob}
+          onChange={handleInputChange}
+          className="border p-2 w-full mb-3"
+        />
+
+        {/* Phone */}
+        <input
+          type="text"
+          name="phone"
+          placeholder="Phone"
+          value={formData.phone}
+          onChange={handleInputChange}
+          className="border p-2 w-full mb-3"
+        />
+
+        {/* Education */}
+        <input
+          type="text"
+          name="education"
+          placeholder="Education"
+          value={formData.education}
+          onChange={handleInputChange}
+          className="border p-2 w-full mb-3"
+        />
+
+        {/* Origin */}
+        <input
+          type="text"
+          name="origin"
+          placeholder="Origin"
+          value={formData.origin}
+          onChange={handleInputChange}
+          className="border p-2 w-full mb-3"
+        />
+
+        {/* Marital Status */}
+        <input
+          type="text"
+          name="maritalStatus"
+          placeholder="Marital Status"
+          value={formData.maritalStatus}
+          onChange={handleInputChange}
+          className="border p-2 w-full mb-3"
+        />
+
+        {/* Spouse */}
+        <input
+          type="text"
+          name="spouse"
+          placeholder="Spouse"
+          value={formData.spouse || ""}
+          onChange={handleInputChange}
+          className="border p-2 w-full mb-3"
+        />
+
+        {/* Gender */}
+        <input
+          type="text"
+          name="gender"
+          placeholder="Gender"
+          value={formData.gender || ""}
+          onChange={handleInputChange}
+          className="border p-2 w-full mb-3"
+        />
+
+        {/* Email */}
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          value={formData.email}
+          onChange={handleInputChange}
+          className="border p-2 w-full mb-3"
+        />
 
         {/* Profile Picture */}
         <label className="block mb-2">Profile Picture:</label>
+        {previewProfilePic && (
+          <img
+            src={previewProfilePic}
+            alt="Profile Preview"
+            className="w-20 h-20 object-cover rounded-full mb-2"
+          />
+        )}
         <input
           type="file"
           onChange={(e) => handleFileChange(e, "profilePic")}
@@ -52,6 +147,13 @@ const EditProfileModal = ({
 
         {/* Cover Photo */}
         <label className="block mb-2">Cover Photo:</label>
+        {previewCoverPhoto && (
+          <img
+            src={previewCoverPhoto}
+            alt="Cover Preview"
+            className="w-full h-24 object-cover rounded mb-2"
+          />
+        )}
         <input
           type="file"
           onChange={(e) => handleFileChange(e, "coverPhoto")}
@@ -78,7 +180,9 @@ const EditProfileModal = ({
             Cancel
           </button>
           <button
-            className={`px-4 py-2 rounded text-white ${saving ? "bg-blue-300" : "bg-blue-500"}`}
+            className={`px-4 py-2 rounded text-white ${
+              saving ? "bg-blue-300" : "bg-blue-500"
+            }`}
             onClick={handleSave}
             disabled={saving}
           >
