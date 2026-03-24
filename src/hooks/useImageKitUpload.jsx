@@ -1,4 +1,4 @@
-// hooks/useImageKitUpload.js
+// frontend/hooks/useImageKitUpload.js
 import ImageKit from "imagekit-javascript";
 
 export const useImageKitUpload = () => {
@@ -11,10 +11,14 @@ export const useImageKitUpload = () => {
   const uploadImageKit = (file, onProgress = () => {}) => {
     return new Promise((resolve, reject) => {
       imagekit.upload(
-        { file, fileName: file.name, folder: "/profile_uploads" },
+        {
+          file,
+          fileName: file.name,
+          folder: "/profile_uploads",
+        },
         (error, result) => {
           if (error) return reject(error);
-          resolve(result.url);
+          resolve(result.url); // returns the uploaded image URL
         },
         (percent) => onProgress(percent)
       );
