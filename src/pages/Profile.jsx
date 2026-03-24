@@ -44,10 +44,11 @@ const Profile = () => {
   const [previewCoverPhoto, setPreviewCoverPhoto] = useState(null);
 
   /* ================= FETCH ================= */
-  useEffect(() => {
-    if (!token) return navigate("/login");
+useEffect(() => {
+  if (!token) return navigate("/login");
 
-    const fetchProfile = async () => {
+  const fetchProfile = async () => {
+    try {
       const userData = await fetchWithToken(`${API_BASE}/api/users/${finalUserId}`, token);
       const postsData = await fetchWithToken(`${API_BASE}/api/posts/user/${finalUserId}`, token);
 
@@ -58,73 +59,78 @@ const Profile = () => {
       setPreviewCoverPhoto(userData.coverPhoto);
 
       setFormData({
-        ...userData,
+        name: userData.name || "",
+        bio: userData.bio || "",
+        intro: userData.intro || "",
+        dob: userData.dob || "",
+        phone: userData.phone || "",
+        education: userData.education || "",
+        origin: userData.origin || "",
+        maritalStatus: userData.maritalStatus || "",
+        email: userData.email || "",
         profilePic: null,
         coverPhoto: null,
       });
 
-      setLoadingPosts(false);
-    };
-
-    fetchProfile();
-  }, [finalUserId, token]);
-
-  /* ================= FILE CHANGE ================= */
-  const handleFileChange = (e, field) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    setFormData(prev => ({ ...prev, [field]: file }));
-
-    const preview = URL.createObjectURL(file);
-    if (field === "profilePic") setPreviewProfilePic(preview);
-    if (field === "coverPhoto") setPreviewCoverPhoto(preview);
-  };
-
-  /* ================= SAVE ================= */
-  const handleSave = async () => {
-    try {
-      let profilePicUrl = user.profilePic;
-      let coverPhotoUrl = user.coverPhoto;
-
-      if (formData.profilePic) {
-        profilePicUrl = await uploadImageKit(formData.profilePic, token);
-      }
-
-      if (formData.coverPhoto) {
-        coverPhotoUrl = await uploadImageKit(formData.coverPhoto, token);
-      }
-
-      const payload = {
-        ...formData,
-        profilePic: profilePicUrl,
-        coverPhoto: coverPhotoUrl,
-      };
-
-      delete payload.profilePic instanceof File;
-      delete payload.coverPhoto instanceof File;
-
-      const res = await fetch(`${API_BASE}/api/users/${finalUserId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      const result = await res.json();
-      if (!res.ok) throw new Error(result.error);
-
-      setUser(result.user);
-      setPreviewProfilePic(result.user.profilePic);
-      setPreviewCoverPhoto(result.user.coverPhoto);
-      setEditing(false);
-
     } catch (err) {
-      console.error("Profile update error:", err);
+      console.error("FETCH ERROR:", err);
+    } finally {
+      setLoadingPosts(false); // ✅ ALWAYS STOP LOADING
     }
   };
+
+  fetchProfile();
+}, [finalUserId, token]);
+
+/* ================= SAVE ================= */
+const handleSave = async () => {
+  try {
+    let profilePicUrl = user.profilePic;
+    let coverPhotoUrl = user.coverPhoto;
+
+    if (formData.profilePic) {
+      profilePicUrl = await uploadImageKit(formData.profilePic, token);
+    }
+
+    if (formData.coverPhoto) {
+      coverPhotoUrl = await uploadImageKit(formData.coverPhoto, token);
+    }
+
+    const payload = {
+      name: formData.name,
+      bio: formData.bio,
+      intro: formData.intro,
+      dob: formData.dob,
+      phone: formData.phone,
+      education: formData.education,
+      origin: formData.origin,
+      maritalStatus: formData.maritalStatus,
+      email: formData.email,
+      profilePic: profilePicUrl,
+      coverPhoto: coverPhotoUrl,
+    };
+
+    const res = await fetch(`${API_BASE}/api/users/${finalUserId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.error);
+
+    setUser(result.user);
+    setPreviewProfilePic(result.user.profilePic);
+    setPreviewCoverPhoto(result.user.coverPhoto);
+    setEditing(false);
+
+  } catch (err) {
+    console.error("Profile update error:", err);
+  }
+};
 
   if (!user) return <p>Loading profile...</p>;
 
