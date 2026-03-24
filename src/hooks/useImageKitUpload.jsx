@@ -1,6 +1,7 @@
 import { IKClient } from "imagekit-javascript";
 
 export const useImageKitUpload = () => {
+  // Frontend JS SDK requires publicKey + urlEndpoint + authEndpoint
   const imagekit = new IKClient({
     publicKey: process.env.REACT_APP_IMAGEKIT_PUBLIC_KEY,
     urlEndpoint: process.env.REACT_APP_IMAGEKIT_URL_ENDPOINT,
@@ -17,9 +18,9 @@ export const useImageKitUpload = () => {
         },
         (error, result) => {
           if (error) return reject(error);
-          resolve(result.url);
+          resolve(result.url); // get uploaded file URL
         },
-        (percent) => onProgress(percent)
+        (percent) => onProgress(percent) // upload progress
       );
     });
   };
