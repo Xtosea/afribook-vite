@@ -11,7 +11,6 @@ import { API_BASE, fetchWithToken } from "../api/api";
 import { getSocket, connectSocket } from "../socket";
 import { useCloudinaryUpload } from "../hooks/useCloudinaryUpload";
 import { useR2Upload } from "../hooks/useR2Upload";
-
 import EmojiPicker from "emoji-picker-react";
 
 /* ================= LAZY VIDEO ================= */
@@ -54,8 +53,6 @@ const useLazyVideo = (ref) => {
 /* ================= SKELETON ================= */
 const SkeletonPost = () => (
   <div className="bg-white p-4 rounded-2xl shadow animate-pulse space-y-4">
-    
-    {/* Header (avatar + name) */}
     <div className="flex items-center gap-3">
       <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
       <div className="flex-1 space-y-2">
@@ -63,17 +60,11 @@ const SkeletonPost = () => (
         <div className="h-3 bg-gray-200 rounded w-1/6"></div>
       </div>
     </div>
-
-    {/* Post text */}
     <div className="space-y-2">
       <div className="h-3 bg-gray-300 rounded w-full"></div>
       <div className="h-3 bg-gray-300 rounded w-5/6"></div>
     </div>
-
-    {/* Media */}
     <div className="h-64 bg-gray-300 rounded-xl"></div>
-
-    {/* Actions */}
     <div className="flex justify-between pt-2">
       <div className="h-4 bg-gray-300 rounded w-16"></div>
       <div className="h-4 bg-gray-300 rounded w-16"></div>
@@ -91,18 +82,21 @@ const Home = () => {
 
   const [newPost, setNewPost] = useState("");
   const [mediaFiles, setMediaFiles] = useState([]);
-  const [uploadProgress, setUploadProgress] = useState({}); // ✅ NEW
-
+  const [uploadProgress, setUploadProgress] = useState({});
   const [expanded, setExpanded] = useState(false);
   const [posting, setPosting] = useState(false);
   const [showEmoji, setShowEmoji] = useState(false);
 
   const feedRef = useRef();
-
   const { uploadImage } = useCloudinaryUpload();
   const { uploadVideo } = useR2Upload();
 
   useLazyVideo(feedRef);
+
+  /* ================= SOCKET INIT ================= */
+  useEffect(() => {
+    connectSocket(); // initialize socket
+  }, []);
 
   /* ================= FETCH POSTS ================= */
   useEffect(() => {
@@ -127,6 +121,19 @@ const Home = () => {
     };
 
     fetchPosts();
+  }, [token]);
+
+  /* ================= SOCKET LISTENERS ================= */
+  useEffect(() => {
+    const socket = getSocket();
+    if (!socket) return;
+
+    const handleNewVideo = (post) => setPosts((prev) => [post, ...prev]);
+    socket.on("new-video", handleNewVideo);
+
+    return () => {
+      socket.off("new-video", handleNewVideo);
+    };
   }, []);
 
   /* ================= CREATE POST ================= */
@@ -135,7 +142,7 @@ const Home = () => {
     if (!newPost && mediaFiles.length === 0) return;
 
     setPosting(true);
-    setUploadProgress({}); // reset
+    setUploadProgress({});
 
     try {
       const uploadedMedia = [];
@@ -143,42 +150,26 @@ const Home = () => {
       for (let i = 0; i < mediaFiles.length; i++) {
         let file = mediaFiles[i];
 
-        try {
-          // ✅ COMPRESS IMAGE
-          if (file.type.startsWith("image")) {
-            file = await imageCompression(file, {
-              maxSizeMB: 1,
-              maxWidthOrHeight: 1280,
-              useWebWorker: true,
-            });
-          }
-
-          let url;
-
-          if (file.type.startsWith("image")) {
-            url = await uploadImage(file, (progress) => {
-              setUploadProgress((prev) => ({
-                ...prev,
-                [i]: progress,
-              }));
-            });
-          } else {
-            url = await uploadVideo(file, (progress) => {
-              setUploadProgress((prev) => ({
-                ...prev,
-                [i]: progress,
-              }));
-            });
-          }
-
-          uploadedMedia.push({
-            url,
-            type: file.type.startsWith("image") ? "image" : "video",
+        if (file.type.startsWith("image")) {
+          file = await imageCompression(file, {
+            maxSizeMB: 1,
+            maxWidthOrHeight: 1280,
+            useWebWorker: true,
           });
-
-        } catch (err) {
-          console.error("UPLOAD ERROR:", err);
         }
+
+        const url = file.type.startsWith("image")
+          ? await uploadImage(file, (progress) =>
+              setUploadProgress((prev) => ({ ...prev, [i]: progress }))
+            )
+          : await uploadVideo(file, (progress) =>
+              setUploadProgress((prev) => ({ ...prev, [i]: progress }))
+            );
+
+        uploadedMedia.push({
+          url,
+          type: file.type.startsWith("image") ? "image" : "video",
+        });
       }
 
       const res = await fetch(`${API_BASE}/api/posts`, {
@@ -187,23 +178,19 @@ const Home = () => {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          content: newPost,
-          media: uploadedMedia,
-        }),
+        body: JSON.stringify({ content: newPost, media: uploadedMedia }),
       });
 
       const data = await res.json();
-
       setPosts((prev) => [data.post, ...prev]);
-      socket.emit("new-video", data.post);
 
-      // RESET
+      const socket = getSocket();
+      if (socket) socket.emit("new-video", data.post);
+
       setNewPost("");
       setMediaFiles([]);
       setUploadProgress({});
       setExpanded(false);
-
     } catch (err) {
       console.error(err);
     } finally {
@@ -213,10 +200,16 @@ const Home = () => {
 
   /* ================= INTERACTIONS ================= */
   const handleLike = (postId) => {
+    const socket = getSocket();
+    if (!socket) return;
+
     socket.emit("like-video", { videoId: postId, userId: currentUserId });
   };
 
   const handleComment = (postId, text) => {
+    const socket = getSocket();
+    if (!socket) return;
+
     socket.emit("comment-video", { videoId: postId, text });
   };
 
@@ -225,18 +218,9 @@ const Home = () => {
     alert("Copied!");
   };
 
-  /* ================= SOCKET ================= */
-  useEffect(() => {
-    socket.on("new-video", (post) => setPosts((prev) => [post, ...prev]));
-
-    return () => {
-      socket.off("new-video");
-    };
-  }, []);
-
+  /* ================= RENDER ================= */
   return (
     <div className="max-w-7xl mx-auto px-2 md:px-6 py-6 grid grid-cols-1 md:grid-cols-4 gap-6">
-
       {/* LEFT */}
       <div className="hidden md:block">
         <SidebarLeft />
@@ -244,7 +228,6 @@ const Home = () => {
 
       {/* CENTER */}
       <div className="md:col-span-2 space-y-4">
-
         <StoriesBar posts={posts} />
 
         {/* CREATE POST */}
@@ -268,14 +251,9 @@ const Home = () => {
               </button>
 
               {showEmoji && (
-                <EmojiPicker
-                  onEmojiClick={(e) =>
-                    setNewPost((prev) => prev + e.emoji)
-                  }
-                />
+                <EmojiPicker onEmojiClick={(e) => setNewPost((prev) => prev + e.emoji)} />
               )}
 
-              {/* ✅ MEDIA UPLOAD */}
               <MediaUpload
                 mediaFiles={mediaFiles}
                 setMediaFiles={setMediaFiles}
@@ -291,23 +269,18 @@ const Home = () => {
 
         {/* POSTS */}
         <div ref={feedRef} className="space-y-4">
-          {loadingPosts ? (
-            <>
-              <SkeletonPost />
-              <SkeletonPost />
-            </>
-          ) : (
-            posts.map((post) => (
-              <PostCard
-                key={post._id}
-                post={post}
-                currentUserId={currentUserId}
-                onLike={handleLike}
-                onComment={handleComment}
-                onShare={handleShare}
-              />
-            ))
-          )}
+          {loadingPosts
+            ? [<SkeletonPost key={1} />, <SkeletonPost key={2} />]
+            : posts.map((post) => (
+                <PostCard
+                  key={post._id}
+                  post={post}
+                  currentUserId={currentUserId}
+                  onLike={handleLike}
+                  onComment={handleComment}
+                  onShare={handleShare}
+                />
+              ))}
         </div>
       </div>
 
