@@ -160,12 +160,12 @@ const handleSave = async () => {
       {activeTab === "About" && <UserInfoCard user={user} />}
 
       <EditProfileModal
-        editing={editing}
-        setEditing={setEditing}
-        formData={formData}
-        handleSave={handleSave}
-        handleFileChange={handleFileChange}
-      />
+  editing={editing}
+  setEditing={setEditing}
+  formData={formData}
+  handleSave={handleSave}
+  handleFileChange={handleFileChange} // ✅ Pass the file handler here
+/>
 
     </div>
   );
