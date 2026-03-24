@@ -7,6 +7,7 @@ import ProfileHeader from "../components/profile/ProfileHeader";
 import UserInfoCard from "../components/profile/UserInfoCard";
 import ProfileTabs from "../components/profile/ProfileTabs";
 import EditProfileModal from "../components/profile/EditProfileModal";
+import { useImageKitUpload } from "../hooks/useImageKitUpload";
 
 const Profile = () => {
   const { userId } = useParams();
@@ -15,6 +16,8 @@ const Profile = () => {
   const token = localStorage.getItem("token");
   const currentUserId = localStorage.getItem("userId");
   const finalUserId = userId || currentUserId;
+
+  const { uploadImageKit } = useImageKitUpload();
 
   const [user, setUser] = useState(null);
   const [posts, setPosts] = useState([]);
@@ -41,7 +44,18 @@ const Profile = () => {
 
   const [previewProfilePic, setPreviewProfilePic] = useState(null);
   const [previewCoverPhoto, setPreviewCoverPhoto] = useState(null);
+
   const [saving, setSaving] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState({
+    profilePic: 0,
+    coverPhoto: 0,
+  });
+
+  const fields = [
+    "name", "bio", "intro", "dob", "phone",
+    "education", "origin", "maritalStatus", "spouse",
+    "gender", "email", "hubby"
+  ];
 
   /* ================= FETCH PROFILE & POSTS ================= */
   useEffect(() => {
@@ -54,14 +68,25 @@ const Profile = () => {
 
         setUser(userData);
         setPosts(postsData || []);
+
         setPreviewProfilePic(userData.profilePic);
         setPreviewCoverPhoto(userData.coverPhoto);
 
         setFormData({
-          ...formData,
-          ...userData,
+          name: userData.name || "",
+          bio: userData.bio || "",
+          intro: userData.intro || "",
+          dob: userData.dob || "",
+          phone: userData.phone || "",
+          education: userData.education || "",
+          origin: userData.origin || "",
+          maritalStatus: userData.maritalStatus || "",
+          spouse: userData.spouse || "",
+          gender: userData.gender || "",
+          email: userData.email || "",
           profilePic: null,
           coverPhoto: null,
+          hubby: userData.hubby || "",
         });
       } catch (err) {
         console.error("FETCH ERROR:", err);
@@ -85,23 +110,36 @@ const Profile = () => {
     if (!file) return;
 
     setFormData((prev) => ({ ...prev, [field]: file }));
-    if (field === "profilePic") setPreviewProfilePic(URL.createObjectURL(file));
-    if (field === "coverPhoto") setPreviewCoverPhoto(URL.createObjectURL(file));
+
+    const preview = URL.createObjectURL(file);
+    if (field === "profilePic") setPreviewProfilePic(preview);
+    if (field === "coverPhoto") setPreviewCoverPhoto(preview);
   };
 
-  /* ================= SAVE PROFILE ================= */
+  /* ================= SAVE PROFILE WITH IMAGEKIT ================= */
   const handleSave = async () => {
     try {
       setSaving(true);
       const form = new FormData();
 
-      Object.entries(formData).forEach(([key, value]) => {
-        if (value instanceof File) {
-          form.append(key, value);
-        } else {
-          form.append(key, value || "");
-        }
-      });
+      // Upload profilePic via ImageKit frontend SDK
+      if (formData.profilePic instanceof File) {
+        const url = await uploadImageKit(formData.profilePic, (p) =>
+          setUploadProgress((prev) => ({ ...prev, profilePic: p }))
+        );
+        form.append("profilePic", url);
+      }
+
+      // Upload coverPhoto via ImageKit frontend SDK
+      if (formData.coverPhoto instanceof File) {
+        const url = await uploadImageKit(formData.coverPhoto, (p) =>
+          setUploadProgress((prev) => ({ ...prev, coverPhoto: p }))
+        );
+        form.append("coverPhoto", url);
+      }
+
+      // Append text fields
+      fields.forEach((field) => form.append(field, formData[field]));
 
       const res = await fetch(`${API_BASE}/api/users/${finalUserId}`, {
         method: "PUT",
@@ -139,12 +177,24 @@ const Profile = () => {
 
       {activeTab === "Posts" && (
         <div className="space-y-4">
-          {loadingPosts ? <p>Loading...</p> : posts.map((post) => <PostCard key={post._id} post={post} currentUserId={currentUserId} />)}
+          {loadingPosts ? (
+            <p>Loading...</p>
+          ) : (
+            posts.map((post) => (
+              <PostCard key={post._id} post={post} currentUserId={currentUserId} />
+            ))
+          )}
         </div>
       )}
 
       {activeTab === "About" && (
-        <UserInfoCard user={user} editable={editing} formData={formData} setFormData={setFormData} handleSave={handleSave} />
+        <UserInfoCard
+          user={user}
+          editable={editing}
+          formData={formData}
+          setFormData={setFormData}
+          handleSave={handleSave}
+        />
       )}
 
       <EditProfileModal
@@ -155,6 +205,7 @@ const Profile = () => {
         handleInputChange={handleInputChange}
         handleFileChange={handleFileChange}
         uploading={saving}
+        uploadProgress={uploadProgress}
       />
     </div>
   );
