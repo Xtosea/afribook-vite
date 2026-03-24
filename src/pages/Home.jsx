@@ -8,7 +8,7 @@ import MediaUpload from "../components/MediaUpload";
 import imageCompression from "browser-image-compression";
 
 import { API_BASE, fetchWithToken } from "../api/api";
-import { socket } from "../socket";
+import { getSocket, connectSocket } from "../socket";
 import { useCloudinaryUpload } from "../hooks/useCloudinaryUpload";
 import { useR2Upload } from "../hooks/useR2Upload";
 
@@ -53,10 +53,32 @@ const useLazyVideo = (ref) => {
 
 /* ================= SKELETON ================= */
 const SkeletonPost = () => (
-  <div className="bg-white p-4 rounded shadow animate-pulse space-y-3">
-    <div className="h-4 bg-gray-300 rounded w-1/3"></div>
-    <div className="h-64 bg-gray-300 rounded"></div>
-    <div className="h-4 bg-gray-300 rounded w-1/2"></div>
+  <div className="bg-white p-4 rounded-2xl shadow animate-pulse space-y-4">
+    
+    {/* Header (avatar + name) */}
+    <div className="flex items-center gap-3">
+      <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
+      <div className="flex-1 space-y-2">
+        <div className="h-3 bg-gray-300 rounded w-1/4"></div>
+        <div className="h-3 bg-gray-200 rounded w-1/6"></div>
+      </div>
+    </div>
+
+    {/* Post text */}
+    <div className="space-y-2">
+      <div className="h-3 bg-gray-300 rounded w-full"></div>
+      <div className="h-3 bg-gray-300 rounded w-5/6"></div>
+    </div>
+
+    {/* Media */}
+    <div className="h-64 bg-gray-300 rounded-xl"></div>
+
+    {/* Actions */}
+    <div className="flex justify-between pt-2">
+      <div className="h-4 bg-gray-300 rounded w-16"></div>
+      <div className="h-4 bg-gray-300 rounded w-16"></div>
+      <div className="h-4 bg-gray-300 rounded w-16"></div>
+    </div>
   </div>
 );
 
