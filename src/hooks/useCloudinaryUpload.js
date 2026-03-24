@@ -1,26 +1,34 @@
+// src/hooks/useCloudinaryUpload.js
 import { useState } from "react";
-
-const CLOUDINARY_URL = import.meta.env.VITE_CLOUDINARY_UPLOAD_URL;
-const CLOUDINARY_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+import { API_BASE } from "../api/api";
 
 export const useCloudinaryUpload = () => {
-  const [progress, setProgress] = useState(0);
+  const [error, setError] = useState(null);
 
   const uploadImage = async (file, onProgress) => {
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", CLOUDINARY_PRESET);
-
     try {
-      const res = await fetch(CLOUDINARY_URL, { method: "POST", body: formData });
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", "YOUR_UPLOAD_PRESET"); // Set in Cloudinary
+
+      const res = await fetch(
+        "https://api.cloudinary.com/v1_1/YOUR_CLOUD_NAME/image/upload",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      if (!res.ok) throw new Error("Cloudinary upload failed");
+
       const data = await res.json();
-      onProgress && onProgress(100);
-      return data.secure_url;
+      return data.secure_url; // final image URL
     } catch (err) {
-      console.error("Cloudinary upload error:", err);
+      setError(err);
+      console.error("Cloudinary Upload Error:", err);
       return null;
     }
   };
 
-  return { uploadImage, progress, setProgress };
+  return { uploadImage, error };
 };
