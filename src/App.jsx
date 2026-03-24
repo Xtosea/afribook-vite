@@ -16,40 +16,71 @@ import CreatePost from "./pages/CreatePost";
 import Reels from "./pages/Reels";
 import Messages from "./pages/Messages";
 
-<Route path="/messages" element={<Messages />} />
-
 function App() {
   return (
     <Router>
       <Navbar />
       <div className="min-h-[calc(100vh-80px)] p-4">
         <Routes>
-  {/* Public routes */}
-  <Route path="/login" element={<Login />} />
-  <Route path="/register" element={<Register />} />
-  <Route path="/forgot-password" element={<ForgotPassword />} />
-  <Route path="/reset-password/:token" element={<ResetPassword />} />
-  <Route path="/verify-email/:token" element={<VerifyEmail />} />
-  <Route path="/verify-success" element={<VerifySuccess />} />
-  <Route path="/verify-failed" element={<VerifyFailed />} />
+          {/* Public routes */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
+          <Route path="/verify-email/:token" element={<VerifyEmail />} />
+          <Route path="/verify-success" element={<VerifySuccess />} />
+          <Route path="/verify-failed" element={<VerifyFailed />} />
 
-<Route path="/reels" element={<Reels />} />
-<Route path="/messages" element={<Messages />} />
-
-  {/* Protected routes */}
-  <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
-  <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-  <Route path="/profile/:userId" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-
-  <Route
-    path="/create"
-    element={
-      <ProtectedRoute>
-        <CreatePost />
-      </ProtectedRoute>
-    }
-  />
-</Routes>
+          {/* Protected routes (WebSocket-enabled pages) */}
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <Home />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile/:userId"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/create"
+            element={
+              <ProtectedRoute>
+                <CreatePost />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/reels"
+            element={
+              <ProtectedRoute>
+                <Reels />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/messages"
+            element={
+              <ProtectedRoute>
+                <Messages />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
       </div>
       <Footer />
     </Router>
