@@ -1,4 +1,3 @@
-// src/pages/Profile.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import PostCard from "../components/PostCard";
@@ -23,7 +22,6 @@ const Profile = () => {
 
   const [user, setUser] = useState(null);
   const [posts, setPosts] = useState([]);
-  const [isFollowing, setIsFollowing] = useState(false);
   const [loadingPosts, setLoadingPosts] = useState(true);
   const [editing, setEditing] = useState(false);
   const [activeTab, setActiveTab] = useState("Posts");
@@ -45,48 +43,22 @@ const Profile = () => {
   const [previewProfilePic, setPreviewProfilePic] = useState(null);
   const [previewCoverPhoto, setPreviewCoverPhoto] = useState(null);
 
-  /* ================= SAFE FETCH ================= */
-  const safeFetch = async (url) => {
-    try {
-      const data = await fetchWithToken(url, token);
-      return data;
-    } catch (err) {
-      console.error("Fetch error:", err);
-      return null;
-    }
-  };
-
-  /* ================= FETCH PROFILE ================= */
+  /* ================= FETCH ================= */
   useEffect(() => {
     if (!token) return navigate("/login");
 
     const fetchProfile = async () => {
-      setLoadingPosts(true);
-
-      const userData = await safeFetch(`${API_BASE}/api/users/${finalUserId}`);
-      if (!userData) return;
+      const userData = await fetchWithToken(`${API_BASE}/api/users/${finalUserId}`, token);
+      const postsData = await fetchWithToken(`${API_BASE}/api/posts/user/${finalUserId}`, token);
 
       setUser(userData);
-      setPreviewProfilePic(userData.profilePic || null);
-      setPreviewCoverPhoto(userData.coverPhoto || null);
+      setPosts(postsData || []);
 
-      const followerIds = (userData.followers || []).map(f => f._id || f);
-      setIsFollowing(followerIds.includes(currentUserId));
-
-      const postsData = await safeFetch(`${API_BASE}/api/posts/user/${finalUserId}`) || [];
-
-      setPosts(postsData);
+      setPreviewProfilePic(userData.profilePic);
+      setPreviewCoverPhoto(userData.coverPhoto);
 
       setFormData({
-        name: userData.name || "",
-        bio: userData.bio || "",
-        intro: userData.intro || "",
-        dob: userData.dob || "",
-        phone: userData.phone || "",
-        education: userData.education || "",
-        origin: userData.origin || "",
-        maritalStatus: userData.maritalStatus || "",
-        email: userData.email || "",
+        ...userData,
         profilePic: null,
         coverPhoto: null,
       });
@@ -96,26 +68,6 @@ const Profile = () => {
 
     fetchProfile();
   }, [finalUserId, token]);
-
-  /* ================= SOCKET ================= */
-  useEffect(() => {
-    const socket = getSocket();
-    if (!socket) return;
-
-    socket.on("new-video", (post) => {
-      if (post.user?._id === finalUserId) {
-        setPosts(prev => [post, ...prev]);
-      }
-    });
-
-    return () => socket.off("new-video");
-  }, [finalUserId]);
-
-  /* ================= INPUT ================= */
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
 
   /* ================= FILE CHANGE ================= */
   const handleFileChange = (e, field) => {
@@ -129,35 +81,28 @@ const Profile = () => {
     if (field === "coverPhoto") setPreviewCoverPhoto(preview);
   };
 
-  /* ================= SAVE PROFILE ================= */
+  /* ================= SAVE ================= */
   const handleSave = async () => {
     try {
-      let uploadedProfilePic = user.profilePic;
-      let uploadedCoverPhoto = user.coverPhoto;
+      let profilePicUrl = user.profilePic;
+      let coverPhotoUrl = user.coverPhoto;
 
-      // Upload profile picture
       if (formData.profilePic) {
-        uploadedProfilePic = await uploadImageKit(formData.profilePic, token);
+        profilePicUrl = await uploadImageKit(formData.profilePic, token);
       }
 
-      // Upload cover photo
       if (formData.coverPhoto) {
-        uploadedCoverPhoto = await uploadImageKit(formData.coverPhoto, token);
+        coverPhotoUrl = await uploadImageKit(formData.coverPhoto, token);
       }
 
       const payload = {
-        name: formData.name,
-        bio: formData.bio,
-        intro: formData.intro,
-        dob: formData.dob,
-        phone: formData.phone,
-        education: formData.education,
-        origin: formData.origin,
-        maritalStatus: formData.maritalStatus,
-        email: formData.email,
-        profilePic: uploadedProfilePic,
-        coverPhoto: uploadedCoverPhoto,
+        ...formData,
+        profilePic: profilePicUrl,
+        coverPhoto: coverPhotoUrl,
       };
+
+      delete payload.profilePic instanceof File;
+      delete payload.coverPhoto instanceof File;
 
       const res = await fetch(`${API_BASE}/api/users/${finalUserId}`, {
         method: "PUT",
@@ -181,14 +126,14 @@ const Profile = () => {
     }
   };
 
-  if (!user) return <p className="text-center mt-10">Loading profile...</p>;
+  if (!user) return <p>Loading profile...</p>;
 
   return (
     <div className="container mx-auto py-6 space-y-6">
 
       <ProfileHeader
         user={user}
-        isOwner={finalUserId === currentUserId}
+        isOwner={true}
         onEdit={() => setEditing(true)}
         previewProfilePic={previewProfilePic}
         previewCoverPhoto={previewCoverPhoto}
@@ -198,15 +143,11 @@ const Profile = () => {
 
       {activeTab === "Posts" && (
         <div className="space-y-4">
-          {loadingPosts ? (
-            <p>Loading...</p>
-          ) : posts.length === 0 ? (
-            <p>No posts yet</p>
-          ) : (
+          {loadingPosts ? <p>Loading...</p> :
             posts.map(post => (
               <PostCard key={post._id} post={post} currentUserId={currentUserId} />
             ))
-          )}
+          }
         </div>
       )}
 
@@ -217,9 +158,7 @@ const Profile = () => {
         setEditing={setEditing}
         formData={formData}
         handleSave={handleSave}
-        handleInputChange={handleInputChange}
         handleFileChange={handleFileChange}
-        user={user}
       />
 
     </div>
