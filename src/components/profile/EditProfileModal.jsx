@@ -8,8 +8,6 @@ const EditProfileModal = ({
   handleSave,
   handleInputChange,
   handleFileChange,
-  previewProfilePic,
-  previewCoverPhoto,
   saving,
   uploadProgress,
 }) => {
@@ -17,148 +15,177 @@ const EditProfileModal = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-96 overflow-y-auto max-h-[90vh]">
+      <div className="bg-white rounded-lg p-6 w-96 max-h-[90vh] overflow-y-auto">
         <h2 className="text-xl font-bold mb-4">Edit Profile</h2>
 
         {/* Name */}
-        <input
-          type="text"
-          name="name"
-          placeholder="Name"
-          value={formData.name}
-          onChange={handleInputChange}
-          className="border p-2 w-full mb-3"
-        />
+        <div className="mb-3">
+          <label className="block mb-1">👤 Name</label>
+          <input
+            type="text"
+            name="name"
+            placeholder="Name"
+            value={formData.name}
+            onChange={handleInputChange}
+            className="border p-2 w-full rounded"
+          />
+        </div>
 
         {/* Bio */}
-        <input
-          type="text"
-          name="bio"
-          placeholder="Bio"
-          value={formData.bio}
-          onChange={handleInputChange}
-          className="border p-2 w-full mb-3"
-        />
+        <div className="mb-3">
+          <label className="block mb-1">📝 Bio</label>
+          <input
+            type="text"
+            name="bio"
+            placeholder="Bio"
+            value={formData.bio}
+            onChange={handleInputChange}
+            className="border p-2 w-full rounded"
+          />
+        </div>
 
         {/* Intro */}
-        <input
-          type="text"
-          name="intro"
-          placeholder="Intro"
-          value={formData.intro}
-          onChange={handleInputChange}
-          className="border p-2 w-full mb-3"
-        />
+        <div className="mb-3">
+          <label className="block mb-1">📖 Intro</label>
+          <input
+            type="text"
+            name="intro"
+            placeholder="Intro"
+            value={formData.intro}
+            onChange={handleInputChange}
+            className="border p-2 w-full rounded"
+          />
+        </div>
 
         {/* DOB */}
-        <input
-          type="date"
-          name="dob"
-          placeholder="DOB"
-          value={formData.dob}
-          onChange={handleInputChange}
-          className="border p-2 w-full mb-3"
-        />
+        <div className="mb-3">
+          <label className="block mb-1">🎂 DOB</label>
+          <input
+            type="date"
+            name="dob"
+            value={formData.dob}
+            onChange={handleInputChange}
+            className="border p-2 w-full rounded"
+          />
+        </div>
 
         {/* Phone */}
-        <input
-          type="text"
-          name="phone"
-          placeholder="Phone"
-          value={formData.phone}
-          onChange={handleInputChange}
-          className="border p-2 w-full mb-3"
-        />
+        <div className="mb-3">
+          <label className="block mb-1">📞 Phone</label>
+          <input
+            type="text"
+            name="phone"
+            value={formData.phone}
+            onChange={handleInputChange}
+            className="border p-2 w-full rounded"
+          />
+        </div>
 
         {/* Education */}
-        <input
-          type="text"
-          name="education"
-          placeholder="Education"
-          value={formData.education}
-          onChange={handleInputChange}
-          className="border p-2 w-full mb-3"
-        />
+        <div className="mb-3">
+          <label className="block mb-1">🎓 Education</label>
+          <input
+            type="text"
+            name="education"
+            value={formData.education}
+            onChange={handleInputChange}
+            className="border p-2 w-full rounded"
+          />
+        </div>
 
         {/* Origin */}
-        <input
-          type="text"
-          name="origin"
-          placeholder="Origin"
-          value={formData.origin}
-          onChange={handleInputChange}
-          className="border p-2 w-full mb-3"
-        />
+        <div className="mb-3">
+          <label className="block mb-1">🌍 Origin</label>
+          <input
+            type="text"
+            name="origin"
+            value={formData.origin}
+            onChange={handleInputChange}
+            className="border p-2 w-full rounded"
+          />
+        </div>
 
         {/* Marital Status */}
-        <input
-          type="text"
-          name="maritalStatus"
-          placeholder="Marital Status"
-          value={formData.maritalStatus}
-          onChange={handleInputChange}
-          className="border p-2 w-full mb-3"
-        />
+        <div className="mb-3">
+          <label className="block mb-1">💍 Status</label>
+          <input
+            type="text"
+            name="maritalStatus"
+            value={formData.maritalStatus}
+            onChange={handleInputChange}
+            className="border p-2 w-full rounded"
+          />
+        </div>
 
         {/* Spouse */}
-        <input
-          type="text"
-          name="spouse"
-          placeholder="Spouse"
-          value={formData.spouse || ""}
-          onChange={handleInputChange}
-          className="border p-2 w-full mb-3"
-        />
+        <div className="mb-3">
+          <label className="block mb-1">🧑‍🤝‍🧑 Spouse</label>
+          <input
+            type="text"
+            name="spouse"
+            value={formData.spouse || ""}
+            onChange={handleInputChange}
+            className="border p-2 w-full rounded"
+          />
+        </div>
 
         {/* Gender */}
-        <input
-          type="text"
-          name="gender"
-          placeholder="Gender"
-          value={formData.gender || ""}
-          onChange={handleInputChange}
-          className="border p-2 w-full mb-3"
-        />
+        <div className="mb-3">
+          <label className="block mb-1">⚧ Gender</label>
+          <input
+            type="text"
+            name="gender"
+            value={formData.gender || ""}
+            onChange={handleInputChange}
+            className="border p-2 w-full rounded"
+          />
+        </div>
 
         {/* Email */}
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          value={formData.email}
-          onChange={handleInputChange}
-          className="border p-2 w-full mb-3"
-        />
+        <div className="mb-3">
+          <label className="block mb-1">📧 Email</label>
+          <input
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleInputChange}
+            className="border p-2 w-full rounded"
+          />
+        </div>
 
         {/* Profile Picture */}
-        <label className="block mb-2">Profile Picture:</label>
-        {previewProfilePic && (
-          <img
-            src={previewProfilePic}
-            alt="Profile Preview"
-            className="w-20 h-20 object-cover rounded-full mb-2"
+        <div className="mb-3">
+          <label className="block mb-1">🖼️ Profile Picture</label>
+          <input
+            type="file"
+            onChange={(e) => handleFileChange(e, "profilePic")}
+            className="mb-2"
           />
-        )}
-        <input
-          type="file"
-          onChange={(e) => handleFileChange(e, "profilePic")}
-          className="mb-3"
-        />
+          {formData.profilePic && (
+            <img
+              src={URL.createObjectURL(formData.profilePic)}
+              alt="Preview"
+              className="w-24 h-24 object-cover rounded mb-2"
+            />
+          )}
+        </div>
 
         {/* Cover Photo */}
-        <label className="block mb-2">Cover Photo:</label>
-        {previewCoverPhoto && (
-          <img
-            src={previewCoverPhoto}
-            alt="Cover Preview"
-            className="w-full h-24 object-cover rounded mb-2"
+        <div className="mb-3">
+          <label className="block mb-1">🖼️ Cover Photo</label>
+          <input
+            type="file"
+            onChange={(e) => handleFileChange(e, "coverPhoto")}
+            className="mb-2"
           />
-        )}
-        <input
-          type="file"
-          onChange={(e) => handleFileChange(e, "coverPhoto")}
-          className="mb-3"
-        />
+          {formData.coverPhoto && (
+            <img
+              src={URL.createObjectURL(formData.coverPhoto)}
+              alt="Preview"
+              className="w-full h-24 object-cover rounded mb-2"
+            />
+          )}
+        </div>
 
         {/* Upload Progress */}
         {uploadProgress > 0 && (
