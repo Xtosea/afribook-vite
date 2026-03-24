@@ -11,26 +11,18 @@ export const connectSocket = () => {
     return null;
   }
 
-  socket = io("https://afribook-backend.onrender.com", {
-    transports: ["polling", "websocket"], // Render-safe
-    auth: {
-      token,
-    },
-  });
+  if (!socket) {
+    socket = io(import.meta.env.VITE_API_URL, {
+      auth: { token },
+      transports: ["websocket", "polling"],
+      withCredentials: true,
+    });
 
-  socket.on("connect", () => {
-    console.log("🟢 Socket connected:", socket.id);
-  });
-
-  socket.on("disconnect", () => {
-    console.log("🔴 Socket disconnected");
-  });
-
-  socket.on("connect_error", (err) => {
-    console.log("❌ Socket error:", err.message);
-  });
+    console.log("✅ Socket connected:", socket.id);
+  }
 
   return socket;
 };
 
+// ✅ THIS is what you were missing
 export const getSocket = () => socket;
