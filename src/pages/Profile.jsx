@@ -25,8 +25,8 @@ const Profile = () => {
   const [loadingPosts, setLoadingPosts] = useState(true);
   const [editing, setEditing] = useState(false);
   const [activeTab, setActiveTab] = useState("Posts");
-  const [saving, setSaving] = useState(false); // spinner
-  const [uploadProgress, setUploadProgress] = useState(0); // progress bar
+  const [saving, setSaving] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -37,6 +37,8 @@ const Profile = () => {
     education: "",
     origin: "",
     maritalStatus: "",
+    spouse: "",
+    gender: "",
     email: "",
     profilePic: null,
     coverPhoto: null,
@@ -62,7 +64,6 @@ const Profile = () => {
 
         setUser(userData);
         setPosts(postsData || []);
-
         setPreviewProfilePic(userData.profilePic);
         setPreviewCoverPhoto(userData.coverPhoto);
 
@@ -75,6 +76,8 @@ const Profile = () => {
           education: userData.education || "",
           origin: userData.origin || "",
           maritalStatus: userData.maritalStatus || "",
+          spouse: userData.spouse || "",
+          gender: userData.gender || "",
           email: userData.email || "",
           profilePic: null,
           coverPhoto: null,
@@ -101,7 +104,6 @@ const Profile = () => {
     if (!file) return;
 
     setFormData((prev) => ({ ...prev, [field]: file }));
-
     const preview = URL.createObjectURL(file);
     if (field === "profilePic") setPreviewProfilePic(preview);
     if (field === "coverPhoto") setPreviewCoverPhoto(preview);
@@ -116,18 +118,12 @@ const Profile = () => {
       let profilePicUrl = user.profilePic;
       let coverPhotoUrl = user.coverPhoto;
 
-      // Upload profile picture if selected
       if (formData.profilePic) {
-        profilePicUrl = await uploadImageKit(formData.profilePic, token, (progress) =>
-          setUploadProgress(progress)
-        );
+        profilePicUrl = await uploadImageKit(formData.profilePic, token, setUploadProgress);
       }
 
-      // Upload cover photo if selected
       if (formData.coverPhoto) {
-        coverPhotoUrl = await uploadImageKit(formData.coverPhoto, token, (progress) =>
-          setUploadProgress(progress)
-        );
+        coverPhotoUrl = await uploadImageKit(formData.coverPhoto, token, setUploadProgress);
       }
 
       const payload = {
@@ -139,6 +135,8 @@ const Profile = () => {
         education: formData.education,
         origin: formData.origin,
         maritalStatus: formData.maritalStatus,
+        spouse: formData.spouse,
+        gender: formData.gender,
         email: formData.email,
         profilePic: profilePicUrl,
         coverPhoto: coverPhotoUrl,
@@ -160,10 +158,9 @@ const Profile = () => {
       setPreviewProfilePic(result.user.profilePic);
       setPreviewCoverPhoto(result.user.coverPhoto);
       setEditing(false);
-      setSaving(false);
-      setUploadProgress(0);
     } catch (err) {
       console.error("Profile update error:", err);
+    } finally {
       setSaving(false);
       setUploadProgress(0);
     }
@@ -185,18 +182,22 @@ const Profile = () => {
 
       {activeTab === "Posts" && (
         <div className="space-y-4">
-          {loadingPosts ? (
-            <p>Loading...</p>
-          ) : (
-            posts.map((post) => (
-              <PostCard key={post._id} post={post} currentUserId={currentUserId} />
-            ))
-          )}
+          {loadingPosts
+            ? <p>Loading...</p>
+            : posts.map((post) => (
+                <PostCard key={post._id} post={post} currentUserId={currentUserId} />
+              ))}
         </div>
       )}
 
       {activeTab === "About" && (
-        <UserInfoCard user={user} editable={true} formData={formData} setFormData={setFormData} />
+        <UserInfoCard
+          user={user}
+          editable={true}
+          formData={formData}
+          setFormData={setFormData}
+          handleSave={handleSave}
+        />
       )}
 
       <EditProfileModal
