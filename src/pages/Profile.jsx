@@ -112,7 +112,7 @@ const Profile = () => {
     if (field === "coverPhoto") setPreviewCoverPhoto(preview);
   };
 
-  /* ================= SAVE PROFILE ================= */
+  /* ================= SAVE PROFILE WITH PROGRESS ================= */
   const handleSave = async () => {
     try {
       setSaving(true);
@@ -121,18 +121,16 @@ const Profile = () => {
       let profilePicUrl = user.profilePic;
       let coverPhotoUrl = user.coverPhoto;
 
-      // Upload profile pic with progress
       if (formData.profilePic) {
-        profilePicUrl = await uploadImageKit(formData.profilePic, token, (progress) => {
-          setUploadProgress(progress);
-        });
+        profilePicUrl = await uploadImageKit(formData.profilePic, token, (percent) =>
+          setUploadProgress(percent)
+        );
       }
 
-      // Upload cover photo with progress
       if (formData.coverPhoto) {
-        coverPhotoUrl = await uploadImageKit(formData.coverPhoto, token, (progress) => {
-          setUploadProgress(progress);
-        });
+        coverPhotoUrl = await uploadImageKit(formData.coverPhoto, token, (percent) =>
+          setUploadProgress(percent)
+        );
       }
 
       const payload = {
@@ -204,7 +202,7 @@ const Profile = () => {
       {activeTab === "About" && (
         <UserInfoCard
           user={user}
-          editable={true}
+          editable={editing}
           formData={formData}
           setFormData={setFormData}
           handleSave={handleSave}
@@ -218,8 +216,6 @@ const Profile = () => {
         handleSave={handleSave}
         handleInputChange={handleInputChange}
         handleFileChange={handleFileChange}
-        previewProfilePic={previewProfilePic}
-        previewCoverPhoto={previewCoverPhoto}
         saving={saving}
         uploadProgress={uploadProgress}
       />
