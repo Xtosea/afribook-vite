@@ -16,7 +16,7 @@ export const connectSocket = () => {
   }
 
   if (!socket) {
-    socket = io(import.meta.env.VITE_API_URL, { // ✅ Backend URL here
+    socket = io("https://africbook-backend.onrender.com", { // ✅ Hardcoded backend URL
       auth: { token },
       transports: ["websocket", "polling"],
       withCredentials: true,
