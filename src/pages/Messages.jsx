@@ -1,46 +1,25 @@
-import React, { useEffect, useState } from "react";
-import ChatSidebar from "../components/chat/ChatSidebar";
-import ChatWindow from "../components/chat/ChatWindow";
-import { getSocket } from "../socket";
+import React, { useEffect } from "react";
+import { connectSocket } from "../socket";
 
 const Messages = () => {
-  const currentUserId = localStorage.getItem("userId");
-
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [messages, setMessages] = useState([]);
-
   useEffect(() => {
-  const socket = getSocket();
-  if (!socket) return;
+    const socket = connectSocket();
+    if (!socket) return;
 
-  socket.emit("join", currentUserId);
+    // Join user room for private messaging
+    const userId = localStorage.getItem("userId");
+    socket.emit("join", userId);
 
-  const handleReceiveMessage = (msg) => {
-    setMessages((prev) => [...prev, msg]);
-  };
+    // Listen for messages
+    socket.on("receive-message", (message) => {
+      console.log("New message:", message);
+    });
 
-  socket.on("receive-message", handleReceiveMessage);
+    // Clean up on unmount
+    return () => socket.disconnect();
+  }, []);
 
-  return () => {
-    socket.off("receive-message", handleReceiveMessage);
-  };
-}, [currentUserId]);
-
-  return (
-    <div className="h-screen flex bg-gray-100">
-
-      {/* LEFT SIDEBAR */}
-      <ChatSidebar onSelectUser={setSelectedUser} />
-
-      {/* CHAT WINDOW */}
-      <ChatWindow
-        selectedUser={selectedUser}
-        messages={messages}
-        setMessages={setMessages}
-      />
-
-    </div>
-  );
+  return <div>Messages Page</div>;
 };
 
 export default Messages;
