@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { socket } from "../../socket";
+import { getSocket } from "../../socket";
 
 const ChatWindow = ({ selectedUser, messages = [] }) => {
   const currentUserId = localStorage.getItem("userId");
