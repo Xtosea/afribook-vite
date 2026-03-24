@@ -1,19 +1,19 @@
+// src/socket.js
 import { io } from "socket.io-client";
 
 let socket = null;
 
 export const connectSocket = () => {
   const token = localStorage.getItem("token");
-
   if (!token) {
-    console.log("⚠ No token found, socket not connected");
+    console.log("⚠ No token, socket not connected");
     return null;
   }
 
   if (!socket) {
     socket = io("https://afribook-backend.onrender.com", {
       auth: { token },
-      transports: ["polling"], // ✅ Polling only (Render-safe)
+      transports: ["polling"], // ✅ Polling only for Render
       withCredentials: true,
     });
 
