@@ -12,6 +12,7 @@ import { useImageKitUpload } from "../hooks/useImageKitUpload";
 const Profile = () => {
   const { userId } = useParams();
   const navigate = useNavigate();
+
   const token = localStorage.getItem("token");
   const currentUserId = localStorage.getItem("userId");
   const finalUserId = userId || currentUserId;
@@ -43,15 +44,19 @@ const Profile = () => {
 
   const [previewProfilePic, setPreviewProfilePic] = useState(null);
   const [previewCoverPhoto, setPreviewCoverPhoto] = useState(null);
+
   const [saving, setSaving] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState({ profilePic: 0, coverPhoto: 0 });
+  const [uploadProgress, setUploadProgress] = useState({
+    profilePic: 0,
+    coverPhoto: 0,
+  });
 
   const fields = [
     "name","bio","intro","dob","phone","education",
     "origin","maritalStatus","spouse","gender","email","hubby"
   ];
 
-  // Fetch profile & posts
+  // Fetch profile
   useEffect(() => {
     if (!token) return navigate("/login");
 
@@ -82,7 +87,7 @@ const Profile = () => {
           coverPhoto: null,
         });
       } catch (err) {
-        console.error("FETCH ERROR:", err);
+        console.error(err);
       } finally {
         setLoadingPosts(false);
       }
@@ -91,16 +96,16 @@ const Profile = () => {
     fetchProfile();
   }, [finalUserId, token, navigate]);
 
-  // Text input change
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // File input change
   const handleFileChange = (e, field) => {
     const file = e.target.files[0];
     if (!file) return;
+
+    console.log("Selected file:", file);
 
     setFormData(prev => ({ ...prev, [field]: file }));
 
@@ -109,29 +114,33 @@ const Profile = () => {
     if (field === "coverPhoto") setPreviewCoverPhoto(preview);
   };
 
-  // Save profile
   const handleSave = async () => {
     try {
+      console.log("Save clicked");
+
       setSaving(true);
       const form = new FormData();
 
-      // Upload profilePic if new
+      let profileUrl = previewProfilePic;
+      let coverUrl = previewCoverPhoto;
+
       if (formData.profilePic instanceof File) {
-        const url = await uploadImageKit(formData.profilePic, p =>
+        console.log("Uploading profile pic...");
+        profileUrl = await uploadImageKit(formData.profilePic, p =>
           setUploadProgress(prev => ({ ...prev, profilePic: p }))
         );
-        form.append("profilePic", url);
       }
 
-      // Upload coverPhoto if new
       if (formData.coverPhoto instanceof File) {
-        const url = await uploadImageKit(formData.coverPhoto, p =>
+        console.log("Uploading cover photo...");
+        coverUrl = await uploadImageKit(formData.coverPhoto, p =>
           setUploadProgress(prev => ({ ...prev, coverPhoto: p }))
         );
-        form.append("coverPhoto", url);
       }
 
-      // Append other fields
+      form.append("profilePic", profileUrl || "");
+      form.append("coverPhoto", coverUrl || "");
+
       fields.forEach(field => form.append(field, formData[field] || ""));
 
       const res = await fetch(`${API_BASE}/api/users/${finalUserId}`, {
@@ -147,15 +156,16 @@ const Profile = () => {
       setPreviewProfilePic(result.user.profilePic);
       setPreviewCoverPhoto(result.user.coverPhoto);
       setEditing(false);
+
     } catch (err) {
-      console.error("Profile update error:", err);
+      console.error(err);
     } finally {
       setSaving(false);
       setUploadProgress({ profilePic: 0, coverPhoto: 0 });
     }
   };
 
-  if (!user) return <p>Loading profile...</p>;
+  if (!user) return <p>Loading...</p>;
 
   return (
     <div className="container mx-auto py-6 space-y-6">
@@ -170,24 +180,13 @@ const Profile = () => {
       <ProfileTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
       {activeTab === "Posts" && (
-        <div className="space-y-4">
-          {loadingPosts
-            ? <p>Loading...</p>
-            : posts.map(post => (
-                <PostCard key={post._id} post={post} currentUserId={currentUserId} />
-              ))
+        <div>
+          {loadingPosts ? "Loading..." :
+            posts.map(post => (
+              <PostCard key={post._id} post={post} currentUserId={currentUserId} />
+            ))
           }
         </div>
-      )}
-
-      {activeTab === "About" && (
-        <UserInfoCard
-          user={user}
-          editable={editing}
-          formData={formData}
-          setFormData={setFormData}
-          handleSave={handleSave}
-        />
       )}
 
       <EditProfileModal
