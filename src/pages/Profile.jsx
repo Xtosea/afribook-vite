@@ -42,9 +42,8 @@ const Profile = () => {
   "hubby",
 
 ];
-];
-];
-  });
+
+});
 
   const [previewProfilePic, setPreviewProfilePic] = useState(null);
   const [previewCoverPhoto, setPreviewCoverPhoto] = useState(null);
