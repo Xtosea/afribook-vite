@@ -9,7 +9,7 @@ import ProfileHeader from "../components/profile/ProfileHeader";
 import UserInfoCard from "../components/profile/UserInfoCard";
 import ProfileTabs from "../components/profile/ProfileTabs";
 import EditProfileModal from "../components/profile/EditProfileModal";
-
+import { getSocket } from "../socket";
 const Profile = () => {
   const { userId } = useParams();
   const navigate = useNavigate();
@@ -106,34 +106,50 @@ const Profile = () => {
 
   /* ================= SOCKET LISTENERS ================= */
   useEffect(() => {
-    const handleNewVideo = post => {
-      if (post.user?._id === finalUserId) setPosts(prev => [post, ...prev]);
-    };
-    const handleVideoLiked = ({ videoId, userId }) => {
-      setPosts(prev =>
-        prev.map(p =>
-          p._id === videoId
-            ? { ...p, likes: p.likes.includes(userId) ? p.likes.filter(id => id !== userId) : [...p.likes, userId] }
-            : p
-        )
-      );
-    };
-    const handleNewComment = ({ videoId, comment }) => {
-      setPosts(prev =>
-        prev.map(p => (p._id === videoId ? { ...p, comments: [...p.comments, comment] } : p))
-      );
-    };
+  const socket = getSocket();
+  if (!socket) return;
 
-    socket.on("new-video", handleNewVideo);
-    socket.on("video-liked", handleVideoLiked);
-    socket.on("new-video-comment", handleNewComment);
+  const handleNewVideo = (post) => {
+    if (post.user?._id === finalUserId) {
+      setPosts((prev) => [post, ...prev]);
+    }
+  };
 
-    return () => {
-      socket.off("new-video", handleNewVideo);
-      socket.off("video-liked", handleVideoLiked);
-      socket.off("new-video-comment", handleNewComment);
-    };
-  }, [finalUserId]);
+  const handleVideoLiked = ({ videoId, userId }) => {
+    setPosts((prev) =>
+      prev.map((p) =>
+        p._id === videoId
+          ? {
+              ...p,
+              likes: p.likes.includes(userId)
+                ? p.likes.filter((id) => id !== userId)
+                : [...p.likes, userId],
+            }
+          : p
+      )
+    );
+  };
+
+  const handleNewComment = ({ videoId, comment }) => {
+    setPosts((prev) =>
+      prev.map((p) =>
+        p._id === videoId
+          ? { ...p, comments: [...p.comments, comment] }
+          : p
+      )
+    );
+  };
+
+  socket.on("new-video", handleNewVideo);
+  socket.on("video-liked", handleVideoLiked);
+  socket.on("new-video-comment", handleNewComment);
+
+  return () => {
+    socket.off("new-video", handleNewVideo);
+    socket.off("video-liked", handleVideoLiked);
+    socket.off("new-video-comment", handleNewComment);
+  };
+}, [finalUserId]);
 
   /* ================= ACTIONS ================= */
   const handleLike = postId => socket.emit("like-video", { videoId: postId, userId: currentUserId });
