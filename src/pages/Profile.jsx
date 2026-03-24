@@ -3,13 +3,13 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import PostCard from "../components/PostCard";
 import { fetchWithToken, API_BASE } from "../api/api";
-import { getSocket } from "../socket"; ✅ CORRECT
+import { getSocket } from "../socket";
 
 import ProfileHeader from "../components/profile/ProfileHeader";
 import UserInfoCard from "../components/profile/UserInfoCard";
 import ProfileTabs from "../components/profile/ProfileTabs";
 import EditProfileModal from "../components/profile/EditProfileModal";
-import { getSocket } from "../socket";
+
 const Profile = () => {
   const { userId } = useParams();
   const navigate = useNavigate();
@@ -152,8 +152,25 @@ const Profile = () => {
 }, [finalUserId]);
 
   /* ================= ACTIONS ================= */
-  const handleLike = postId => socket.emit("like-video", { videoId: postId, userId: currentUserId });
-  const handleComment = (postId, text) => socket.emit("comment-video", { videoId: postId, text });
+  const handleLike = (postId) => {
+  const socket = getSocket();
+  if (!socket) return;
+
+  socket.emit("like-video", {
+    videoId: postId,
+    userId: currentUserId,
+  });
+};
+
+const handleComment = (postId, text) => {
+  const socket = getSocket();
+  if (!socket) return;
+
+  socket.emit("comment-video", {
+    videoId: postId,
+    text,
+  });
+};
 
   const handleFollow = async () => {
     try {
