@@ -27,29 +27,46 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState("Posts");
 
   const [formData, setFormData] = useState({
-   const fields = [
-  "name",
-  "bio",
-  "intro",
-  "dob",
-  "phone",
-  "education",
-  "origin",
-  "maritalStatus",
-  "spouse",   // ✅ add this
-  "gender",   // ✅ add this
-  "email",
-  "hubby",
-
-];
-
-});
+    name: "",
+    bio: "",
+    intro: "",
+    dob: "",
+    phone: "",
+    education: "",
+    origin: "",
+    maritalStatus: "",
+    spouse: "",
+    gender: "",
+    email: "",
+    hubby: "",
+    profilePic: null,
+    coverPhoto: null,
+  });
 
   const [previewProfilePic, setPreviewProfilePic] = useState(null);
   const [previewCoverPhoto, setPreviewCoverPhoto] = useState(null);
 
   const [saving, setSaving] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadProgress, setUploadProgress] = useState({
+    profilePic: 0,
+    coverPhoto: 0,
+  });
+
+  // ✅ Fields array for looping in handleSave
+  const fields = [
+    "name",
+    "bio",
+    "intro",
+    "dob",
+    "phone",
+    "education",
+    "origin",
+    "maritalStatus",
+    "spouse",
+    "gender",
+    "email",
+    "hubby",
+  ];
 
   /* ================= FETCH PROFILE & POSTS ================= */
   useEffect(() => {
@@ -86,6 +103,7 @@ const Profile = () => {
           email: userData.email || "",
           profilePic: null,
           coverPhoto: null,
+          hubby: userData.hubby || "",
         });
       } catch (err) {
         console.error("FETCH ERROR:", err);
@@ -117,64 +135,51 @@ const Profile = () => {
 
   /* ================= SAVE PROFILE WITH PROGRESS ================= */
   const handleSave = async () => {
-  try {
-    setSaving(true);
+    try {
+      setSaving(true);
 
-    const form = new FormData();
+      const form = new FormData();
 
-    // Upload profilePic
-    if (formData.profilePic instanceof File) {
-      const url = await uploadImageKit(formData.profilePic, (p) =>
-        setUploadProgress((prev) => ({ ...prev, profilePic: p }))
-      );
-      form.append("profilePic", url);
+      // Upload profilePic
+      if (formData.profilePic instanceof File) {
+        const url = await uploadImageKit(formData.profilePic, (p) =>
+          setUploadProgress((prev) => ({ ...prev, profilePic: p }))
+        );
+        form.append("profilePic", url);
+      }
+
+      // Upload coverPhoto
+      if (formData.coverPhoto instanceof File) {
+        const url = await uploadImageKit(formData.coverPhoto, (p) =>
+          setUploadProgress((prev) => ({ ...prev, coverPhoto: p }))
+        );
+        form.append("coverPhoto", url);
+      }
+
+      // Append text fields
+      fields.forEach((field) => form.append(field, formData[field]));
+
+      const res = await fetch(`${API_BASE}/api/users/${finalUserId}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: form,
+      });
+
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error);
+
+      setUser(result.user);
+      setPreviewProfilePic(result.user.profilePic);
+      setPreviewCoverPhoto(result.user.coverPhoto);
+      setEditing(false);
+    } catch (err) {
+      console.error("Profile update error:", err);
+    } finally {
+      setSaving(false);
     }
-
-    // Upload coverPhoto
-    if (formData.coverPhoto instanceof File) {
-      const url = await uploadImageKit(formData.coverPhoto, (p) =>
-        setUploadProgress((prev) => ({ ...prev, coverPhoto: p }))
-      );
-      form.append("coverPhoto", url);
-    }
-
-    // Append text fields
-    [
-      "name",
-      "bio",
-      "intro",
-      "dob",
-      "phone",
-      "education",
-      "origin",
-      "maritalStatus",
-      "spouse",
-      "gender",
-      "email",
-      "hubby",
-    ].forEach((field) => form.append(field, formData[field]));
-
-    const res = await fetch(`${API_BASE}/api/users/${finalUserId}`, {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: form,
-    });
-
-    const result = await res.json();
-    if (!res.ok) throw new Error(result.error);
-
-    setUser(result.user);
-    setPreviewProfilePic(result.user.profilePic);
-    setPreviewCoverPhoto(result.user.coverPhoto);
-    setEditing(false);
-  } catch (err) {
-    console.error("Profile update error:", err);
-  } finally {
-    setSaving(false);
-  }
-};
+  };
 
   if (!user) return <p>Loading profile...</p>;
 
@@ -219,7 +224,7 @@ const Profile = () => {
         handleSave={handleSave}
         handleInputChange={handleInputChange}
         handleFileChange={handleFileChange}
-        saving={saving}
+        uploading={saving}
         uploadProgress={uploadProgress}
       />
     </div>
