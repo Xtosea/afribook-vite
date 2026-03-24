@@ -44,18 +44,14 @@ const Profile = () => {
   const [previewProfilePic, setPreviewProfilePic] = useState(null);
   const [previewCoverPhoto, setPreviewCoverPhoto] = useState(null);
   const [saving, setSaving] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState({
-    profilePic: 0,
-    coverPhoto: 0,
-  });
+  const [uploadProgress, setUploadProgress] = useState({ profilePic: 0, coverPhoto: 0 });
 
   const fields = [
-    "name", "bio", "intro", "dob", "phone",
-    "education", "origin", "maritalStatus", "spouse",
-    "gender", "email", "hubby"
+    "name","bio","intro","dob","phone","education",
+    "origin","maritalStatus","spouse","gender","email","hubby"
   ];
 
-  /* ================= FETCH PROFILE & POSTS ================= */
+  // Fetch profile & posts
   useEffect(() => {
     if (!token) return navigate("/login");
 
@@ -69,8 +65,7 @@ const Profile = () => {
         setPreviewProfilePic(userData.profilePic);
         setPreviewCoverPhoto(userData.coverPhoto);
 
-        setFormData((prev) => ({
-          ...prev,
+        setFormData({
           name: userData.name || "",
           bio: userData.bio || "",
           intro: userData.intro || "",
@@ -85,7 +80,7 @@ const Profile = () => {
           hubby: userData.hubby || "",
           profilePic: null,
           coverPhoto: null,
-        }));
+        });
       } catch (err) {
         console.error("FETCH ERROR:", err);
       } finally {
@@ -96,48 +91,49 @@ const Profile = () => {
     fetchProfile();
   }, [finalUserId, token, navigate]);
 
-  /* ================= INPUT CHANGE HANDLER ================= */
+  // Handle text input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  /* ================= FILE CHANGE HANDLER ================= */
+  // Handle file input changes
   const handleFileChange = (e, field) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    setFormData((prev) => ({ ...prev, [field]: file }));
+    setFormData(prev => ({ ...prev, [field]: file }));
 
     const preview = URL.createObjectURL(file);
     if (field === "profilePic") setPreviewProfilePic(preview);
     if (field === "coverPhoto") setPreviewCoverPhoto(preview);
   };
 
-  /* ================= SAVE PROFILE WITH IMAGEKIT ================= */
+  // Save profile
   const handleSave = async () => {
     try {
       setSaving(true);
+
       const form = new FormData();
 
       // Upload profilePic
       if (formData.profilePic instanceof File) {
-        const url = await uploadImageKit(formData.profilePic, (p) =>
-          setUploadProgress((prev) => ({ ...prev, profilePic: p }))
+        const url = await uploadImageKit(formData.profilePic, p =>
+          setUploadProgress(prev => ({ ...prev, profilePic: p }))
         );
         form.append("profilePic", url);
       }
 
       // Upload coverPhoto
       if (formData.coverPhoto instanceof File) {
-        const url = await uploadImageKit(formData.coverPhoto, (p) =>
-          setUploadProgress((prev) => ({ ...prev, coverPhoto: p }))
+        const url = await uploadImageKit(formData.coverPhoto, p =>
+          setUploadProgress(prev => ({ ...prev, coverPhoto: p }))
         );
         form.append("coverPhoto", url);
       }
 
       // Append other fields
-      fields.forEach((field) => form.append(field, formData[field] || ""));
+      fields.forEach(field => form.append(field, formData[field] || ""));
 
       const res = await fetch(`${API_BASE}/api/users/${finalUserId}`, {
         method: "PUT",
@@ -152,6 +148,7 @@ const Profile = () => {
       setPreviewProfilePic(result.user.profilePic);
       setPreviewCoverPhoto(result.user.coverPhoto);
       setEditing(false);
+
     } catch (err) {
       console.error("Profile update error:", err);
     } finally {
@@ -178,7 +175,7 @@ const Profile = () => {
         <div className="space-y-4">
           {loadingPosts
             ? <p>Loading...</p>
-            : posts.map((post) => (
+            : posts.map(post => (
                 <PostCard key={post._id} post={post} currentUserId={currentUserId} />
               ))
           }
