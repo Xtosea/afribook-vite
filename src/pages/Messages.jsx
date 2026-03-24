@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ChatSidebar from "../components/chat/ChatSidebar";
 import ChatWindow from "../components/chat/ChatWindow";
-import { socket } from "../socket";
+import { getSocket } from "../socket";
 
 const Messages = () => {
   const currentUserId = localStorage.getItem("userId");
@@ -10,14 +10,21 @@ const Messages = () => {
   const [messages, setMessages] = useState([]);
 
   useEffect(() => {
-    socket.emit("join", currentUserId);
+  const socket = getSocket();
+  if (!socket) return;
 
-    socket.on("receive-message", (msg) => {
-      setMessages((prev) => [...prev, msg]);
-    });
+  socket.emit("join", currentUserId);
 
-    return () => socket.off("receive-message");
-  }, []);
+  const handleReceiveMessage = (msg) => {
+    setMessages((prev) => [...prev, msg]);
+  };
+
+  socket.on("receive-message", handleReceiveMessage);
+
+  return () => {
+    socket.off("receive-message", handleReceiveMessage);
+  };
+}, [currentUserId]);
 
   return (
     <div className="h-screen flex bg-gray-100">
