@@ -39,7 +39,6 @@ const useLazyVideo = (ref) => {
     };
 
     observeVideos();
-
     const mutationObserver = new MutationObserver(observeVideos);
     mutationObserver.observe(ref.current, { childList: true, subtree: true });
 
@@ -95,7 +94,7 @@ const Home = () => {
 
   /* ================= SOCKET INIT ================= */
   useEffect(() => {
-    connectSocket(); // initialize socket
+    connectSocket();
   }, []);
 
   /* ================= FETCH POSTS ================= */
@@ -114,7 +113,7 @@ const Home = () => {
 
         setPosts(fixed);
       } catch (err) {
-        console.error(err);
+        console.error("FETCH POSTS ERROR:", err);
       } finally {
         setLoadingPosts(false);
       }
@@ -131,9 +130,7 @@ const Home = () => {
     const handleNewVideo = (post) => setPosts((prev) => [post, ...prev]);
     socket.on("new-video", handleNewVideo);
 
-    return () => {
-      socket.off("new-video", handleNewVideo);
-    };
+    return () => socket.off("new-video", handleNewVideo);
   }, []);
 
   /* ================= CREATE POST ================= */
@@ -182,17 +179,17 @@ const Home = () => {
       });
 
       const data = await res.json();
-      setPosts((prev) => [data.post, ...prev]);
+      if (data?.post) setPosts((prev) => [data.post, ...prev]);
 
       const socket = getSocket();
-      if (socket) socket.emit("new-video", data.post);
+      if (socket && data?.post) socket.emit("new-video", data.post);
 
       setNewPost("");
       setMediaFiles([]);
       setUploadProgress({});
       setExpanded(false);
     } catch (err) {
-      console.error(err);
+      console.error("POST CREATION ERROR:", err);
     } finally {
       setPosting(false);
     }
@@ -202,14 +199,12 @@ const Home = () => {
   const handleLike = (postId) => {
     const socket = getSocket();
     if (!socket) return;
-
     socket.emit("like-video", { videoId: postId, userId: currentUserId });
   };
 
   const handleComment = (postId, text) => {
     const socket = getSocket();
     if (!socket) return;
-
     socket.emit("comment-video", { videoId: postId, text });
   };
 
@@ -251,7 +246,9 @@ const Home = () => {
               </button>
 
               {showEmoji && (
-                <EmojiPicker onEmojiClick={(e) => setNewPost((prev) => prev + e.emoji)} />
+                <EmojiPicker
+                  onEmojiClick={(e) => setNewPost((prev) => prev + e.emoji)}
+                />
               )}
 
               <MediaUpload
@@ -260,7 +257,10 @@ const Home = () => {
                 uploadProgress={uploadProgress}
               />
 
-              <button className="bg-blue-500 text-white px-4 py-2 rounded">
+              <button
+                type="submit"
+                className="bg-blue-500 text-white px-4 py-2 rounded"
+              >
                 {posting ? "Posting..." : "Post"}
               </button>
             </>
