@@ -25,8 +25,6 @@ const Profile = () => {
   const [loadingPosts, setLoadingPosts] = useState(true);
   const [editing, setEditing] = useState(false);
   const [activeTab, setActiveTab] = useState("Posts");
-  const [saving, setSaving] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -47,6 +45,9 @@ const Profile = () => {
   const [previewProfilePic, setPreviewProfilePic] = useState(null);
   const [previewCoverPhoto, setPreviewCoverPhoto] = useState(null);
 
+  const [saving, setSaving] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+
   /* ================= FETCH PROFILE & POSTS ================= */
   useEffect(() => {
     if (!token) return navigate("/login");
@@ -64,6 +65,7 @@ const Profile = () => {
 
         setUser(userData);
         setPosts(postsData || []);
+
         setPreviewProfilePic(userData.profilePic);
         setPreviewCoverPhoto(userData.coverPhoto);
 
@@ -104,6 +106,7 @@ const Profile = () => {
     if (!file) return;
 
     setFormData((prev) => ({ ...prev, [field]: file }));
+
     const preview = URL.createObjectURL(file);
     if (field === "profilePic") setPreviewProfilePic(preview);
     if (field === "coverPhoto") setPreviewCoverPhoto(preview);
@@ -118,12 +121,18 @@ const Profile = () => {
       let profilePicUrl = user.profilePic;
       let coverPhotoUrl = user.coverPhoto;
 
+      // Upload profile pic with progress
       if (formData.profilePic) {
-        profilePicUrl = await uploadImageKit(formData.profilePic, token, setUploadProgress);
+        profilePicUrl = await uploadImageKit(formData.profilePic, token, (progress) => {
+          setUploadProgress(progress);
+        });
       }
 
+      // Upload cover photo with progress
       if (formData.coverPhoto) {
-        coverPhotoUrl = await uploadImageKit(formData.coverPhoto, token, setUploadProgress);
+        coverPhotoUrl = await uploadImageKit(formData.coverPhoto, token, (progress) => {
+          setUploadProgress(progress);
+        });
       }
 
       const payload = {
@@ -182,11 +191,13 @@ const Profile = () => {
 
       {activeTab === "Posts" && (
         <div className="space-y-4">
-          {loadingPosts
-            ? <p>Loading...</p>
-            : posts.map((post) => (
-                <PostCard key={post._id} post={post} currentUserId={currentUserId} />
-              ))}
+          {loadingPosts ? (
+            <p>Loading...</p>
+          ) : (
+            posts.map((post) => (
+              <PostCard key={post._id} post={post} currentUserId={currentUserId} />
+            ))
+          )}
         </div>
       )}
 
@@ -207,6 +218,8 @@ const Profile = () => {
         handleSave={handleSave}
         handleInputChange={handleInputChange}
         handleFileChange={handleFileChange}
+        previewProfilePic={previewProfilePic}
+        previewCoverPhoto={previewCoverPhoto}
         saving={saving}
         uploadProgress={uploadProgress}
       />
