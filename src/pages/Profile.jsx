@@ -123,33 +123,42 @@ const Profile = () => {
 
     const form = new FormData();
 
-    // TEXT FIELDS
-    form.append("name", formData.name);
-    form.append("bio", formData.bio);
-    form.append("intro", formData.intro);
-    form.append("dob", formData.dob);
-    form.append("phone", formData.phone);
-    form.append("education", formData.education);
-    form.append("origin", formData.origin);
-    form.append("maritalStatus", formData.maritalStatus);
-    form.append("spouse", formData.spouse);
-    form.append("gender", formData.gender);
-    form.append("email", formData.email);
-form.append("hubby", formData.hubbyl);
-
-    // FILES
-    if (formData.profilePic) {
-      form.append("profilePic", formData.profilePic);
+    // Upload profilePic
+    if (formData.profilePic instanceof File) {
+      const url = await uploadImageKit(formData.profilePic, (p) =>
+        setUploadProgress((prev) => ({ ...prev, profilePic: p }))
+      );
+      form.append("profilePic", url);
     }
 
-    if (formData.coverPhoto) {
-      form.append("coverPhoto", formData.coverPhoto);
+    // Upload coverPhoto
+    if (formData.coverPhoto instanceof File) {
+      const url = await uploadImageKit(formData.coverPhoto, (p) =>
+        setUploadProgress((prev) => ({ ...prev, coverPhoto: p }))
+      );
+      form.append("coverPhoto", url);
     }
+
+    // Append text fields
+    [
+      "name",
+      "bio",
+      "intro",
+      "dob",
+      "phone",
+      "education",
+      "origin",
+      "maritalStatus",
+      "spouse",
+      "gender",
+      "email",
+      "hubby",
+    ].forEach((field) => form.append(field, formData[field]));
 
     const res = await fetch(`${API_BASE}/api/users/${finalUserId}`, {
       method: "PUT",
       headers: {
-        Authorization: `Bearer ${token}`, // ❌ NO Content-Type here
+        Authorization: `Bearer ${token}`,
       },
       body: form,
     });
@@ -161,7 +170,6 @@ form.append("hubby", formData.hubbyl);
     setPreviewProfilePic(result.user.profilePic);
     setPreviewCoverPhoto(result.user.coverPhoto);
     setEditing(false);
-
   } catch (err) {
     console.error("Profile update error:", err);
   } finally {
