@@ -1,29 +1,75 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { getSocket } from "../../socket";
 
 const ChatWindow = ({ selectedUser, messages = [] }) => {
   const currentUserId = localStorage.getItem("userId");
   const [text, setText] = useState("");
+  const [localMessages, setLocalMessages] = useState(messages);
+
+  const bottomRef = useRef(null);
+
+  // Sync incoming props to local state
+  useEffect(() => {
+    setLocalMessages(messages);
+  }, [messages]);
+
+  // Listen for real-time messages
+  useEffect(() => {
+    const socket = getSocket();
+    if (!socket) return;
+
+    const handleMessage = (msg) => {
+      setLocalMessages((prev) => [...prev, msg]);
+    };
+
+    socket.on("receive-message", handleMessage);
+
+    return () => {
+      socket.off("receive-message", handleMessage);
+    };
+  }, []);
+
+  // Auto scroll to bottom
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [localMessages]);
 
   if (!selectedUser) {
-    return <div className="flex-1 flex items-center justify-center">Select a chat</div>;
+    return (
+      <div className="flex-1 flex items-center justify-center">
+        Select a chat
+      </div>
+    );
   }
 
   const safeSelectedId = selectedUser?._id;
 
   const sendMessage = () => {
+    const socket = getSocket();
+
+    if (!socket) {
+      console.log("❌ Socket not connected yet");
+      return;
+    }
+
     if (!text.trim() || !safeSelectedId) return;
 
-    socket.emit("send-message", {
+    const newMessage = {
       senderId: currentUserId,
       receiverId: safeSelectedId,
       text,
-    });
+    };
+
+    // Emit to server
+    socket.emit("send-message", newMessage);
+
+    // Optimistic UI (instant display)
+    setLocalMessages((prev) => [...prev, newMessage]);
 
     setText("");
   };
 
-  const filteredMessages = messages.filter(
+  const filteredMessages = localMessages.filter(
     (m) =>
       (m.senderId === currentUserId && m.receiverId === safeSelectedId) ||
       (m.senderId === safeSelectedId && m.receiverId === currentUserId)
@@ -31,7 +77,7 @@ const ChatWindow = ({ selectedUser, messages = [] }) => {
 
   return (
     <div className="flex-1 flex flex-col">
-
+      
       {/* HEADER */}
       <div className="p-4 border-b bg-white font-bold">
         {selectedUser.name || "Chat"}
@@ -51,6 +97,9 @@ const ChatWindow = ({ selectedUser, messages = [] }) => {
             {msg.text || ""}
           </div>
         ))}
+
+        {/* Auto scroll anchor */}
+        <div ref={bottomRef} />
       </div>
 
       {/* INPUT */}
@@ -58,6 +107,7 @@ const ChatWindow = ({ selectedUser, messages = [] }) => {
         <input
           value={text}
           onChange={(e) => setText(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
           className="flex-1 border rounded px-3 py-2"
           placeholder="Type a message..."
         />
@@ -68,7 +118,6 @@ const ChatWindow = ({ selectedUser, messages = [] }) => {
           Send
         </button>
       </div>
-
     </div>
   );
 };
