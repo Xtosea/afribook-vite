@@ -1,5 +1,4 @@
-// src/components/profile/EditProfileModal.jsx
-import React, { useState } from "react";
+import React from "react";
 
 const EditProfileModal = ({
   editing,
@@ -10,6 +9,8 @@ const EditProfileModal = ({
   handleFileChange,
   uploading = false,
   uploadProgress = { profilePic: 0, coverPhoto: 0 },
+  previewProfilePic,
+  previewCoverPhoto,
 }) => {
   if (!editing) return null;
 
@@ -18,108 +19,31 @@ const EditProfileModal = ({
       <div className="bg-white rounded-lg p-6 w-96 max-h-[90vh] overflow-y-auto">
         <h2 className="text-xl font-bold mb-4">Edit Profile</h2>
 
-        {/* Name */}
-        <input
-          type="text"
-          name="name"
-          placeholder="Name"
-          value={formData.name}
-          onChange={handleInputChange}
-          className="border p-2 w-full mb-3"
-        />
-
-        {/* Bio */}
-        <input
-          type="text"
-          name="bio"
-          placeholder="Bio"
-          value={formData.bio}
-          onChange={handleInputChange}
-          className="border p-2 w-full mb-3"
-        />
-
-        {/* Intro */}
-        <input
-          type="text"
-          name="intro"
-          placeholder="Intro"
-          value={formData.intro}
-          onChange={handleInputChange}
-          className="border p-2 w-full mb-3"
-        />
-
-        {/* DOB */}
-        <input
-          type="date"
-          name="dob"
-          placeholder="DOB"
-          value={formData.dob}
-          onChange={handleInputChange}
-          className="border p-2 w-full mb-3"
-        />
-
-        {/* Phone */}
-        <input
-          type="text"
-          name="phone"
-          placeholder="Phone"
-          value={formData.phone}
-          onChange={handleInputChange}
-          className="border p-2 w-full mb-3"
-        />
-
-        {/* Education */}
-        <input
-          type="text"
-          name="education"
-          placeholder="Education"
-          value={formData.education}
-          onChange={handleInputChange}
-          className="border p-2 w-full mb-3"
-        />
-
-        {/* Origin */}
-        <input
-          type="text"
-          name="origin"
-          placeholder="Origin"
-          value={formData.origin}
-          onChange={handleInputChange}
-          className="border p-2 w-full mb-3"
-        />
-
-        {/* Marital Status */}
-        <input
-          type="text"
-          name="maritalStatus"
-          placeholder="Marital Status"
-          value={formData.maritalStatus}
-          onChange={handleInputChange}
-          className="border p-2 w-full mb-3"
-        />
-
-        {/* Email */}
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          value={formData.email}
-          onChange={handleInputChange}
-          className="border p-2 w-full mb-3"
-        />
+        {/* Text Fields */}
+        {["name","bio","intro","dob","phone","education","origin","maritalStatus","email"].map(field => (
+          <input
+            key={field}
+            type={field==="dob"?"date":field==="email"?"email":"text"}
+            name={field}
+            placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
+            value={formData[field]}
+            onChange={handleInputChange}
+            className="border p-2 w-full mb-3"
+          />
+        ))}
 
         {/* Profile Picture */}
         <label className="block mb-2">Profile Picture:</label>
-        {formData.profilePic && (
+        {previewProfilePic && (
           <img
-            src={URL.createObjectURL(formData.profilePic)}
+            src={previewProfilePic}
             alt="Profile Preview"
             className="w-24 h-24 object-cover rounded mb-2"
           />
         )}
         <input
           type="file"
-          onChange={(e) => handleFileChange(e, "profilePic")}
+          onChange={e => handleFileChange(e, "profilePic")}
           className="mb-1"
         />
         {uploadProgress.profilePic > 0 && (
@@ -133,16 +57,16 @@ const EditProfileModal = ({
 
         {/* Cover Photo */}
         <label className="block mb-2">Cover Photo:</label>
-        {formData.coverPhoto && (
+        {previewCoverPhoto && (
           <img
-            src={URL.createObjectURL(formData.coverPhoto)}
+            src={previewCoverPhoto}
             alt="Cover Preview"
             className="w-full h-32 object-cover rounded mb-2"
           />
         )}
         <input
           type="file"
-          onChange={(e) => handleFileChange(e, "coverPhoto")}
+          onChange={e => handleFileChange(e, "coverPhoto")}
           className="mb-1"
         />
         {uploadProgress.coverPhoto > 0 && (
@@ -170,33 +94,7 @@ const EditProfileModal = ({
             onClick={handleSave}
             disabled={uploading}
           >
-            {uploading ? (
-              <span className="flex items-center gap-2">
-                <svg
-                  className="animate-spin h-5 w-5 text-white"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8v8H4z"
-                  ></path>
-                </svg>
-                Saving...
-              </span>
-            ) : (
-              "Save"
-            )}
+            {uploading ? "Saving..." : "Save"}
           </button>
         </div>
       </div>
