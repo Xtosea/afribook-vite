@@ -1,19 +1,36 @@
 // src/socket.js
 import { io } from "socket.io-client";
 
-const token = localStorage.getItem("token"); // your JWT
+let socket = null;
 
-export const socket = io("https://afribook-backend.onrender.com", {
-  transports: ["polling", "websocket"], // polling first is crucial for Render
-  auth: {
-    token, // MUST be here
-  },
-});
+export const connectSocket = () => {
+  const token = localStorage.getItem("token");
 
-socket.on("connect", () => {
-  console.log("🟢 Connected!", socket.id);
-});
+  if (!token) {
+    console.log("⚠ No token, socket not connected");
+    return null;
+  }
 
-socket.on("connect_error", (err) => {
-  console.log("❌ Socket connect error:", err.message);
-});
+  socket = io("https://afribook-backend.onrender.com", {
+    transports: ["polling", "websocket"], // Render-safe
+    auth: {
+      token,
+    },
+  });
+
+  socket.on("connect", () => {
+    console.log("🟢 Socket connected:", socket.id);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("🔴 Socket disconnected");
+  });
+
+  socket.on("connect_error", (err) => {
+    console.log("❌ Socket error:", err.message);
+  });
+
+  return socket;
+};
+
+export const getSocket = () => socket;
