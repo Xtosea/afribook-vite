@@ -9,6 +9,7 @@ import ProfileHeader from "../components/profile/ProfileHeader";
 import UserInfoCard from "../components/profile/UserInfoCard";
 import ProfileTabs from "../components/profile/ProfileTabs";
 import EditProfileModal from "../components/profile/EditProfileModal";
+import { useImageKitUpload } from "../hooks/useImageKitUpload";
 
 const Profile = () => {
   const { userId } = useParams();
@@ -17,6 +18,8 @@ const Profile = () => {
   const token = localStorage.getItem("token");
   const currentUserId = localStorage.getItem("userId");
   const finalUserId = userId || currentUserId;
+
+  const { uploadImageKit } = useImageKitUpload();
 
   const [user, setUser] = useState(null);
   const [posts, setPosts] = useState([]);
@@ -42,20 +45,18 @@ const Profile = () => {
   const [previewProfilePic, setPreviewProfilePic] = useState(null);
   const [previewCoverPhoto, setPreviewCoverPhoto] = useState(null);
 
-  /* ================= SAFE FETCH HELPER ================= */
+  /* ================= SAFE FETCH ================= */
   const safeFetch = async (url) => {
     try {
       const data = await fetchWithToken(url, token);
-      if (data && typeof data === "object") return data;
-      console.warn("Unexpected response format:", data);
-      return null;
+      return data;
     } catch (err) {
       console.error("Fetch error:", err);
       return null;
     }
   };
 
-  /* ================= FETCH PROFILE & POSTS ================= */
+  /* ================= FETCH PROFILE ================= */
   useEffect(() => {
     if (!token) return navigate("/login");
 
@@ -63,7 +64,7 @@ const Profile = () => {
       setLoadingPosts(true);
 
       const userData = await safeFetch(`${API_BASE}/api/users/${finalUserId}`);
-      if (!userData) return navigate("/login");
+      if (!userData) return;
 
       setUser(userData);
       setPreviewProfilePic(userData.profilePic || null);
@@ -73,16 +74,8 @@ const Profile = () => {
       setIsFollowing(followerIds.includes(currentUserId));
 
       const postsData = await safeFetch(`${API_BASE}/api/posts/user/${finalUserId}`) || [];
-      const fixedPosts = postsData.map(post => ({
-        ...post,
-        media: post.media?.map(m => ({
-          ...m,
-          url: m.url.startsWith("http") ? m.url : `${API_BASE}${m.url}`,
-        })),
-        likes: post.likes || [],
-        comments: post.comments || [],
-      }));
-      setPosts(fixedPosts);
+
+      setPosts(postsData);
 
       setFormData({
         name: userData.name || "",
@@ -102,124 +95,89 @@ const Profile = () => {
     };
 
     fetchProfile();
-  }, [finalUserId, token, currentUserId, navigate]);
+  }, [finalUserId, token]);
 
-  /* ================= SOCKET LISTENERS ================= */
+  /* ================= SOCKET ================= */
   useEffect(() => {
-  const socket = getSocket();
-  if (!socket) return;
+    const socket = getSocket();
+    if (!socket) return;
 
-  const handleNewVideo = (post) => {
-    if (post.user?._id === finalUserId) {
-      setPosts((prev) => [post, ...prev]);
-    }
-  };
+    socket.on("new-video", (post) => {
+      if (post.user?._id === finalUserId) {
+        setPosts(prev => [post, ...prev]);
+      }
+    });
 
-  const handleVideoLiked = ({ videoId, userId }) => {
-    setPosts((prev) =>
-      prev.map((p) =>
-        p._id === videoId
-          ? {
-              ...p,
-              likes: p.likes.includes(userId)
-                ? p.likes.filter((id) => id !== userId)
-                : [...p.likes, userId],
-            }
-          : p
-      )
-    );
-  };
+    return () => socket.off("new-video");
+  }, [finalUserId]);
 
-  const handleNewComment = ({ videoId, comment }) => {
-    setPosts((prev) =>
-      prev.map((p) =>
-        p._id === videoId
-          ? { ...p, comments: [...p.comments, comment] }
-          : p
-      )
-    );
-  };
-
-  socket.on("new-video", handleNewVideo);
-  socket.on("video-liked", handleVideoLiked);
-  socket.on("new-video-comment", handleNewComment);
-
-  return () => {
-    socket.off("new-video", handleNewVideo);
-    socket.off("video-liked", handleVideoLiked);
-    socket.off("new-video-comment", handleNewComment);
-  };
-}, [finalUserId]);
-
-  /* ================= ACTIONS ================= */
-  const handleLike = (postId) => {
-  const socket = getSocket();
-  if (!socket) return;
-
-  socket.emit("like-video", {
-    videoId: postId,
-    userId: currentUserId,
-  });
-};
-
-const handleComment = (postId, text) => {
-  const socket = getSocket();
-  if (!socket) return;
-
-  socket.emit("comment-video", {
-    videoId: postId,
-    text,
-  });
-};
-
-  const handleFollow = async () => {
-    try {
-      const res = await fetch(`${API_BASE}/api/users/${finalUserId}/follow`, {
-        method: "PUT",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      if (res.ok) setIsFollowing(prev => !prev);
-      else console.error("Follow error:", data.error);
-    } catch (err) {
-      console.error("Follow error:", err);
-    }
-  };
-
-  const handleInputChange = e => {
+  /* ================= INPUT ================= */
+  const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  /* ================= FILE CHANGE ================= */
   const handleFileChange = (e, field) => {
     const file = e.target.files[0];
     if (!file) return;
+
     setFormData(prev => ({ ...prev, [field]: file }));
-    const url = URL.createObjectURL(file);
-    if (field === "profilePic") setPreviewProfilePic(url);
-    if (field === "coverPhoto") setPreviewCoverPhoto(url);
+
+    const preview = URL.createObjectURL(file);
+    if (field === "profilePic") setPreviewProfilePic(preview);
+    if (field === "coverPhoto") setPreviewCoverPhoto(preview);
   };
 
+  /* ================= SAVE PROFILE ================= */
   const handleSave = async () => {
-    const data = new FormData();
-    for (const key in formData) if (formData[key]) data.append(key, formData[key]);
-
     try {
+      let uploadedProfilePic = user.profilePic;
+      let uploadedCoverPhoto = user.coverPhoto;
+
+      // Upload profile picture
+      if (formData.profilePic) {
+        uploadedProfilePic = await uploadImageKit(formData.profilePic, token);
+      }
+
+      // Upload cover photo
+      if (formData.coverPhoto) {
+        uploadedCoverPhoto = await uploadImageKit(formData.coverPhoto, token);
+      }
+
+      const payload = {
+        name: formData.name,
+        bio: formData.bio,
+        intro: formData.intro,
+        dob: formData.dob,
+        phone: formData.phone,
+        education: formData.education,
+        origin: formData.origin,
+        maritalStatus: formData.maritalStatus,
+        email: formData.email,
+        profilePic: uploadedProfilePic,
+        coverPhoto: uploadedCoverPhoto,
+      };
+
       const res = await fetch(`${API_BASE}/api/users/${finalUserId}`, {
         method: "PUT",
-        headers: { Authorization: `Bearer ${token}` },
-        body: data,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
       });
 
       const result = await res.json();
-      if (res.ok) {
-        setUser(result.user);
-        setPreviewProfilePic(result.user.profilePic || null);
-        setPreviewCoverPhoto(result.user.coverPhoto || null);
-        setEditing(false);
-      } else console.error("Update error:", result.error);
+      if (!res.ok) throw new Error(result.error);
+
+      setUser(result.user);
+      setPreviewProfilePic(result.user.profilePic);
+      setPreviewCoverPhoto(result.user.coverPhoto);
+      setEditing(false);
+
     } catch (err) {
-      console.error("Update profile error:", err);
+      console.error("Profile update error:", err);
     }
   };
 
@@ -227,6 +185,7 @@ const handleComment = (postId, text) => {
 
   return (
     <div className="container mx-auto py-6 space-y-6">
+
       <ProfileHeader
         user={user}
         isOwner={finalUserId === currentUserId}
@@ -235,48 +194,23 @@ const handleComment = (postId, text) => {
         previewCoverPhoto={previewCoverPhoto}
       />
 
-      {finalUserId !== currentUserId && (
-        <div className="flex justify-end">
-          <button onClick={handleFollow} className="px-4 py-2 bg-blue-500 text-white rounded">
-            {isFollowing ? "Unfollow" : "Follow"}
-          </button>
-        </div>
-      )}
-
       <ProfileTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
       {activeTab === "Posts" && (
         <div className="space-y-4">
           {loadingPosts ? (
-            <p className="text-center text-gray-500">Loading posts...</p>
+            <p>Loading...</p>
           ) : posts.length === 0 ? (
-            <p className="text-center text-gray-500">No posts yet</p>
+            <p>No posts yet</p>
           ) : (
             posts.map(post => (
-              <PostCard
-                key={post._id}
-                post={post}
-                currentUserId={currentUserId}
-                onLike={handleLike}
-                onComment={handleComment}
-              />
+              <PostCard key={post._id} post={post} currentUserId={currentUserId} />
             ))
           )}
         </div>
       )}
 
       {activeTab === "About" && <UserInfoCard user={user} />}
-
-      {activeTab === "Photos" && (
-        <div className="grid grid-cols-3 gap-2">
-          {posts
-            .flatMap(p => p.media || [])
-            .filter(m => m.type === "image")
-            .map((m, i) => (
-              <img key={i} src={m.url} className="w-full h-32 object-cover rounded" />
-            ))}
-        </div>
-      )}
 
       <EditProfileModal
         editing={editing}
@@ -287,6 +221,7 @@ const handleComment = (postId, text) => {
         handleFileChange={handleFileChange}
         user={user}
       />
+
     </div>
   );
 };
