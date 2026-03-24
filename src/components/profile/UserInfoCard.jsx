@@ -14,46 +14,152 @@ const UserInfoCard = ({ user, editable = false, formData, setFormData, handleSav
     try {
       setSaving(true);
       await handleSave();
-      setSaving(false);
     } catch (err) {
       console.error("Failed to save About info:", err);
+    } finally {
       setSaving(false);
     }
   };
-
-  const fields = [
-    { label: "📖 Intro", name: "intro", type: "text" },
-    { label: "🎂 DOB", name: "dob", type: "date" },
-    { label: "📞 Phone", name: "phone", type: "text" },
-    { label: "🎓 Education", name: "education", type: "text" },
-    { label: "🌍 Origin", name: "origin", type: "text" },
-    { label: "💍 Status", name: "maritalStatus", type: "text" },
-    { label: "👫 Spouse", name: "spouse", type: "text" },
-    { label: "⚧ Gender", name: "gender", type: "text" },
-    { label: "📧 Email", name: "email", type: "email" },
-  ];
 
   return (
     <div className="bg-white p-6 rounded-lg shadow space-y-3">
       <h2 className="text-lg font-bold mb-2">About</h2>
 
       <div className="space-y-2">
-        {fields.map((field) => (
-          <div key={field.name} className="flex flex-col">
-            <label className="font-semibold">{field.label}:</label>
-            {editable ? (
-              <input
-                type={field.type}
-                name={field.name}
-                value={formData[field.name] || ""}
-                onChange={handleInputChange}
-                className="border p-1 rounded w-full"
-              />
-            ) : (
-              <span>{user[field.name] || "-"}</span>
-            )}
-          </div>
-        ))}
+        <div>
+          <strong>📖 Intro: </strong>
+          {editable ? (
+            <input
+              type="text"
+              name="intro"
+              value={formData.intro}
+              onChange={handleInputChange}
+              className="border p-1 rounded w-full"
+            />
+          ) : (
+            user.intro || "-"
+          )}
+        </div>
+
+        <div>
+          <strong>🎂 DOB: </strong>
+          {editable ? (
+            <input
+              type="date"
+              name="dob"
+              value={formData.dob}
+              onChange={handleInputChange}
+              className="border p-1 rounded w-full"
+            />
+          ) : (
+            user.dob || "-"
+          )}
+        </div>
+
+        <div>
+          <strong>📞 Phone: </strong>
+          {editable ? (
+            <input
+              type="text"
+              name="phone"
+              value={formData.phone}
+              onChange={handleInputChange}
+              className="border p-1 rounded w-full"
+            />
+          ) : (
+            user.phone || "-"
+          )}
+        </div>
+
+        <div>
+          <strong>🎓 Education: </strong>
+          {editable ? (
+            <input
+              type="text"
+              name="education"
+              value={formData.education}
+              onChange={handleInputChange}
+              className="border p-1 rounded w-full"
+            />
+          ) : (
+            user.education || "-"
+          )}
+        </div>
+
+        <div>
+          <strong>🌍 Origin: </strong>
+          {editable ? (
+            <input
+              type="text"
+              name="origin"
+              value={formData.origin}
+              onChange={handleInputChange}
+              className="border p-1 rounded w-full"
+            />
+          ) : (
+            user.origin || "-"
+          )}
+        </div>
+
+        <div>
+          <strong>💍 Status: </strong>
+          {editable ? (
+            <input
+              type="text"
+              name="maritalStatus"
+              value={formData.maritalStatus}
+              onChange={handleInputChange}
+              className="border p-1 rounded w-full"
+            />
+          ) : (
+            user.maritalStatus || "-"
+          )}
+        </div>
+
+        <div>
+          <strong>🧑‍🤝‍🧑 Spouse: </strong>
+          {editable ? (
+            <input
+              type="text"
+              name="spouse"
+              value={formData.spouse}
+              onChange={handleInputChange}
+              className="border p-1 rounded w-full"
+            />
+          ) : (
+            user.spouse || "-"
+          )}
+        </div>
+
+        <div>
+          <strong>⚧ Gender: </strong>
+          {editable ? (
+            <input
+              type="text"
+              name="gender"
+              value={formData.gender}
+              onChange={handleInputChange}
+              className="border p-1 rounded w-full"
+            />
+          ) : (
+            user.gender || "-"
+          )}
+        </div>
+
+        <div>
+          <strong>📧 Email: </strong>
+          {editable ? (
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleInputChange}
+              className="border p-1 rounded w-full"
+            />
+          ) : (
+            user.email || "-"
+          )}
+        </div>
       </div>
 
       {editable && (
