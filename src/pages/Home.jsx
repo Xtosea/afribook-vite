@@ -234,7 +234,13 @@ useEffect(() => {
               <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">{posting ? "Posting..." : "Post"}</button>
             </>}
           </form>
-           <StoriesSection user={user} />
+           const currentUser = {
+  _id: currentUserId,
+  profilePic: localStorage.getItem("profilePic"),
+  name: localStorage.getItem("name")
+};
+
+<StoriesSection user={currentUser} />
 
           {/* POSTS FEED */}
           <div ref={feedRef} className="space-y-4">
