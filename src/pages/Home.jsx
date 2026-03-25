@@ -110,7 +110,6 @@ const Home = () => {
 
         const fixed = data.map((post) => ({
           ...post,
-
           media:
             post.media?.map((m) => ({
               ...m,
@@ -120,7 +119,6 @@ const Home = () => {
                   : `${API_BASE}${m.url}`
                 : "",
             })) || [],
-
           user: {
             ...post.user,
             profilePic: post?.user?.profilePic
@@ -145,25 +143,27 @@ const Home = () => {
   /* ================= SOCKET ================= */
 
   useEffect(() => {
+    const socket = getSocket();
+    if (!socket) return;
+
     const handleNewVideo = (post) =>
-  setPosts((prev) => [
-    {
-      ...post,
-      media:
-        post.media?.map((m) => ({
-          ...m,
-          url: m?.url
-            ? m.url.startsWith("http")
-              ? m.url
-              : `${API_BASE}${m.url}`
-            : "",
-        })) || [],
-    },
-    ...prev,
-  ]);
+      setPosts((prev) => [
+        {
+          ...post,
+          media:
+            post.media?.map((m) => ({
+              ...m,
+              url: m?.url
+                ? m.url.startsWith("http")
+                  ? m.url
+                  : `${API_BASE}${m.url}`
+                : "",
+            })) || [],
+        },
+        ...prev,
+      ]);
 
     socket.on("new-video", handleNewVideo);
-
     return () => socket.off("new-video", handleNewVideo);
   }, []);
 
@@ -200,9 +200,7 @@ const Home = () => {
 
         uploadedMedia.push({
           url,
-          type: file.type.startsWith("image")
-            ? "image"
-            : "video",
+          type: file.type.startsWith("image") ? "image" : "video",
         });
       }
 
@@ -221,29 +219,16 @@ const Home = () => {
       const data = await res.json();
 
       const newPostData = {
-  ...data.post,
-
-  media:
-    data.post.media?.map((m) => ({
-      ...m,
-      url: m?.url
-        ? m.url.startsWith("http")
-          ? m.url
-          : `${API_BASE}${m.url}`
-        : "",
-    })) || [],
-
-  user: {
-    ...data.post.user,
-    profilePic: data?.post?.user?.profilePic
-      ? data.post.user.profilePic.startsWith("http")
-        ? data.post.user.profilePic
-        : `${API_BASE}${data.post.user.profilePic}`
-      : "/default-avatar.png",
-  },
-};
-
-
+        ...data.post,
+        media:
+          data.post.media?.map((m) => ({
+            ...m,
+            url: m?.url
+              ? m.url.startsWith("http")
+                ? m.url
+                : `${API_BASE}${m.url}`
+              : "",
+          })) || [],
         user: {
           ...data.post.user,
           profilePic: data?.post?.user?.profilePic
@@ -294,13 +279,11 @@ const Home = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-2 md:px-6 py-6 grid grid-cols-1 md:grid-cols-4 gap-6">
-      
       <div className="hidden md:block">
         <SidebarLeft />
       </div>
 
       <div className="md:col-span-2 space-y-4">
-
         <StoriesBar posts={posts} />
 
         <form
@@ -363,13 +346,11 @@ const Home = () => {
                 />
               ))}
         </div>
-
       </div>
 
       <div className="hidden md:block">
         <SidebarRight />
       </div>
-
     </div>
   );
 };
