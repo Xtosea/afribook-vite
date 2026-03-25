@@ -180,7 +180,12 @@ const Home = () => {
         user: {
           ...data.post.user,
           profilePic: data.post.user.profilePic
-            ? data.post.user.profilePic.startsWith("http")
+            ? profilePic:
+  data?.post?.user?.profilePic
+    ? data.post.user.profilePic.startsWith("http")
+      ? data.post.user.profilePic
+      : `${API_BASE}${data.post.user.profilePic}`
+    : "/default-avatar.png"
               ? data.post.user.profilePic
               : `${API_BASE}${data.post.user.profilePic}`
             : "/default-avatar.png",
