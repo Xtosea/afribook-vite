@@ -105,21 +105,36 @@ const Home = () => {
   useLazyVideo(feedRef);
 
   /* ================= SOCKET.IO ================= */
-  useEffect(() => connectSocket(), []);
+useEffect(() => connectSocket(), []);
 
-  useEffect(() => {
-    const socket = getSocket();
-    if (!socket) return;
+useEffect(() => {
+  const socket = getSocket();
+  if (!socket) return;
 
-    socket.on("new-video", (post) => setPosts((prev) => [post, ...prev]));
-    socket.on("new-story", (story) => setStories((prev) => [story, ...prev]));
+  socket.on("new-video", (post) => {
+    setPosts((prev) => [post, ...prev]);
+  });
 
-    return () => {
-      socket.off("new-video");
-      socket.off("new-story");
-    };
-  }, []);
+  socket.on("new-story", (story) => {
+    setStories((prev) => [story, ...prev]);
+  });
 
+  /* ================= STORY REPLY ================= */
+  socket.on("story-reply", (data) => {
+    console.log("Story reply:", data);
+
+    // Simple alert (temporary)
+    alert(`${data.from?.name || "Someone"} replied to your story`);
+
+    // Later you can connect to notification system
+  });
+
+  return () => {
+    socket.off("new-video");
+    socket.off("new-story");
+    socket.off("story-reply");
+  };
+}, []);
   /* ================= FETCH POSTS ================= */
   useEffect(() => {
     const fetchPosts = async () => {
