@@ -8,6 +8,16 @@ const StoriesBar = ({ user, posts = [] }) => {
 
   const [viewerOpen, setViewerOpen] = useState(false);
   const [currentStory, setCurrentStory] = useState(null);
+  const [uploading, setUploading] = useState(false);
+
+  /* ================= HELPER: Convert file to Base64 ================= */
+  const toBase64 = (file) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result.split(",")[1]); // only base64
+      reader.onerror = (error) => reject(error);
+    });
 
   /* ================= ADD STORY ================= */
   const handleAddStory = () => fileRef.current.click();
@@ -16,20 +26,28 @@ const StoriesBar = ({ user, posts = [] }) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    const formData = new FormData();
-    formData.append("media", file);
-
-    const token = localStorage.getItem("token");
-
+    setUploading(true);
     try {
+      const base64 = await toBase64(file); // convert file to base64
+      const token = localStorage.getItem("token");
+
       await fetch(`${API_BASE}/api/stories/upload`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          filename: file.name,
+          contentType: file.type,
+          base64,
+        }),
       });
+
       window.location.reload(); // reload to see the new story
     } catch (err) {
       console.error("Story upload failed:", err);
+      setUploading(false);
     }
   };
 
@@ -49,14 +67,16 @@ const StoriesBar = ({ user, posts = [] }) => {
       <div className="flex gap-3 overflow-x-auto pb-2">
         {/* YOUR STORY */}
         <div
-          className="min-w-[80px] h-32 bg-gray-200 rounded-lg flex flex-col items-center justify-center text-sm cursor-pointer hover:ring-2 hover:ring-blue-500"
+          className={`min-w-[80px] h-32 bg-gray-200 rounded-lg flex flex-col items-center justify-center text-sm cursor-pointer hover:ring-2 hover:ring-blue-500 ${
+            uploading ? "opacity-50 cursor-wait" : ""
+          }`}
           onClick={handleAddStory}
         >
           <img
             src={safeUser.profilePic || `${API_BASE}/uploads/profiles/default-profile.png`}
             className="w-10 h-10 rounded-full mb-1"
           />
-          Add Story
+          {uploading ? "Uploading..." : "Add Story"}
           <input
             type="file"
             ref={fileRef}
