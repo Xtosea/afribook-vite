@@ -165,7 +165,8 @@ const Home = () => {
       {/* MAIN FEED */}
       <div className="md:col-span-2 space-y-4">
         {/* STORIES BAR */}
-        <StoriesBar user={{ _id: currentUserId }} posts={stories} />
+
+        <StoriesBar user={currentUser} stories={stories} />
 
         {/* CREATE POST */}
         <form onSubmit={handleSubmitPost} className="bg-white p-4 rounded-xl shadow space-y-3">
