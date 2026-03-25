@@ -17,7 +17,7 @@ return (
           </a>
 </div>
 </div>
-    </foote>
+    </footer>
 );
 };
 
