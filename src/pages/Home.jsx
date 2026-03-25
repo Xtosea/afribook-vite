@@ -191,18 +191,23 @@ const Home = () => {
         }
 
         const url = file.type.startsWith("image")
-          ? await uploadImage(file, (p) =>
-              setUploadProgress((prev) => ({ ...prev, [i]: p }))
-            )
-          : await uploadVideo(file, (p) =>
-              setUploadProgress((prev) => ({ ...prev, [i]: p }))
-            );
+  ? await uploadImage(file, (p) =>
+      setUploadProgress((prev) => ({ ...prev, [i]: p }))
+    )
+  : await uploadVideo(file, (p) =>
+      setUploadProgress((prev) => ({ ...prev, [i]: p }))
+    );
 
-        uploadedMedia.push({
-          url,
-          type: file.type.startsWith("image") ? "image" : "video",
-        });
-      }
+console.log("Uploaded URL:", url);
+
+        if (url) {
+  uploadedMedia.push({
+    url,
+    type: file.type.startsWith("image") ? "image" : "video",
+  });
+} else {
+  console.error("Upload failed, skipping media");
+}
 
       const res = await fetch(`${API_BASE}/api/posts`, {
         method: "POST",
