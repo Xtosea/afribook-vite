@@ -4,7 +4,7 @@ import PostCard from "../components/PostCard";
 import SidebarLeft from "../components/layout/SidebarLeft";
 import SidebarRight from "../components/layout/SidebarRight";
 import StoriesBar from "../components/layout/StoriesBar";
-import StoryViewer from "../components/layout/StoryViewer";
+import StoryViewer from "../components/stories/StoryViewer";
 import MediaUpload from "../components/MediaUpload";
 import imageCompression from "browser-image-compression";
 import { API_BASE, fetchWithToken } from "../api/api";
@@ -19,9 +19,9 @@ const useStories = () => {
   useEffect(() => {
     const fetchStories = async () => {
       try {
-        const data = await fetch(`${API_BASE}/api/stories`);
-        const res = await data.json();
-        setStories(res || []);
+        const res = await fetch(`${API_BASE}/api/stories`);
+        const data = await res.json();
+        setStories(data || []);
       } catch (err) {
         console.error("Stories fetch error:", err);
       }
@@ -31,13 +31,60 @@ const useStories = () => {
   return stories;
 };
 
+/* ================= LAZY VIDEO ================= */
+const useLazyVideo = (ref) => {
+  useEffect(() => {
+    if (!ref.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const video = entry.target;
+          if (entry.isIntersecting) {
+            if (!video.src) video.src = video.dataset.src;
+            video.play().catch(() => {});
+          } else {
+            video.pause();
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+
+    const observeVideos = () => {
+      const videos = ref.current.querySelectorAll("video");
+      videos.forEach((v) => observer.observe(v));
+    };
+
+    observeVideos();
+
+    const mutationObserver = new MutationObserver(observeVideos);
+    mutationObserver.observe(ref.current, {
+      childList: true,
+      subtree: true,
+    });
+
+    return () => {
+      observer.disconnect();
+      mutationObserver.disconnect();
+    };
+  }, [ref]);
+};
+
+/* ================= SKELETON POST ================= */
+const SkeletonPost = () => (
+  <div className="bg-white p-4 rounded-2xl shadow animate-pulse space-y-4">
+    <div className="h-64 bg-gray-300 rounded-xl"></div>
+  </div>
+);
+
+/* ================= HOME ================= */
 const Home = () => {
   const token = localStorage.getItem("token");
   const currentUserId = localStorage.getItem("userId");
 
   const [posts, setPosts] = useState([]);
   const [loadingPosts, setLoadingPosts] = useState(true);
-
   const [newPost, setNewPost] = useState("");
   const [mediaFiles, setMediaFiles] = useState([]);
   const [uploadProgress, setUploadProgress] = useState({});
@@ -50,9 +97,11 @@ const Home = () => {
   const [activeStory, setActiveStory] = useState(null);
   const [activeUserStories, setActiveUserStories] = useState([]);
 
+  /* ================= MEDIA UPLOAD ================= */
   const feedRef = useRef();
   const { uploadImage } = useCloudinaryUpload();
   const { uploadVideo } = useR2Upload();
+  useLazyVideo(feedRef);
 
   /* ================= SOCKET.IO ================= */
   useEffect(() => connectSocket(), []);
@@ -62,9 +111,12 @@ const Home = () => {
     if (!socket) return;
 
     socket.on("new-video", (post) => setPosts((prev) => [post, ...prev]));
-    socket.on("new-story", (story) => console.log("New story received", story));
+    socket.on("new-story", (story) => setStories((prev) => [story, ...prev]));
 
-    return () => socket.off("new-video");
+    return () => {
+      socket.off("new-video");
+      socket.off("new-story");
+    };
   }, []);
 
   /* ================= FETCH POSTS ================= */
@@ -108,6 +160,7 @@ const Home = () => {
       const data = await res.json();
       getSocket()?.emit("new-video", data.post);
       setPosts((prev) => [data.post, ...prev]);
+
       setNewPost("");
       setMediaFiles([]);
       setExpanded(false);
@@ -118,20 +171,21 @@ const Home = () => {
     }
   };
 
-  /* ================= HANDLE STORY CLICK ================= */
+  /* ================= STORY CLICK ================= */
   const handleStoryClick = (story) => {
     const userStories = stories.filter((s) => s.user._id === story.user._id);
     setActiveUserStories(userStories);
-    setActiveStory(true);
+    setActiveStory(userStories[0] || null);
   };
 
   return (
     <>
-      {/* ================= STORY VIEWER ================= */}
+      {/* STORY VIEWER */}
       {activeStory && (
         <StoryViewer
           stories={activeUserStories}
-          onClose={() => setActiveStory(false)}
+          index={activeUserStories.findIndex(s => s._id === activeStory._id)}
+          onClose={() => setActiveStory(null)}
         />
       )}
 
@@ -139,14 +193,14 @@ const Home = () => {
         <div className="hidden md:block"><SidebarLeft /></div>
 
         <div className="md:col-span-2 space-y-4">
-          {/* ================= STORIES BAR ================= */}
+          {/* STORIES BAR */}
           <StoriesBar
             user={{ _id: currentUserId }}
             posts={stories}
             onStoryClick={handleStoryClick}
           />
 
-          {/* ================= CREATE POST ================= */}
+          {/* CREATE POST */}
           <form onSubmit={handleSubmitPost} className="bg-white p-4 rounded-xl shadow space-y-3">
             <textarea
               value={newPost}
@@ -163,11 +217,10 @@ const Home = () => {
             </>}
           </form>
 
-          {/* ================= POSTS FEED ================= */}
+          {/* POSTS FEED */}
           <div ref={feedRef} className="space-y-4">
-            {loadingPosts
-              ? [1, 2].map((i) => <div key={i} className="h-64 bg-gray-300 rounded-xl animate-pulse" />)
-              : posts.map((post) => (
+            {loadingPosts ? [<SkeletonPost key={1} />, <SkeletonPost key={2} />]
+              : posts.map(post => (
                   <PostCard
                     key={post._id}
                     post={post}
@@ -176,7 +229,8 @@ const Home = () => {
                     onComment={() => {}}
                     onShare={() => {}}
                   />
-                ))}
+                ))
+            }
           </div>
         </div>
 
