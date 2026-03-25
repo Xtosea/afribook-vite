@@ -12,6 +12,7 @@ import { getSocket, connectSocket } from "../socket";
 import { useCloudinaryUpload } from "../hooks/useCloudinaryUpload";
 import { useR2Upload } from "../hooks/useR2Upload";
 import EmojiPicker from "emoji-picker-react";
+import StoriesSection from "../components/StoriesSection";
 
 /* ================= STORIES HOOK ================= */
 const useStories = () => {
@@ -218,6 +219,7 @@ const Home = () => {
               <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">{posting ? "Posting..." : "Post"}</button>
             </>}
           </form>
+           <StoriesSection user={user} />
 
           {/* POSTS FEED */}
           <div ref={feedRef} className="space-y-4">
