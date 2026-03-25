@@ -217,6 +217,7 @@ const Home = () => {
       <div className="hidden md:block">
 
         
+ <SidebarRight />
 
       </div>
     </div>
