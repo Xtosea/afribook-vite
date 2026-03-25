@@ -7,11 +7,11 @@ const StoryViewer = ({ stories = [], index = 0, onClose }) => {
 
   const story = stories[current];
 
-  /* ================= AUTO NEXT ================= */
   useEffect(() => {
     setProgress(0);
+    if (!story) return;
 
-    const duration = story?.type === "video" ? 10000 : 5000;
+    const duration = story.type === "video" ? 10000 : 5000;
 
     const interval = setInterval(() => {
       setProgress((prev) => {
@@ -24,45 +24,34 @@ const StoryViewer = ({ stories = [], index = 0, onClose }) => {
     }, duration / 50);
 
     return () => clearInterval(interval);
-  }, [current]);
+  }, [current, story]);
 
-  /* ================= NEXT ================= */
-  const nextStory = () => {
-    if (current < stories.length - 1) {
-      setCurrent(current + 1);
-    } else {
-      onClose();
-    }
-  };
-
-  /* ================= PREV ================= */
-  const prevStory = () => {
-    if (current > 0) {
-      setCurrent(current - 1);
-    }
-  };
-
-  /* ================= VIEW TRACK ================= */
   useEffect(() => {
     const token = localStorage.getItem("token");
+    if (!story?._id) return;
 
-    fetch(`${API_BASE}/api/stories/view/${story?._id}`, {
+    fetch(`${API_BASE}/api/stories/view/${story._id}`, {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-  }, [current]);
+      headers: { Authorization: `Bearer ${token}` },
+    }).catch(console.error);
+  }, [current, story]);
 
-  /* ================= REACT ================= */
+  const nextStory = () => {
+    if (current < stories.length - 1) setCurrent(current + 1);
+    else onClose();
+  };
+
+  const prevStory = () => {
+    if (current > 0) setCurrent(current - 1);
+  };
+
   const reactStory = async () => {
     const token = localStorage.getItem("token");
+    if (!story?._id) return;
 
-    await fetch(`${API_BASE}/api/stories/react/${story?._id}`, {
+    await fetch(`${API_BASE}/api/stories/react/${story._id}`, {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { Authorization: `Bearer ${token}` },
     });
   };
 
@@ -70,23 +59,14 @@ const StoryViewer = ({ stories = [], index = 0, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black z-50 flex flex-col">
-
       {/* PROGRESS BAR */}
       <div className="flex gap-1 p-2">
         {stories.map((_, i) => (
-          <div
-            key={i}
-            className="flex-1 h-1 bg-gray-600 rounded"
-          >
+          <div key={i} className="flex-1 h-1 bg-gray-600 rounded">
             <div
               className="h-1 bg-white rounded"
               style={{
-                width:
-                  i === current
-                    ? `${progress}%`
-                    : i < current
-                    ? "100%"
-                    : "0%",
+                width: i === current ? `${progress}%` : i < current ? "100%" : "0%",
               }}
             />
           </div>
@@ -96,40 +76,25 @@ const StoryViewer = ({ stories = [], index = 0, onClose }) => {
       {/* HEADER */}
       <div className="flex justify-between items-center p-3 text-white">
         <div className="flex items-center gap-2">
-          <img
-            src={story.user?.profilePic}
-            className="w-8 h-8 rounded-full"
-          />
+          <img src={story.user?.profilePic} className="w-8 h-8 rounded-full" />
           <span>{story.user?.name}</span>
         </div>
-
         <button onClick={onClose}>✕</button>
       </div>
 
       {/* MEDIA */}
       <div className="flex-1 flex items-center justify-center">
         {story.type === "video" ? (
-          <video
-            src={story.media}
-            autoPlay
-            className="max-h-full"
-          />
+          <video src={story.media} autoPlay className="max-h-full" />
         ) : (
-          <img
-            src={story.media}
-            className="max-h-full"
-          />
+          <img src={story.media} className="max-h-full" alt="story" />
         )}
       </div>
 
       {/* FOOTER */}
       <div className="flex justify-between items-center p-4 text-white">
         <button onClick={prevStory}>◀</button>
-
-        <button onClick={reactStory}>
-          ❤️ React
-        </button>
-
+        <button onClick={reactStory}>❤️ React</button>
         <button onClick={nextStory}>▶</button>
       </div>
     </div>
