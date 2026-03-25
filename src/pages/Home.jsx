@@ -13,7 +13,7 @@ import { useCloudinaryUpload } from "../hooks/useCloudinaryUpload";
 import { useR2Upload } from "../hooks/useR2Upload";
 import EmojiPicker from "emoji-picker-react";
 
-/* LAZY VIDEO */
+/* ================= LAZY VIDEO ================= */
 const useLazyVideo = (ref) => {
   useEffect(() => {
     if (!ref.current) return;
@@ -54,6 +54,7 @@ const useLazyVideo = (ref) => {
   }, [ref]);
 };
 
+/* ================= SKELETON ================= */
 const SkeletonPost = () => (
   <div className="bg-white p-4 rounded-2xl shadow animate-pulse space-y-4">
     <div className="flex items-center gap-3">
@@ -100,7 +101,30 @@ const Home = () => {
 
   useLazyVideo(feedRef);
 
+  /* ================= SOCKET.IO ================= */
   useEffect(() => connectSocket(), []);
+
+  useEffect(() => {
+    const socket = getSocket();
+    if (!socket) return;
+
+    const handleNewVideo = (post) => {
+      setPosts((prev) => [
+        {
+          ...post,
+          media:
+            post.media?.map((m) => ({
+              ...m,
+              url: m?.url?.startsWith("http") ? m.url : `${API_BASE}${m.url}`,
+            })) || [],
+        },
+        ...prev,
+      ]);
+    };
+
+    socket.on("new-video", handleNewVideo);
+    return () => socket.off("new-video", handleNewVideo);
+  }, []);
 
   /* ================= FETCH POSTS ================= */
   useEffect(() => {
@@ -140,38 +164,9 @@ const Home = () => {
     fetchPosts();
   }, [token]);
 
-  /* ================= SOCKET ================= */
-
-  useEffect(() => {
-    const socket = getSocket();
-    if (!socket) return;
-
-    const handleNewVideo = (post) =>
-      setPosts((prev) => [
-        {
-          ...post,
-          media:
-            post.media?.map((m) => ({
-              ...m,
-              url: m?.url
-                ? m.url.startsWith("http")
-                  ? m.url
-                  : `${API_BASE}${m.url}`
-                : "",
-            })) || [],
-        },
-        ...prev,
-      ]);
-
-    socket.on("new-video", handleNewVideo);
-    return () => socket.off("new-video", handleNewVideo);
-  }, []);
-
   /* ================= CREATE POST ================= */
-
   const handleSubmitPost = async (e) => {
     e.preventDefault();
-
     if (!newPost && mediaFiles.length === 0) return;
 
     setPosting(true);
@@ -184,43 +179,21 @@ const Home = () => {
         let file = mediaFiles[i];
 
         if (file.type.startsWith("image")) {
-          file = await imageCompression(file, {
-            maxSizeMB: 1,
-            maxWidthOrHeight: 1280,
-          });
+          file = await imageCompression(file, { maxSizeMB: 1, maxWidthOrHeight: 1280 });
         }
 
         const url = file.type.startsWith("image")
-  ? await uploadImage(file, (p) =>
-      setUploadProgress((prev) => ({ ...prev, [i]: p }))
-    )
-  : await uploadVideo(file, (p) =>
-      setUploadProgress((prev) => ({ ...prev, [i]: p }))
-    );
+          ? await uploadImage(file, (p) => setUploadProgress((prev) => ({ ...prev, [i]: p })))
+          : await uploadVideo(file, (p) => setUploadProgress((prev) => ({ ...prev, [i]: p })));
 
-console.log("Uploaded URL:", url);
+        if (url) uploadedMedia.push({ url, type: file.type.startsWith("image") ? "image" : "video" });
+        else console.error("Upload failed, skipping media");
+      }
 
-        if (url) {
-  uploadedMedia.push({
-    url,
-    type: file.type.startsWith("image") ? "image" : "video",
-  });
-} else {
-  console.error("Upload failed, skipping media");
-}
-
-} // <-- ADD THIS LINE (closing for loop)
-
-const res = await fetch(`${API_BASE}/api/posts`, {
+      const res = await fetch(`${API_BASE}/api/posts`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          content: newPost,
-          media: uploadedMedia,
-        }),
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ content: newPost, media: uploadedMedia }),
       });
 
       const data = await res.json();
@@ -230,11 +203,7 @@ const res = await fetch(`${API_BASE}/api/posts`, {
         media:
           data.post.media?.map((m) => ({
             ...m,
-            url: m?.url
-              ? m.url.startsWith("http")
-                ? m.url
-                : `${API_BASE}${m.url}`
-              : "",
+            url: m?.url?.startsWith("http") ? m.url : `${API_BASE}${m.url}`,
           })) || [],
         user: {
           ...data.post.user,
@@ -246,9 +215,9 @@ const res = await fetch(`${API_BASE}/api/posts`, {
         },
       };
 
-      setPosts((prev) => [newPostData, ...prev]);
-
+      // Emit and prepend immediately
       getSocket()?.emit("new-video", newPostData);
+      setPosts((prev) => [newPostData, ...prev]);
 
       setNewPost("");
       setMediaFiles([]);
@@ -262,41 +231,22 @@ const res = await fetch(`${API_BASE}/api/posts`, {
   };
 
   /* ================= ACTIONS ================= */
-
-  const handleLike = (postId) =>
-    getSocket()?.emit("like-video", {
-      videoId: postId,
-      userId: currentUserId,
-    });
-
-  const handleComment = (postId, text) =>
-    getSocket()?.emit("comment-video", {
-      videoId: postId,
-      text,
-    });
-
+  const handleLike = (postId) => getSocket()?.emit("like-video", { videoId: postId, userId: currentUserId });
+  const handleComment = (postId, text) => getSocket()?.emit("comment-video", { videoId: postId, text });
   const handleShare = (post) => {
-    navigator.clipboard.writeText(
-      `${window.location.origin}/posts/${post._id}`
-    );
+    navigator.clipboard.writeText(`${window.location.origin}/posts/${post._id}`);
     alert("Copied!");
   };
 
   /* ================= UI ================= */
-
   return (
     <div className="max-w-7xl mx-auto px-2 md:px-6 py-6 grid grid-cols-1 md:grid-cols-4 gap-6">
-      <div className="hidden md:block">
-        <SidebarLeft />
-      </div>
+      <div className="hidden md:block"><SidebarLeft /></div>
 
       <div className="md:col-span-2 space-y-4">
         <StoriesBar posts={posts} />
 
-        <form
-          onSubmit={handleSubmitPost}
-          className="bg-white p-4 rounded-xl shadow space-y-3"
-        >
+        <form onSubmit={handleSubmitPost} className="bg-white p-4 rounded-xl shadow space-y-3">
           <textarea
             value={newPost}
             onChange={(e) => setNewPost(e.target.value)}
@@ -307,32 +257,13 @@ const res = await fetch(`${API_BASE}/api/posts`, {
 
           {expanded && (
             <>
-              <button
-                type="button"
-                onClick={() => setShowEmoji(!showEmoji)}
-                className="border px-3 py-1 rounded-full"
-              >
-                😊 Emoji
-              </button>
+              <button type="button" onClick={() => setShowEmoji(!showEmoji)} className="border px-3 py-1 rounded-full">😊 Emoji</button>
 
-              {showEmoji && (
-                <EmojiPicker
-                  onEmojiClick={(e) =>
-                    setNewPost((prev) => prev + e.emoji)
-                  }
-                />
-              )}
+              {showEmoji && <EmojiPicker onEmojiClick={(e) => setNewPost((prev) => prev + e.emoji)} />}
 
-              <MediaUpload
-                mediaFiles={mediaFiles}
-                setMediaFiles={setMediaFiles}
-                uploadProgress={uploadProgress}
-              />
+              <MediaUpload mediaFiles={mediaFiles} setMediaFiles={setMediaFiles} uploadProgress={uploadProgress} />
 
-              <button
-                type="submit"
-                className="bg-blue-500 text-white px-4 py-2 rounded"
-              >
+              <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
                 {posting ? "Posting..." : "Post"}
               </button>
             </>
@@ -340,24 +271,13 @@ const res = await fetch(`${API_BASE}/api/posts`, {
         </form>
 
         <div ref={feedRef} className="space-y-4">
-          {loadingPosts
-            ? [<SkeletonPost key={1} />, <SkeletonPost key={2} />]
-            : posts.map((post) => (
-                <PostCard
-                  key={post._id}
-                  post={post}
-                  currentUserId={currentUserId}
-                  onLike={handleLike}
-                  onComment={handleComment}
-                  onShare={handleShare}
-                />
-              ))}
+          {loadingPosts ? [<SkeletonPost key={1} />, <SkeletonPost key={2} />] : posts.map((post) => (
+            <PostCard key={post._id} post={post} currentUserId={currentUserId} onLike={handleLike} onComment={handleComment} onShare={handleShare} />
+          ))}
         </div>
       </div>
 
-      <div className="hidden md:block">
-        <SidebarRight />
-      </div>
+      <div className="hidden md:block"><SidebarRight /></div>
     </div>
   );
 };
