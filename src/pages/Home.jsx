@@ -173,9 +173,11 @@ const Home = () => {
 
   /* ================= STORY CLICK ================= */
   const handleStoryClick = (story) => {
-    const userStories = stories.filter((s) => s.user._id === story.user._id);
+    const userStories = stories
+      .filter((s) => s.user._id === story.user._id)
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // latest first
     setActiveUserStories(userStories);
-    setActiveStory(userStories[0] || null);
+    setActiveStory(userStories[0] || null); // start on newest story
   };
 
   return (
