@@ -16,6 +16,7 @@ import CreatePost from "./pages/CreatePost";
 import Reels from "./pages/Reels";
 import Messages from "./pages/Messages";
 import Notifications from "./pages/Notifications";
+import Chat from "./pages/Chat"
 
 function App() {
   return (
@@ -81,6 +82,15 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+         <Route
+path="/chat"
+element={
+<ProtectedRoute>
+<Chat/>
+</ProtectedRoute>
+}
+/>
           
         </Routes>
       </div>
