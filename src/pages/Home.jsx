@@ -209,7 +209,9 @@ console.log("Uploaded URL:", url);
   console.error("Upload failed, skipping media");
 }
 
-      const res = await fetch(`${API_BASE}/api/posts`, {
+} // <-- ADD THIS LINE (closing for loop)
+
+const res = await fetch(`${API_BASE}/api/posts`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
