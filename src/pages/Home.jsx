@@ -1,8 +1,4 @@
 // src/pages/Home.jsx
-import React, { useEffect, useRef, useState } from "react";
-import PostCard from "../components/PostCard";
-import SidebarLeft from "../components/layout/SidebarLeft";
-import SidebarRight from "../// src/pages/Home.jsx
 import React, { useEffect, useRef, useState, Suspense, lazy } from "react";
 import PostCard from "../components/PostCard";
 import SidebarLeft from "../components/layout/SidebarLeft";
