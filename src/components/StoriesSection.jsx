@@ -6,6 +6,7 @@ import { socket } from "../socket";
 const StoriesSection = ({ user }) => {
   const [stories, setStories] = useState([]);
   const [viewer, setViewer] = useState(null);
+  const [replyText, setReplyText] = useState("");
   const fileRef = useRef();
 
   /* ================= FETCH STORIES ================= */
@@ -57,7 +58,6 @@ const StoriesSection = ({ user }) => {
 
       if (!res.ok) throw new Error(data.error);
 
-      // Add instantly
       setStories((prev) => [data, ...prev]);
 
     } catch (err) {
@@ -73,6 +73,36 @@ const StoriesSection = ({ user }) => {
 
   const closeStory = () => {
     setViewer(null);
+    setReplyText("");
+  };
+
+  /* ================= SEND REPLY ================= */
+
+  const sendReply = async () => {
+    if (!replyText || !viewer) return;
+
+    try {
+      const token = localStorage.getItem("token");
+
+      await fetch(
+        `${API_BASE}/api/stories/reply/${viewer._id}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            text: replyText
+          })
+        }
+      );
+
+      setReplyText("");
+
+    } catch (err) {
+      console.error("Reply error", err);
+    }
   };
 
   return (
@@ -132,19 +162,45 @@ const StoriesSection = ({ user }) => {
           className="fixed inset-0 bg-black bg-opacity-95 flex items-center justify-center z-50"
           onClick={closeStory}
         >
-          {viewer.media?.[0]?.type === "video" ? (
-            <video
-              src={viewer.media[0].url}
-              autoPlay
-              controls
-              className="max-h-[90%] max-w-[90%]"
-            />
-          ) : (
-            <img
-              src={viewer.media?.[0]?.url}
-              className="max-h-[90%] max-w-[90%]"
-            />
-          )}
+
+          {/* STOP CLICK PROPAGATION */}
+          <div
+            className="relative w-full h-full flex items-center justify-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+
+            {viewer.media?.[0]?.type === "video" ? (
+              <video
+                src={viewer.media[0].url}
+                autoPlay
+                controls
+                className="max-h-[90%] max-w-[90%]"
+              />
+            ) : (
+              <img
+                src={viewer.media?.[0]?.url}
+                className="max-h-[90%] max-w-[90%]"
+              />
+            )}
+
+            {/* REPLY INPUT */}
+            <div className="absolute bottom-5 left-0 right-0 px-4 flex gap-2">
+              <input
+                value={replyText}
+                onChange={(e)=>setReplyText(e.target.value)}
+                placeholder="Reply to story..."
+                className="flex-1 bg-white rounded-full px-4 py-2"
+              />
+
+              <button
+                onClick={sendReply}
+                className="bg-blue-500 text-white px-4 rounded-full"
+              >
+                Send
+              </button>
+            </div>
+
+          </div>
         </div>
       )}
     </>
