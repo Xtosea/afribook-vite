@@ -1,16 +1,37 @@
-// src/components/layout/StoryViewer.jsx
+// src/components/stories/StoryViewer.jsx
 import React, { useEffect, useState, useRef } from "react";
+import { API_BASE } from "../../api/api";
 
-const STORY_DURATION = 5000; // 5 seconds per story
-
-const StoryViewer = ({ stories = [], onClose }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const progressRef = useRef(null);
-  const timeoutRef = useRef(null);
+const StoryViewer = ({ stories = [], index = 0, onClose }) => {
+  const [currentIndex, setCurrentIndex] = useState(index);
+  const [progress, setProgress] = useState(0);
+  const timerRef = useRef();
 
   const currentStory = stories[currentIndex];
 
-  const nextStory = () => {
+  const storyDuration = 5000; // 5 seconds per story
+
+  // Auto-advance progress
+  useEffect(() => {
+    if (!currentStory) return;
+
+    setProgress(0);
+
+    timerRef.current = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 100) {
+          clearInterval(timerRef.current);
+          handleNextStory();
+          return 0;
+        }
+        return prev + 100 / (storyDuration / 100);
+      });
+    }, 100);
+
+    return () => clearInterval(timerRef.current);
+  }, [currentIndex, currentStory]);
+
+  const handleNextStory = () => {
     if (currentIndex < stories.length - 1) {
       setCurrentIndex(currentIndex + 1);
     } else {
@@ -18,82 +39,83 @@ const StoryViewer = ({ stories = [], onClose }) => {
     }
   };
 
-  const prevStory = () => {
+  const handlePrevStory = () => {
     if (currentIndex > 0) setCurrentIndex(currentIndex - 1);
+    else onClose();
   };
-
-  useEffect(() => {
-    if (!currentStory) return;
-
-    // Reset progress
-    if (progressRef.current) progressRef.current.style.width = "0%";
-
-    // Animate progress bar
-    const start = performance.now();
-    const animate = (time) => {
-      const elapsed = time - start;
-      const percent = Math.min((elapsed / STORY_DURATION) * 100, 100);
-      if (progressRef.current) progressRef.current.style.width = `${percent}%`;
-
-      if (elapsed < STORY_DURATION) {
-        requestAnimationFrame(animate);
-      } else {
-        nextStory();
-      }
-    };
-
-    requestAnimationFrame(animate);
-
-    return () => clearTimeout(timeoutRef.current);
-  }, [currentIndex, currentStory]);
 
   if (!currentStory) return null;
 
   return (
     <div
-      className="fixed inset-0 bg-black flex flex-col justify-center items-center z-50"
+      className="fixed inset-0 bg-black z-50 flex flex-col justify-center items-center"
       onClick={onClose}
     >
-      {/* Progress Bar */}
-      <div className="absolute top-4 left-4 right-4 flex gap-1">
-        {stories.map((_, i) => (
+      {/* Progress bars */}
+      <div className="absolute top-4 left-2 right-2 flex gap-1">
+        {stories.map((_, idx) => (
           <div
-            key={i}
+            key={idx}
             className="flex-1 h-1 bg-white/30 rounded"
           >
             <div
-              ref={i === currentIndex ? progressRef : null}
-              className="h-1 bg-white rounded w-0"
+              className={`h-1 bg-white rounded`}
+              style={{ width: idx < currentIndex ? "100%" : idx === currentIndex ? `${progress}%` : "0%" }}
             />
           </div>
         ))}
       </div>
 
-      {/* Story Content */}
+      {/* Story content */}
       {currentStory.type === "video" ? (
         <video
           src={currentStory.media}
+          className="max-h-full max-w-full"
           autoPlay
           controls
-          className="max-h-full max-w-full"
           onClick={(e) => e.stopPropagation()}
         />
       ) : (
         <img
           src={currentStory.media}
-          alt="story"
           className="max-h-full max-w-full"
+          alt="story"
           onClick={(e) => e.stopPropagation()}
         />
       )}
 
       {/* Navigation */}
-      <div
-        className="absolute inset-0 flex justify-between"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex-1" onClick={prevStory}></div>
-        <div className="flex-1" onClick={nextStory}></div>
+      <div className="absolute inset-0 flex justify-between">
+        <div
+          className="flex-1 cursor-pointer"
+          onClick={(e) => {
+            e.stopPropagation();
+            handlePrevStory();
+          }}
+        />
+        <div
+          className="flex-1 cursor-pointer"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleNextStory();
+          }}
+        />
+      </div>
+
+      {/* Bottom actions */}
+      <div className="absolute bottom-6 flex gap-4 items-center">
+        <button
+          className="text-white text-2xl"
+          onClick={(e) => {
+            e.stopPropagation();
+            alert("❤️ Reacted!");
+          }}
+        >
+          ❤️
+        </button>
+        <span className="text-white text-sm">
+          {currentStory.views || 0} views
+        </span>
       </div>
     </div>
   );
