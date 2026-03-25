@@ -4,7 +4,7 @@ import PostCard from "../components/PostCard";
 import SidebarLeft from "../components/layout/SidebarLeft";
 import SidebarRight from "../components/layout/SidebarRight";
 import StoriesBar from "../components/layout/StoriesBar";
-import StoryViewer from "../components/stories/StoryViewer";
+
 import MediaUpload from "../components/MediaUpload";
 import imageCompression from "browser-image-compression";
 import { API_BASE, fetchWithToken } from "../api/api";
@@ -68,8 +68,6 @@ const Home = () => {
   const [showEmoji, setShowEmoji] = useState(false);
 
   const [stories, setStories] = useState([]);
-  const [activeStory, setActiveStory] = useState(null);
-  const [activeUserStories, setActiveUserStories] = useState([]);
 
   const feedRef = useRef();
   const { uploadImage } = useCloudinaryUpload();
@@ -105,11 +103,6 @@ const Home = () => {
       socket.on("new-story", (story) => {
         setStories((prev) => [story, ...prev]);
       });
-
-      socket.on("story-reply", (data) => {
-        console.log("Story reply:", data);
-        alert(`${data.from?.name || "Someone"} replied to your story`);
-      });
     };
 
     init();
@@ -119,7 +112,6 @@ const Home = () => {
       if (socket) {
         socket.off("new-video");
         socket.off("new-story");
-        socket.off("story-reply");
       }
     };
   }, [token]);
@@ -163,85 +155,69 @@ const Home = () => {
     }
   };
 
-  /* ================= STORY CLICK ================= */
-  const handleStoryClick = (story) => {
-    const userStories = stories
-      .filter((s) => s.user._id === story.user._id)
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    setActiveUserStories(userStories);
-    setActiveStory(userStories[0] || null);
-  };
-
   return (
-    <>
-      {activeStory && (
-        <StoryViewer
-          stories={activeUserStories}
-          index={activeUserStories.findIndex((s) => s._id === activeStory._id)}
-          onClose={() => setActiveStory(null)}
-        />
-      )}
+    <div className="max-w-7xl mx-auto px-2 md:px-6 py-6 grid grid-cols-1 md:grid-cols-4 gap-6">
+      {/* LEFT SIDEBAR */}
+      <div className="hidden md:block">
+        <SidebarLeft />
+      </div>
 
-      <div className="max-w-7xl mx-auto px-2 md:px-6 py-6 grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="hidden md:block">
-          <SidebarLeft />
-        </div>
+      {/* MAIN FEED */}
+      <div className="md:col-span-2 space-y-4">
+        {/* STORIES BAR */}
+        <StoriesBar user={{ _id: currentUserId }} posts={stories} />
 
-        <div className="md:col-span-2 space-y-4">
-          {/* STORIES BAR */}
-          <StoriesBar user={{ _id: currentUserId }} posts={stories} onStoryClick={handleStoryClick} />
+        {/* CREATE POST */}
+        <form onSubmit={handleSubmitPost} className="bg-white p-4 rounded-xl shadow space-y-3">
+          <textarea
+            value={newPost}
+            onChange={(e) => setNewPost(e.target.value)}
+            onFocus={() => setExpanded(true)}
+            placeholder="What's on your mind?"
+            className="w-full border rounded-lg p-3"
+          />
+          {expanded && (
+            <>
+              <button
+                type="button"
+                onClick={() => setShowEmoji(!showEmoji)}
+                className="border px-3 py-1 rounded-full"
+              >
+                😊 Emoji
+              </button>
+              {showEmoji && (
+                <Suspense fallback={<div>Loading Emoji...</div>}>
+                  <EmojiPicker onEmojiClick={(e) => setNewPost((prev) => prev + e.emoji)} />
+                </Suspense>
+              )}
+              <MediaUpload mediaFiles={mediaFiles} setMediaFiles={setMediaFiles} />
+              <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
+                {posting ? "Posting..." : "Post"}
+              </button>
+            </>
+          )}
+        </form>
 
-          {/* CREATE POST */}
-          <form onSubmit={handleSubmitPost} className="bg-white p-4 rounded-xl shadow space-y-3">
-            <textarea
-              value={newPost}
-              onChange={(e) => setNewPost(e.target.value)}
-              onFocus={() => setExpanded(true)}
-              placeholder="What's on your mind?"
-              className="w-full border rounded-lg p-3"
-            />
-            {expanded && (
-              <>
-                <button
-                  type="button"
-                  onClick={() => setShowEmoji(!showEmoji)}
-                  className="border px-3 py-1 rounded-full"
-                >
-                  😊 Emoji
-                </button>
-                {showEmoji && (
-                  <Suspense fallback={<div>Loading Emoji...</div>}>
-                    <EmojiPicker onEmojiClick={(e) => setNewPost((prev) => prev + e.emoji)} />
-                  </Suspense>
-                )}
-                <MediaUpload mediaFiles={mediaFiles} setMediaFiles={setMediaFiles} />
-                <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
-                  {posting ? "Posting..." : "Post"}
-                </button>
-              </>
-            )}
-          </form>
-
-          {/* POSTS FEED */}
-          <div ref={feedRef} className="space-y-4">
-            {loadingPosts
-              ? [<SkeletonPost key={0} />, <SkeletonPost key={1} />]
-              : posts.map((post) => (
-                  <PostCard
-                    key={post._id}
-                    post={post}
-                    currentUserId={currentUserId}
-                    setVideoRefs={setVideoRefs}
-                  />
-                ))}
-          </div>
-        </div>
-
-        <div className="hidden md:block">
-          <SidebarRight />
+        {/* POSTS FEED */}
+        <div ref={feedRef} className="space-y-4">
+          {loadingPosts
+            ? [<SkeletonPost key={0} />, <SkeletonPost key={1} />]
+            : posts.map((post) => (
+                <PostCard
+                  key={post._id}
+                  post={post}
+                  currentUserId={currentUserId}
+                  setVideoRefs={setVideoRefs}
+                />
+              ))}
         </div>
       </div>
-    </>
+
+      {/* RIGHT SIDEBAR */}
+      <div className="hidden md:block">
+        <SidebarRight />
+      </div>
+    </div>
   );
 };
 
