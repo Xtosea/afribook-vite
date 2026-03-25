@@ -84,6 +84,12 @@ const Home = () => {
   const token = localStorage.getItem("token");
   const currentUserId = localStorage.getItem("userId");
 
+  const currentUser = {
+    _id: currentUserId,
+    profilePic: localStorage.getItem("profilePic"),
+    name: localStorage.getItem("name"),
+  };
+
   const [posts, setPosts] = useState([]);
   const [loadingPosts, setLoadingPosts] = useState(true);
   const [newPost, setNewPost] = useState("");
@@ -105,36 +111,33 @@ const Home = () => {
   useLazyVideo(feedRef);
 
   /* ================= SOCKET.IO ================= */
-useEffect(() => connectSocket(), []);
+  useEffect(() => connectSocket(), []);
 
-useEffect(() => {
-  const socket = getSocket();
-  if (!socket) return;
+  useEffect(() => {
+    const socket = getSocket();
+    if (!socket) return;
 
-  socket.on("new-video", (post) => {
-    setPosts((prev) => [post, ...prev]);
-  });
+    socket.on("new-video", (post) => {
+      setPosts((prev) => [post, ...prev]);
+    });
 
-  socket.on("new-story", (story) => {
-    setStories((prev) => [story, ...prev]);
-  });
+    socket.on("new-story", (story) => {
+      setStories((prev) => [story, ...prev]);
+    });
 
-  /* ================= STORY REPLY ================= */
-  socket.on("story-reply", (data) => {
-    console.log("Story reply:", data);
+    /* ================= STORY REPLY ================= */
+    socket.on("story-reply", (data) => {
+      console.log("Story reply:", data);
+      alert(`${data.from?.name || "Someone"} replied to your story`);
+    });
 
-    // Simple alert (temporary)
-    alert(`${data.from?.name || "Someone"} replied to your story`);
+    return () => {
+      socket.off("new-video");
+      socket.off("new-story");
+      socket.off("story-reply");
+    };
+  }, []);
 
-    // Later you can connect to notification system
-  });
-
-  return () => {
-    socket.off("new-video");
-    socket.off("new-story");
-    socket.off("story-reply");
-  };
-}, []);
   /* ================= FETCH POSTS ================= */
   useEffect(() => {
     const fetchPosts = async () => {
@@ -163,7 +166,9 @@ useEffect(() => {
         if (file.type.startsWith("image")) {
           file = await imageCompression(file, { maxSizeMB: 1, maxWidthOrHeight: 1280 });
         }
-        const url = file.type.startsWith("image") ? await uploadImage(file) : await uploadVideo(file);
+        const url = file.type.startsWith("image")
+          ? await uploadImage(file)
+          : await uploadVideo(file);
         uploadedMedia.push({ url, type: file.type.startsWith("image") ? "image" : "video" });
       }
 
@@ -202,21 +207,19 @@ useEffect(() => {
       {activeStory && (
         <StoryViewer
           stories={activeUserStories}
-          index={activeUserStories.findIndex(s => s._id === activeStory._id)}
+          index={activeUserStories.findIndex((s) => s._id === activeStory._id)}
           onClose={() => setActiveStory(null)}
         />
       )}
 
       <div className="max-w-7xl mx-auto px-2 md:px-6 py-6 grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="hidden md:block"><SidebarLeft /></div>
+        <div className="hidden md:block">
+          <SidebarLeft />
+        </div>
 
         <div className="md:col-span-2 space-y-4">
           {/* STORIES BAR */}
-          <StoriesBar
-            user={{ _id: currentUserId }}
-            posts={stories}
-            onStoryClick={handleStoryClick}
-          />
+          <StoriesBar user={{ _id: currentUserId }} posts={stories} onStoryClick={handleStoryClick} />
 
           {/* CREATE POST */}
           <form onSubmit={handleSubmitPost} className="bg-white p-4 rounded-xl shadow space-y-3">
@@ -227,25 +230,32 @@ useEffect(() => {
               placeholder="What's on your mind?"
               className="w-full border rounded-lg p-3"
             />
-            {expanded && <>
-              <button type="button" onClick={() => setShowEmoji(!showEmoji)} className="border px-3 py-1 rounded-full">😊 Emoji</button>
-              {showEmoji && <EmojiPicker onEmojiClick={(e) => setNewPost(prev => prev + e.emoji)} />}
-              <MediaUpload mediaFiles={mediaFiles} setMediaFiles={setMediaFiles} />
-              <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">{posting ? "Posting..." : "Post"}</button>
-            </>}
+            {expanded && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setShowEmoji(!showEmoji)}
+                  className="border px-3 py-1 rounded-full"
+                >
+                  😊 Emoji
+                </button>
+                {showEmoji && <EmojiPicker onEmojiClick={(e) => setNewPost((prev) => prev + e.emoji)} />}
+                <MediaUpload mediaFiles={mediaFiles} setMediaFiles={setMediaFiles} />
+                <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
+                  {posting ? "Posting..." : "Post"}
+                </button>
+              </>
+            )}
           </form>
-           const currentUser = {
-  _id: currentUserId,
-  profilePic: localStorage.getItem("profilePic"),
-  name: localStorage.getItem("name")
-};
 
-<StoriesSection user={currentUser} />
+          {/* STORIES SECTION */}
+          <StoriesSection user={currentUser} />
 
           {/* POSTS FEED */}
           <div ref={feedRef} className="space-y-4">
-            {loadingPosts ? [<SkeletonPost key={1} />, <SkeletonPost key={2} />]
-              : posts.map(post => (
+            {loadingPosts
+              ? [<SkeletonPost key={1} />, <SkeletonPost key={2} />]
+              : posts.map((post) => (
                   <PostCard
                     key={post._id}
                     post={post}
@@ -254,12 +264,13 @@ useEffect(() => {
                     onComment={() => {}}
                     onShare={() => {}}
                   />
-                ))
-            }
+                ))}
           </div>
         </div>
 
-        <div className="hidden md:block"><SidebarRight /></div>
+        <div className="hidden md:block">
+          <SidebarRight />
+        </div>
       </div>
     </>
   );
