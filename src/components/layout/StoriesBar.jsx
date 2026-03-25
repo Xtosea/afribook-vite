@@ -1,22 +1,47 @@
 // src/components/layout/StoriesBar.jsx
-import React, { useRef, useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { API_BASE } from "../../api/api";
+import { getSocket } from "../../socket";
+import StoryViewer from "../stories/StoryViewer";
 
-const StoriesBar = ({ user, posts = [] }) => {
+const StoriesBar = ({ user }) => {
   const safeUser = user && typeof user === "object" && !user.$$typeof ? user : {};
   const fileRef = useRef();
 
-  const [viewerOpen, setViewerOpen] = useState(false);
-  const [currentStory, setCurrentStory] = useState(null);
+  const [stories, setStories] = useState([]);
+  const [viewerIndex, setViewerIndex] = useState(null);
   const [uploading, setUploading] = useState(false);
+
+  /* ================= FETCH STORIES ================= */
+  useEffect(() => {
+    const fetchStories = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/stories`);
+        const data = await res.json();
+        setStories(data);
+      } catch (err) {
+        console.error("Failed to fetch stories:", err);
+      }
+    };
+    fetchStories();
+
+    const socket = getSocket();
+    if (!socket) return;
+
+    socket.on("new-story", (story) => setStories((prev) => [story, ...prev]));
+
+    return () => {
+      socket.off("new-story");
+    };
+  }, []);
 
   /* ================= HELPER: Convert file to Base64 ================= */
   const toBase64 = (file) =>
     new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result.split(",")[1]); // only base64
-      reader.onerror = (error) => reject(error);
+      reader.onload = () => resolve(reader.result.split(",")[1]);
+      reader.onerror = (err) => reject(err);
     });
 
   /* ================= ADD STORY ================= */
@@ -28,10 +53,10 @@ const StoriesBar = ({ user, posts = [] }) => {
 
     setUploading(true);
     try {
-      const base64 = await toBase64(file); // convert file to base64
+      const base64 = await toBase64(file);
       const token = localStorage.getItem("token");
 
-      await fetch(`${API_BASE}/api/stories/upload`, {
+      const res = await fetch(`${API_BASE}/api/stories/upload`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -44,28 +69,26 @@ const StoriesBar = ({ user, posts = [] }) => {
         }),
       });
 
-      window.location.reload(); // reload to see the new story
+      const data = await res.json();
+      if (res.ok) {
+        setStories((prev) => [data, ...prev]);
+      } else {
+        alert(data.error || "Story upload failed");
+      }
     } catch (err) {
-      console.error("Story upload failed:", err);
-      setUploading(false);
+      console.error("Upload error:", err);
     }
+    setUploading(false);
   };
 
   /* ================= VIEW STORY ================= */
-  const handleOpenStory = (post) => {
-    setCurrentStory(post);
-    setViewerOpen(true);
-  };
-
-  const handleCloseViewer = () => {
-    setViewerOpen(false);
-    setCurrentStory(null);
-  };
+  const handleOpenStory = (index) => setViewerIndex(index);
+  const handleCloseViewer = () => setViewerIndex(null);
 
   return (
     <>
       <div className="flex gap-3 overflow-x-auto pb-2">
-        {/* YOUR STORY */}
+        {/* ADD STORY */}
         <div
           className={`min-w-[80px] h-32 bg-gray-200 rounded-lg flex flex-col items-center justify-center text-sm cursor-pointer hover:ring-2 hover:ring-blue-500 ${
             uploading ? "opacity-50 cursor-wait" : ""
@@ -86,14 +109,17 @@ const StoriesBar = ({ user, posts = [] }) => {
           />
         </div>
 
-        {/* OTHERS' STORIES */}
-        {posts.slice(0, 10).map((post) => {
-          const postUser = post.user && typeof post.user === "object" && !post.user.$$typeof ? post.user : {};
+        {/* OTHER STORIES */}
+        {stories.slice(0, 10).map((story, index) => {
+          const postUser =
+            story.user && typeof story.user === "object" && !story.user.$$typeof
+              ? story.user
+              : {};
           return (
             <div
-              key={post._id || Math.random()}
+              key={story._id || index}
               className="min-w-[80px] h-32 rounded-lg flex flex-col items-center justify-center cursor-pointer bg-gradient-to-t from-pink-500 via-yellow-400 to-purple-500 p-[2px]"
-              onClick={() => handleOpenStory(post)}
+              onClick={() => handleOpenStory(index)}
             >
               <div className="w-full h-full bg-white rounded-lg flex flex-col items-center justify-center">
                 <img
@@ -107,30 +133,13 @@ const StoriesBar = ({ user, posts = [] }) => {
         })}
       </div>
 
-      {/* ================= STORY VIEWER MODAL ================= */}
-      {viewerOpen && currentStory && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90"
-          onClick={handleCloseViewer}
-        >
-          {currentStory.media && currentStory.media[0] && (
-            <>
-              {currentStory.media[0].type === "video" ? (
-                <video
-                  src={currentStory.media[0].url}
-                  controls
-                  autoPlay
-                  className="max-h-[90%] max-w-[90%]"
-                />
-              ) : (
-                <img
-                  src={currentStory.media[0].url}
-                  className="max-h-[90%] max-w-[90%]"
-                />
-              )}
-            </>
-          )}
-        </div>
+      {/* STORY VIEWER */}
+      {viewerIndex !== null && stories[viewerIndex] && (
+        <StoryViewer
+          stories={stories}
+          index={viewerIndex}
+          onClose={handleCloseViewer}
+        />
       )}
     </>
   );
