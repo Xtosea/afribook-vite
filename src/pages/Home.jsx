@@ -215,7 +215,9 @@ const Home = () => {
 
       {/* RIGHT SIDEBAR */}
       <div className="hidden md:block">
-        <SidebarRight />
+
+        
+
       </div>
     </div>
   );
