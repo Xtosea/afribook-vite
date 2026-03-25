@@ -1,47 +1,24 @@
 // src/components/layout/StoriesBar.jsx
-import React, { useState, useEffect, useRef } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { API_BASE } from "../../api/api";
 import { getSocket } from "../../socket";
-import StoryViewer from "../stories/StoryViewer";
 
-const StoriesBar = ({ user }) => {
+const StoriesBar = ({ user, posts = [] }) => {
   const safeUser = user && typeof user === "object" && !user.$$typeof ? user : {};
   const fileRef = useRef();
+  const socket = getSocket();
 
-  const [stories, setStories] = useState([]);
-  const [viewerIndex, setViewerIndex] = useState(null);
   const [uploading, setUploading] = useState(false);
-
-  /* ================= FETCH STORIES ================= */
-  useEffect(() => {
-    const fetchStories = async () => {
-      try {
-        const res = await fetch(`${API_BASE}/api/stories`);
-        const data = await res.json();
-        setStories(data);
-      } catch (err) {
-        console.error("Failed to fetch stories:", err);
-      }
-    };
-    fetchStories();
-
-    const socket = getSocket();
-    if (!socket) return;
-
-    socket.on("new-story", (story) => setStories((prev) => [story, ...prev]));
-
-    return () => {
-      socket.off("new-story");
-    };
-  }, []);
+  const [storiesLikes, setStoriesLikes] = useState({}); // store likes per story
+  const [heartAnim, setHeartAnim] = useState({}); // animation per story
 
   /* ================= HELPER: Convert file to Base64 ================= */
   const toBase64 = (file) =>
     new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result.split(",")[1]);
-      reader.onerror = (err) => reject(err);
+      reader.onload = () => resolve(reader.result.split(",")[1]); // only base64
+      reader.onerror = (error) => reject(error);
     });
 
   /* ================= ADD STORY ================= */
@@ -70,25 +47,64 @@ const StoriesBar = ({ user }) => {
       });
 
       const data = await res.json();
-      if (res.ok) {
-        setStories((prev) => [data, ...prev]);
+      if (res.ok && data?._id) {
+        socket?.emit("new-story", data);
+        window.location.reload();
       } else {
-        alert(data.error || "Story upload failed");
+        console.error("Upload failed", data);
       }
     } catch (err) {
-      console.error("Upload error:", err);
+      console.error("Story upload failed:", err);
+    } finally {
+      setUploading(false);
     }
-    setUploading(false);
   };
 
-  /* ================= VIEW STORY ================= */
-  const handleOpenStory = (index) => setViewerIndex(index);
-  const handleCloseViewer = () => setViewerIndex(null);
+  /* ================= DOUBLE TAP LIKE ================= */
+  const handleLikeStory = async (story) => {
+    if (!story?._id) return;
+
+    // trigger heart animation per story
+    setHeartAnim((prev) => ({ ...prev, [story._id]: true }));
+    setTimeout(() => setHeartAnim((prev) => ({ ...prev, [story._id]: false })), 800);
+
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch(`${API_BASE}/api/stories/like/${story._id}`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setStoriesLikes((prev) => ({
+          ...prev,
+          [story._id]: data.likes,
+        }));
+        socket?.emit("story-liked", { storyId: story._id, likes: data.likes });
+      }
+    } catch (err) {
+      console.error("Like failed:", err);
+    }
+  };
+
+  /* ================= SOCKET: Listen for likes ================= */
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on("story-liked", ({ storyId, likes }) => {
+      setStoriesLikes((prev) => ({ ...prev, [storyId]: likes }));
+    });
+
+    return () => {
+      socket.off("story-liked");
+    };
+  }, [socket]);
 
   return (
     <>
       <div className="flex gap-3 overflow-x-auto pb-2">
-        {/* ADD STORY */}
+        {/* YOUR STORY */}
         <div
           className={`min-w-[80px] h-32 bg-gray-200 rounded-lg flex flex-col items-center justify-center text-sm cursor-pointer hover:ring-2 hover:ring-blue-500 ${
             uploading ? "opacity-50 cursor-wait" : ""
@@ -109,38 +125,53 @@ const StoriesBar = ({ user }) => {
           />
         </div>
 
-        {/* OTHER STORIES */}
-        {stories.slice(0, 10).map((story, index) => {
+        {/* OTHERS' STORIES */}
+        {posts.slice(0, 10).map((post) => {
           const postUser =
-            story.user && typeof story.user === "object" && !story.user.$$typeof
-              ? story.user
+            post.user && typeof post.user === "object" && !post.user.$$typeof
+              ? post.user
               : {};
           return (
             <div
-              key={story._id || index}
+              key={post._id || Math.random()}
               className="min-w-[80px] h-32 rounded-lg flex flex-col items-center justify-center cursor-pointer bg-gradient-to-t from-pink-500 via-yellow-400 to-purple-500 p-[2px]"
-              onClick={() => handleOpenStory(index)}
+              onDoubleClick={() => handleLikeStory(post)}
             >
-              <div className="w-full h-full bg-white rounded-lg flex flex-col items-center justify-center">
+              <div className="w-full h-full bg-white rounded-lg flex flex-col items-center justify-center relative">
                 <img
                   src={postUser.profilePic || `${API_BASE}/uploads/profiles/default-profile.png`}
                   className="w-10 h-10 rounded-full mb-1 border-2 border-white"
                 />
                 <span className="text-xs text-center px-1">{postUser.name || "Unknown"}</span>
+                <span className="text-[10px] mt-1 text-gray-700">
+                  ❤️ {storiesLikes[post._id] ?? post.likes ?? 0}
+                </span>
+
+                {/* ❤️ Animation */}
+                {heartAnim[post._id] && (
+                  <span className="absolute text-4xl animate-pop text-red-500 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+                    ❤️
+                  </span>
+                )}
               </div>
             </div>
           );
         })}
       </div>
 
-      {/* STORY VIEWER */}
-      {viewerIndex !== null && stories[viewerIndex] && (
-        <StoryViewer
-          stories={stories}
-          index={viewerIndex}
-          onClose={handleCloseViewer}
-        />
-      )}
+      {/* ================= ANIMATION CSS ================= */}
+      <style>
+        {`
+          @keyframes pop {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { transform: scale(1.3); opacity: 1; }
+            100% { transform: scale(1); opacity: 0; }
+          }
+          .animate-pop {
+            animation: pop 0.8s ease-out forwards;
+          }
+        `}
+      </style>
     </>
   );
 };
