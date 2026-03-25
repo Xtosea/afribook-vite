@@ -145,11 +145,22 @@ const Home = () => {
   /* ================= SOCKET ================= */
 
   useEffect(() => {
-    const socket = getSocket();
-    if (!socket) return;
-
     const handleNewVideo = (post) =>
-      setPosts((prev) => [post, ...prev]);
+  setPosts((prev) => [
+    {
+      ...post,
+      media:
+        post.media?.map((m) => ({
+          ...m,
+          url: m?.url
+            ? m.url.startsWith("http")
+              ? m.url
+              : `${API_BASE}${m.url}`
+            : "",
+        })) || [],
+    },
+    ...prev,
+  ]);
 
     socket.on("new-video", handleNewVideo);
 
