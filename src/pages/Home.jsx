@@ -1,10 +1,9 @@
 // src/pages/Home.jsx
 import React, { useEffect, useRef, useState, Suspense, lazy } from "react";
 import PostCard from "../components/PostCard";
-import SidebarLeft from "../components/layout/SidebarLeft";
 import SidebarRight from "../components/layout/SidebarRight";
+import SidebarLeft from "../components/layout/SidebarLeft";
 import StoriesBar from "../components/layout/StoriesBar";
-import StoryViewer from "../components/stories/StoryViewer";
 import MediaUpload from "../components/MediaUpload";
 import imageCompression from "browser-image-compression";
 import { API_BASE, fetchWithToken } from "../api/api";
