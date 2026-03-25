@@ -210,8 +210,28 @@ const Home = () => {
       const data = await res.json();
 
       const newPostData = {
-        ...data.post,
-        media: data.post.media,
+  ...data.post,
+
+  media:
+    data.post.media?.map((m) => ({
+      ...m,
+      url: m?.url
+        ? m.url.startsWith("http")
+          ? m.url
+          : `${API_BASE}${m.url}`
+        : "",
+    })) || [],
+
+  user: {
+    ...data.post.user,
+    profilePic: data?.post?.user?.profilePic
+      ? data.post.user.profilePic.startsWith("http")
+        ? data.post.user.profilePic
+        : `${API_BASE}${data.post.user.profilePic}`
+      : "/default-avatar.png",
+  },
+};
+
 
         user: {
           ...data.post.user,
