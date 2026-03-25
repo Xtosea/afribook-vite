@@ -1,12 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 const reactions = ["👍", "❤️", "😂", "😮", "😢", "😡"];
 
-const PostCard = ({ post, currentUserId, onLike, onComment, onShare }) => {
+const PostCard = ({ post, currentUserId, onLike, onComment, onShare, setVideoRefs }) => {
   const [commentText, setCommentText] = useState("");
   const [showComments, setShowComments] = useState(false);
   const [modalIndex, setModalIndex] = useState(null);
   const [showReactions, setShowReactions] = useState(false);
+
+  const videoElementsRef = useRef([]);
+
+  // Pass video refs up to Home for lazy-loading
+  useEffect(() => {
+    if (setVideoRefs) {
+      setVideoRefs((prev) => [...prev, ...videoElementsRef.current]);
+    }
+  }, [setVideoRefs]);
 
   const closeModal = () => setModalIndex(null);
 
@@ -19,23 +28,13 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare }) => {
           alt={post.user.name}
           className="w-10 h-10 rounded-full object-cover"
         />
-
         <div className="flex-1">
           <p className="font-semibold">{post.user.name}</p>
-
           <div className="text-xs text-gray-500 flex gap-2 flex-wrap">
             <span>{new Date(post.createdAt).toLocaleString()}</span>
-
-            {post.feeling && (
-              <span>• feeling {post.feeling}</span>
-            )}
-
-            {post.location && (
-              <span>• {post.location}</span>
-            )}
+            {post.feeling && <span>• feeling {post.feeling}</span>}
+            {post.location && <span>• {post.location}</span>}
           </div>
-
-          {/* Tagged friends */}
           {post.taggedFriends?.length > 0 && (
             <div className="text-xs text-blue-500">
               with {post.taggedFriends.map(f => f.name).join(", ")}
@@ -46,7 +45,6 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare }) => {
 
       {/* CONTENT */}
       {post.content && <p>{post.content}</p>}
-
 
       {/* MEDIA */}
       {post.media?.length > 0 && (
@@ -62,7 +60,8 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare }) => {
               />
             ) : (
               <video
-                src={post.media[0].url}
+                data-src={post.media[0].url}
+                ref={(el) => (videoElementsRef.current[0] = el)}
                 className="w-full h-[400px] object-cover rounded-lg"
                 controls
                 muted
@@ -84,7 +83,8 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare }) => {
                     />
                   ) : (
                     <video
-                      src={m.url}
+                      data-src={m.url}
+                      ref={(el) => (videoElementsRef.current[i + 1] = el)}
                       className="w-24 h-24 object-cover rounded"
                       muted
                     />
@@ -96,34 +96,23 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare }) => {
         </div>
       )}
 
-
       {/* REACTIONS COUNT */}
       <div className="text-sm text-gray-500 flex justify-between">
-        <span>
-          {post.reactions?.length || post.likes?.length || 0} reactions
-        </span>
-        <span>
-          {post.comments?.length || 0} comments
-        </span>
+        <span>{post.reactions?.length || post.likes?.length || 0} reactions</span>
+        <span>{post.comments?.length || 0} comments</span>
       </div>
-
 
       {/* ACTION BUTTONS */}
       <div className="flex justify-between border-t pt-2">
-
         {/* LIKE */}
         <div
           className="relative"
           onMouseEnter={() => setShowReactions(true)}
           onMouseLeave={() => setShowReactions(false)}
         >
-          <button
-            onClick={() => onLike(post._id, "👍")}
-            className="text-gray-600"
-          >
+          <button onClick={() => onLike(post._id, "👍")} className="text-gray-600">
             👍 Like
           </button>
-
           {showReactions && (
             <div className="absolute bottom-8 bg-white shadow rounded-full px-2 py-1 flex gap-2">
               {reactions.map((r) => (
@@ -140,35 +129,24 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare }) => {
         </div>
 
         {/* COMMENT */}
-        <button onClick={() => setShowComments(!showComments)}>
-          💬 Comment
-        </button>
+        <button onClick={() => setShowComments(!showComments)}>💬 Comment</button>
 
         {/* SHARE */}
-        <button onClick={() => onShare(post)}>
-          🔗 Share
-        </button>
+        <button onClick={() => onShare(post)}>🔗 Share</button>
       </div>
-
 
       {/* COMMENTS */}
       {showComments && (
         <div className="space-y-2">
           {post.comments?.map((c) => (
             <div key={c._id} className="flex gap-2">
-              <img
-                src={c.user.profilePic || "/default-avatar.png"}
-                className="w-6 h-6 rounded-full"
-              />
+              <img src={c.user.profilePic || "/default-avatar.png"} className="w-6 h-6 rounded-full" />
               <div>
-                <span className="font-semibold text-sm">
-                  {c.user.name}
-                </span>
+                <span className="font-semibold text-sm">{c.user.name}</span>
                 <p className="text-sm">{c.text}</p>
               </div>
             </div>
           ))}
-
           <div className="flex gap-2">
             <input
               value={commentText}
@@ -176,7 +154,6 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare }) => {
               className="flex-1 border rounded px-2 py-1"
               placeholder="Write comment..."
             />
-
             <button
               onClick={() => {
                 onComment(post._id, commentText);
@@ -190,7 +167,6 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare }) => {
         </div>
       )}
 
-
       {/* MODAL */}
       {modalIndex !== null && (
         <div
@@ -199,10 +175,7 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare }) => {
         >
           <div className="max-w-4xl w-full p-4">
             {post.media[modalIndex].type === "image" ? (
-              <img
-                src={post.media[modalIndex].url}
-                className="w-full max-h-[80vh] object-contain"
-              />
+              <img src={post.media[modalIndex].url} className="w-full max-h-[80vh] object-contain" />
             ) : (
               <video
                 src={post.media[modalIndex].url}
@@ -214,7 +187,6 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare }) => {
           </div>
         </div>
       )}
-
     </div>
   );
 };
