@@ -1,9 +1,10 @@
+// src/pages/Home.jsx
 import React, { useEffect, useRef, useState } from "react";
 import PostCard from "../components/PostCard";
 import SidebarLeft from "../components/layout/SidebarLeft";
 import SidebarRight from "../components/layout/SidebarRight";
 import StoriesBar from "../components/layout/StoriesBar";
-import StoryViewer from "../components/stories/StoryViewer";
+import StoryViewer from "../components/layout/StoryViewer";
 import MediaUpload from "../components/MediaUpload";
 import imageCompression from "browser-image-compression";
 import { API_BASE, fetchWithToken } from "../api/api";
@@ -44,23 +45,29 @@ const Home = () => {
   const [posting, setPosting] = useState(false);
   const [showEmoji, setShowEmoji] = useState(false);
 
+  /* ================= STORIES ================= */
   const stories = useStories();
   const [activeStory, setActiveStory] = useState(null);
+  const [activeUserStories, setActiveUserStories] = useState([]);
 
   const feedRef = useRef();
   const { uploadImage } = useCloudinaryUpload();
   const { uploadVideo } = useR2Upload();
 
+  /* ================= SOCKET.IO ================= */
   useEffect(() => connectSocket(), []);
 
   useEffect(() => {
     const socket = getSocket();
     if (!socket) return;
+
     socket.on("new-video", (post) => setPosts((prev) => [post, ...prev]));
-    socket.on("new-story", () => console.log("New story received"));
+    socket.on("new-story", (story) => console.log("New story received", story));
+
     return () => socket.off("new-video");
   }, []);
 
+  /* ================= FETCH POSTS ================= */
   useEffect(() => {
     const fetchPosts = async () => {
       try {
@@ -75,6 +82,7 @@ const Home = () => {
     fetchPosts();
   }, [token]);
 
+  /* ================= CREATE POST ================= */
   const handleSubmitPost = async (e) => {
     e.preventDefault();
     if (!newPost && mediaFiles.length === 0) return;
@@ -110,18 +118,35 @@ const Home = () => {
     }
   };
 
+  /* ================= HANDLE STORY CLICK ================= */
+  const handleStoryClick = (story) => {
+    const userStories = stories.filter((s) => s.user._id === story.user._id);
+    setActiveUserStories(userStories);
+    setActiveStory(true);
+  };
+
   return (
     <>
+      {/* ================= STORY VIEWER ================= */}
       {activeStory && (
-        <StoryViewer stories={stories} index={stories.findIndex(s => s._id === activeStory._id)} onClose={() => setActiveStory(null)} />
+        <StoryViewer
+          stories={activeUserStories}
+          onClose={() => setActiveStory(false)}
+        />
       )}
 
       <div className="max-w-7xl mx-auto px-2 md:px-6 py-6 grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="hidden md:block"><SidebarLeft /></div>
 
         <div className="md:col-span-2 space-y-4">
-          <StoriesBar user={{ _id: currentUserId }} posts={stories} onStoryClick={setActiveStory} />
+          {/* ================= STORIES BAR ================= */}
+          <StoriesBar
+            user={{ _id: currentUserId }}
+            posts={stories}
+            onStoryClick={handleStoryClick}
+          />
 
+          {/* ================= CREATE POST ================= */}
           <form onSubmit={handleSubmitPost} className="bg-white p-4 rounded-xl shadow space-y-3">
             <textarea
               value={newPost}
@@ -138,10 +163,20 @@ const Home = () => {
             </>}
           </form>
 
+          {/* ================= POSTS FEED ================= */}
           <div ref={feedRef} className="space-y-4">
-            {loadingPosts ? [<div key={1} className="h-64 bg-gray-300 rounded-xl animate-pulse" />, <div key={2} className="h-64 bg-gray-300 rounded-xl animate-pulse" />]
-              : posts.map(post => <PostCard key={post._id} post={post} currentUserId={currentUserId} onLike={() => {}} onComment={() => {}} onShare={() => {}} />)
-            }
+            {loadingPosts
+              ? [1, 2].map((i) => <div key={i} className="h-64 bg-gray-300 rounded-xl animate-pulse" />)
+              : posts.map((post) => (
+                  <PostCard
+                    key={post._id}
+                    post={post}
+                    currentUserId={currentUserId}
+                    onLike={() => {}}
+                    onComment={() => {}}
+                    onShare={() => {}}
+                  />
+                ))}
           </div>
         </div>
 
