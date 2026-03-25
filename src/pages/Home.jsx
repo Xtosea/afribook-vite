@@ -13,6 +13,27 @@ import { useCloudinaryUpload } from "../hooks/useCloudinaryUpload";
 import { useR2Upload } from "../hooks/useR2Upload";
 import EmojiPicker from "emoji-picker-react";
 
+/* ================= STORIES HOOK ================= */
+const useStories = () => {
+  const [stories, setStories] = useState([]);
+
+  useEffect(() => {
+    const fetchStories = async () => {
+      try {
+        const data = await fetch(`${API_BASE}/api/stories`);
+        const res = await data.json();
+        setStories(res || []);
+      } catch (err) {
+        console.error("Stories fetch error:", err);
+      }
+    };
+
+    fetchStories();
+  }, []);
+
+  return stories;
+};
+
 /* ================= LAZY VIDEO ================= */
 const useLazyVideo = (ref) => {
   useEffect(() => {
@@ -57,26 +78,7 @@ const useLazyVideo = (ref) => {
 /* ================= SKELETON ================= */
 const SkeletonPost = () => (
   <div className="bg-white p-4 rounded-2xl shadow animate-pulse space-y-4">
-    <div className="flex items-center gap-3">
-      <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
-      <div className="flex-1 space-y-2">
-        <div className="h-3 bg-gray-300 rounded w-1/4"></div>
-        <div className="h-3 bg-gray-200 rounded w-1/6"></div>
-      </div>
-    </div>
-
-    <div className="space-y-2">
-      <div className="h-3 bg-gray-300 rounded w-full"></div>
-      <div className="h-3 bg-gray-300 rounded w-5/6"></div>
-    </div>
-
     <div className="h-64 bg-gray-300 rounded-xl"></div>
-
-    <div className="flex justify-between pt-2">
-      <div className="h-4 bg-gray-300 rounded w-16"></div>
-      <div className="h-4 bg-gray-300 rounded w-16"></div>
-      <div className="h-4 bg-gray-300 rounded w-16"></div>
-    </div>
   </div>
 );
 
@@ -94,6 +96,10 @@ const Home = () => {
   const [posting, setPosting] = useState(false);
   const [showEmoji, setShowEmoji] = useState(false);
 
+  /* ================= STORIES ================= */
+  const stories = useStories();
+  const [activeStory, setActiveStory] = useState(null);
+
   const feedRef = useRef();
 
   const { uploadImage } = useCloudinaryUpload();
@@ -101,29 +107,18 @@ const Home = () => {
 
   useLazyVideo(feedRef);
 
-  /* ================= SOCKET.IO ================= */
+  /* ================= SOCKET ================= */
   useEffect(() => connectSocket(), []);
 
   useEffect(() => {
     const socket = getSocket();
     if (!socket) return;
 
-    const handleNewVideo = (post) => {
-      setPosts((prev) => [
-        {
-          ...post,
-          media:
-            post.media?.map((m) => ({
-              ...m,
-              url: m?.url?.startsWith("http") ? m.url : `${API_BASE}${m.url}`,
-            })) || [],
-        },
-        ...prev,
-      ]);
-    };
+    socket.on("new-video", (post) => {
+      setPosts((prev) => [post, ...prev]);
+    });
 
-    socket.on("new-video", handleNewVideo);
-    return () => socket.off("new-video", handleNewVideo);
+    return () => socket.off("new-video");
   }, []);
 
   /* ================= FETCH POSTS ================= */
@@ -131,29 +126,7 @@ const Home = () => {
     const fetchPosts = async () => {
       try {
         const data = await fetchWithToken(`${API_BASE}/api/posts`, token);
-
-        const fixed = data.map((post) => ({
-          ...post,
-          media:
-            post.media?.map((m) => ({
-              ...m,
-              url: m?.url
-                ? m.url.startsWith("http")
-                  ? m.url
-                  : `${API_BASE}${m.url}`
-                : "",
-            })) || [],
-          user: {
-            ...post.user,
-            profilePic: post?.user?.profilePic
-              ? post.user.profilePic.startsWith("http")
-                ? post.user.profilePic
-                : `${API_BASE}${post.user.profilePic}`
-              : "/default-avatar.png",
-          },
-        }));
-
-        setPosts(fixed);
+        setPosts(data);
       } catch (err) {
         console.error(err);
       } finally {
@@ -170,7 +143,6 @@ const Home = () => {
     if (!newPost && mediaFiles.length === 0) return;
 
     setPosting(true);
-    setUploadProgress({});
 
     try {
       const uploadedMedia = [];
@@ -179,49 +151,42 @@ const Home = () => {
         let file = mediaFiles[i];
 
         if (file.type.startsWith("image")) {
-          file = await imageCompression(file, { maxSizeMB: 1, maxWidthOrHeight: 1280 });
+          file = await imageCompression(file, {
+            maxSizeMB: 1,
+            maxWidthOrHeight: 1280,
+          });
         }
 
         const url = file.type.startsWith("image")
-          ? await uploadImage(file, (p) => setUploadProgress((prev) => ({ ...prev, [i]: p })))
-          : await uploadVideo(file, (p) => setUploadProgress((prev) => ({ ...prev, [i]: p })));
+          ? await uploadImage(file)
+          : await uploadVideo(file);
 
-        if (url) uploadedMedia.push({ url, type: file.type.startsWith("image") ? "image" : "video" });
-        else console.error("Upload failed, skipping media");
+        uploadedMedia.push({
+          url,
+          type: file.type.startsWith("image") ? "image" : "video",
+        });
       }
 
       const res = await fetch(`${API_BASE}/api/posts`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ content: newPost, media: uploadedMedia }),
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          content: newPost,
+          media: uploadedMedia,
+        }),
       });
 
       const data = await res.json();
 
-      const newPostData = {
-        ...data.post,
-        media:
-          data.post.media?.map((m) => ({
-            ...m,
-            url: m?.url?.startsWith("http") ? m.url : `${API_BASE}${m.url}`,
-          })) || [],
-        user: {
-          ...data.post.user,
-          profilePic: data?.post?.user?.profilePic
-            ? data.post.user.profilePic.startsWith("http")
-              ? data.post.user.profilePic
-              : `${API_BASE}${data.post.user.profilePic}`
-            : "/default-avatar.png",
-        },
-      };
+      getSocket()?.emit("new-video", data.post);
 
-      // Emit and prepend immediately
-      getSocket()?.emit("new-video", newPostData);
-      setPosts((prev) => [newPostData, ...prev]);
+      setPosts((prev) => [data.post, ...prev]);
 
       setNewPost("");
       setMediaFiles([]);
-      setUploadProgress({});
       setExpanded(false);
     } catch (err) {
       console.error(err);
@@ -231,54 +196,125 @@ const Home = () => {
   };
 
   /* ================= ACTIONS ================= */
-  const handleLike = (postId) => getSocket()?.emit("like-video", { videoId: postId, userId: currentUserId });
-  const handleComment = (postId, text) => getSocket()?.emit("comment-video", { videoId: postId, text });
+  const handleLike = (postId) =>
+    getSocket()?.emit("like-video", { videoId: postId });
+
+  const handleComment = (postId, text) =>
+    getSocket()?.emit("comment-video", { videoId: postId, text });
+
   const handleShare = (post) => {
-    navigator.clipboard.writeText(`${window.location.origin}/posts/${post._id}`);
-    alert("Copied!");
+    navigator.clipboard.writeText(
+      `${window.location.origin}/posts/${post._id}`
+    );
   };
 
   /* ================= UI ================= */
   return (
-    <div className="max-w-7xl mx-auto px-2 md:px-6 py-6 grid grid-cols-1 md:grid-cols-4 gap-6">
-      <div className="hidden md:block"><SidebarLeft /></div>
+    <>
+      {/* STORY VIEWER */}
+      {activeStory && (
+        <div
+          className="fixed inset-0 bg-black flex items-center justify-center z-50"
+          onClick={() => setActiveStory(null)}
+        >
+          {activeStory.type === "video" ? (
+            <video
+              src={activeStory.media}
+              controls
+              autoPlay
+              className="max-h-full"
+            />
+          ) : (
+            <img
+              src={activeStory.media}
+              className="max-h-full"
+              alt="story"
+            />
+          )}
+        </div>
+      )}
 
-      <div className="md:col-span-2 space-y-4">
-        <StoriesBar posts={posts} />
+      <div className="max-w-7xl mx-auto px-2 md:px-6 py-6 grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="hidden md:block">
+          <SidebarLeft />
+        </div>
 
-        <form onSubmit={handleSubmitPost} className="bg-white p-4 rounded-xl shadow space-y-3">
-          <textarea
-            value={newPost}
-            onChange={(e) => setNewPost(e.target.value)}
-            onFocus={() => setExpanded(true)}
-            placeholder="What's on your mind?"
-            className="w-full border rounded-lg p-3"
+        <div className="md:col-span-2 space-y-4">
+          {/* STORIES */}
+          <StoriesBar
+            user={{ _id: currentUserId }}
+            posts={stories}
+            onStoryClick={setActiveStory}
           />
 
-          {expanded && (
-            <>
-              <button type="button" onClick={() => setShowEmoji(!showEmoji)} className="border px-3 py-1 rounded-full">😊 Emoji</button>
+          {/* CREATE POST */}
+          <form
+            onSubmit={handleSubmitPost}
+            className="bg-white p-4 rounded-xl shadow space-y-3"
+          >
+            <textarea
+              value={newPost}
+              onChange={(e) => setNewPost(e.target.value)}
+              onFocus={() => setExpanded(true)}
+              placeholder="What's on your mind?"
+              className="w-full border rounded-lg p-3"
+            />
 
-              {showEmoji && <EmojiPicker onEmojiClick={(e) => setNewPost((prev) => prev + e.emoji)} />}
+            {expanded && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setShowEmoji(!showEmoji)}
+                  className="border px-3 py-1 rounded-full"
+                >
+                  😊 Emoji
+                </button>
 
-              <MediaUpload mediaFiles={mediaFiles} setMediaFiles={setMediaFiles} uploadProgress={uploadProgress} />
+                {showEmoji && (
+                  <EmojiPicker
+                    onEmojiClick={(e) =>
+                      setNewPost((prev) => prev + e.emoji)
+                    }
+                  />
+                )}
 
-              <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
-                {posting ? "Posting..." : "Post"}
-              </button>
-            </>
-          )}
-        </form>
+                <MediaUpload
+                  mediaFiles={mediaFiles}
+                  setMediaFiles={setMediaFiles}
+                />
 
-        <div ref={feedRef} className="space-y-4">
-          {loadingPosts ? [<SkeletonPost key={1} />, <SkeletonPost key={2} />] : posts.map((post) => (
-            <PostCard key={post._id} post={post} currentUserId={currentUserId} onLike={handleLike} onComment={handleComment} onShare={handleShare} />
-          ))}
+                <button
+                  type="submit"
+                  className="bg-blue-500 text-white px-4 py-2 rounded"
+                >
+                  {posting ? "Posting..." : "Post"}
+                </button>
+              </>
+            )}
+          </form>
+
+          {/* POSTS */}
+          <div ref={feedRef} className="space-y-4">
+            {loadingPosts
+              ? [<SkeletonPost key={1} />, <SkeletonPost key={2} />]
+              : posts.map((post) => (
+                  <PostCard
+                    key={post._id}
+                    post={post}
+                    currentUserId={currentUserId}
+                    onLike={handleLike}
+                    onComment={handleComment}
+                    onShare={handleShare}
+                  />
+                ))}
+          </div>
+        </div>
+
+        <div className="hidden md:block">
+          <SidebarRight />
         </div>
       </div>
-
-      <div className="hidden md:block"><SidebarRight /></div>
-    </div>
+    </>
   );
 };
 
