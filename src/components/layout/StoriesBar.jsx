@@ -49,7 +49,7 @@ const StoriesBar = ({ user, posts = [] }) => {
       const data = await res.json();
       if (res.ok && data?._id) {
         socket?.emit("new-story", data);
-        window.location.reload();
+        
       } else {
         console.error("Upload failed", data);
       }
@@ -126,14 +126,17 @@ const StoriesBar = ({ user, posts = [] }) => {
         </div>
 
         {/* OTHERS' STORIES */}
-        {posts.slice(0, 10).map((post) => {
-          const postUser =
-            post.user && typeof post.user === "object" && !post.user.$$typeof
-              ? post.user
-              : {};
-          return (
-            <div
-              key={post._id || Math.random()}
+        {stories.slice(0, 10).map((story) => {
+  const storyUser =
+    story.user && typeof story.user === "object" && !story.user.$$typeof
+      ? story.user
+      : {};
+
+  return (
+    <div
+      key={story._id || Math.random()}
+      onDoubleClick={() => handleLikeStory(story)}
+    >
               className="min-w-[80px] h-32 rounded-lg flex flex-col items-center justify-center cursor-pointer bg-gradient-to-t from-pink-500 via-yellow-400 to-purple-500 p-[2px]"
               onDoubleClick={() => handleLikeStory(post)}
             >
