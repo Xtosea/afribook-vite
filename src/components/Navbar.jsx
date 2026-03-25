@@ -10,9 +10,11 @@ const Navbar = () => {
   const [notifications, setNotifications] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
+  const settingsRef = useRef(null);
   const socketRef = useRef(null);
 
   const currentUserId = localStorage.getItem("userId");
@@ -26,26 +28,25 @@ const Navbar = () => {
   // Socket connection
   useEffect(() => {
     if (!currentUserId) return;
-
     const socket = connectSocket();
     socketRef.current = socket;
-
     socket.emit("join", currentUserId);
 
     socket.on("new-notification", (data) => {
       setNotifications((prev) => [data, ...prev].slice(0, 50));
     });
 
-    return () => {
-      socket.disconnect();
-    };
+    return () => socket.disconnect();
   }, [currentUserId]);
 
-  // Close dropdown when clicking outside
+  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setShowDropdown(false);
+      }
+      if (settingsRef.current && !settingsRef.current.contains(e.target)) {
+        setShowSettings(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -60,6 +61,7 @@ const Navbar = () => {
 
   const toggleDropdown = () => setShowDropdown(!showDropdown);
   const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
+  const toggleSettings = () => setShowSettings(!showSettings);
 
   return (
     <nav className="bg-white shadow px-4 md:px-6 py-3 flex justify-between items-center sticky top-0 z-50">
@@ -75,7 +77,7 @@ const Navbar = () => {
         </div>
       )}
 
-      {/* MENU */}
+      {/* DESKTOP MENU & ICONS */}
       <div className="flex items-center space-x-4 md:space-x-6">
         {isLoggedIn ? (
           <>
@@ -149,6 +151,28 @@ const Navbar = () => {
               )}
             </div>
 
+            {/* Settings Gear */}
+            <div className="relative" ref={settingsRef}>
+              <button
+                onClick={toggleSettings}
+                className="p-2 rounded hover:bg-gray-100 hidden md:inline-flex"
+              >
+                ⚙️
+              </button>
+
+              {showSettings && (
+                <div className="absolute right-0 mt-2 w-40 bg-white border rounded shadow-lg z-50">
+                  <Link
+                    to="/settings"
+                    className="block px-4 py-2 hover:bg-gray-100"
+                    onClick={() => setShowSettings(false)}
+                  >
+                    Settings
+                  </Link>
+                </div>
+              )}
+            </div>
+
             {/* Logout */}
             <button
               onClick={handleLogout}
@@ -192,6 +216,9 @@ const Navbar = () => {
           </Link>
           <Link to="/messages" onClick={toggleMobileMenu} className="block hover:text-blue-500">
             Messages
+          </Link>
+          <Link to="/settings" onClick={toggleMobileMenu} className="block hover:text-blue-500">
+            Settings
           </Link>
           <button onClick={handleLogout} className="w-full bg-red-500 hover:bg-red-600 text-white py-1 rounded">
             Logout
