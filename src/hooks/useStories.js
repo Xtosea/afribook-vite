@@ -1,25 +1,44 @@
-import { useEffect, useState } from "react";
+// src/hooks/useStoryUpload.js
+import { useState } from "react";
 import { API_BASE } from "../api/api";
 
-export const useStories = () => {
+export const useStoryUpload = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-const [stories,setStories] = useState([])
+  const uploadStory = async (files) => {
+    if (!files || files.length === 0) return null;
 
-useEffect(()=>{
+    setLoading(true);
+    setError(null);
 
-fetchStories()
+    try {
+      const formData = new FormData();
+      files.forEach((file) => formData.append("video", file)); // match backend field
 
-},[])
+      const token = localStorage.getItem("token");
 
-const fetchStories = async()=>{
+      const res = await fetch(`${API_BASE}/api/stories/upload-video`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
 
-const res = await fetch(`${API_BASE}/api/stories`)
-const data = await res.json()
+      const data = await res.json();
 
-setStories(data)
+      if (!res.ok) throw new Error(data.error || "Upload failed");
 
-}
+      setLoading(false);
+      return data; // returns the story object
+    } catch (err) {
+      console.error("Story Upload Error:", err);
+      setError(err);
+      setLoading(false);
+      return null;
+    }
+  };
 
-return stories
-
-}
+  return { uploadStory, loading, error };
+};
