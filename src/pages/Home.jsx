@@ -11,7 +11,6 @@ import { API_BASE, fetchWithToken } from "../api/api";
 import { getSocket, connectSocket } from "../socket";
 import { useCloudinaryUpload } from "../hooks/useCloudinaryUpload";
 import { useR2Upload } from "../hooks/useR2Upload";
-import { FixedSizeList as List } from "react-window/esm";
 
 // Lazy load emoji picker
 const EmojiPicker = lazy(() => import("emoji-picker-react"));
@@ -75,6 +74,7 @@ const Home = () => {
   const feedRef = useRef();
   const { uploadImage } = useCloudinaryUpload();
   const { uploadVideo } = useR2Upload();
+
   const [videoRefs, setVideoRefs] = useState([]);
   useLazyVideo(videoRefs);
 
@@ -98,9 +98,16 @@ const Home = () => {
       const socket = getSocket();
       if (!socket) return;
 
-      socket.on("new-video", (post) => setPosts((prev) => [post, ...prev]));
-      socket.on("new-story", (story) => setStories((prev) => [story, ...prev]));
+      socket.on("new-video", (post) => {
+        setPosts((prev) => [post, ...prev]);
+      });
+
+      socket.on("new-story", (story) => {
+        setStories((prev) => [story, ...prev]);
+      });
+
       socket.on("story-reply", (data) => {
+        console.log("Story reply:", data);
         alert(`${data.from?.name || "Someone"} replied to your story`);
       });
     };
@@ -165,24 +172,6 @@ const Home = () => {
     setActiveStory(userStories[0] || null);
   };
 
-  /* ================= RENDER POST ITEM FOR VIRTUALIZED LIST ================= */
-  const RenderPost = ({ index, style }) => {
-    const post = posts[index];
-    return (
-      <div style={style}>
-        <PostCard
-          key={post._id}
-          post={post}
-          currentUserId={currentUserId}
-          onLike={() => {}}
-          onComment={() => {}}
-          onShare={() => {}}
-          setVideoRefs={setVideoRefs}
-        />
-      </div>
-    );
-  };
-
   return (
     <>
       {activeStory && (
@@ -199,8 +188,10 @@ const Home = () => {
         </div>
 
         <div className="md:col-span-2 space-y-4">
+          {/* STORIES BAR */}
           <StoriesBar user={{ _id: currentUserId }} posts={stories} onStoryClick={handleStoryClick} />
 
+          {/* CREATE POST */}
           <form onSubmit={handleSubmitPost} className="bg-white p-4 rounded-xl shadow space-y-3">
             <textarea
               value={newPost}
@@ -211,7 +202,11 @@ const Home = () => {
             />
             {expanded && (
               <>
-                <button type="button" onClick={() => setShowEmoji(!showEmoji)} className="border px-3 py-1 rounded-full">
+                <button
+                  type="button"
+                  onClick={() => setShowEmoji(!showEmoji)}
+                  className="border px-3 py-1 rounded-full"
+                >
                   😊 Emoji
                 </button>
                 {showEmoji && (
@@ -227,17 +222,18 @@ const Home = () => {
             )}
           </form>
 
+          {/* POSTS FEED */}
           <div ref={feedRef} className="space-y-4">
-            {loadingPosts ? (
-              <>
-                <SkeletonPost />
-                <SkeletonPost />
-              </>
-            ) : (
-              <List height={700} itemCount={posts.length} itemSize={500} width={"100%"}>
-                {RenderPost}
-              </List>
-            )}
+            {loadingPosts
+              ? [<SkeletonPost key={0} />, <SkeletonPost key={1} />]
+              : posts.map((post) => (
+                  <PostCard
+                    key={post._id}
+                    post={post}
+                    currentUserId={currentUserId}
+                    setVideoRefs={setVideoRefs}
+                  />
+                ))}
           </div>
         </div>
 
