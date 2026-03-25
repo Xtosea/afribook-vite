@@ -97,11 +97,28 @@ const Home = () => {
       try {
         const data = await fetchWithToken(`${API_BASE}/api/posts`, token);
         const fixed = data.map((post) => ({
-          ...post,
-          media: post.media?.map((m) => ({
-            ...m,
-            url: m.url.startsWith("http") ? m.url : `${API_BASE}${m.url}`,
-          })),
+  ...post,
+
+  media: post.media?.map((m) => ({
+    ...m,
+    url: m?.url
+      ? m.url.startsWith("http")
+        ? m.url
+        : `${API_BASE}${m.url}`
+      : "",
+  })) || [],
+
+  user: {
+    ...post.user,
+    profilePic:
+      post?.user?.profilePic
+        ? post.user.profilePic.startsWith("http")
+          ? post.user.profilePic
+          : `${API_BASE}${post.user.profilePic}`
+        : "/default-avatar.png",
+  },
+
+}));
           user: {
             ...post.user,
             profilePic: post.user.profilePic
