@@ -1,7 +1,7 @@
 // src/components/StoriesSection.jsx
 import React, { useEffect, useRef, useState } from "react";
 import { API_BASE } from "../api/api";
-import { socket } from "../socket";
+import { getSocket } from "../socket";
 
 const StoriesSection = ({ user }) => {
   const [stories, setStories] = useState([]);
@@ -21,14 +21,28 @@ const StoriesSection = ({ user }) => {
   };
 
   useEffect(() => {
-    fetchStories();
+  fetchStories();
 
-    socket.on("new-story", (story) => {
-      setStories((prev) => [story, ...prev]);
-    });
+  const socket = getSocket();
+  if (!socket) return;
 
-    return () => socket.off("new-story");
-  }, []);
+  socket.on("new-story", (story) => {
+    setStories((prev) => [story, ...prev]);
+  });
+
+  /* ================= STORY REPLY ================= */
+  socket.on("story-reply", (data) => {
+    console.log("Story reply received:", data);
+
+    alert(`${data.from?.name || "Someone"} replied to your story`);
+  });
+
+  return () => {
+    socket.off("new-story");
+    socket.off("story-reply");
+  };
+
+}, []);
 
   /* ================= UPLOAD STORY ================= */
 
