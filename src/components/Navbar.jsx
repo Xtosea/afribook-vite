@@ -16,13 +16,13 @@ const Navbar = () => {
 
   const currentUserId = localStorage.getItem("userId");
 
-  /* =================== CHECK LOGIN =================== */
+  // Check login
   useEffect(() => {
     const token = localStorage.getItem("token");
     setIsLoggedIn(!!token);
   }, []);
 
-  /* =================== SOCKET CONNECTION =================== */
+  // Socket connection
   useEffect(() => {
     if (!currentUserId) return;
 
@@ -40,20 +40,17 @@ const Navbar = () => {
     };
   }, [currentUserId]);
 
-  /* =================== CLOSE DROPDOWN =================== */
+  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setShowDropdown(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
-    return () =>
-      document.removeEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  /* =================== LOGOUT =================== */
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("userId");
@@ -63,50 +60,46 @@ const Navbar = () => {
   const toggleDropdown = () => setShowDropdown(!showDropdown);
 
   return (
-    <nav className="bg-white shadow px-4 py-3 flex justify-between items-center relative">
-
-      {/* Logo */}
-      <Link to="/" className="font-bold text-xl">
+    <nav className="bg-white shadow px-6 py-3 flex justify-between items-center sticky top-0 z-50">
+      {/* LOGO */}
+      <Link to="/" className="font-bold text-2xl text-blue-600">
         Afribook
       </Link>
 
-      {/* Search Bar */}
+      {/* SEARCH */}
       {isLoggedIn && (
-        <div className="w-1/3">
+        <div className="flex-1 mx-6 hidden md:flex">
           <SearchBar />
         </div>
       )}
 
-      {/* Right side */}
-      <div className="space-x-4 flex items-center">
+      {/* MENU ITEMS */}
+      <div className="flex items-center space-x-6">
         {isLoggedIn ? (
           <>
-            <Link to="/" className="hover:underline">
+            {/* Desktop links */}
+            <Link to="/" className="hover:text-blue-500 font-medium hidden md:block">
               Home
             </Link>
-
-            <Link to="/profile" className="hover:underline">
+            <Link to="/profile" className="hover:text-blue-500 font-medium hidden md:block">
               Profile
             </Link>
-
-            <Link to="/reels" className="hover:underline">
+            <Link to="/reels" className="hover:text-blue-500 font-medium hidden md:block">
               Reels
             </Link>
-
-            <Link to="/messages" className="hover:underline">
+            <Link to="/messages" className="hover:text-blue-500 font-medium hidden md:block">
               Messages
             </Link>
 
-            {/* Notification Bell */}
+            {/* Notifications */}
             <div className="relative" ref={dropdownRef}>
               <div
-                className="cursor-pointer relative"
+                className="cursor-pointer relative p-2 rounded hover:bg-gray-100"
                 onClick={toggleDropdown}
               >
                 <span className="text-2xl">🔔</span>
-
                 {notifications.length > 0 && (
-                  <span className="absolute -top-1 -right-2 bg-red-500 text-white text-xs px-1 rounded-full">
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1 rounded-full">
                     {notifications.length}
                   </span>
                 )}
@@ -115,15 +108,9 @@ const Navbar = () => {
               {/* Dropdown */}
               {showDropdown && (
                 <div className="absolute right-0 mt-2 w-80 bg-white border rounded shadow-lg z-50">
-
-                  <div className="p-2 font-bold border-b">
-                    Notifications
-                  </div>
-
+                  <div className="p-2 font-bold border-b">Notifications</div>
                   {notifications.length === 0 ? (
-                    <p className="p-3 text-gray-500 text-sm">
-                      No new notifications
-                    </p>
+                    <p className="p-3 text-gray-500 text-sm">No new notifications</p>
                   ) : (
                     <div className="max-h-80 overflow-y-auto">
                       {notifications.map((n, index) => (
@@ -139,18 +126,14 @@ const Navbar = () => {
                             alt=""
                             className="w-10 h-10 rounded-full"
                           />
-
                           <div className="text-sm">
-                            <span className="font-semibold">
-                              {n.sender?.name || "Someone"}
-                            </span>{" "}
+                            <span className="font-semibold">{n.sender?.name || "Someone"}</span>{" "}
                             {n.text || "New notification"}
                           </div>
                         </div>
                       ))}
                     </div>
                   )}
-
                   {notifications.length > 0 && (
                     <button
                       onClick={() => setNotifications([])}
@@ -159,7 +142,6 @@ const Navbar = () => {
                       Clear All
                     </button>
                   )}
-
                 </div>
               )}
             </div>
@@ -167,15 +149,19 @@ const Navbar = () => {
             {/* Logout */}
             <button
               onClick={handleLogout}
-              className="bg-red-500 text-white px-3 py-1 rounded"
+              className="bg-red-500 hover:bg-red-600 text-white px-4 py-1 rounded hidden md:block"
             >
               Logout
             </button>
           </>
         ) : (
           <>
-            <Link to="/login">Login</Link>
-            <Link to="/register">Register</Link>
+            <Link to="/login" className="hover:text-blue-500 font-medium">
+              Login
+            </Link>
+            <Link to="/register" className="hover:text-blue-500 font-medium">
+              Register
+            </Link>
           </>
         )}
       </div>
