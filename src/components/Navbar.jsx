@@ -9,6 +9,7 @@ const Navbar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
@@ -58,38 +59,41 @@ const Navbar = () => {
   };
 
   const toggleDropdown = () => setShowDropdown(!showDropdown);
+  const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
 
   return (
-    <nav className="bg-white shadow px-6 py-3 flex justify-between items-center sticky top-0 z-50">
+    <nav className="bg-white shadow px-4 md:px-6 py-3 flex justify-between items-center sticky top-0 z-50">
       {/* LOGO */}
       <Link to="/" className="font-bold text-2xl text-blue-600">
         Afribook
       </Link>
 
-      {/* SEARCH */}
+      {/* DESKTOP SEARCH */}
       {isLoggedIn && (
-        <div className="flex-1 mx-6 hidden md:flex">
+        <div className="flex-1 mx-4 hidden md:flex">
           <SearchBar />
         </div>
       )}
 
-      {/* MENU ITEMS */}
-      <div className="flex items-center space-x-6">
+      {/* MENU */}
+      <div className="flex items-center space-x-4 md:space-x-6">
         {isLoggedIn ? (
           <>
             {/* Desktop links */}
-            <Link to="/" className="hover:text-blue-500 font-medium hidden md:block">
-              Home
-            </Link>
-            <Link to="/profile" className="hover:text-blue-500 font-medium hidden md:block">
-              Profile
-            </Link>
-            <Link to="/reels" className="hover:text-blue-500 font-medium hidden md:block">
-              Reels
-            </Link>
-            <Link to="/messages" className="hover:text-blue-500 font-medium hidden md:block">
-              Messages
-            </Link>
+            <div className="hidden md:flex items-center space-x-4">
+              <Link to="/" className="hover:text-blue-500 font-medium">
+                Home
+              </Link>
+              <Link to="/profile" className="hover:text-blue-500 font-medium">
+                Profile
+              </Link>
+              <Link to="/reels" className="hover:text-blue-500 font-medium">
+                Reels
+              </Link>
+              <Link to="/messages" className="hover:text-blue-500 font-medium">
+                Messages
+              </Link>
+            </div>
 
             {/* Notifications */}
             <div className="relative" ref={dropdownRef}>
@@ -105,7 +109,6 @@ const Navbar = () => {
                 )}
               </div>
 
-              {/* Dropdown */}
               {showDropdown && (
                 <div className="absolute right-0 mt-2 w-80 bg-white border rounded shadow-lg z-50">
                   <div className="p-2 font-bold border-b">Notifications</div>
@@ -149,9 +152,17 @@ const Navbar = () => {
             {/* Logout */}
             <button
               onClick={handleLogout}
-              className="bg-red-500 hover:bg-red-600 text-white px-4 py-1 rounded hidden md:block"
+              className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded hidden md:block"
             >
               Logout
+            </button>
+
+            {/* Mobile hamburger */}
+            <button
+              onClick={toggleMobileMenu}
+              className="md:hidden p-2 rounded hover:bg-gray-100"
+            >
+              <span className="text-2xl">{mobileMenuOpen ? "✖" : "☰"}</span>
             </button>
           </>
         ) : (
@@ -165,6 +176,28 @@ const Navbar = () => {
           </>
         )}
       </div>
+
+      {/* MOBILE MENU */}
+      {mobileMenuOpen && (
+        <div className="absolute top-full left-0 w-full bg-white shadow-md md:hidden p-4 space-y-3">
+          <SearchBar />
+          <Link to="/" onClick={toggleMobileMenu} className="block hover:text-blue-500">
+            Home
+          </Link>
+          <Link to="/profile" onClick={toggleMobileMenu} className="block hover:text-blue-500">
+            Profile
+          </Link>
+          <Link to="/reels" onClick={toggleMobileMenu} className="block hover:text-blue-500">
+            Reels
+          </Link>
+          <Link to="/messages" onClick={toggleMobileMenu} className="block hover:text-blue-500">
+            Messages
+          </Link>
+          <button onClick={handleLogout} className="w-full bg-red-500 hover:bg-red-600 text-white py-1 rounded">
+            Logout
+          </button>
+        </div>
+      )}
     </nav>
   );
 };
