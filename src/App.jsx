@@ -15,6 +15,7 @@ import VerifyFailed from "./pages/VerifyFailed";
 import CreatePost from "./pages/CreatePost";
 import Reels from "./pages/Reels";
 import Messages from "./pages/Messages";
+import Notifications from "./pages/Notifications";
 
 function App() {
   return (
@@ -80,6 +81,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+          
         </Routes>
       </div>
       <Footer />
