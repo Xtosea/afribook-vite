@@ -11,7 +11,7 @@ import { API_BASE, fetchWithToken } from "../api/api";
 import { getSocket, connectSocket } from "../socket";
 import { useCloudinaryUpload } from "../hooks/useCloudinaryUpload";
 import { useR2Upload } from "../hooks/useR2Upload";
-import { FixedSizeList as List } from "react-window";
+import { FixedSizeList as List } from "react-window/esm";
 
 // Lazy load emoji picker
 const EmojiPicker = lazy(() => import("emoji-picker-react"));
