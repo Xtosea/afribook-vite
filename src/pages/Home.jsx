@@ -1,11 +1,9 @@
-// src/pages/Home.jsx
 import React, { useEffect, useRef, useState, Suspense, lazy } from "react";
 import { useNavigate } from "react-router-dom";
 import PostCard from "../components/PostCard";
 import SidebarLeft from "../components/layout/SidebarLeft";
 import SidebarRight from "../components/layout/SidebarRight";
 import StoriesBar from "../components/layout/StoriesBar";
-
 import MediaUpload from "../components/MediaUpload";
 import imageCompression from "browser-image-compression";
 import { API_BASE, fetchWithToken } from "../api/api";
@@ -16,14 +14,12 @@ import { useR2Upload } from "../hooks/useR2Upload";
 // Lazy load emoji picker
 const EmojiPicker = lazy(() => import("emoji-picker-react"));
 
-/* ================= SKELETON POST ================= */
 const SkeletonPost = () => (
   <div className="bg-white p-4 rounded-2xl shadow animate-pulse space-y-4">
     <div className="h-64 bg-gray-300 rounded-xl"></div>
   </div>
 );
 
-/* ================= LAZY VIDEO ================= */
 const useLazyVideo = (videos) => {
   useEffect(() => {
     if (!videos || videos.length === 0) return;
@@ -49,19 +45,13 @@ const useLazyVideo = (videos) => {
   }, [videos]);
 };
 
-/* ================= HOME COMPONENT ================= */
 const Home = () => {
-
   const token = localStorage.getItem("token");
   const currentUserId = localStorage.getItem("userId");
-
   const navigate = useNavigate();
 
-  // 🔐 Protect Home Page
   useEffect(() => {
-    if (!token) {
-      navigate("/login");
-    }
+    if (!token) navigate("/login");
   }, [token, navigate]);
 
   const currentUser = {
@@ -78,58 +68,54 @@ const Home = () => {
   const [expanded, setExpanded] = useState(false);
   const [showEmoji, setShowEmoji] = useState(false);
 
-  const [stories, setStories] = useState([]);
+  // NEW FIELDS
+  const [location, setLocation] = useState("");
+  const [feeling, setFeeling] = useState("");
+  const [taggedFriends, setTaggedFriends] = useState([]);
 
+  const [stories, setStories] = useState([]);
   const feedRef = useRef();
   const { uploadImage } = useCloudinaryUpload();
   const { uploadVideo } = useR2Upload();
-
   const [videoRefs, setVideoRefs] = useState([]);
   useLazyVideo(videoRefs);
 
-  /* ================= FETCH POSTS & STORIES ================= */
-useEffect(() => {
-  if (!token) return;
+  // FETCH POSTS & STORIES
+  useEffect(() => {
+    if (!token) return;
 
-  const init = async () => {
-    try {
-      const postData = await fetchWithToken(`${API_BASE}/api/posts?limit=20`, token);
-      setPosts(postData);
+    const init = async () => {
+      try {
+        const postData = await fetchWithToken(`${API_BASE}/api/posts?limit=20`, token);
+        setPosts(postData);
 
-      const storyRes = await fetch(`${API_BASE}/api/stories?limit=20`);
-      const storyData = await storyRes.json();
-      setStories(storyData.stories || []);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoadingPosts(false);
-    }
+        const storyRes = await fetch(`${API_BASE}/api/stories?limit=20`);
+        const storyData = await storyRes.json();
+        setStories(storyData.stories || []);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoadingPosts(false);
+      }
 
-    connectSocket();
-    const socket = getSocket();
-    if (!socket) return;
+      connectSocket();
+      const socket = getSocket();
+      if (!socket) return;
+      socket.on("new-video", (post) => setPosts((prev) => [post, ...prev]));
+      socket.on("new-story", (story) => setStories((prev) => [story, ...prev]));
+    };
 
-    socket.on("new-video", (post) => {
-      setPosts((prev) => [post, ...prev]);
-    });
+    init();
 
-    socket.on("new-story", (story) => {
-      setStories((prev) => [story, ...prev]);
-    });
-  };
+    return () => {
+      const socket = getSocket();
+      if (socket) {
+        socket.off("new-video");
+        socket.off("new-story");
+      }
+    };
+  }, [token]);
 
-  init();
-
-  return () => {
-    const socket = getSocket();
-    if (socket) {
-      socket.off("new-video");
-      socket.off("new-story");
-    }
-  };
-}, [token]);
-
-  /* ================= CREATE POST ================= */
   const handleSubmitPost = async (e) => {
     e.preventDefault();
     if (!newPost && mediaFiles.length === 0) return;
@@ -151,7 +137,13 @@ useEffect(() => {
       const res = await fetch(`${API_BASE}/api/posts`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ content: newPost, media: uploadedMedia }),
+        body: JSON.stringify({
+          content: newPost,
+          media: uploadedMedia,
+          location,
+          feeling,
+          taggedFriends,
+        }),
       });
 
       const data = await res.json();
@@ -160,6 +152,9 @@ useEffect(() => {
 
       setNewPost("");
       setMediaFiles([]);
+      setLocation("");
+      setFeeling("");
+      setTaggedFriends([]);
       setExpanded(false);
     } catch (err) {
       console.error(err);
@@ -170,15 +165,9 @@ useEffect(() => {
 
   return (
     <div className="max-w-7xl mx-auto px-2 md:px-6 py-6 grid grid-cols-1 md:grid-cols-4 gap-6">
-      {/* LEFT SIDEBAR */}
-      <div className="hidden md:block">
-        <SidebarLeft />
-      </div>
+      <div className="hidden md:block"><SidebarLeft /></div>
 
-      {/* MAIN FEED */}
       <div className="md:col-span-2 space-y-4">
-        {/* STORIES BAR */}
-
         <StoriesBar user={currentUser} stories={stories} />
 
         {/* CREATE POST */}
@@ -190,8 +179,35 @@ useEffect(() => {
             placeholder="What's on your mind?"
             className="w-full border rounded-lg p-3"
           />
+
           {expanded && (
             <>
+              {/* FEELING */}
+              <input
+                value={feeling}
+                onChange={(e) => setFeeling(e.target.value)}
+                placeholder="Feeling..."
+                className="w-full border rounded-lg p-2"
+              />
+
+              {/* LOCATION */}
+              <input
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder="Location..."
+                className="w-full border rounded-lg p-2"
+              />
+
+              {/* TAG FRIENDS */}
+              <input
+                value={taggedFriends.map(f => f.name).join(", ")}
+                onChange={(e) =>
+                  setTaggedFriends(e.target.value.split(",").map(name => ({ name: name.trim() })))
+                }
+                placeholder="Tag friends (comma separated)"
+                className="w-full border rounded-lg p-2"
+              />
+
               <button
                 type="button"
                 onClick={() => setShowEmoji(!showEmoji)}
@@ -204,7 +220,9 @@ useEffect(() => {
                   <EmojiPicker onEmojiClick={(e) => setNewPost((prev) => prev + e.emoji)} />
                 </Suspense>
               )}
+
               <MediaUpload mediaFiles={mediaFiles} setMediaFiles={setMediaFiles} />
+
               <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
                 {posting ? "Posting..." : "Post"}
               </button>
@@ -227,13 +245,7 @@ useEffect(() => {
         </div>
       </div>
 
-      {/* RIGHT SIDEBAR */}
-      <div className="hidden md:block">
-
-        
- <SidebarRight />
-
-      </div>
+      <div className="hidden md:block"><SidebarRight /></div>
     </div>
   );
 };
