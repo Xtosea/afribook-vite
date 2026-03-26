@@ -18,6 +18,11 @@ import Messages from "./pages/Messages";
 import Notifications from "./pages/Notifications";
 import Chat from "./pages/Chat"
 import WelcomeOnboarding from "./pages/WelcomeOnboarding";
+import AddFriends from "./pages/AddFriends";
+import SyncContacts from "./pages/SyncContacts";
+import EditProfile from "./pages/EditProfile";
+
+
 
 function App() {
   return (
@@ -34,6 +39,14 @@ function App() {
           <Route path="/verify-success" element={<VerifySuccess />} />
           <Route path="/verify-failed" element={<VerifyFailed />} />
           <Route path="/welcome" element={<WelcomeOnboarding />} />
+  <Routes>
+    <Route path="/welcome" element={<WelcomeOnboarding />} />
+    <Route path="/add-friends" element={<AddFriends />} />
+    <Route path="/sync-contacts" element={<SyncContacts />} />
+    <Route path="/edit-profile" element={<EditProfile />} />
+    <Route path="/login" element={<Login />} />
+    <Route path="/" element={<Home />} />
+  </Routes>
 
           {/* Protected routes (WebSocket-enabled pages) */}
           <Route
