@@ -39,11 +39,10 @@ function App() {
           <Route path="/verify-success" element={<VerifySuccess />} />
           <Route path="/verify-failed" element={<VerifyFailed />} />
           <Route path="/welcome" element={<WelcomeOnboarding />} />
-  <Routes>
-    
-    <Route path="/add-friends" element={<AddFriends />} />
-    <Route path="/sync-contacts" element={<SyncContacts />} />
-    <Route path="/edit-profile" element={<EditProfile />} />
+  
+          <Route path="/add-friends" element={<AddFriends />} />
+         <Route path="/sync-contacts" element={<SyncContacts />} />
+         <Route path="/edit-profile" element={<EditProfile />} />
     
 
           {/* Protected routes (WebSocket-enabled pages) */}
