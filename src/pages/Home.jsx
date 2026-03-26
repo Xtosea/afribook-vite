@@ -1,3 +1,4 @@
+// src/pages/Home.jsx
 import React, { useEffect, useRef, useState, Suspense, lazy } from "react";
 import { useNavigate } from "react-router-dom";
 import PostCard from "../components/PostCard";
@@ -14,12 +15,14 @@ import { useR2Upload } from "../hooks/useR2Upload";
 // Lazy load emoji picker
 const EmojiPicker = lazy(() => import("emoji-picker-react"));
 
+/* ================= SKELETON POST ================= */
 const SkeletonPost = () => (
   <div className="bg-white p-4 rounded-2xl shadow animate-pulse space-y-4">
     <div className="h-64 bg-gray-300 rounded-xl"></div>
   </div>
 );
 
+/* ================= LAZY VIDEO ================= */
 const useLazyVideo = (videos) => {
   useEffect(() => {
     if (!videos || videos.length === 0) return;
@@ -45,6 +48,7 @@ const useLazyVideo = (videos) => {
   }, [videos]);
 };
 
+/* ================= HOME COMPONENT ================= */
 const Home = () => {
   const token = localStorage.getItem("token");
   const currentUserId = localStorage.getItem("userId");
@@ -68,7 +72,7 @@ const Home = () => {
   const [expanded, setExpanded] = useState(false);
   const [showEmoji, setShowEmoji] = useState(false);
 
-  // NEW FIELDS
+  // ======= New fields for post =======
   const [location, setLocation] = useState("");
   const [feeling, setFeeling] = useState("");
   const [taggedFriends, setTaggedFriends] = useState([]);
@@ -80,7 +84,7 @@ const Home = () => {
   const [videoRefs, setVideoRefs] = useState([]);
   useLazyVideo(videoRefs);
 
-  // FETCH POSTS & STORIES
+  /* ================= FETCH POSTS & STORIES ================= */
   useEffect(() => {
     if (!token) return;
 
@@ -116,6 +120,7 @@ const Home = () => {
     };
   }, [token]);
 
+  /* ================= CREATE POST ================= */
   const handleSubmitPost = async (e) => {
     e.preventDefault();
     if (!newPost && mediaFiles.length === 0) return;
@@ -150,6 +155,7 @@ const Home = () => {
       getSocket()?.emit("new-video", data.post);
       setPosts((prev) => [data.post, ...prev]);
 
+      // reset form
       setNewPost("");
       setMediaFiles([]);
       setLocation("");
@@ -165,8 +171,10 @@ const Home = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-2 md:px-6 py-6 grid grid-cols-1 md:grid-cols-4 gap-6">
+      {/* LEFT SIDEBAR */}
       <div className="hidden md:block"><SidebarLeft /></div>
 
+      {/* MAIN FEED */}
       <div className="md:col-span-2 space-y-4">
         <StoriesBar user={currentUser} stories={stories} />
 
@@ -208,6 +216,7 @@ const Home = () => {
                 className="w-full border rounded-lg p-2"
               />
 
+              {/* EMOJI */}
               <button
                 type="button"
                 onClick={() => setShowEmoji(!showEmoji)}
@@ -245,6 +254,7 @@ const Home = () => {
         </div>
       </div>
 
+      {/* RIGHT SIDEBAR */}
       <div className="hidden md:block"><SidebarRight /></div>
     </div>
   );
