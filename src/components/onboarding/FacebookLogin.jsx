@@ -1,8 +1,27 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { API_BASE } from "../../api/api";
 
 const FacebookLogin = () => {
+  const [fbReady, setFbReady] = useState(false);
+
+  // Wait for Facebook SDK
+  useEffect(() => {
+    const checkFB = setInterval(() => {
+      if (window.FB) {
+        setFbReady(true);
+        clearInterval(checkFB);
+      }
+    }, 500);
+
+    return () => clearInterval(checkFB);
+  }, []);
+
   const handleFacebookLogin = () => {
+    if (!window.FB) {
+      alert("Facebook SDK not loaded yet");
+      return;
+    }
+
     window.FB.login(
       async function (response) {
         if (response.authResponse) {
@@ -23,8 +42,7 @@ const FacebookLogin = () => {
                     body: JSON.stringify({
                       name: userInfo.name,
                       email: userInfo.email,
-                      profilePic:
-                        userInfo.picture.data.url,
+                      profilePic: userInfo.picture.data.url,
                       accessToken,
                     }),
                   }
@@ -33,10 +51,13 @@ const FacebookLogin = () => {
                 const data = await res.json();
 
                 if (data.token) {
+                  localStorage.setItem("token", data.token);
+                  localStorage.setItem("name", userInfo.name);
                   localStorage.setItem(
-                    "token",
-                    data.token
+                    "profilePic",
+                    userInfo.picture.data.url
                   );
+
                   window.location.href = "/";
                 }
               } catch (err) {
@@ -53,9 +74,10 @@ const FacebookLogin = () => {
   return (
     <button
       onClick={handleFacebookLogin}
-      className="w-full bg-blue-600 text-white py-2 rounded-lg mt-3"
+      disabled={!fbReady}
+      className="w-full bg-blue-600 text-white py-2 rounded-lg mt-3 disabled:opacity-50"
     >
-      Continue with Facebook
+      {fbReady ? "Continue with Facebook" : "Loading Facebook..."}
     </button>
   );
 };
