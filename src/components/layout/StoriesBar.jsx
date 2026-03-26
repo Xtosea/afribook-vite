@@ -1,8 +1,9 @@
+// src/components/layout/StoriesBar.jsx
 import React, { useRef, useState, useEffect } from "react";
 import { API_BASE } from "../../api/api";
 import { getSocket } from "../../socket";
 
-const StoriesBar = ({ user, posts = [] }) => {
+const StoriesBar = ({ user, stories = [] }) => {
   const safeUser = user && typeof user === "object" && !user.$$typeof ? user : {};
   const fileRef = useRef();
   const socket = getSocket();
@@ -11,40 +12,28 @@ const StoriesBar = ({ user, posts = [] }) => {
   const [storiesLikes, setStoriesLikes] = useState({});
   const [heartAnim, setHeartAnim] = useState({});
 
-  const toBase64 = (file) =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result.split(",")[1]);
-      reader.onerror = (error) => reject(error);
-    });
-
+  // Open file picker
   const handleAddStory = () => fileRef.current.click();
 
+  // Upload story to backend
   const handleUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     setUploading(true);
     try {
-      const base64 = await toBase64(file);
       const token = localStorage.getItem("token");
+      const formData = new FormData();
+      formData.append("video", file); // match backend field
 
       const res = await fetch(`${API_BASE}/api/stories/upload-video`, {
-  method: "POST",
-  headers: {
-    Authorization: `Bearer ${token}`,
-  },
-  body: formData,
-});
-        body: JSON.stringify({
-          filename: file.name,
-          contentType: file.type,
-          base64,
-        }),
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` }, // remove Content-Type
+        body: formData,
       });
 
       const data = await res.json();
+
       if (res.ok && data?._id) {
         socket?.emit("new-story", data);
       } else {
@@ -57,6 +46,7 @@ const StoriesBar = ({ user, posts = [] }) => {
     }
   };
 
+  // Double-tap like
   const handleLikeStory = async (story) => {
     if (!story?._id) return;
 
@@ -79,6 +69,7 @@ const StoriesBar = ({ user, posts = [] }) => {
     }
   };
 
+  // Listen for story likes via socket
   useEffect(() => {
     if (!socket) return;
 
@@ -115,7 +106,7 @@ const StoriesBar = ({ user, posts = [] }) => {
         </div>
 
         {/* OTHERS STORIES */}
-        {posts.slice(0, 10).map((story) => {
+        {stories.slice(0, 10).map((story) => {
           const storyUser =
             story.user && typeof story.user === "object" && !story.user.$$typeof
               ? story.user
@@ -129,10 +120,7 @@ const StoriesBar = ({ user, posts = [] }) => {
             >
               <div className="w-full h-full bg-white rounded-lg flex flex-col items-center justify-center relative">
                 <img
-                  src={
-                    storyUser.profilePic ||
-                    `${API_BASE}/uploads/profiles/default-profile.png`
-                  }
+                  src={storyUser.profilePic || `${API_BASE}/uploads/profiles/default-profile.png`}
                   className="w-10 h-10 rounded-full mb-1 border-2 border-white"
                 />
                 <span className="text-xs text-center px-1">
