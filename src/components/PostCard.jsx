@@ -1,4 +1,4 @@
-// src/components/PostCard.jsx
+is// src/components/PostCard.jsx
 import React, { useState, useEffect, useRef } from "react";
 
 const reactions = ["👍", "❤️", "😂", "😮", "😢", "😡"];
@@ -75,7 +75,7 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, setVideoRef
   };
 
   return (
-    <div className="bg-white p-8 rounded-xl shadow space-y-3">
+    <div className="bg-white p-12 rounded-xl shadow space-y-3">
       {/* HEADER */}
       <div className="flex items-center gap-3">
         <img
