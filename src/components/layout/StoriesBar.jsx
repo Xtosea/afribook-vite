@@ -89,12 +89,19 @@ const StoriesBar = ({ user, posts = [] }) => {
   };
 
   /* ================= SOCKET: Listen for likes ================= */
-  useEffect(() => {
-    if (!socket) return;
+useEffect(() => {
+  if (!socket) return;
 
-    socket.on("story-liked", ({ storyId, likes }) => {
-      setStoriesLikes((prev) => ({ ...prev, [storyId]: likes }));
-    });
+  const handleStoryLiked = ({ storyId, likes }) => {
+    setStoriesLikes((prev) => ({ ...prev, [storyId]: likes }));
+  };
+
+  socket.on("story-liked", handleStoryLiked);
+
+  return () => {
+    socket.off("story-liked", handleStoryLiked);
+  };
+}, [socket]);
 
     return (
   <>
