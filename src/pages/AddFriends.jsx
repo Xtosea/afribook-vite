@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { API_BASE, fetchWithToken } from "../api/api";
 import UserCard from "../components/onboarding/UserCard";
+import FacebookLogin from "../components/onboarding/FacebookLogin";
 
 const MOCK_SOCIAL_FRIENDS = [
   {
@@ -93,6 +94,8 @@ const AddFriends = () => {
           Connect TikTok
         </button>
       </div>
+        
+      <FacebookLogin />
 
       {/* Internal app friends + social friends list */}
       {users.length === 0 && <p>No suggestions yet.</p>}
