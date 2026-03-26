@@ -33,6 +33,7 @@ function App() {
           <Route path="/verify-email/:token" element={<VerifyEmail />} />
           <Route path="/verify-success" element={<VerifySuccess />} />
           <Route path="/verify-failed" element={<VerifyFailed />} />
+          <Route path="/welcome" element={<WelcomeOnboarding />} />
 
           {/* Protected routes (WebSocket-enabled pages) */}
           <Route
