@@ -1,79 +1,71 @@
+// src/pages/onboarding/AddFriends.jsx
 import React, { useEffect, useState } from "react";
-import { API_BASE, fetchWithToken } from "../api/api";
-import UserCard from "../components/onboarding/UserCard";
+import { API_BASE, fetchWithToken } from "../../api/api";
+import UserCard from "../../components/onboarding/UserCard";
+
+const MOCK_SOCIAL_FRIENDS = [
+  {
+    _id: "fb1",
+    name: "Alice FB",
+    profilePic: "https://i.pravatar.cc/150?img=5",
+    source: "Facebook",
+  },
+  {
+    _id: "ig1",
+    name: "Bob IG",
+    profilePic: "https://i.pravatar.cc/150?img=6",
+    source: "Instagram",
+  },
+  {
+    _id: "tt1",
+    name: "Charlie TT",
+    profilePic: "https://i.pravatar.cc/150?img=7",
+    source: "TikTok",
+  },
+];
 
 const AddFriends = () => {
   const token = localStorage.getItem("token");
+
   const [users, setUsers] = useState([]);
-  const [friendStatuses, setFriendStatuses] = useState({}); // {userId: "pending"}
-  const [loadingSocial, setLoadingSocial] = useState(false);
+  const [friendStatuses, setFriendStatuses] = useState({}); // {userId: "pending" | "added"}
 
-  // Fetch friends from internal app
-  const fetchAppFriends = async () => {
-    try {
-      const appUsers = await fetchWithToken(`${API_BASE}/api/users/suggestions`, token);
-      return appUsers.map(u => ({ ...u, source: "App" }));
-    } catch (err) {
-      console.error("Error fetching app friends:", err);
-      return [];
-    }
-  };
-
-  // Fetch social friends (mock for now)
-  const fetchSocialFriends = async (platform) => {
-    setLoadingSocial(true);
-    try {
-      let friends = [];
-      if (platform === "facebook") {
-        friends = [{ _id: "fb1", name: "John FB", profilePic: "", source: "Facebook" }];
-      } else if (platform === "instagram") {
-        friends = [{ _id: "ig1", name: "Anna IG", profilePic: "", source: "Instagram" }];
-      } else if (platform === "tiktok") {
-        friends = [{ _id: "tt1", name: "Mike TT", profilePic: "", source: "TikTok" }];
-      }
-
-      // Only add new friends not already in the list
-      setUsers((prev) => {
-        const existingIds = new Set(prev.map(u => u._id));
-        const newFriends = friends.filter(f => !existingIds.has(f._id));
-        return [...prev, ...newFriends];
-      });
-    } catch (err) {
-      console.error("Error fetching social friends:", err);
-    } finally {
-      setLoadingSocial(false);
-    }
-  };
-
+  // Fetch internal app friend suggestions
   useEffect(() => {
-    // Load app friends initially
-    const init = async () => {
-      const appFriends = await fetchAppFriends();
-      setUsers(appFriends);
+    const fetchUsers = async () => {
+      try {
+        const data = await fetchWithToken(
+          `${API_BASE}/api/users/suggestions`,
+          token
+        );
+        setUsers(data);
+      } catch (err) {
+        console.error(err);
+      }
     };
-    init();
+    fetchUsers();
   }, [token]);
 
+  // Handle internal app friend request
   const handleAddFriend = async (userId) => {
     try {
-      const user = users.find(u => u._id === userId);
-      if (!user) return;
-
-      if (user.source === "App") {
-        // Send friend request to internal app user
-        await fetch(`${API_BASE}/api/friends/request/${userId}`, {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
-        });
-      } else {
-        // For social media users, simulate sending request
-        alert(`Friend request sent to ${user.name} on ${user.source}!`);
-      }
-
+      await fetch(`${API_BASE}/api/friends/request/${userId}`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setFriendStatuses((prev) => ({ ...prev, [userId]: "pending" }));
     } catch (err) {
-      console.error("Error sending friend request:", err);
+      console.error(err);
+      alert("Failed to send friend request");
     }
+  };
+
+  // Mock social connect
+  const handleConnectSocial = (provider) => {
+    alert(`Connected to ${provider} successfully!`);
+    // For now, we just merge mock friends
+    const socialFriends = MOCK_SOCIAL_FRIENDS.filter(f => f.source === provider);
+    setUsers((prev) => [...prev, ...socialFriends]);
   };
 
   return (
@@ -83,36 +75,37 @@ const AddFriends = () => {
       {/* Social Connect Buttons */}
       <div className="flex gap-2 mb-4">
         <button
-          onClick={() => fetchSocialFriends("facebook")}
+          onClick={() => handleConnectSocial("Facebook")}
           className="bg-blue-600 text-white px-3 py-1 rounded"
         >
           Connect Facebook
         </button>
         <button
-          onClick={() => fetchSocialFriends("instagram")}
+          onClick={() => handleConnectSocial("Instagram")}
           className="bg-pink-500 text-white px-3 py-1 rounded"
         >
           Connect Instagram
         </button>
         <button
-          onClick={() => fetchSocialFriends("tiktok")}
+          onClick={() => handleConnectSocial("TikTok")}
           className="bg-black text-white px-3 py-1 rounded"
         >
           Connect TikTok
         </button>
       </div>
 
-      {loadingSocial && <p>Loading social friends...</p>}
+      {/* Internal app friends + social friends list */}
       {users.length === 0 && <p>No suggestions yet.</p>}
-
-      {users.map((user) => (
-        <UserCard
-          key={user._id}
-          user={user}
-          status={friendStatuses[user._id]}
-          onAddFriend={handleAddFriend}
-        />
-      ))}
+      <div className="space-y-3">
+        {users.map((user) => (
+          <UserCard
+            key={user._id}
+            user={user}
+            status={friendStatuses[user._id]}
+            onAddFriend={() => handleAddFriend(user._id)}
+          />
+        ))}
+      </div>
     </div>
   );
 };
