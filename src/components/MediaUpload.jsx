@@ -1,4 +1,3 @@
-// src/components/MediaUpload.jsx
 import React, { useRef, useState } from "react";
 import { FiUpload } from "react-icons/fi";
 
@@ -9,7 +8,8 @@ const MediaUpload = ({ mediaFiles, setMediaFiles, uploadProgress }) => {
   const [dragging, setDragging] = useState(false);
 
   const handleFiles = (files) => {
-    let newFiles = Array.from(files);
+    if (!files) return;
+    const newFiles = Array.from(files);
     let combined = [...mediaFiles, ...newFiles];
     if (combined.length > MAX_FILES) {
       alert(`Max ${MAX_FILES} files allowed`);
@@ -27,7 +27,10 @@ const MediaUpload = ({ mediaFiles, setMediaFiles, uploadProgress }) => {
         type="file"
         multiple
         accept="image/*,video/*"
-        onChange={(e) => handleFiles(e.target.files)}
+        onChange={(e) => {
+          handleFiles(e.target.files);
+          e.target.value = null; // reset input to allow same file selection again
+        }}
         className="hidden"
       />
 
@@ -78,7 +81,7 @@ const MediaUpload = ({ mediaFiles, setMediaFiles, uploadProgress }) => {
                 )
               ) : null}
 
-              {uploadProgress[i] >= 0 && (
+              {uploadProgress && uploadProgress[i] >= 0 && (
                 <div className="w-full bg-gray-200 h-1 mt-1 rounded">
                   <div
                     className="bg-blue-500 h-1 rounded"
