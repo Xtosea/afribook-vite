@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { API_BASE, fetchWithToken } from "../../api/api";
+import { API_BASE, fetchWithToken } from "../../../api/api";
 import UserCard from "../../components/onboarding/UserCard";
 
 const AddFriends = () => {
