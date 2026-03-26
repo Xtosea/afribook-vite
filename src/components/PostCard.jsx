@@ -43,58 +43,56 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, setVideoRef
         </div>
       </div>
 
-      {/* CONTENT */}
-      {post.content && <p>{post.content}</p>}
-
       {/* MEDIA */}
-      {post.media?.length > 0 && (
-        <div className="space-y-2">
-          {/* Big first */}
-          <div>
-            {post.media[0].type === "image" ? (
+{post.media?.length > 0 && (
+  <div className="space-y-2">
+    {/* Big first */}
+    <div>
+      {post.media[0].type === "image" ? (
+        <img
+          src={post.media[0].url}
+          loading="lazy"
+          className="w-full max-h-[70vh] object-contain rounded-lg bg-black cursor-pointer"
+          onClick={() => setModalIndex(0)}
+          alt=""
+        />
+      ) : (
+        <video
+          data-src={post.media[0].url}
+          ref={(el) => (videoElementsRef.current[0] = el)}
+          className="w-full max-h-[70vh] object-contain rounded-lg bg-black"
+          controls
+          muted
+          onClick={() => setModalIndex(0)}
+        />
+      )}
+    </div>
+
+    {/* Small thumbnails */}
+    {post.media.length > 1 && (
+      <div className="flex gap-2 overflow-x-auto">
+        {post.media.slice(1).map((m, i) => (
+          <div key={i} onClick={() => setModalIndex(i + 1)}>
+            {m.type === "image" ? (
               <img
-                src={post.media[0].url}
-                className="w-full h-[400px] object-cover rounded-lg cursor-pointer"
-                onClick={() => setModalIndex(0)}
+                src={m.url}
+                className="w-24 h-24 object-cover rounded cursor-pointer"
                 alt=""
               />
             ) : (
               <video
-                data-src={post.media[0].url}
-                ref={(el) => (videoElementsRef.current[0] = el)}
-                className="w-full h-[400px] object-cover rounded-lg"
-                controls
+                data-src={m.url}
+                ref={(el) => (videoElementsRef.current[i + 1] = el)}
+                className="w-24 h-24 object-cover rounded"
                 muted
-                onClick={() => setModalIndex(0)}
               />
             )}
           </div>
-
-          {/* Small thumbnails */}
-          {post.media.length > 1 && (
-            <div className="flex gap-2 overflow-x-auto">
-              {post.media.slice(1).map((m, i) => (
-                <div key={i} onClick={() => setModalIndex(i + 1)}>
-                  {m.type === "image" ? (
-                    <img
-                      src={m.url}
-                      className="w-24 h-24 object-cover rounded cursor-pointer"
-                      alt=""
-                    />
-                  ) : (
-                    <video
-                      data-src={m.url}
-                      ref={(el) => (videoElementsRef.current[i + 1] = el)}
-                      className="w-24 h-24 object-cover rounded"
-                      muted
-                    />
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
+        ))}
+      </div>
+    )}
+  </div>
+)}
 
       {/* REACTIONS COUNT */}
       <div className="text-sm text-gray-500 flex justify-between">
@@ -169,24 +167,27 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, setVideoRef
 
       {/* MODAL */}
       {modalIndex !== null && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
-          onClick={closeModal}
-        >
-          <div className="max-w-4xl w-full p-4">
-            {post.media[modalIndex].type === "image" ? (
-              <img src={post.media[modalIndex].url} className="w-full max-h-[80vh] object-contain" />
-            ) : (
-              <video
-                src={post.media[modalIndex].url}
-                className="w-full max-h-[80vh]"
-                controls
-                autoPlay
-              />
-            )}
-          </div>
-        </div>
+  <div
+    className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
+    onClick={closeModal}
+  >
+    <div className="max-w-4xl w-full p-4">
+      {post.media[modalIndex].type === "image" ? (
+        <img
+          src={post.media[modalIndex].url}
+          className="w-full max-h-[85vh] object-contain bg-black rounded-lg"
+        />
+      ) : (
+        <video
+          src={post.media[modalIndex].url}
+          className="w-full max-h-[85vh] object-contain bg-black rounded-lg"
+          controls
+          autoPlay
+        />
       )}
+    </div>
+  </div>
+)}
     </div>
   );
 };
