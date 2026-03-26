@@ -1,5 +1,6 @@
 // src/pages/Home.jsx
 import React, { useEffect, useRef, useState, Suspense, lazy } from "react";
+import { useNavigate } from "react-router-dom";
 import PostCard from "../components/PostCard";
 import SidebarLeft from "../components/layout/SidebarLeft";
 import SidebarRight from "../components/layout/SidebarRight";
@@ -50,8 +51,18 @@ const useLazyVideo = (videos) => {
 
 /* ================= HOME COMPONENT ================= */
 const Home = () => {
+
   const token = localStorage.getItem("token");
   const currentUserId = localStorage.getItem("userId");
+
+  const navigate = useNavigate();
+
+  // 🔐 Protect Home Page
+  useEffect(() => {
+    if (!token) {
+      navigate("/login");
+    }
+  }, [token, navigate]);
 
   const currentUser = {
     _id: currentUserId,
@@ -77,44 +88,46 @@ const Home = () => {
   useLazyVideo(videoRefs);
 
   /* ================= FETCH POSTS & STORIES ================= */
-  useEffect(() => {
-    const init = async () => {
-      try {
-        const postData = await fetchWithToken(`${API_BASE}/api/posts?limit=20`, token);
-        setPosts(postData);
+useEffect(() => {
+  if (!token) return;
 
-        const storyRes = await fetch(`${API_BASE}/api/stories?limit=20`);
-        const storyData = await storyRes.json();
-        setStories(storyData.stories || []);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoadingPosts(false);
-      }
+  const init = async () => {
+    try {
+      const postData = await fetchWithToken(`${API_BASE}/api/posts?limit=20`, token);
+      setPosts(postData);
 
-      connectSocket();
-      const socket = getSocket();
-      if (!socket) return;
+      const storyRes = await fetch(`${API_BASE}/api/stories?limit=20`);
+      const storyData = await storyRes.json();
+      setStories(storyData.stories || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoadingPosts(false);
+    }
 
-      socket.on("new-video", (post) => {
-        setPosts((prev) => [post, ...prev]);
-      });
+    connectSocket();
+    const socket = getSocket();
+    if (!socket) return;
 
-      socket.on("new-story", (story) => {
-        setStories((prev) => [story, ...prev]);
-      });
-    };
+    socket.on("new-video", (post) => {
+      setPosts((prev) => [post, ...prev]);
+    });
 
-    init();
+    socket.on("new-story", (story) => {
+      setStories((prev) => [story, ...prev]);
+    });
+  };
 
-    return () => {
-      const socket = getSocket();
-      if (socket) {
-        socket.off("new-video");
-        socket.off("new-story");
-      }
-    };
-  }, [token]);
+  init();
+
+  return () => {
+    const socket = getSocket();
+    if (socket) {
+      socket.off("new-video");
+      socket.off("new-story");
+    }
+  };
+}, [token]);
 
   /* ================= CREATE POST ================= */
   const handleSubmitPost = async (e) => {
