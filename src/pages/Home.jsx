@@ -131,8 +131,15 @@ const Home = () => {
       for (let file of mediaFiles) {
         let compressedFile = file;
         if (file.type.startsWith("image")) {
-          compressedFile = await imageCompression(file, { maxSizeMB: 1, maxWidthOrHeight: 1280 });
-        }
+          const options = {
+  maxSizeMB: 0.6,
+  maxWidthOrHeight: 1080,
+  useWebWorker: true,
+  fileType: "image/webp", // convert to WebP
+  initialQuality: 0.8,
+};
+
+compressedFile = await imageCompression(file, options);
         const url = file.type.startsWith("image")
           ? await uploadImage(compressedFile)
           : await uploadVideo(compressedFile);
