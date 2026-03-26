@@ -31,7 +31,7 @@ export default function VerifyEmail() {
 
           alert("🎉 Welcome to Afribook! Your email is verified.");
 
-          window.location.href = "/";
+          window.location.href = "/welcome";
           return;
         }
 
