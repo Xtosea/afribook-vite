@@ -29,7 +29,7 @@ export default function Register() {
       }
 
       alert(data.message || "Registration successful. Please verify your email.");
-      navigate("/login");
+      navigate("/verify-email-sent");
     } catch (err) {
       console.error(err);
       alert("Error registering user");
