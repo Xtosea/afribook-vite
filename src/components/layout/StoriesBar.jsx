@@ -30,12 +30,13 @@ const StoriesBar = ({ user, posts = [] }) => {
       const base64 = await toBase64(file);
       const token = localStorage.getItem("token");
 
-      const res = await fetch(`${API_BASE}/api/stories/upload`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+      const res = await fetch(`${API_BASE}/api/stories/upload-video`, {
+  method: "POST",
+  headers: {
+    Authorization: `Bearer ${token}`,
+  },
+  body: formData,
+});
         body: JSON.stringify({
           filename: file.name,
           contentType: file.type,
