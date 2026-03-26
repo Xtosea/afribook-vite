@@ -26,6 +26,9 @@ export default function VerifyEmail() {
         if (data.token) {
           // 🔥 AUTO LOGIN
           localStorage.setItem("token", data.token);
+localStorage.setItem("userId", data.user._id);
+localStorage.setItem("name", data.user.name);
+localStorage.setItem("profilePic", data.user.profilePic || "");
 
           alert("Email verified & logged in!");
 
