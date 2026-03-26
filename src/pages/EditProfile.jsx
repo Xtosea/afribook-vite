@@ -1,25 +1,42 @@
-// src/pages/EditProfile.jsx
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function EditProfile() {
+  const [name, setName] = useState(localStorage.getItem("name") || "");
+  const [profilePic, setProfilePic] = useState(localStorage.getItem("profilePic") || "");
   const navigate = useNavigate();
 
-  const handleSkip = () => navigate("/");
+  const saveProfile = async () => {
+    // TODO: call backend to update profile
+    alert("Profile saved!");
+    localStorage.setItem("name", name);
+    localStorage.setItem("profilePic", profilePic);
+    navigate("/"); // Go to Home
+  };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4">
-      <h1 className="text-3xl font-bold mb-6">Edit Profile</h1>
-      <p className="mb-4 text-gray-600">Add a profile picture and bio to get started</p>
+    <div className="p-6 max-w-md mx-auto">
+      <h1 className="text-xl font-bold mb-4">Edit Profile</h1>
 
-      <button className="bg-blue-500 text-white px-6 py-3 rounded mb-4">
-        Upload Profile Picture
-      </button>
+      <input
+        value={name}
+        onChange={e => setName(e.target.value)}
+        placeholder="Name"
+        className="w-full border p-2 rounded mb-2"
+      />
+
+      <input
+        value={profilePic}
+        onChange={e => setProfilePic(e.target.value)}
+        placeholder="Profile Pic URL"
+        className="w-full border p-2 rounded mb-2"
+      />
 
       <button
-        onClick={handleSkip}
-        className="text-blue-600 underline"
+        onClick={saveProfile}
+        className="bg-blue-500 text-white px-4 py-2 rounded"
       >
-        Skip
+        Save Profile & Go Home
       </button>
     </div>
   );
