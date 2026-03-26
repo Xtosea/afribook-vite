@@ -1,29 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { API_BASE } from "../../api/api";
+import useFacebookSDK from "../../hooks/useFacebookSDK";
 
 const FacebookLogin = () => {
-  const [fbReady, setFbReady] = useState(false);
-
-  // Wait for Facebook SDK
-  useEffect(() => {
-    const checkFB = setInterval(() => {
-      if (window.FB) {
-        setFbReady(true);
-        clearInterval(checkFB);
-      }
-    }, 500);
-
-    return () => clearInterval(checkFB);
-  }, []);
+  const fbReady = useFacebookSDK();
 
   const handleFacebookLogin = () => {
-    if (!window.FB) {
-      alert("Facebook SDK not loaded yet");
-      return;
-    }
+    if (!fbReady) return;
 
     window.FB.login(
-      async function (response) {
+      function (response) {
         if (response.authResponse) {
           const accessToken = response.authResponse.accessToken;
 
@@ -31,37 +17,25 @@ const FacebookLogin = () => {
             "/me",
             { fields: "name,email,picture" },
             async function (userInfo) {
-              try {
-                const res = await fetch(
-                  `${API_BASE}/api/auth/facebook`,
-                  {
-                    method: "POST",
-                    headers: {
-                      "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                      name: userInfo.name,
-                      email: userInfo.email,
-                      profilePic: userInfo.picture.data.url,
-                      accessToken,
-                    }),
-                  }
-                );
 
-                const data = await res.json();
+              const res = await fetch(`${API_BASE}/api/auth/facebook`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  name: userInfo.name,
+                  email: userInfo.email,
+                  profilePic: userInfo.picture.data.url,
+                  accessToken,
+                }),
+              });
 
-                if (data.token) {
-                  localStorage.setItem("token", data.token);
-                  localStorage.setItem("name", userInfo.name);
-                  localStorage.setItem(
-                    "profilePic",
-                    userInfo.picture.data.url
-                  );
+              const data = await res.json();
 
-                  window.location.href = "/";
-                }
-              } catch (err) {
-                console.error(err);
+              if (data.token) {
+                localStorage.setItem("token", data.token);
+                window.location.href = "/";
               }
             }
           );
@@ -75,7 +49,7 @@ const FacebookLogin = () => {
     <button
       onClick={handleFacebookLogin}
       disabled={!fbReady}
-      className="w-full bg-blue-600 text-white py-2 rounded-lg mt-3 disabled:opacity-50"
+      className="w-full bg-blue-600 text-white py-2 rounded-lg mt-3"
     >
       {fbReady ? "Continue with Facebook" : "Loading Facebook..."}
     </button>
