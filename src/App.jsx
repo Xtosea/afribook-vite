@@ -17,6 +17,7 @@ import Reels from "./pages/Reels";
 import Messages from "./pages/Messages";
 import Notifications from "./pages/Notifications";
 import Chat from "./pages/Chat"
+import WelcomeOnboarding from "./pages/WelcomeOnboarding";
 
 function App() {
   return (
