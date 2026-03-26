@@ -1,7 +1,7 @@
 // src/pages/onboarding/AddFriends.jsx
 import React, { useEffect, useState } from "react";
-import { API_BASE, fetchWithToken } from "../../api/api";
-import UserCard from "../../components/onboarding/UserCard";
+import { API_BASE, fetchWithToken } from "../api/api";
+import UserCard from "../components/onboarding/UserCard";
 
 const MOCK_SOCIAL_FRIENDS = [
   {
