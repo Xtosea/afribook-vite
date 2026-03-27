@@ -95,7 +95,7 @@ const Reels = () => {
   /** Record view */
   const recordView = async (id) => {
     try {
-      await fetch(`${API_BASE}/reels/view/${id}`, { method: "POST" });
+      await fetch(`${API_BASE}/api/reels/view/${id}`, { method: "POST" });
     } catch (err) {
       console.error(err);
     }
@@ -105,7 +105,7 @@ const Reels = () => {
   const likeReel = async (id) => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${API_BASE}/reels/${id}/like`, {
+      const res = await fetch(`${API_BASE}/api/reels/${id}/like`, {
         method: "PUT",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
       });
@@ -120,7 +120,7 @@ const Reels = () => {
   const shareReel = async (id) => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${API_BASE}/reels/${id}/share`, {
+      const res = await fetch(`${API_BASE}/api/reels/${id}/share`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
       });
@@ -144,7 +144,7 @@ const Reels = () => {
 
     try {
       const token = localStorage.getItem("token");
-      await fetch(`${API_BASE}/reels/upload`, {
+      await fetch(`${API_BASE}/api/reels/upload`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
