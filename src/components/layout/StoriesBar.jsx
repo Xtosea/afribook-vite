@@ -1,15 +1,14 @@
-// src/components/layout/StoriesBar.jsx
 import React, { useRef, useState, useEffect } from "react";
 import { getSocket } from "../../socket";
-import { useStoryUpload } from "../../hooks/useStories";
+import { useStoryUpload } from "../../hooks/useStoryUpload";
+import { API_BASE } from "../../api/api";
 
 const StoriesBar = ({ user, stories = [] }) => {
-  const safeUser = user || {};
+  const safeUser = user && typeof user === "object" && !user.$$typeof ? user : {};
   const fileRef = useRef();
   const socket = getSocket();
-  const { uploadStory, loading: uploading } = useStoryUpload();
+  const { uploadStory, loading } = useStoryUpload();
 
-  const [storiesState, setStoriesState] = useState(stories);
   const [storiesLikes, setStoriesLikes] = useState({});
   const [heartAnim, setHeartAnim] = useState({});
 
@@ -18,17 +17,14 @@ const StoriesBar = ({ user, stories = [] }) => {
 
   // Upload story
   const handleUpload = async (e) => {
-    const files = Array.from(e.target.files);
-    if (files.length === 0) return;
+    const file = e.target.files[0];
+    if (!file) return;
 
-    const uploadedStory = await uploadStory(files);
-    if (uploadedStory) {
-      setStoriesState((prev) => [uploadedStory, ...prev]);
-      socket?.emit("new-story", uploadedStory);
-    }
+    const story = await uploadStory(file);
+    if (story?._id) socket?.emit("new-story", story);
   };
 
-  // Like story
+  // Double-tap like
   const handleLikeStory = async (story) => {
     if (!story?._id) return;
 
@@ -37,106 +33,79 @@ const StoriesBar = ({ user, stories = [] }) => {
 
     const token = localStorage.getItem("token");
     try {
-      const res = await fetch(`/api/stories/like/${story._id}`, {
+      const res = await fetch(`${API_BASE}/api/stories/like/${story._id}`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-      if (res.ok) {
-        setStoriesLikes((prev) => ({ ...prev, [story._id]: data.likes }));
-        socket?.emit("story-liked", { storyId: story._id, likes: data.likes });
-      }
+      if (res.ok) setStoriesLikes((prev) => ({ ...prev, [story._id]: data.likes }));
+      socket?.emit("story-liked", { storyId: story._id, likes: data.likes });
     } catch (err) {
       console.error("Like failed:", err);
     }
   };
 
-  // Listen to socket likes
+  // Listen for story likes
   useEffect(() => {
     if (!socket) return;
-    const handleStoryLiked = ({ storyId, likes }) => {
+    const handleStoryLiked = ({ storyId, likes }) =>
       setStoriesLikes((prev) => ({ ...prev, [storyId]: likes }));
-    };
+
     socket.on("story-liked", handleStoryLiked);
     return () => socket.off("story-liked", handleStoryLiked);
   }, [socket]);
 
-  // Listen to new stories
-  useEffect(() => {
-    if (!socket) return;
-    const handleNewStory = (story) => setStoriesState((prev) => [story, ...prev]);
-    socket.on("new-story", handleNewStory);
-    return () => socket.off("new-story", handleNewStory);
-  }, [socket]);
-
   return (
-    <>
-      <div className="flex gap-3 overflow-x-auto pb-2">
-        {/* YOUR STORY */}
-        <div
-          className={`min-w-[80px] h-32 bg-gray-200 rounded-lg flex flex-col items-center justify-center text-sm cursor-pointer hover:ring-2 hover:ring-blue-500 ${
-            uploading ? "opacity-50 cursor-wait" : ""
-          }`}
-          onClick={handleAddStory}
-        >
-          <img
-            src={safeUser.profilePic || "/default-profile.png"}
-            className="w-10 h-10 rounded-full mb-1"
-          />
-          {uploading ? "Uploading..." : "Add Story"}
-          <input
-            type="file"
-            ref={fileRef}
-            onChange={handleUpload}
-            className="hidden"
-            accept="image/*,video/*"
-          />
-        </div>
-
-        {/* OTHER STORIES */}
-        {storiesState.slice(0, 10).map((story) => {
-          const storyUser = story.user || {};
-          return (
-            <div
-              key={story._id}
-              className="min-w-[80px] h-32 rounded-lg flex flex-col items-center justify-center cursor-pointer bg-gradient-to-t from-pink-500 via-yellow-400 to-purple-500 p-[2px]"
-              onDoubleClick={() => handleLikeStory(story)}
-            >
-              <div className="w-full h-full bg-white rounded-lg flex flex-col items-center justify-center relative">
-                <img
-                  src={storyUser.profilePic || "/default-profile.png"}
-                  className="w-10 h-10 rounded-full mb-1 border-2 border-white"
-                />
-                <span className="text-xs text-center px-1">
-                  {storyUser.name || "Unknown"}
-                </span>
-                <span className="text-[10px] mt-1 text-gray-700">
-                  ❤️ {storiesLikes[story._id] ?? story.likes ?? 0}
-                </span>
-                {heartAnim[story._id] && (
-                  <span className="absolute text-4xl animate-pop text-red-500 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                    ❤️
-                  </span>
-                )}
-              </div>
-            </div>
-          );
-        })}
+    <div className="flex gap-3 overflow-x-auto pb-2">
+      {/* YOUR STORY */}
+      <div
+        className={`min-w-[80px] h-32 bg-gray-200 rounded-lg flex flex-col items-center justify-center text-sm cursor-pointer hover:ring-2 hover:ring-blue-500 ${
+          loading ? "opacity-50 cursor-wait" : ""
+        }`}
+        onClick={handleAddStory}
+      >
+        <img
+          src={safeUser.profilePic || `${API_BASE}/uploads/profiles/default-profile.png`}
+          className="w-10 h-10 rounded-full mb-1"
+        />
+        {loading ? "Uploading..." : "Add Story"}
+        <input
+          type="file"
+          ref={fileRef}
+          onChange={handleUpload}
+          className="hidden"
+          accept="image/*,video/*"
+        />
       </div>
 
-      <style>
-        {`
-          @keyframes pop {
-            0% { transform: scale(0.5); opacity: 0; }
-            50% { transform: scale(1.3); opacity: 1; }
-            100% { transform: scale(1); opacity: 0; }
-          }
-          .animate-pop {
-            animation: pop 0.8s ease-out forwards;
-          }
-        `}
-      </style>
-    </>
+      {/* OTHER STORIES */}
+      {stories.slice(0, 10).map((story) => {
+        const storyUser = story.user || {};
+        return (
+          <div
+            key={story._id}
+            className="min-w-[80px] h-32 rounded-lg flex flex-col items-center justify-center cursor-pointer bg-gradient-to-t from-pink-500 via-yellow-400 to-purple-500 p-[2px]"
+            onDoubleClick={() => handleLikeStory(story)}
+          >
+            <div className="w-full h-full bg-white rounded-lg flex flex-col items-center justify-center relative">
+              <img
+                src={storyUser.profilePic || `${API_BASE}/uploads/profiles/default-profile.png`}
+                className="w-10 h-10 rounded-full mb-1 border-2 border-white"
+              />
+              <span className="text-xs text-center px-1">{storyUser.name || "Unknown"}</span>
+              <span className="text-[10px] mt-1 text-gray-700">
+                ❤️ {storiesLikes[story._id] ?? story.likes ?? 0}
+              </span>
+              {heartAnim[story._id] && (
+                <span className="absolute text-4xl animate-pop text-red-500 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                  ❤️
+                </span>
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
   );
 };
 
