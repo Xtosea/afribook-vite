@@ -43,6 +43,7 @@ const useLazyVideo = (videos) => {
     );
 
     videos.forEach((v) => observer.observe(v));
+
     return () => observer.disconnect();
   }, [videos]);
 };
@@ -74,8 +75,8 @@ const Home = () => {
   const [location, setLocation] = useState("");
   const [feeling, setFeeling] = useState("");
   const [taggedFriends, setTaggedFriends] = useState([]);
-  const [stories, setStories] = useState([]);
 
+  const [stories, setStories] = useState([]);
   const feedRef = useRef();
   const { uploadImage } = useCloudinaryUpload();
   const { uploadVideo } = useR2Upload();
@@ -88,20 +89,30 @@ const Home = () => {
 
     const init = async () => {
       try {
-        // Fetch posts
-        const postData = await fetchWithToken(`${API_BASE}/api/posts?limit=20`, token);
-        setPosts(postData.posts || postData); // ensure array
-
-        // Fetch reels/videos separately
-        const reelsRes = await fetch(`${API_BASE}/api/reels`);
-        const reelsData = await reelsRes.json();
-        if (Array.isArray(reelsData)) {
-          setPosts((prev) => [...reelsData, ...prev]); // prepend reels
+        // --- FETCH POSTS ---
+        const postRes = await fetch(`${API_BASE}/api/posts?limit=20`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const postText = await postRes.text(); // raw text
+        let postData;
+        try {
+          postData = JSON.parse(postText);
+        } catch {
+          console.error("Posts fetch returned non-JSON:", postText);
+          postData = [];
         }
+        setPosts(postData);
 
-        // Fetch stories
+        // --- FETCH STORIES ---
         const storyRes = await fetch(`${API_BASE}/api/stories?limit=20`);
-        const storyData = await storyRes.json();
+        const storyText = await storyRes.text();
+        let storyData;
+        try {
+          storyData = JSON.parse(storyText);
+        } catch {
+          console.error("Stories fetch returned non-JSON:", storyText);
+          storyData = { stories: [] };
+        }
         setStories(storyData.stories || []);
       } catch (err) {
         console.error("Fetch error:", err);
@@ -109,13 +120,11 @@ const Home = () => {
         setLoadingPosts(false);
       }
 
-      // Socket
+      // --- SOCKET CONNECTION ---
       connectSocket();
       const socket = getSocket();
       if (!socket) return;
-
-      // Match backend event names
-      socket.on("new-reel", (post) => setPosts((prev) => [post, ...prev]));
+      socket.on("new-video", (post) => setPosts((prev) => [post, ...prev]));
       socket.on("new-story", (story) => setStories((prev) => [story, ...prev]));
     };
 
@@ -124,7 +133,7 @@ const Home = () => {
     return () => {
       const socket = getSocket();
       if (socket) {
-        socket.off("new-reel");
+        socket.off("new-video");
         socket.off("new-story");
       }
     };
@@ -154,13 +163,19 @@ const Home = () => {
           compressedFile = await imageCompression(file, options);
         }
 
-        const url = type === "image" ? await uploadImage(compressedFile) : await uploadVideo(compressedFile);
+        const url =
+          type === "image"
+            ? await uploadImage(compressedFile)
+            : await uploadVideo(compressedFile);
         uploadedMedia.push({ url, type });
       }
 
       const res = await fetch(`${API_BASE}/api/posts`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           content: newPost,
           media: uploadedMedia,
@@ -170,12 +185,19 @@ const Home = () => {
         }),
       });
 
-      const data = await res.json();
+      const dataText = await res.text();
+      let data;
+      try {
+        data = JSON.parse(dataText);
+      } catch {
+        console.error("Create post returned non-JSON:", dataText);
+        data = null;
+      }
 
-      // Emit new post to socket
-      getSocket()?.emit("new-reel", data.post);
-
-      setPosts((prev) => [data.post, ...prev]);
+      if (data?.post) {
+        getSocket()?.emit("new-video", data.post);
+        setPosts((prev) => [data.post, ...prev]);
+      }
 
       // Reset form
       setNewPost("");
@@ -193,16 +215,20 @@ const Home = () => {
 
   return (
     <div className="max-w-[1600px] mx-auto px-2 md:px-6 py-6 grid grid-cols-1 md:grid-cols-4 gap-6">
-
       {/* LEFT SIDEBAR */}
-      <div className="hidden md:block"><SidebarLeft /></div>
+      <div className="hidden md:block">
+        <SidebarLeft />
+      </div>
 
       {/* MAIN FEED */}
       <div className="md:col-span-2 space-y-4 w-full">
         <StoriesBar user={currentUser} stories={stories} />
 
         {/* CREATE POST */}
-        <form onSubmit={handleSubmitPost} className="bg-white p-4 rounded-xl shadow space-y-3">
+        <form
+          onSubmit={handleSubmitPost}
+          className="bg-white p-4 rounded-xl shadow space-y-3"
+        >
           <textarea
             value={newPost}
             onChange={(e) => setNewPost(e.target.value)}
@@ -226,13 +252,16 @@ const Home = () => {
                 className="w-full border rounded-lg p-2"
               />
               <input
-                value={taggedFriends.map(f => f.name).join(", ")}
+                value={taggedFriends.map((f) => f.name).join(", ")}
                 onChange={(e) =>
-                  setTaggedFriends(e.target.value.split(",").map(name => ({ name: name.trim() })))
+                  setTaggedFriends(
+                    e.target.value.split(",").map((name) => ({ name: name.trim() }))
+                  )
                 }
                 placeholder="Tag friends (comma separated)"
                 className="w-full border rounded-lg p-2"
               />
+
               <button
                 type="button"
                 onClick={() => setShowEmoji(!showEmoji)}
@@ -245,8 +274,13 @@ const Home = () => {
                   <EmojiPicker onEmojiClick={(e) => setNewPost((prev) => prev + e.emoji)} />
                 </Suspense>
               )}
+
               <MediaUpload mediaFiles={mediaFiles} setMediaFiles={setMediaFiles} />
-              <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
+
+              <button
+                type="submit"
+                className="bg-blue-500 text-white px-4 py-2 rounded"
+              >
                 {posting ? "Posting..." : "Post"}
               </button>
             </>
@@ -269,7 +303,9 @@ const Home = () => {
       </div>
 
       {/* RIGHT SIDEBAR */}
-      <div className="hidden md:block"><SidebarRight /></div>
+      <div className="hidden md:block">
+        <SidebarRight />
+      </div>
     </div>
   );
 };
