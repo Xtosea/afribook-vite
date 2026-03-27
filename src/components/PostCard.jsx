@@ -68,42 +68,65 @@ if (post.media.length === 1) {
   );  
 }  
 
-// Multiple Media Layout  
-return (  
-  <div  
-    className={`  
-      grid gap-2  
-      ${post.media.length === 2 ? "grid-cols-2" : ""}  
-      ${post.media.length === 3 ? "grid-cols-2" : ""}  
-      ${post.media.length >= 4 ? "grid-cols-2 md:grid-cols-3" : ""}  
-    `}  
-  >  
-    {post.media.map((m, i) => (  
-      <div  
-        key={i}  
-        className="relative w-full min-h-[180px] md:min-h-[220px] overflow-hidden rounded-xl cursor-pointer bg-black"  
-        onClick={() => setModalIndex(i)}  
-      >  
-        {m.type === "image" ? (  
-          <img  
-            src={m.url}  
-            className="w-full h-full object-contain"  
-            alt=""  
-          />  
-        ) : (  
-          <video  
-            data-src={m.url}  
-            ref={(el) => (videoRefs.current[i] = el)}  
-            className="w-full h-full object-contain"  
-            muted  
-          />  
-        )}  
-      </div>  
-    ))}  
-  </div>  
-);
+// Multiple Media Layout (Professional Facebook Style)
+return (
+  <div className="grid gap-2">
+    
+    {/* First Media Large */}
+    <div
+      className="w-full max-h-[520px] overflow-hidden rounded-xl cursor-pointer"
+      onClick={() => setModalIndex(0)}
+    >
+      {post.media[0].type === "image" ? (
+        <img
+          src={post.media[0].url}
+          className="w-full h-full object-cover"
+          alt=""
+        />
+      ) : (
+        <video
+          data-src={post.media[0].url}
+          ref={(el) => (videoRefs.current[0] = el)}
+          className="w-full h-full object-cover"
+          muted
+        />
+      )}
+    </div>
 
-};
+    {/* Remaining Media */}
+    {post.media.length > 1 && (
+      <div
+        className={`
+          grid gap-2
+          ${post.media.length === 2 ? "grid-cols-1" : "grid-cols-2"}
+        `}
+      >
+        {post.media.slice(1).map((m, i) => (
+          <div
+            key={i + 1}
+            className="relative h-[200px] md:h-[240px] overflow-hidden rounded-xl cursor-pointer"
+            onClick={() => setModalIndex(i + 1)}
+          >
+            {m.type === "image" ? (
+              <img
+                src={m.url}
+                className="w-full h-full object-cover"
+                alt=""
+              />
+            ) : (
+              <video
+                data-src={m.url}
+                ref={(el) => (videoRefs.current[i + 1] = el)}
+                className="w-full h-full object-cover"
+                muted
+              />
+            )}
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
+);
 
 return (
 <div className="bg-white p-4 rounded-xl shadow space-y-3 w-full max-w-full">
