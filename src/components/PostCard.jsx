@@ -46,8 +46,8 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, setVideoRef
       );
     }
 
-    // Multiple media: grid layout
-    return (
+    // Multiple media: professional uniform layout
+return (
   <div
     className={`
       grid gap-2
