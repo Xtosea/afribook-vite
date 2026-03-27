@@ -3,7 +3,14 @@ import React, { useState, useEffect, useRef } from "react";
 
 const reactions = ["👍", "❤️", "😂", "😮", "😢", "😡"];
 
-const PostCard = ({ post, currentUserId, onLike, onComment, onShare, setVideoRefs }) => {
+const PostCard = ({
+  post,
+  currentUserId,
+  onLike,
+  onComment,
+  onShare,
+  setVideoRefs,
+}) => {
   const [commentText, setCommentText] = useState("");
   const [showComments, setShowComments] = useState(false);
   const [modalIndex, setModalIndex] = useState(null);
@@ -13,23 +20,38 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, setVideoRef
 
   useEffect(() => {
     if (setVideoRefs) {
-      setVideoRefs((prev) => [...prev, ...videoRefs.current.filter(Boolean)]);
+      setVideoRefs((prev) => [
+        ...prev,
+        ...videoRefs.current.filter(Boolean),
+      ]);
     }
   }, [setVideoRefs]);
 
   const closeModal = () => setModalIndex(null);
 
-  // Helper for rendering media in grid
+  // Professional media aspect detection
+  const getAspectClass = (width, height) => {
+    if (!width || !height) return "aspect-auto";
+
+    const ratio = width / height;
+
+    if (ratio > 1.4) return "aspect-video"; // Landscape
+    if (ratio < 0.8) return "aspect-[9/16]"; // Portrait
+    return "aspect-square"; // Square
+  };
+
+  // Helper for rendering media
   const renderMedia = () => {
     if (!post.media?.length) return null;
 
-    // Single media
+    // Single Media
     if (post.media.length === 1) {
       const m = post.media[0];
+
       return m.type === "image" ? (
         <img
           src={m.url}
-          className="w-full rounded-xl object-cover cursor-pointer max-h-[70vh]"
+          className="w-full rounded-xl object-contain cursor-pointer max-h-[70vh] bg-black"
           onClick={() => setModalIndex(0)}
           alt=""
         />
@@ -37,8 +59,7 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, setVideoRef
         <video
           data-src={m.url}
           ref={(el) => (videoRefs.current[0] = el)}
-          className="w-full rounded-xl object-cover cursor-pointer aspect-[9/16] max-h-[85vh] bg-black"
-
+          className="w-full rounded-xl object-contain cursor-pointer max-h-[85vh] bg-black"
           controls
           muted
           onClick={() => setModalIndex(0)}
@@ -46,33 +67,33 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, setVideoRef
       );
     }
 
-    // Multiple media: professional uniform layout
-return (
-  <div
-    className={`
-      grid gap-2
-      ${post.media.length === 2 ? "grid-cols-2" : ""}
-      ${post.media.length === 3 ? "grid-cols-2" : ""}
-      ${post.media.length >= 4 ? "grid-cols-2 md:grid-cols-3" : ""}
-    `}
-  >
+    // Multiple Media Layout
+    return (
+      <div
+        className={`
+          grid gap-2
+          ${post.media.length === 2 ? "grid-cols-2" : ""}
+          ${post.media.length === 3 ? "grid-cols-2" : ""}
+          ${post.media.length >= 4 ? "grid-cols-2 md:grid-cols-3" : ""}
+        `}
+      >
         {post.media.map((m, i) => (
           <div
             key={i}
-            className="relative w-full h-[220px] md:h-[260px] overflow-hidden rounded-xl cursor-pointer"
+            className="relative w-full min-h-[180px] md:min-h-[220px] overflow-hidden rounded-xl cursor-pointer bg-black"
             onClick={() => setModalIndex(i)}
           >
             {m.type === "image" ? (
               <img
                 src={m.url}
-                className={`w-full h-full object-cover ${post.media.length === 2 && i === 0 ? "col-span-2" : ""}`}
+                className="w-full h-full object-contain"
                 alt=""
               />
             ) : (
               <video
                 data-src={m.url}
                 ref={(el) => (videoRefs.current[i] = el)}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain"
                 muted
               />
             )}
@@ -83,9 +104,7 @@ return (
   };
 
   return (
-
     <div className="bg-white p-4 rounded-xl shadow space-y-3 w-full max-w-full">
-
       {/* HEADER */}
       <div className="flex items-center gap-3">
         <img
@@ -93,16 +112,30 @@ return (
           alt={post.user.name}
           className="w-12 h-12 rounded-full object-cover"
         />
+
         <div className="flex-1">
           <p className="font-semibold">{post.user.name}</p>
+
           <div className="text-xs text-gray-500 flex gap-2 flex-wrap">
-            <span>{new Date(post.createdAt).toLocaleString()}</span>
-            {post.feeling && <span>• feeling {post.feeling}</span>}
-            {post.location && <span>• {post.location}</span>}
+            <span>
+              {new Date(post.createdAt).toLocaleString()}
+            </span>
+
+            {post.feeling && (
+              <span>• feeling {post.feeling}</span>
+            )}
+
+            {post.location && (
+              <span>• {post.location}</span>
+            )}
           </div>
+
           {post.taggedFriends?.length > 0 && (
             <div className="text-xs text-blue-500">
-              with {post.taggedFriends.map((f) => f.name).join(", ")}
+              with{" "}
+              {post.taggedFriends
+                .map((f) => f.name)
+                .join(", ")}
             </div>
           )}
         </div>
@@ -114,10 +147,18 @@ return (
       {/* MEDIA */}
       {renderMedia()}
 
-      {/* REACTIONS & COMMENTS COUNT */}
+      {/* REACTIONS COUNT */}
       <div className="text-sm text-gray-500 flex justify-between">
-        <span>{post.reactions?.length || post.likes?.length || 0} reactions</span>
-        <span>{post.comments?.length || 0} comments</span>
+        <span>
+          {post.reactions?.length ||
+            post.likes?.length ||
+            0}{" "}
+          reactions
+        </span>
+
+        <span>
+          {post.comments?.length || 0} comments
+        </span>
       </div>
 
       {/* ACTION BUTTONS */}
@@ -127,16 +168,22 @@ return (
           onMouseEnter={() => setShowReactions(true)}
           onMouseLeave={() => setShowReactions(false)}
         >
-          <button onClick={() => onLike(post._id, "👍")} className="text-gray-600">
+          <button
+            onClick={() => onLike(post._id, "👍")}
+            className="text-gray-600"
+          >
             👍 Like
           </button>
+
           {showReactions && (
             <div className="absolute bottom-8 left-0 bg-white shadow rounded-full px-2 py-1 flex gap-2 z-10">
               {reactions.map((r) => (
                 <button
                   key={r}
                   className="text-lg hover:scale-125 transition-transform"
-                  onClick={() => onLike(post._id, r)}
+                  onClick={() =>
+                    onLike(post._id, r)
+                  }
                 >
                   {r}
                 </button>
@@ -144,37 +191,70 @@ return (
             </div>
           )}
         </div>
-        <button onClick={() => setShowComments(!showComments)}>💬 Comment</button>
-        <button onClick={() => onShare(post)}>🔗 Share</button>
+
+        <button
+          onClick={() =>
+            setShowComments(!showComments)
+          }
+        >
+          💬 Comment
+        </button>
+
+        <button
+          onClick={() => onShare(post)}
+        >
+          🔗 Share
+        </button>
       </div>
 
       {/* COMMENTS */}
       {showComments && (
         <div className="space-y-2 mt-2">
           {post.comments?.map((c) => (
-            <div key={c._id} className="flex gap-2 items-start">
+            <div
+              key={c._id}
+              className="flex gap-2 items-start"
+            >
               <img
-                src={c.user.profilePic || "/default-avatar.png"}
+                src={
+                  c.user.profilePic ||
+                  "/default-avatar.png"
+                }
                 className="w-6 h-6 rounded-full object-cover"
                 alt={c.user.name}
               />
+
               <div>
-                <span className="font-semibold text-sm">{c.user.name}</span>
-                <p className="text-sm">{c.text}</p>
+                <span className="font-semibold text-sm">
+                  {c.user.name}
+                </span>
+
+                <p className="text-sm">
+                  {c.text}
+                </p>
               </div>
             </div>
           ))}
+
           <div className="flex gap-2 mt-2">
             <input
               value={commentText}
-              onChange={(e) => setCommentText(e.target.value)}
+              onChange={(e) =>
+                setCommentText(
+                  e.target.value
+                )
+              }
               className="flex-1 border rounded px-2 py-1"
               placeholder="Write comment..."
             />
+
             <button
               onClick={() => {
                 if (commentText.trim()) {
-                  onComment(post._id, commentText);
+                  onComment(
+                    post._id,
+                    commentText
+                  );
                   setCommentText("");
                 }
               }}
@@ -187,29 +267,39 @@ return (
       )}
 
       {/* MODAL */}
-{modalIndex !== null && post.media[modalIndex] && (
-  <div
-    className="fixed inset-0 bg-black bg-opacity-90 backdrop-blur-sm flex items-center justify-center z-50 transition-all duration-300"
-    onClick={closeModal}
-  >
-    <div className="w-full max-w-6xl mx-auto p-4 flex items-center justify-center">
-      {post.media[modalIndex].type === "image" ? (
-        <img
-          src={post.media[modalIndex].url}
-          className="w-full max-h-[90vh] object-contain rounded-xl shadow-2xl transition-all duration-300"
-          alt=""
-        />
-      ) : (
-        <video
-          src={post.media[modalIndex].url}
-          className="w-full max-h-[90vh] aspect-[9/16] object-cover rounded-xl shadow-2xl"
-          controls
-          autoPlay
-        />
-      )}
-    </div>
-  </div>
-)}
+      {modalIndex !== null &&
+        post.media[modalIndex] && (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-90 backdrop-blur-sm flex items-center justify-center z-50 transition-all duration-300"
+            onClick={closeModal}
+          >
+            <div className="w-full max-w-6xl mx-auto p-4 flex items-center justify-center">
+              {post.media[modalIndex].type ===
+              "image" ? (
+                <img
+                  src={
+                    post.media[
+                      modalIndex
+                    ].url
+                  }
+                  className="w-full max-h-[90vh] object-contain rounded-xl shadow-2xl"
+                  alt=""
+                />
+              ) : (
+                <video
+                  src={
+                    post.media[
+                      modalIndex
+                    ].url
+                  }
+                  className="w-full max-h-[90vh] object-contain rounded-xl shadow-2xl"
+                  controls
+                  autoPlay
+                />
+              )}
+            </div>
+          </div>
+        )}
     </div>
   );
 };
