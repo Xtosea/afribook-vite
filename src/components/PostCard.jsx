@@ -47,7 +47,16 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, setVideoRef
 
     // Multiple media: grid layout
     return (
-      <div className="grid gap-2 grid-cols-2 md:grid-cols-3">
+      <// Multiple media: professional uniform layout
+return (
+  <div
+    className={`
+      grid gap-2
+      ${post.media.length === 2 ? "grid-cols-2" : ""}
+      ${post.media.length === 3 ? "grid-cols-2" : ""}
+      ${post.media.length >= 4 ? "grid-cols-2 md:grid-cols-3" : ""}
+    `}
+  >>
         {post.media.map((m, i) => (
           <div
             key={i}
