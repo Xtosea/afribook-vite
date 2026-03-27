@@ -48,9 +48,6 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, setVideoRef
 
     // Multiple media: grid layout
     return (
-
- layout
-return (
   <div
     className={`
       grid gap-2
