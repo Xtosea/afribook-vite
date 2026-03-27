@@ -187,29 +187,29 @@ return (
       )}
 
       {/* MODAL */}
-      {modalIndex !== null && post.media[modalIndex] && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
-          onClick={closeModal}
-        >
-          <div className="max-w-4xl w-full p-4">
-            {post.media[modalIndex].type === "image" ? (
-              <img
-                src={post.media[modalIndex].url}
-                className="w-full max-h-[85vh] object-contain rounded-xl"
-                alt=""
-              />
-            ) : (
-              <video
-                src={post.media[modalIndex].url}
-                className="w-full max-h-[90vh] aspect-[9/16] object-cover rounded-xl"
-                controls
-                autoPlay
-              />
-            )}
-          </div>
-        </div>
+{modalIndex !== null && post.media[modalIndex] && (
+  <div
+    className="fixed inset-0 bg-black bg-opacity-90 backdrop-blur-sm flex items-center justify-center z-50 transition-all duration-300"
+    onClick={closeModal}
+  >
+    <div className="w-full max-w-6xl mx-auto p-4 flex items-center justify-center">
+      {post.media[modalIndex].type === "image" ? (
+        <img
+          src={post.media[modalIndex].url}
+          className="w-full max-h-[90vh] object-contain rounded-xl shadow-2xl transition-all duration-300"
+          alt=""
+        />
+      ) : (
+        <video
+          src={post.media[modalIndex].url}
+          className="w-full max-h-[90vh] aspect-[9/16] object-cover rounded-xl shadow-2xl"
+          controls
+          autoPlay
+        />
       )}
+    </div>
+  </div>
+)}
     </div>
   );
 };
