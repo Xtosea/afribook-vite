@@ -23,9 +23,10 @@ const Reels = () => {
       const res = await fetch(`${API_BASE}/api/posts`);
       const data = await res.json();
 
+      // Filter out any blank or invalid video URLs
       const vids = data.flatMap((post) =>
         post.media
-          ?.filter((m) => m.type === "video")
+          ?.filter((m) => m.type === "video" && m.url) // Only real videos
           .map((m) => ({
             ...m,
             postId: post._id,
@@ -122,7 +123,14 @@ const Reels = () => {
 
       {/* Floating Upload Button */}
       <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">
-        <ReelUpload />
+        {/* Upload Modal */}
+        {showUpload && (
+          <ReelUpload
+            onClose={() => setShowUpload(false)}
+            className="animate-slideUp"
+          />
+        )}
+
         <button
           onClick={() => setShowUpload(true)}
           className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-full shadow-lg text-sm font-semibold"
@@ -168,7 +176,9 @@ const Reels = () => {
                 className="text-3xl"
               >
                 ❤️
-                <div className="text-sm text-center">{likes[video.postId] || 0}</div>
+                <div className="text-sm text-center">
+                  {likes[video.postId] || 0}
+                </div>
               </button>
               <button
                 className="text-3xl"
