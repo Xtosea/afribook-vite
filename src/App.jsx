@@ -26,6 +26,7 @@ import MediaViewer from "./pages/MediaViewer";
 
 
 function App() {
+console.log("API:", import.meta.env.VITE_API_BASE);
   return (
     <Router>
       <Navbar />
