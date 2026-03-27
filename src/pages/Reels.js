@@ -12,10 +12,9 @@ const Reels = () => {
   const [caption, setCaption] = useState("");
   const navigate = useNavigate();
 
-  // Initialize socket safely
-  const socket = connectSocket();
+  const socket = connectSocket(); // initialize socket
 
-  /* Fetch reels */
+  // Fetch reels from API
   const fetchReels = async () => {
     try {
       const res = await fetch(`${API_BASE}/reels`);
@@ -37,7 +36,6 @@ const Reels = () => {
 
   useEffect(() => {
     fetchReels();
-
     if (!socket) return;
 
     socket.on("new-reel", (reel) => {
@@ -70,7 +68,7 @@ const Reels = () => {
     };
   }, [socket]);
 
-  /* Auto-play */
+  // Auto-play videos
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -88,7 +86,7 @@ const Reels = () => {
     };
   }, [reels]);
 
-  /* Record view */
+  // Record view
   const recordView = async (id) => {
     try {
       await fetch(`${API_BASE}/reels/view/${id}`, { method: "POST" });
@@ -97,7 +95,7 @@ const Reels = () => {
     }
   };
 
-  /* Like */
+  // Like reel
   const likeReel = async (id) => {
     try {
       const token = localStorage.getItem("token");
@@ -112,7 +110,7 @@ const Reels = () => {
     }
   };
 
-  /* Share */
+  // Share reel
   const shareReel = async (id) => {
     try {
       const token = localStorage.getItem("token");
@@ -128,7 +126,7 @@ const Reels = () => {
     }
   };
 
-  /* Upload */
+  // Upload reel
   const uploadReel = async (e) => {
     e.preventDefault();
     const file = fileRef.current.files[0];
@@ -158,7 +156,10 @@ const Reels = () => {
       {/* Top bar */}
       <div className="fixed top-0 left-0 right-0 bg-black text-white p-3 z-50 flex justify-between items-center">
         <h1 className="font-bold text-lg">Reels</h1>
-        <button onClick={() => fileRef.current.click()} className="bg-white text-black px-3 py-1 rounded">
+        <button
+          onClick={() => fileRef.current.click()}
+          className="bg-white text-black px-3 py-1 rounded"
+        >
           Upload
         </button>
         <input
@@ -190,7 +191,11 @@ const Reels = () => {
               className="flex items-center gap-2 text-white cursor-pointer"
               onClick={() => navigate(`/profile/${reel.user._id}`)}
             >
-              <img src={reel.user.profilePic} alt={reel.user.name} className="w-10 h-10 rounded-full" />
+              <img
+                src={reel.user.profilePic}
+                alt={reel.user.name}
+                className="w-10 h-10 rounded-full"
+              />
               <span>{reel.user.name}</span>
             </div>
 
