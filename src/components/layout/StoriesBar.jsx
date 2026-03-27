@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import { getSocket } from "../../socket";
-import { useStoryUpload } from "../../hooks/useStories";
+import { useStories } from "../../hooks/useStories";
 import { API_BASE } from "../../api/api";
 
 const StoriesBar = ({ user, stories = [] }) => {
