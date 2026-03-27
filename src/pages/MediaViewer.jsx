@@ -1,157 +1,95 @@
 // src/pages/MediaViewer.jsx
-import React, { useState, useEffect, useRef } from "react";
-import { useParams } from "react-router-dom";
-import { API_BASE } from "../api/api";
-
-const reactions = ["👍", "❤️", "😂", "😮", "😢", "😡"];
+import React, { useEffect, useState, useRef } from "react";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { API_BASE } from "../api/api"; // Make sure this points to your backend
+import PostCard from "../components/PostCard";
 
 const MediaViewer = () => {
   const { postId } = useParams();
-  const [post, setPost] = useState(null);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [commentText, setCommentText] = useState("");
-  const [showReactions, setShowReactions] = useState(false);
+  const [searchParams] = useSearchParams();
+  const initialIndex = parseInt(searchParams.get("index")) || 0;
 
-  const videoRefs = useRef([]);
+  const [post, setPost] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [videoRefs, setVideoRefs] = useState([]);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const res = await fetch(`${API_BASE}/api/posts/${postId}`);
+        setLoading(true);
+        const res = await fetch(`${API_BASE}/api/posts/${postId}`); // Ensure correct backend URL
+        if (!res.ok) throw new Error("Post not found");
         const data = await res.json();
         setPost(data);
+        setLoading(false);
       } catch (err) {
         console.error("Failed to fetch post:", err);
+        setLoading(false);
       }
     };
+
     fetchPost();
   }, [postId]);
 
-  const handleLike = (emoji) => {
-    // Replace with your onLike logic
-    console.log("Like:", postId, emoji);
-  };
-
-  const handleComment = () => {
-    if (!commentText.trim()) return;
-    // Replace with your onComment logic
-    console.log("Comment:", postId, commentText);
-    setCommentText("");
-  };
-
-  const handleShare = () => {
-    // Replace with your onShare logic
-    console.log("Share:", postId);
-  };
-
-  if (!post) return <p className="text-center mt-20">Loading...</p>;
-  if (!post.media || post.media.length === 0) return <p>No media found.</p>;
+  if (loading) return <p className="text-center mt-10">Loading post...</p>;
+  if (!post) return <p className="text-center mt-10">Post not found.</p>;
 
   return (
-    <div className="p-4 max-w-4xl mx-auto space-y-4">
-      {/* HEADER */}
-      <div className="flex items-center gap-3">
-        <img
-          src={post.user.profilePic || "/default-avatar.png"}
-          className="w-12 h-12 rounded-full object-cover"
-          alt={post.user.name}
+    <div className="min-h-screen bg-gray-100 p-4">
+      <button
+        className="mb-4 text-blue-500 underline"
+        onClick={() => navigate(-1)}
+      >
+        ← Back
+      </button>
+
+      <div className="max-w-4xl mx-auto space-y-4">
+        <PostCard
+          post={post}
+          setVideoRefs={setVideoRefs}
+          onLike={(postId, reaction) => {
+            console.log("Liked:", postId, reaction);
+            // TODO: call your backend like API
+          }}
+          onComment={(postId, text) => {
+            console.log("Comment:", postId, text);
+            // TODO: call your backend comment API
+          }}
+          onShare={(post) => {
+            console.log("Share post:", post._id);
+            // TODO: implement share logic
+          }}
         />
-        <div className="flex-1">
-          <p className="font-semibold">{post.user.name}</p>
-          <div className="text-xs text-gray-500">
-            {new Date(post.createdAt).toLocaleString()}
-          </div>
-        </div>
       </div>
 
-      {/* MEDIA SCROLLER */}
-      <div className="flex gap-2 overflow-x-scroll snap-x snap-mandatory">
-        {post.media.map((m, i) => (
-          <div
-            key={i}
-            className="snap-start flex-shrink-0 w-full max-w-[600px] rounded-xl overflow-hidden cursor-pointer"
-            onClick={() => setActiveIndex(i)}
-          >
-            {m.type === "image" ? (
-              <img
-                src={m.url}
-                className="w-full h-[70vh] object-contain rounded-xl bg-black"
-                alt=""
-              />
-            ) : (
-              <video
-                ref={(el) => (videoRefs.current[i] = el)}
-                src={m.url}
-                className="w-full h-[70vh] object-contain rounded-xl bg-black"
-                controls
-                muted
-              />
-            )}
-          </div>
-        ))}
-      </div>
-
-      {/* REACTIONS */}
-      <div className="flex items-center gap-2">
-        <div
-          className="relative"
-          onMouseEnter={() => setShowReactions(true)}
-          onMouseLeave={() => setShowReactions(false)}
-        >
-          <button
-            onClick={() => handleLike("👍")}
-            className="text-gray-600"
-          >
-            👍 Like
-          </button>
-          {showReactions && (
-            <div className="absolute bottom-8 left-0 bg-white shadow rounded-full px-2 py-1 flex gap-2 z-10">
-              {reactions.map((r) => (
-                <button
-                  key={r}
-                  className="text-lg hover:scale-125 transition-transform"
-                  onClick={() => handleLike(r)}
-                >
-                  {r}
-                </button>
-              ))}
+      {/* Scrollable Media Preview */}
+      <div className="mt-8">
+        <h2 className="text-lg font-semibold mb-2">All Media</h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+          {post.media.map((m, i) => (
+            <div
+              key={i}
+              className="relative h-48 md:h-56 overflow-hidden rounded-xl cursor-pointer bg-black"
+              onClick={() => navigate(`/media/${post._id}?index=${i}`)}
+            >
+              {m.type === "image" ? (
+                <img
+                  src={m.url}
+                  className="w-full h-full object-cover"
+                  alt=""
+                />
+              ) : (
+                <video
+                  data-src={m.url}
+                  ref={(el) => (videoRefs[i] = el)}
+                  className="w-full h-full object-cover"
+                  muted
+                />
+              )}
             </div>
-          )}
-        </div>
-
-        <button onClick={handleComment}>💬 Comment</button>
-        <button onClick={handleShare}>🔗 Share</button>
-      </div>
-
-      {/* COMMENTS */}
-      <div className="space-y-2">
-        {post.comments?.map((c) => (
-          <div key={c._id} className="flex gap-2 items-start">
-            <img
-              src={c.user.profilePic || "/default-avatar.png"}
-              className="w-6 h-6 rounded-full object-cover"
-              alt={c.user.name}
-            />
-            <div>
-              <span className="font-semibold text-sm">{c.user.name}</span>
-              <p className="text-sm">{c.text}</p>
-            </div>
-          </div>
-        ))}
-
-        <div className="flex gap-2 mt-2">
-          <input
-            value={commentText}
-            onChange={(e) => setCommentText(e.target.value)}
-            className="flex-1 border rounded px-2 py-1"
-            placeholder="Write comment..."
-          />
-          <button
-            onClick={handleComment}
-            className="bg-blue-500 text-white px-3 rounded"
-          >
-            Send
-          </button>
+          ))}
         </div>
       </div>
     </div>
