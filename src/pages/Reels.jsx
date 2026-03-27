@@ -16,7 +16,7 @@ const Reels = () => {
   /** Fetch reels from backend */
   const fetchReels = async () => {
     try {
-      const res = await fetch(`${API_BASE}/reels`);
+      const res = await fetch(`${API_BASE}/api/reels`);
       const data = await res.json();
       setReels(data);
 
