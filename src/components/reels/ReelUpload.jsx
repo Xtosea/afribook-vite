@@ -1,8 +1,9 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { API_BASE } from "../../api/api";
 
 const ReelUpload = () => {
   const fileRef = useRef();
+  const [caption, setCaption] = useState("");
 
   const upload = async (e) => {
     const file = e.target.files[0];
@@ -10,6 +11,7 @@ const ReelUpload = () => {
 
     const form = new FormData();
     form.append("video", file);
+    form.append("caption", caption);
 
     const token = localStorage.getItem("token");
 
@@ -20,13 +22,24 @@ const ReelUpload = () => {
       },
       body: form,
     });
+
+    setCaption("");
   };
 
   return (
-    <>
+    <div className="fixed bottom-24 right-4">
+
+      {/* Caption Input */}
+      <input
+        placeholder="Write caption..."
+        value={caption}
+        onChange={(e) => setCaption(e.target.value)}
+        className="mb-2 p-2 rounded-lg shadow"
+      />
+
       <div
         onClick={() => fileRef.current.click()}
-        className="fixed bottom-24 right-4 bg-white text-black w-14 h-14 rounded-full flex items-center justify-center shadow-xl cursor-pointer hover:scale-105 transition"
+        className="bg-white text-black w-14 h-14 rounded-full flex items-center justify-center shadow-xl cursor-pointer"
       >
         🎬
       </div>
@@ -38,7 +51,8 @@ const ReelUpload = () => {
         className="hidden"
         onChange={upload}
       />
-    </>
+
+    </div>
   );
 };
 
