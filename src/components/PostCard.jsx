@@ -309,4 +309,3 @@ className="w-12 h-12 rounded-full object-cover"
 
 export default PostCard;
 
-Please help to fix, the landscape images are displaying in the center of blank black space in the layout box. Let's arrange them nicely. The first image or video of multiple upload is  supposed to be on top of the rest looking bigger than the ones under it. And let's create a Page for multiple images and videos to open in for easy viewing, scrolling and liking, commenting and sharing individual postm
