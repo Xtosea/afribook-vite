@@ -9,6 +9,12 @@ const Reels = () => {
   const navigate = useNavigate();
   const [likes, setLikes] = useState({});
 
+  /* Comments */
+  const [showComments, setShowComments] = useState(false);
+  const [activePost, setActivePost] = useState(null);
+  const [comments, setComments] = useState([]);
+  const [commentText, setCommentText] = useState("");
+
   useEffect(() => {
     fetchVideos();
   }, []);
@@ -31,9 +37,8 @@ const Reels = () => {
 
       setVideos(vids);
 
-      // initialize likes
       const initialLikes = {};
-      vids.forEach(v => {
+      vids.forEach((v) => {
         initialLikes[v.postId] = v.likes;
       });
 
@@ -44,7 +49,7 @@ const Reels = () => {
     }
   };
 
-  /* Like video */
+  /* Like Video */
   const likeVideo = async (id) => {
     const token = localStorage.getItem("token");
 
@@ -68,7 +73,50 @@ const Reels = () => {
     }
   };
 
-  /* Auto play */
+  /* Fetch Comments */
+  const fetchComments = async (postId) => {
+    try {
+      const res = await fetch(`${API_BASE}/api/posts/${postId}/comments`);
+      const data = await res.json();
+      setComments(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  /* Submit Comment */
+  const submitComment = async () => {
+    const token = localStorage.getItem("token");
+
+    try {
+      await fetch(`${API_BASE}/api/posts/comment/${activePost}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          text: commentText
+        }),
+      });
+
+      setCommentText("");
+      fetchComments(activePost);
+
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  /* Share Reel */
+  const sharePost = (id) => {
+    const link = `${window.location.origin}/post/${id}`;
+
+    navigator.clipboard.writeText(link);
+    alert("Link copied!");
+  };
+
+  /* Auto Play */
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -92,7 +140,10 @@ const Reels = () => {
   }, [videos]);
 
   return (
-    <div className="h-screen overflow-y-scroll snap-y snap-mandatory bg-black">
+    <div className="h-screen overflow-y-scroll snap-y snap-mandatory bg-black scroll-smooth">
+
+      {/* Upload Reel */}
+      <ReelUpload />
 
       {videos.map((video, i) => (
         <div key={i} className="h-screen snap-start relative">
@@ -106,9 +157,7 @@ const Reels = () => {
             playsInline
           />
 
-          <ReelUpload />
-
-          {/* Double tap to like */}
+          {/* Double Tap Area */}
           <div
             className="absolute inset-0"
             onDoubleClick={() => likeVideo(video.postId)}
@@ -116,34 +165,58 @@ const Reels = () => {
 
             {/* User */}
             <div className="absolute bottom-20 left-4 text-white">
+
               <div
                 className="flex items-center gap-2 cursor-pointer"
                 onClick={() => navigate(`/profile/${video.user._id}`)}
               >
+
                 <img
-                  src={video.user.profilePic}
+                  src={video.user?.profilePic}
                   className="w-10 h-10 rounded-full"
                 />
 
-                <span>{video.user.name}</span>
+                <span>
+                  {video.user?.name}
+                </span>
+
               </div>
+
             </div>
 
             {/* Actions */}
-            <div className="absolute right-4 bottom-20 text-white flex flex-col gap-4">
+            <div className="absolute right-4 bottom-20 text-white flex flex-col gap-5">
 
+              {/* Like */}
               <button
                 onClick={() => likeVideo(video.postId)}
-                className="text-2xl"
+                className="text-3xl"
               >
                 ❤️
-                <div className="text-sm">
+                <div className="text-sm text-center">
                   {likes[video.postId] || 0}
                 </div>
               </button>
 
-              <button className="text-2xl">💬</button>
-              <button className="text-2xl">🔗</button>
+              {/* Comment */}
+              <button
+                className="text-3xl"
+                onClick={() => {
+                  setActivePost(video.postId);
+                  setShowComments(true);
+                  fetchComments(video.postId);
+                }}
+              >
+                💬
+              </button>
+
+              {/* Share */}
+              <button
+                className="text-3xl"
+                onClick={() => sharePost(video.postId)}
+              >
+                🔗
+              </button>
 
             </div>
 
@@ -151,6 +224,72 @@ const Reels = () => {
 
         </div>
       ))}
+
+      {/* Comments Panel */}
+      {showComments && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-end">
+
+          <div className="bg-white w-full h-[70%] rounded-t-2xl p-4 overflow-y-auto">
+
+            <div className="flex justify-between mb-4">
+              <h2 className="font-bold text-lg">
+                Comments
+              </h2>
+
+              <button
+                onClick={() => setShowComments(false)}
+              >
+                ✖
+              </button>
+            </div>
+
+            {/* Comments */}
+            {comments.map((c) => (
+              <div key={c._id} className="flex gap-2 mb-3">
+
+                <img
+                  src={c.user?.profilePic}
+                  className="w-8 h-8 rounded-full"
+                />
+
+                <div>
+
+                  <div className="font-semibold text-sm">
+                    {c.user?.name}
+                  </div>
+
+                  <div className="text-sm">
+                    {c.text}
+                  </div>
+
+                </div>
+
+              </div>
+            ))}
+
+            {/* Comment Input */}
+            <div className="flex gap-2 mt-4">
+
+              <input
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                placeholder="Write comment..."
+                className="border flex-1 p-2 rounded-full"
+              />
+
+              <button
+                onClick={submitComment}
+                className="bg-blue-600 text-white px-4 rounded-full"
+              >
+                Send
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+      )}
 
     </div>
   );
