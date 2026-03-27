@@ -176,13 +176,15 @@ const Reels = () => {
                   className="w-10 h-10 rounded-full"
                 />
 
-                <span>
-                  {video.user?.name}
-                </span>
+                <div>
+  <div className="font-semibold">
+    {video.user?.name}
+  </div>
 
-              </div>
-
-            </div>
+  <div className="text-sm mt-1 max-w-xs">
+    {video.content}
+  </div>
+</div>
 
             {/* Actions */}
             <div className="absolute right-4 bottom-20 text-white flex flex-col gap-5">
