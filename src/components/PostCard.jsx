@@ -37,7 +37,7 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, setVideoRef
         <video
           data-src={m.url}
           ref={(el) => (videoRefs.current[0] = el)}
-          className="w-full rounded-xl object-cover cursor-pointer max-h-[90vh] aspect-[9/16]"
+          className="w-full rounded-xl object-cover cursor-pointer aspect-[9/16] max-h-[85vh] bg-black"
           controls
           muted
           onClick={() => setModalIndex(0)}
@@ -56,11 +56,11 @@ return (
       ${post.media.length === 3 ? "grid-cols-2" : ""}
       ${post.media.length >= 4 ? "grid-cols-2 md:grid-cols-3" : ""}
     `}
-  >>
+  >
         {post.media.map((m, i) => (
           <div
             key={i}
-            className="relative w-full overflow-hidden rounded-xl cursor-pointer"
+            className="relative w-full h-[220px] md:h-[260px] overflow-hidden rounded-xl cursor-pointer"
             onClick={() => setModalIndex(i)}
           >
             {m.type === "image" ? (
