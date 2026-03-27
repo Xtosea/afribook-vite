@@ -15,7 +15,7 @@ return (
           <a href="/privacy" className="hover:underline">
             Privacy Policy
           </a>
-</div>
+</div
 </div>
     </footer>
 );
