@@ -14,26 +14,30 @@ export const useStoryUpload = () => {
 
     try {
       const formData = new FormData();
-      files.forEach((file) => formData.append("video", file)); // match backend field
+      files.forEach((file) => formData.append("video", file));
 
       const token = localStorage.getItem("token");
-
       const res = await fetch(`${API_BASE}/api/stories/upload-video`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
 
-      const data = await res.json();
+      const text = await res.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        console.error("Story upload returned non-JSON:", text);
+        data = null;
+      }
 
-      if (!res.ok) throw new Error(data.error || "Upload failed");
+      if (!res.ok || !data?._id) throw new Error(data?.error || "Upload failed");
 
       setLoading(false);
-      return data; // returns the story object
+      return data;
     } catch (err) {
-      console.error("Story Upload Error:", err);
+      console.error("Story upload error:", err);
       setError(err);
       setLoading(false);
       return null;
