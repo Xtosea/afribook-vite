@@ -11,16 +11,16 @@ const Reels = () => {
   const fileRef = useRef();
   const [caption, setCaption] = useState("");
   const navigate = useNavigate();
+  const socket = connectSocket(); // ✅ Connect once here
 
-  const socket = connectSocket(); // initialize socket
-
-  // Fetch reels from API
+  /** Fetch reels from backend */
   const fetchReels = async () => {
     try {
       const res = await fetch(`${API_BASE}/reels`);
       const data = await res.json();
       setReels(data);
 
+      // Initialize likes & shares state
       const initialLikes = {};
       const initialShares = {};
       data.forEach((r) => {
@@ -34,41 +34,48 @@ const Reels = () => {
     }
   };
 
+  /** Socket event listeners */
   useEffect(() => {
     fetchReels();
+
     if (!socket) return;
 
-    socket.on("new-reel", (reel) => {
+    const handleNewReel = (reel) => {
       setReels((prev) => [reel, ...prev]);
       setLikes((prev) => ({ ...prev, [reel._id]: reel.likes?.length || 0 }));
       setShares((prev) => ({ ...prev, [reel._id]: reel.shares || 0 }));
-    });
+    };
 
-    socket.on("reel-like", ({ reelId, likesCount }) => {
+    const handleReelLike = ({ reelId, likesCount }) => {
       setLikes((prev) => ({ ...prev, [reelId]: likesCount }));
-    });
+    };
 
-    socket.on("reel-share", ({ reelId, shares }) => {
+    const handleReelShare = ({ reelId, shares }) => {
       setShares((prev) => ({ ...prev, [reelId]: shares }));
-    });
+    };
 
-    socket.on("reel-comment", ({ reelId, comment }) => {
+    const handleReelComment = ({ reelId, comment }) => {
       setReels((prev) =>
         prev.map((r) =>
           r._id === reelId ? { ...r, comments: [...(r.comments || []), comment] } : r
         )
       );
-    });
+    };
+
+    socket.on("new-reel", handleNewReel);
+    socket.on("reel-like", handleReelLike);
+    socket.on("reel-share", handleReelShare);
+    socket.on("reel-comment", handleReelComment);
 
     return () => {
-      socket.off("new-reel");
-      socket.off("reel-like");
-      socket.off("reel-share");
-      socket.off("reel-comment");
+      socket.off("new-reel", handleNewReel);
+      socket.off("reel-like", handleReelLike);
+      socket.off("reel-share", handleReelShare);
+      socket.off("reel-comment", handleReelComment);
     };
   }, [socket]);
 
-  // Auto-play videos
+  /** Auto-play videos when visible */
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -81,12 +88,11 @@ const Reels = () => {
     );
 
     videoRefs.current.forEach((video) => video && observer.observe(video));
-    return () => {
+    return () =>
       videoRefs.current.forEach((video) => video && observer.unobserve(video));
-    };
   }, [reels]);
 
-  // Record view
+  /** Record view */
   const recordView = async (id) => {
     try {
       await fetch(`${API_BASE}/reels/view/${id}`, { method: "POST" });
@@ -95,7 +101,7 @@ const Reels = () => {
     }
   };
 
-  // Like reel
+  /** Like */
   const likeReel = async (id) => {
     try {
       const token = localStorage.getItem("token");
@@ -110,7 +116,7 @@ const Reels = () => {
     }
   };
 
-  // Share reel
+  /** Share */
   const shareReel = async (id) => {
     try {
       const token = localStorage.getItem("token");
@@ -126,7 +132,7 @@ const Reels = () => {
     }
   };
 
-  // Upload reel
+  /** Upload */
   const uploadReel = async (e) => {
     e.preventDefault();
     const file = fileRef.current.files[0];
@@ -138,12 +144,11 @@ const Reels = () => {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${API_BASE}/reels/upload`, {
+      await fetch(`${API_BASE}/reels/upload`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
-      await res.json();
       setCaption("");
       fileRef.current.value = null;
     } catch (err) {
@@ -191,11 +196,7 @@ const Reels = () => {
               className="flex items-center gap-2 text-white cursor-pointer"
               onClick={() => navigate(`/profile/${reel.user._id}`)}
             >
-              <img
-                src={reel.user.profilePic}
-                alt={reel.user.name}
-                className="w-10 h-10 rounded-full"
-              />
+              <img src={reel.user.profilePic} className="w-10 h-10 rounded-full" />
               <span>{reel.user.name}</span>
             </div>
 
@@ -207,9 +208,7 @@ const Reels = () => {
               <button onClick={() => shareReel(reel._id)} className="text-2xl">
                 🔗 {shares[reel._id] || 0}
               </button>
-              <div className="bg-black/50 rounded p-2 max-w-xs text-sm">
-                {reel.content}
-              </div>
+              <div className="bg-black/50 rounded p-2 max-w-xs text-sm">{reel.content}</div>
             </div>
           </div>
         </div>
