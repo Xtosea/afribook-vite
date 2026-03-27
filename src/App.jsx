@@ -13,7 +13,7 @@ import VerifyEmail from "./pages/VerifyEmail";
 import VerifySuccess from "./pages/VerifySuccess";
 import VerifyFailed from "./pages/VerifyFailed";
 import CreatePost from "./pages/CreatePost";
-//import Reels from "./pages/Reels";
+import Reels from "./pages/Reels";
 import Messages from "./pages/Messages";
 import Notifications from "./pages/Notifications";
 import Chat from "./pages/Chat"
@@ -78,6 +78,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <CreatePost />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/reels"
+            element={
+              <ProtectedRoute>
+                <Reels />
               </ProtectedRoute>
             }
           />
