@@ -1,4 +1,3 @@
-// src/components/layout/StoriesBar.jsx
 import React, { useRef, useState, useEffect } from "react";
 import { API_BASE } from "../../api/api";
 import { getSocket } from "../../socket";
@@ -13,31 +12,41 @@ const StoriesBar = ({ user, stories = [] }) => {
   const [heartAnim, setHeartAnim] = useState({});
 
   // Open file picker
-  const handleAddStory = () => fileRef.current.click();
+  const handleAddStory = () => {
+    if (uploading) return; // prevent clicking while uploading
+    fileRef.current.click();
+  };
 
   // Upload story to backend
   const handleUpload = async (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files?.[0];
     if (!file) return;
 
     setUploading(true);
     try {
       const token = localStorage.getItem("token");
       const formData = new FormData();
-      formData.append("video", file); // match backend field
+      formData.append("video", file); // must match backend
 
       const res = await fetch(`${API_BASE}/api/stories/upload-video`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` }, // remove Content-Type
+        headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
 
-      const data = await res.json();
+      const text = await res.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        console.error("Story upload returned non-JSON:", text);
+        data = null;
+      }
 
       if (res.ok && data?._id) {
         socket?.emit("new-story", data);
       } else {
-        console.error("Upload failed", data);
+        console.error("Upload failed:", data);
       }
     } catch (err) {
       console.error("Story upload failed:", err);
@@ -50,6 +59,7 @@ const StoriesBar = ({ user, stories = [] }) => {
   const handleLikeStory = async (story) => {
     if (!story?._id) return;
 
+    // Heart animation
     setHeartAnim((prev) => ({ ...prev, [story._id]: true }));
     setTimeout(() => setHeartAnim((prev) => ({ ...prev, [story._id]: false })), 800);
 
@@ -59,10 +69,19 @@ const StoriesBar = ({ user, stories = [] }) => {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
       });
-      const data = await res.json();
+
+      const text = await res.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        console.error("Story like returned non-JSON:", text);
+        data = null;
+      }
+
       if (res.ok) {
-        setStoriesLikes((prev) => ({ ...prev, [story._id]: data.likes }));
-        socket?.emit("story-liked", { storyId: story._id, likes: data.likes });
+        setStoriesLikes((prev) => ({ ...prev, [story._id]: data?.likes ?? story.likes ?? 0 }));
+        socket?.emit("story-liked", { storyId: story._id, likes: data?.likes ?? 0 });
       }
     } catch (err) {
       console.error("Like failed:", err);
@@ -107,11 +126,7 @@ const StoriesBar = ({ user, stories = [] }) => {
 
         {/* OTHERS STORIES */}
         {stories.slice(0, 10).map((story) => {
-          const storyUser =
-            story.user && typeof story.user === "object" && !story.user.$$typeof
-              ? story.user
-              : {};
-
+          const storyUser = story.user || {};
           return (
             <div
               key={story._id}
@@ -123,9 +138,7 @@ const StoriesBar = ({ user, stories = [] }) => {
                   src={storyUser.profilePic || `${API_BASE}/uploads/profiles/default-profile.png`}
                   className="w-10 h-10 rounded-full mb-1 border-2 border-white"
                 />
-                <span className="text-xs text-center px-1">
-                  {storyUser.name || "Unknown"}
-                </span>
+                <span className="text-xs text-center px-1">{storyUser.name || "Unknown"}</span>
                 <span className="text-[10px] mt-1 text-gray-700">
                   ❤️ {storiesLikes[story._id] ?? story.likes ?? 0}
                 </span>
