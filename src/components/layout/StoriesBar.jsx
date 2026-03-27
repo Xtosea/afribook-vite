@@ -1,7 +1,7 @@
 // src/components/layout/StoriesBar.jsx
 import React, { useRef, useState, useEffect } from "react";
 import { getSocket } from "../../socket";
-import { useStoryUpload } from "../../hooks/useStoryUpload";
+import { useStoryUpload } from "../../hooks/useStories";
 
 const StoriesBar = ({ user, stories = [] }) => {
   const safeUser = user || {};
