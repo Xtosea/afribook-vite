@@ -40,7 +40,7 @@ const PostCard = ({
       return m.type === "image" ? (
         <img
           src={m.url}
-          className="w-full rounded-xl object-cover cursor-pointer max-h-[600px]"
+          className="w-full max-h-[90vh] object-contain cursor-pointer rounded-xl"
           onClick={() =>
             navigate(`/media/${post._id}?index=0`)
           }
@@ -50,7 +50,7 @@ const PostCard = ({
         <video
           data-src={m.url}
           ref={(el) => (videoRefs.current[0] = el)}
-          className="w-full rounded-xl object-cover cursor-pointer max-h-[650px]"
+          className="w-full max-h-[90vh] object-contain cursor-pointer rounded-xl"
           muted
           controls
           onClick={() =>
@@ -108,9 +108,7 @@ const PostCard = ({
                   className="relative h-[200px] md:h-[240px] overflow-hidden rounded-xl cursor-pointer"
                   onClick={() =>
                     navigate(
-                      `/media/${post._id}?index=${
-                        i + 1
-                      }`
+                      `/media/${post._id}?index=${i + 1}`
                     )
                   }
                 >
@@ -124,9 +122,7 @@ const PostCard = ({
                     <video
                       data-src={m.url}
                       ref={(el) =>
-                        (videoRefs.current[
-                          i + 1
-                        ] = el)
+                        (videoRefs.current[i + 1] = el)
                       }
                       className="w-full h-full object-cover"
                       muted
@@ -142,7 +138,7 @@ const PostCard = ({
 
   return (
     <div className="bg-white p-4 rounded-xl shadow space-y-3 w-full">
-      
+
       {/* HEADER */}
       <div className="flex items-center gap-3">
         <img
@@ -179,8 +175,7 @@ const PostCard = ({
             )}
           </div>
 
-          {post.taggedFriends?.length >
-            0 && (
+          {post.taggedFriends?.length > 0 && (
             <div className="text-xs text-blue-500">
               with{" "}
               {post.taggedFriends
@@ -204,8 +199,7 @@ const PostCard = ({
         <span>
           {post.reactions?.length ||
             post.likes?.length ||
-            0}{" "}
-          reactions
+            0} reactions
         </span>
 
         <span>
@@ -252,9 +246,7 @@ const PostCard = ({
 
         <button
           onClick={() =>
-            setShowComments(
-              !showComments
-            )
+            setShowComments(!showComments)
           }
         >
           💬 Comment
@@ -311,9 +303,7 @@ const PostCard = ({
 
             <button
               onClick={() => {
-                if (
-                  commentText.trim()
-                ) {
+                if (commentText.trim()) {
                   onComment(
                     post._id,
                     commentText
