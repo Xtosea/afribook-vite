@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { API_BASE } from "../api/api";
 import { useNavigate } from "react-router-dom";
-import { socket } from "../socket";
+import { connectSocket } from "../socket";
 
 const Reels = () => {
   const [reels, setReels] = useState([]);
