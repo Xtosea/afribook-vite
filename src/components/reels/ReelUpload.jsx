@@ -23,11 +23,13 @@ const ReelUpload = () => {
   };
 
   return (
-    <div
-      onClick={() => fileRef.current.click()}
-      className="fixed bottom-24 right-4 bg-white p-3 rounded-full shadow-lg cursor-pointer"
-    >
-      🎬
+    <>
+      <div
+        onClick={() => fileRef.current.click()}
+        className="fixed bottom-24 right-4 bg-white text-black w-14 h-14 rounded-full flex items-center justify-center shadow-xl cursor-pointer hover:scale-105 transition"
+      >
+        🎬
+      </div>
 
       <input
         ref={fileRef}
@@ -36,7 +38,7 @@ const ReelUpload = () => {
         className="hidden"
         onChange={upload}
       />
-    </div>
+    </>
   );
 };
 
