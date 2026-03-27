@@ -48,7 +48,8 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, setVideoRef
 
     // Multiple media: grid layout
     return (
-      // Multiple media: professional uniform layout
+
+ layout
 return (
   <div
     className={`
