@@ -23,10 +23,10 @@ const Reels = () => {
       const res = await fetch(`${API_BASE}/api/posts`);
       const data = await res.json();
 
-      // Filter out any blank or invalid video URLs
+      // Only real videos (non-empty URLs)
       const vids = data.flatMap((post) =>
         post.media
-          ?.filter((m) => m.type === "video" && m.url) // Only real videos
+          ?.filter((m) => m.type === "video" && m.url && m.url.trim() !== "")
           .map((m) => ({
             ...m,
             postId: post._id,
@@ -140,65 +140,68 @@ const Reels = () => {
       </div>
 
       {videos.map((video, i) => (
-        <div key={i} className="h-screen snap-start relative">
-          <video
-            ref={(el) => (videoRefs.current[i] = el)}
-            src={video.url}
-            className="h-full w-full object-cover"
-            loop
-            muted
-            playsInline
-          />
+        // Only render if URL exists
+        video.url && video.url.trim() !== "" && (
+          <div key={i} className="h-screen snap-start relative">
+            <video
+              ref={(el) => (videoRefs.current[i] = el)}
+              src={video.url}
+              className="h-full w-full object-cover"
+              loop
+              muted
+              playsInline
+            />
 
-          {/* Double Tap Area */}
-          <div
-            className="absolute inset-0"
-            onDoubleClick={() => likeVideo(video.postId)}
-          >
-            {/* User */}
-            <div className="absolute bottom-20 left-4 text-white">
-              <div
-                className="flex items-center gap-2 cursor-pointer"
-                onClick={() => navigate(`/profile/${video.user._id}`)}
-              >
-                <img
-                  src={video.user?.profilePic}
-                  className="w-10 h-10 rounded-full"
-                />
-                <span>{video.user?.name}</span>
+            {/* Double Tap Area */}
+            <div
+              className="absolute inset-0"
+              onDoubleClick={() => likeVideo(video.postId)}
+            >
+              {/* User */}
+              <div className="absolute bottom-20 left-4 text-white">
+                <div
+                  className="flex items-center gap-2 cursor-pointer"
+                  onClick={() => navigate(`/profile/${video.user._id}`)}
+                >
+                  <img
+                    src={video.user?.profilePic}
+                    className="w-10 h-10 rounded-full"
+                  />
+                  <span>{video.user?.name}</span>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="absolute right-4 bottom-20 text-white flex flex-col gap-5">
+                <button
+                  onClick={() => likeVideo(video.postId)}
+                  className="text-3xl"
+                >
+                  ❤️
+                  <div className="text-sm text-center">
+                    {likes[video.postId] || 0}
+                  </div>
+                </button>
+                <button
+                  className="text-3xl"
+                  onClick={() => {
+                    setActivePost(video.postId);
+                    setShowComments(true);
+                    fetchComments(video.postId);
+                  }}
+                >
+                  💬
+                </button>
+                <button
+                  className="text-3xl"
+                  onClick={() => sharePost(video.postId)}
+                >
+                  🔗
+                </button>
               </div>
             </div>
-
-            {/* Actions */}
-            <div className="absolute right-4 bottom-20 text-white flex flex-col gap-5">
-              <button
-                onClick={() => likeVideo(video.postId)}
-                className="text-3xl"
-              >
-                ❤️
-                <div className="text-sm text-center">
-                  {likes[video.postId] || 0}
-                </div>
-              </button>
-              <button
-                className="text-3xl"
-                onClick={() => {
-                  setActivePost(video.postId);
-                  setShowComments(true);
-                  fetchComments(video.postId);
-                }}
-              >
-                💬
-              </button>
-              <button
-                className="text-3xl"
-                onClick={() => sharePost(video.postId)}
-              >
-                🔗
-              </button>
-            </div>
           </div>
-        </div>
+        )
       ))}
 
       {/* Comments Panel */}
