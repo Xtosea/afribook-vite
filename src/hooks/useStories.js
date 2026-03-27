@@ -13,10 +13,10 @@ export const useStoryUpload = () => {
     setError(null);
 
     try {
+      const token = localStorage.getItem("token");
       const formData = new FormData();
       files.forEach((file) => formData.append("video", file));
 
-      const token = localStorage.getItem("token");
       const res = await fetch(`${API_BASE}/api/stories/upload-video`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
@@ -35,7 +35,7 @@ export const useStoryUpload = () => {
       if (!res.ok || !data?._id) throw new Error(data?.error || "Upload failed");
 
       setLoading(false);
-      return data;
+      return data; // story object
     } catch (err) {
       console.error("Story upload error:", err);
       setError(err);
