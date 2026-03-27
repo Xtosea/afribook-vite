@@ -1,4 +1,3 @@
-// src/pages/Reels.jsx
 import React, { useEffect, useRef, useState } from "react";
 import { API_BASE } from "../api/api";
 import { useNavigate } from "react-router-dom";
@@ -12,6 +11,9 @@ const Reels = () => {
   const fileRef = useRef();
   const [caption, setCaption] = useState("");
   const navigate = useNavigate();
+
+  // Initialize socket safely
+  const socket = connectSocket();
 
   /* Fetch reels */
   const fetchReels = async () => {
@@ -36,7 +38,8 @@ const Reels = () => {
   useEffect(() => {
     fetchReels();
 
-    /* Socket listeners */
+    if (!socket) return;
+
     socket.on("new-reel", (reel) => {
       setReels((prev) => [reel, ...prev]);
       setLikes((prev) => ({ ...prev, [reel._id]: reel.likes?.length || 0 }));
@@ -59,8 +62,13 @@ const Reels = () => {
       );
     });
 
-    return () => socket.off("new-reel");
-  }, []);
+    return () => {
+      socket.off("new-reel");
+      socket.off("reel-like");
+      socket.off("reel-share");
+      socket.off("reel-comment");
+    };
+  }, [socket]);
 
   /* Auto-play */
   useEffect(() => {
@@ -75,8 +83,9 @@ const Reels = () => {
     );
 
     videoRefs.current.forEach((video) => video && observer.observe(video));
-    return () =>
+    return () => {
       videoRefs.current.forEach((video) => video && observer.unobserve(video));
+    };
   }, [reels]);
 
   /* Record view */
@@ -146,7 +155,6 @@ const Reels = () => {
 
   return (
     <div className="h-screen overflow-y-scroll snap-y snap-mandatory bg-black relative">
-
       {/* Top bar */}
       <div className="fixed top-0 left-0 right-0 bg-black text-white p-3 z-50 flex justify-between items-center">
         <h1 className="font-bold text-lg">Reels</h1>
@@ -165,7 +173,6 @@ const Reels = () => {
       {/* Reels list */}
       {reels.map((reel, i) => (
         <div key={reel._id} className="h-screen snap-start relative">
-
           <video
             ref={(el) => (videoRefs.current[i] = el)}
             src={reel.media[0]?.url}
@@ -179,17 +186,25 @@ const Reels = () => {
           {/* Overlay actions */}
           <div className="absolute inset-0 flex flex-col justify-between p-4">
             {/* User info */}
-            <div className="flex items-center gap-2 text-white cursor-pointer"
-                 onClick={() => navigate(`/profile/${reel.user._id}`)}>
-              <img src={reel.user.profilePic} className="w-10 h-10 rounded-full" />
+            <div
+              className="flex items-center gap-2 text-white cursor-pointer"
+              onClick={() => navigate(`/profile/${reel.user._id}`)}
+            >
+              <img src={reel.user.profilePic} alt={reel.user.name} className="w-10 h-10 rounded-full" />
               <span>{reel.user.name}</span>
             </div>
 
             {/* Bottom actions */}
             <div className="flex flex-col items-end gap-4 text-white">
-              <button onClick={() => likeReel(reel._id)} className="text-2xl">❤️ {likes[reel._id] || 0}</button>
-              <button onClick={() => shareReel(reel._id)} className="text-2xl">🔗 {shares[reel._id] || 0}</button>
-              <div className="bg-black/50 rounded p-2 max-w-xs text-sm">{reel.content}</div>
+              <button onClick={() => likeReel(reel._id)} className="text-2xl">
+                ❤️ {likes[reel._id] || 0}
+              </button>
+              <button onClick={() => shareReel(reel._id)} className="text-2xl">
+                🔗 {shares[reel._id] || 0}
+              </button>
+              <div className="bg-black/50 rounded p-2 max-w-xs text-sm">
+                {reel.content}
+              </div>
             </div>
           </div>
         </div>
