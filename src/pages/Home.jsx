@@ -43,7 +43,6 @@ const useLazyVideo = (videos) => {
     );
 
     videos.forEach((v) => observer.observe(v));
-
     return () => observer.disconnect();
   }, [videos]);
 };
@@ -72,12 +71,11 @@ const Home = () => {
   const [expanded, setExpanded] = useState(false);
   const [showEmoji, setShowEmoji] = useState(false);
 
-  // ======= New fields for post =======
   const [location, setLocation] = useState("");
   const [feeling, setFeeling] = useState("");
   const [taggedFriends, setTaggedFriends] = useState([]);
-
   const [stories, setStories] = useState([]);
+
   const feedRef = useRef();
   const { uploadImage } = useCloudinaryUpload();
   const { uploadVideo } = useR2Upload();
@@ -90,22 +88,34 @@ const Home = () => {
 
     const init = async () => {
       try {
+        // Fetch posts
         const postData = await fetchWithToken(`${API_BASE}/api/posts?limit=20`, token);
-        setPosts(postData);
+        setPosts(postData.posts || postData); // ensure array
 
+        // Fetch reels/videos separately
+        const reelsRes = await fetch(`${API_BASE}/api/reels`);
+        const reelsData = await reelsRes.json();
+        if (Array.isArray(reelsData)) {
+          setPosts((prev) => [...reelsData, ...prev]); // prepend reels
+        }
+
+        // Fetch stories
         const storyRes = await fetch(`${API_BASE}/api/stories?limit=20`);
         const storyData = await storyRes.json();
         setStories(storyData.stories || []);
       } catch (err) {
-        console.error(err);
+        console.error("Fetch error:", err);
       } finally {
         setLoadingPosts(false);
       }
 
+      // Socket
       connectSocket();
       const socket = getSocket();
       if (!socket) return;
-      socket.on("new-video", (post) => setPosts((prev) => [post, ...prev]));
+
+      // Match backend event names
+      socket.on("new-reel", (post) => setPosts((prev) => [post, ...prev]));
       socket.on("new-story", (story) => setStories((prev) => [story, ...prev]));
     };
 
@@ -114,7 +124,7 @@ const Home = () => {
     return () => {
       const socket = getSocket();
       if (socket) {
-        socket.off("new-video");
+        socket.off("new-reel");
         socket.off("new-story");
       }
     };
@@ -122,64 +132,64 @@ const Home = () => {
 
   /* ================= CREATE POST ================= */
   const handleSubmitPost = async (e) => {
-  e.preventDefault();
-  if (!newPost && mediaFiles.length === 0) return;
-  setPosting(true);
+    e.preventDefault();
+    if (!newPost && mediaFiles.length === 0) return;
+    setPosting(true);
 
-  try {
-    const uploadedMedia = [];
+    try {
+      const uploadedMedia = [];
 
-    for (let file of mediaFiles) {
-      let compressedFile = file;
-      let type = file.type.startsWith("image") ? "image" : "video";
+      for (let file of mediaFiles) {
+        let compressedFile = file;
+        let type = file.type.startsWith("image") ? "image" : "video";
 
-      if (type === "image") {
-        const options = {
-          maxSizeMB: 0.6,
-          maxWidthOrHeight: 1080,
-          useWebWorker: true,
-          fileType: "image/webp",
-          initialQuality: 0.8,
-        };
-        compressedFile = await imageCompression(file, options);
+        if (type === "image") {
+          const options = {
+            maxSizeMB: 0.6,
+            maxWidthOrHeight: 1080,
+            useWebWorker: true,
+            fileType: "image/webp",
+            initialQuality: 0.8,
+          };
+          compressedFile = await imageCompression(file, options);
+        }
+
+        const url = type === "image" ? await uploadImage(compressedFile) : await uploadVideo(compressedFile);
+        uploadedMedia.push({ url, type });
       }
 
-      const url = type === "image" ? await uploadImage(compressedFile) : await uploadVideo(compressedFile);
-      uploadedMedia.push({ url, type });
+      const res = await fetch(`${API_BASE}/api/posts`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          content: newPost,
+          media: uploadedMedia,
+          location,
+          feeling,
+          taggedFriends,
+        }),
+      });
+
+      const data = await res.json();
+
+      // Emit new post to socket
+      getSocket()?.emit("new-reel", data.post);
+
+      setPosts((prev) => [data.post, ...prev]);
+
+      // Reset form
+      setNewPost("");
+      setMediaFiles([]);
+      setLocation("");
+      setFeeling("");
+      setTaggedFriends([]);
+      setExpanded(false);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setPosting(false);
     }
-
-    const res = await fetch(`${API_BASE}/api/posts`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        content: newPost,
-        media: uploadedMedia,
-        location,
-        feeling,
-        taggedFriends,
-      }),
-    });
-
-    const data = await res.json();
-
-    // Emit new post to socket
-    getSocket()?.emit("new-video", data.post);
-
-    setPosts((prev) => [data.post, ...prev]);
-
-    // Reset form
-    setNewPost("");
-    setMediaFiles([]);
-    setLocation("");
-    setFeeling("");
-    setTaggedFriends([]);
-    setExpanded(false);
-  } catch (err) {
-    console.error(err);
-  } finally {
-    setPosting(false);
-  }
-};
+  };
 
   return (
     <div className="max-w-[1600px] mx-auto px-2 md:px-6 py-6 grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -203,23 +213,18 @@ const Home = () => {
 
           {expanded && (
             <>
-              {/* FEELING */}
               <input
                 value={feeling}
                 onChange={(e) => setFeeling(e.target.value)}
                 placeholder="Feeling..."
                 className="w-full border rounded-lg p-2"
               />
-
-              {/* LOCATION */}
               <input
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 placeholder="Location..."
                 className="w-full border rounded-lg p-2"
               />
-
-              {/* TAG FRIENDS */}
               <input
                 value={taggedFriends.map(f => f.name).join(", ")}
                 onChange={(e) =>
@@ -228,8 +233,6 @@ const Home = () => {
                 placeholder="Tag friends (comma separated)"
                 className="w-full border rounded-lg p-2"
               />
-
-              {/* EMOJI */}
               <button
                 type="button"
                 onClick={() => setShowEmoji(!showEmoji)}
@@ -242,9 +245,7 @@ const Home = () => {
                   <EmojiPicker onEmojiClick={(e) => setNewPost((prev) => prev + e.emoji)} />
                 </Suspense>
               )}
-
               <MediaUpload mediaFiles={mediaFiles} setMediaFiles={setMediaFiles} />
-
               <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
                 {posting ? "Posting..." : "Post"}
               </button>
