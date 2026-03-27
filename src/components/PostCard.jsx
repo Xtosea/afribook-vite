@@ -36,7 +36,7 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, setVideoRef
       ) : (
         <video
           data-src={m.url}
-          ref={(el) = (videoRefs.current[0] = el)}
+          ref={(el) => (videoRefs.current[0] = el)}
           className="w-full rounded-xl object-cover cursor-pointer aspect-[9/16] max-h-[85vh] bg-black"
 
           controls
