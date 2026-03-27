@@ -21,6 +21,7 @@ import WelcomeOnboarding from "./pages/WelcomeOnboarding";
 import AddFriends from "./pages/AddFriends";
 import SyncContacts from "./pages/SyncContacts";
 import EditProfile from "./pages/EditProfile";
+import MediaViewer from "./pages/MediaViewer";
 
 
 
@@ -39,6 +40,8 @@ function App() {
           <Route path="/verify-success" element={<VerifySuccess />} />
           <Route path="/verify-failed" element={<VerifyFailed />} />
           <Route path="/welcome" element={<WelcomeOnboarding />} />
+
+<Route path="/media/:postId" element={<MediaViewer />} />
   
           <Route path="/add-friends" element={<AddFriends />} />
          <Route path="/sync-contacts" element={<SyncContacts />} />
