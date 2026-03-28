@@ -4,7 +4,7 @@
 const MAIN_API = import.meta.env.VITE_API_BASE;
 
 // Backup backend URL (optional)
-const BACKUP_API = import.meta.env.VITE_BACKUP_API_BASE || MAIN_API;
+export const API_BASE = "https://africbook-backend.onrender.com";
 
 // Export API_BASE dynamically
 export const API_BASE = MAIN_API || BACKUP_API;
