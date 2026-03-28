@@ -19,15 +19,16 @@ export const useStoryUpload = () => {
       const token = localStorage.getItem("token");
 
       const res = await fetch(`${API_BASE}/api/stories/upload-video`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          videoUrl,
-        }),
-      });
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  },
+  body: JSON.stringify({
+    url: videoUrl,
+    type: file.type.startsWith("image") ? "image" : "video"
+  }),
+});
 
       if (!res.ok) {
         throw new Error("Story upload failed");
