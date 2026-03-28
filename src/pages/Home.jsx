@@ -179,7 +179,7 @@ const Home = () => {
       <div className="hidden md:block"><SidebarLeft /></div>
 
       {/* MAIN FEED */}
-      <div className="md:col-span-2 space-y-4 w-full" mx-auto">
+      <div className="md:col-span-2 space-y-4 w-full mx-auto">
 
         <StoriesBar user={currentUser} stories={stories} />
 
