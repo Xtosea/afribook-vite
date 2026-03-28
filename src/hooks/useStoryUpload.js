@@ -1,8 +1,43 @@
-Failed to load resource: the server responded with a status of 404 ()
-index-BoPKeTkU.js:13 R2 Upload Error: Error: Failed to get R2 signed URL
-    at uploadVideo (index-BoPKeTkU.js:13:3969)
-    at async uploadStory (index-BoPKeTkU.js:13:4298)
-    at async m (index-BoPKeTkU.js:13:5027)
-index-BoPKeTkU.js:13 Story upload error: Error: Upload failed
-    at uploadStory (index-BoPKeTkU.js:13:4321)
-    at async m (index-BoPKeTkU.js:13
+const uploadStory = async (file) => {
+  try {
+    setUploading(true);
+
+    console.log("Uploading file:", file);
+
+    const mediaUrl = await uploadVideo(file);
+
+    console.log("R2 URL:", mediaUrl);
+
+    if (!mediaUrl) {
+      throw new Error("Upload failed");
+    }
+
+    const token = localStorage.getItem("token");
+
+    console.log("Token:", token);
+
+    const res = await fetch(`${API_BASE}/api/stories/upload-video`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        url: mediaUrl,
+        type: file.type.startsWith("image") ? "image" : "video",
+      }),
+    });
+
+    const data = await res.json();
+
+    console.log("Story response:", data);
+
+    return data;
+
+  } catch (err) {
+    console.error("Story upload error:", err);
+    return null;
+  } finally {
+    setUploading(false);
+  }
+};
