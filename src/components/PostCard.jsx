@@ -140,7 +140,7 @@ const PostCard = ({
     <div className="bg-white p-4 rounded-xl shadow space-y-3 w-full min-w-0">
 
       {/* HEADER */}
-      <div className="flex items-center gap-5">
+      <div className="flex items-center gap-3">
         <img
           src={
             post.user.profilePic ||
