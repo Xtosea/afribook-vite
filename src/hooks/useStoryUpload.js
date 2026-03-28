@@ -1,4 +1,5 @@
 // src/hooks/useStoryUpload.js
+
 import { useState } from "react";
 import { API_BASE } from "../api/api";
 
@@ -11,23 +12,33 @@ export const useStoryUpload = () => {
 
       const token = localStorage.getItem("token");
 
-      const formData = new FormData();
-      formData.append("media", file);
+      if (!token) {
+        console.error("No token found");
+        return null;
+      }
 
-      const res = await fetch(`${API_BASE}/api/r2/upload`, {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch(`${API_BASE}/api/stories/upload-video`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
         },
-        body: formData,
+        body: JSON.stringify({
+          url: file,
+          type: file.type.startsWith("video") ? "video" : "image"
+        })
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        throw new Error("Story upload failed");
+        throw new Error(data.error || "Upload failed");
       }
 
-      const data = await res.json();
-      return data.story;
+      return data;
 
     } catch (err) {
       console.error("Story upload error:", err);
