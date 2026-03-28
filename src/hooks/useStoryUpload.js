@@ -1,60 +1,44 @@
+// src/hooks/useStoryUpload.js
 import { useState } from "react";
 import { API_BASE } from "../api/api";
-import { useR2Upload } from "./useR2Upload";
 
 export const useStoryUpload = () => {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const { uploadVideo } = useR2Upload();
 
   const uploadStory = async (file) => {
-    if (!file) return null;
-
     setLoading(true);
-    setError(null);
-
     try {
-      // Upload to R2
-      const url = await uploadVideo(file);
-
-      if (!url) throw new Error("R2 upload failed");
-
+      // 1️⃣ Request signed URL from backend
       const token = localStorage.getItem("token");
-      const type = file.type.startsWith("video") ? "video" : "image";
+      const res = await fetch(`${API_BASE}/api/r2-stories/upload-url`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to get upload URL");
 
-      // Create story
-      const res = await fetch(`${API_BASE}/api/stories/upload-video`, {
-        method: "POST",
+      const { uploadUrl, headers, fileName } = data;
+
+      // 2️⃣ Upload file to R2 via PUT
+      await fetch(uploadUrl, {
+        method: "PUT",
         headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          ...headers,
+          "Content-Length": file.size,
         },
-        body: JSON.stringify({
-          url,
-          type,
-        }),
+        body: file,
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data?.error || "Story creation failed");
-      }
-
-      setLoading(false);
-      return data;
-
+      // 3️⃣ Return the URL for creating the story document
+      // This is the public URL for your story
+      const storyUrl = `https://${R2_BUCKET}.r2.cloudflarestorage.com/${fileName}`;
+      return { url: storyUrl, type: file.type.startsWith("video") ? "video" : "image" };
     } catch (err) {
       console.error("Story upload error:", err);
-      setError(err);
-      setLoading(false);
       return null;
+    } finally {
+      setLoading(false);
     }
   };
 
-  return {
-    uploadStory,
-    loading,
-    error,
-  };
+  return { uploadStory, loading };
 };
