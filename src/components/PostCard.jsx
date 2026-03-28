@@ -137,7 +137,7 @@ const PostCard = ({
   };
 
   return (
-    <div className="bg-white p-4 rounded-xl shadow space-y-3 0">
+    <div className="bg-white p-4 rounded-xl shadow space-y-3 w-full min-w-0">
 
       {/* HEADER */}
       <div className="flex items-center gap-5">
