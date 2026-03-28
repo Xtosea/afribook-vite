@@ -1,50 +1,49 @@
+// src/hooks/useR2Upload.js
 import { useState } from "react";
 import { API_BASE } from "../api/api";
-import { useR2Upload } from "./useR2Upload";
 
-export const useStoryUpload = () => {
+export const useR2Upload = () => {
   const [loading, setLoading] = useState(false);
-  const { uploadVideo } = useR2Upload();
 
-  const uploadStory = async (file) => {
+  const uploadVideo = async (file) => {
     try {
       setLoading(true);
 
       const token = localStorage.getItem("token");
 
-      // Upload to R2 first
-      const url = await uploadVideo(file);
-
-      if (!url) return null;
-
-      // Save story in DB
-      const res = await fetch(`${API_BASE}/api/stories/upload-video`, {
-        method: "POST",
+      // Get signed URL
+      const res = await fetch(`${API_BASE}/api/r2/upload-url`, {
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          url,
-          type: file.type.startsWith("video") ? "video" : "image",
-        }),
       });
 
-      const data = await res.json();
-
       if (!res.ok) {
-        throw new Error(data.error);
+        throw new Error("Failed to get R2 signed URL");
       }
 
-      return data;
+      const { uploadUrl, fileName, headers, publicUrl } = await res.json();
+
+      // Upload to R2
+      const uploadRes = await fetch(uploadUrl, {
+        method: "PUT",
+        headers,
+        body: file,
+      });
+
+      if (!uploadRes.ok) {
+        throw new Error("R2 upload failed");
+      }
+
+      return publicUrl;
 
     } catch (err) {
-      console.error("Story upload error:", err);
+      console.error("R2 Upload Error:", err);
       return null;
     } finally {
       setLoading(false);
     }
   };
 
-  return { uploadStory, loading };
+  return { uploadVideo, loading };
 };
