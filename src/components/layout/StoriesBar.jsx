@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import { getSocket } from "../../socket";
-import { useStories } from "../../hooks/useStories";
+
 import { useStoryUpload } from "../../hooks/useStoryUpload";
 import { API_BASE } from "../../api/api";
 
