@@ -8,30 +8,49 @@ export const useStoryUpload = () => {
   const uploadStory = async (file) => {
     setLoading(true);
     try {
-      // 1️⃣ Request signed URL from backend
       const token = localStorage.getItem("token");
-      const res = await fetch(`${API_BASE}/api/r2-stories/upload-url`, {
-        headers: { Authorization: `Bearer ${token}` },
+      if (!token) throw new Error("No token found");
+
+      // 1️⃣ Get R2 signed URL from backend
+      const urlRes = await fetch(`${API_BASE}/api/r2/upload-url`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to get upload URL");
 
-      const { uploadUrl, headers, fileName } = data;
+      if (!urlRes.ok) throw new Error("Failed to get R2 signed URL");
 
-      // 2️⃣ Upload file to R2 via PUT
-      await fetch(uploadUrl, {
+      const { uploadUrl, fileName, headers } = await urlRes.json();
+
+      // 2️⃣ Upload file to Cloudflare R2
+      const putRes = await fetch(uploadUrl, {
         method: "PUT",
         headers: {
-          ...headers,
-          "Content-Length": file.size,
+          "Content-Type": file.type,
+          Authorization: headers.Authorization,
         },
         body: file,
       });
 
-      // 3️⃣ Return the URL for creating the story document
-      // This is the public URL for your story
-      const storyUrl = `https://${R2_BUCKET}.r2.cloudflarestorage.com/${fileName}`;
-      return { url: storyUrl, type: file.type.startsWith("video") ? "video" : "image" };
+      if (!putRes.ok) throw new Error("R2 upload failed");
+
+      // 3️⃣ Tell backend to create Story entry
+      const storyRes = await fetch(`${API_BASE}/api/stories/upload-video`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          url: `https://${R2_BUCKET}.r2.cloudflarestorage.com/${fileName}`,
+          type: file.type.startsWith("video") ? "video" : "image",
+        }),
+      });
+
+      if (!storyRes.ok) throw new Error("Story upload failed");
+
+      const story = await storyRes.json();
+      return story;
     } catch (err) {
       console.error("Story upload error:", err);
       return null;
