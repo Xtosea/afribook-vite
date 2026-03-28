@@ -1,6 +1,6 @@
+// src/components/layout/StoriesBar.jsx
 import React, { useRef, useState, useEffect } from "react";
 import { getSocket } from "../../socket";
-
 import { useStoryUpload } from "../../hooks/useStoryUpload";
 import { API_BASE } from "../../api/api";
 
@@ -16,19 +16,27 @@ const StoriesBar = ({ user, stories = [] }) => {
   // Open file picker
   const handleAddStory = () => fileRef.current.click();
 
-  // Upload story
+  // Upload story to R2 and backend
   const handleUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    const story = await uploadStory(file);
-    if (story?._id) socket?.emit("new-story", story);
+    try {
+      const story = await uploadStory(file);
+      if (story?._id) {
+        // Notify all connected clients
+        socket?.emit("new-story", story);
+      }
+    } catch (err) {
+      console.error("Story upload failed:", err);
+    }
   };
 
   // Double-tap like
   const handleLikeStory = async (story) => {
     if (!story?._id) return;
 
+    // Animate heart
     setHeartAnim((prev) => ({ ...prev, [story._id]: true }));
     setTimeout(() => 
       setHeartAnim((prev) => ({ ...prev, [story._id]: false })), 
@@ -57,13 +65,12 @@ const StoriesBar = ({ user, stories = [] }) => {
           likes: data.likes,
         });
       }
-
     } catch (err) {
       console.error("Like failed:", err);
     }
   };
 
-  // Listen for story likes
+  // Listen for real-time story likes
   useEffect(() => {
     if (!socket) return;
 
@@ -79,7 +86,6 @@ const StoriesBar = ({ user, stories = [] }) => {
     return () => {
       socket.off("story-liked", handleStoryLiked);
     };
-
   }, [socket]);
 
   return (
