@@ -1,9 +1,7 @@
 // src/components/PostCard.jsx
 import React, { useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 const PostCard = ({ post }) => {
-  const navigate = useNavigate();
   const videoRefs = useRef([]);
   const [fullscreen, setFullscreen] = useState(null);
 
@@ -28,9 +26,7 @@ const PostCard = ({ post }) => {
       </div>
 
       {/* Text Content */}
-      {post.text && (
-        <p className="text-gray-800 whitespace-pre-wrap">{post.text}</p>
-      )}
+      {post.text && <p className="text-gray-800 whitespace-pre-wrap">{post.text}</p>}
 
       {/* SINGLE MEDIA */}
       {!isMulti &&
@@ -38,7 +34,7 @@ const PostCard = ({ post }) => {
           const isVideo = m.type === "video" || m.url?.endsWith(".mp4");
           const isPortrait = m.height > m.width;
 
-          /* PORTRAIT IMAGE */
+          // PORTRAIT IMAGE
           if (isPortrait && !isVideo) {
             return (
               <div
@@ -49,13 +45,13 @@ const PostCard = ({ post }) => {
                 <img
                   src={m.url}
                   alt=""
-                  className="w-full max-h-[200px] object-contain block"
+                  className="w-full h-[300px] object-contain block"
                 />
               </div>
             );
           }
 
-          /* PORTRAIT VIDEO */
+          // PORTRAIT VIDEO
           if (isPortrait && isVideo) {
             return (
               <div
@@ -74,7 +70,7 @@ const PostCard = ({ post }) => {
             );
           }
 
-          /* LANDSCAPE IMAGE */
+          // LANDSCAPE IMAGE
           if (!isPortrait && !isVideo) {
             return (
               <div
@@ -91,7 +87,7 @@ const PostCard = ({ post }) => {
             );
           }
 
-          /* LANDSCAPE VIDEO */
+          // LANDSCAPE VIDEO
           if (!isPortrait && isVideo) {
             return (
               <div
@@ -130,7 +126,7 @@ const PostCard = ({ post }) => {
                   <video
                     src={m.url}
                     className={`w-full ${
-                      isPortrait ? "aspect-[3/4]" : "aspect-[13/9]"
+                      isPortrait ? "aspect-[3/4]" : "aspect-[16/9]"
                     } object-cover`}
                     muted
                   />
@@ -139,7 +135,7 @@ const PostCard = ({ post }) => {
                     src={m.url}
                     alt=""
                     className={`w-full ${
-                      isPortrait ? "max-h-[200px] object-contain" : "aspect-[16/9] object-cover"
+                      isPortrait ? "h-[300px] object-contain" : "aspect-[16/9] object-cover"
                     } block`}
                   />
                 )}
