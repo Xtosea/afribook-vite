@@ -4,83 +4,60 @@ import { useNavigate } from "react-router-dom";
 
 const reactions = ["👍", "❤️", "😂", "😮", "😢", "😡"];
 
-const PostCard = ({
-  post,
-  currentUserId,
-  onLike,
-  onComment,
-  onShare,
-  setVideoRefs,
-}) => {
+const PostCard = ({ post, currentUserId, onLike, onComment, onShare, setVideoRefs }) => {
   const navigate = useNavigate();
-
   const [commentText, setCommentText] = useState("");
   const [showComments, setShowComments] = useState(false);
   const [showReactions, setShowReactions] = useState(false);
-
   const videoRefs = useRef([]);
 
   useEffect(() => {
     if (setVideoRefs) {
-      setVideoRefs((prev) => [
-        ...prev,
-        ...videoRefs.current.filter(Boolean),
-      ]);
+      setVideoRefs((prev) => [...prev, ...videoRefs.current.filter(Boolean)]);
     }
   }, [setVideoRefs]);
 
   const renderMedia = () => {
     if (!post.media?.length) return null;
 
-    // =============================
-    // SINGLE MEDIA
-    // =============================
     if (post.media.length === 1) {
       const m = post.media[0];
       const isPortrait = m.height > m.width;
       const isLandscape = m.width > m.height;
 
       return (
-        <div
-          className={`w-full ${isPortrait ? "max-w-[700px] mx-auto" : "w-full"}`}
-        >
+        <div className={`w-full ${isPortrait ? "max-w-full" : "max-w-4xl mx-auto"}`}>
           {m.type === "image" ? (
             <img
               src={m.url}
-              className={`
-                w-full
-                ${isPortrait ? "max-h-[400px] object-contain" : ""}
-                ${isLandscape ? "max-h-[700px] object-contain" : ""}
-                bg-black
-                rounded-xl
-                cursor-pointer
-              `}
+              className={`w-full ${
+                isPortrait ? "h-[600px] object-contain" : "h-[400px] object-cover"
+              } rounded-xl cursor-pointer`}
               onClick={() => navigate(`/media/${post._id}?index=0`)}
               alt=""
             />
           ) : (
             <video
-  data-src={m.url}
-  ref={(el) => (videoRefs.current[0] = el)}
-  className="w-full h-[80vh] object-cover bg-black rounded-xl"
-  muted
-  controls
-  onClick={() => navigate(`/media/${post._id}?index=0`)}
-/>
+              data-src={m.url}
+              ref={(el) => (videoRefs.current[0] = el)}
+              className={`w-full ${
+                isPortrait ? "h-[600px] object-contain" : "h-[400px] object-cover"
+              } rounded-xl cursor-pointer`}
+              muted
+              controls
+              onClick={() => navigate(`/media/${post._id}?index=0`)}
+            />
           )}
         </div>
       );
     }
 
-    // =============================
-    // MULTIPLE MEDIA
-    // =============================
+    // Multiple media
     const firstMedia = post.media[0];
     const isPortraitFirst = firstMedia.height > firstMedia.width;
 
     return (
       <div className="grid gap-2">
-        {/* First Large Media */}
         <div
           className="w-full overflow-hidden rounded-xl cursor-pointer bg-black"
           style={{ height: isPortraitFirst ? "500px" : "400px" }}
@@ -89,58 +66,42 @@ const PostCard = ({
           {firstMedia.type === "image" ? (
             <img
               src={firstMedia.url}
-              className={`w-full h-full ${
-                isPortraitFirst ? "object-contain" : "object-cover"
-              }`}
+              className={`w-full h-full ${isPortraitFirst ? "object-contain" : "object-cover"}`}
               alt=""
             />
           ) : (
             <video
               data-src={firstMedia.url}
               ref={(el) => (videoRefs.current[0] = el)}
-              className={`w-full h-full ${
-                isPortraitFirst ? "object-contain" : "object-cover"
-              }`}
+              className={`w-full h-full ${isPortraitFirst ? "object-contain" : "object-cover"}`}
               muted
               controls
             />
           )}
         </div>
 
-        {/* Remaining Media */}
         {post.media.length > 1 && (
-          <div
-            className={`grid gap-2 ${
-              post.media.length === 2 ? "grid-cols-1" : "grid-cols-2"
-            }`}
-          >
+          <div className={`grid gap-2 ${post.media.length === 2 ? "grid-cols-1" : "grid-cols-2"}`}>
             {post.media.slice(1).map((m, i) => {
               const isPortrait = m.height > m.width;
-
               return (
                 <div
                   key={i + 1}
                   className="relative overflow-hidden rounded-xl cursor-pointer bg-black"
                   style={{ height: isPortrait ? "250px" : "180px" }}
-                  onClick={() =>
-                    navigate(`/media/${post._id}?index=${i + 1}`)
-                  }
+                  onClick={() => navigate(`/media/${post._id}?index=${i + 1}`)}
                 >
                   {m.type === "image" ? (
                     <img
                       src={m.url}
-                      className={`w-full h-full ${
-                        isPortrait ? "object-contain" : "object-cover"
-                      }`}
+                      className={`w-full h-full ${isPortrait ? "object-contain" : "object-cover"}`}
                       alt=""
                     />
                   ) : (
                     <video
                       data-src={m.url}
                       ref={(el) => (videoRefs.current[i + 1] = el)}
-                      className={`w-full h-full ${
-                        isPortrait ? "object-contain" : "object-cover"
-                      }`}
+                      className={`w-full h-full ${isPortrait ? "object-contain" : "object-cover"}`}
                       muted
                       controls
                     />
@@ -155,7 +116,7 @@ const PostCard = ({
   };
 
   return (
-    <div className="bg-white p-8 rounded-xl shadow space-y-3 w-full">
+    <div className="bg-white rounded-xl shadow space-y-3 w-full p-4">
       {/* HEADER */}
       <div className="flex items-center gap-3">
         <img
@@ -163,16 +124,13 @@ const PostCard = ({
           alt={post.user.name}
           className="w-12 h-12 rounded-full object-cover"
         />
-
         <div className="flex-1">
           <p className="font-semibold">{post.user.name}</p>
-
           <div className="text-xs text-gray-500 flex gap-2 flex-wrap">
             <span>{new Date(post.createdAt).toLocaleString()}</span>
             {post.feeling && <span>• feeling {post.feeling}</span>}
             {post.location && <span>• {post.location}</span>}
           </div>
-
           {post.taggedFriends?.length > 0 && (
             <div className="text-xs text-blue-500">
               with {post.taggedFriends.map((f) => f.name).join(", ")}
@@ -203,7 +161,6 @@ const PostCard = ({
           <button onClick={() => onLike(post._id, "👍")} className="text-gray-600">
             👍 Like
           </button>
-
           {showReactions && (
             <div className="absolute bottom-8 left-0 bg-white shadow rounded-full px-2 py-1 flex gap-2 z-10">
               {reactions.map((r) => (
@@ -224,7 +181,7 @@ const PostCard = ({
         <div className="space-y-2">
           {post.comments?.map((c) => (
             <div key={c._id} className="flex gap-2">
-              <img src={c.user.profilePic || "/default-avatar.png"} className="w-6 h-6 rounded-full" />
+              <img src={c.user.profilePic || "/default-avatar.png"} className="w-6 h-6 rounded-full" alt="" />
               <div>
                 <span className="font-semibold text-sm">{c.user.name}</span>
                 <p className="text-sm">{c.text}</p>
