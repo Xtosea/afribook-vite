@@ -8,6 +8,8 @@ import UserInfoCard from "../components/profile/UserInfoCard";
 import ProfileTabs from "../components/profile/ProfileTabs";
 import EditProfileModal from "../components/profile/EditProfileModal";
 import { useImageKitUpload } from "../hooks/useImageKitUpload";
+import AboutSection from "../components/profile/AboutSection";
+import PhotosSection from "../components/profile/PhotosSection";
 
 const POSTS_LIMIT = 10;
 
