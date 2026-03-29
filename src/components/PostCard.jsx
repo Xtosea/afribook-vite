@@ -116,7 +116,7 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, setVideoRef
   };
 
   return (
-    <div className="bg-white rounded-xl shadow space-y-3 w-full">
+    <div className="bg-white rounded-xl shadow space-y-3 w-full p-8">
       {/* HEADER */}
       <div className="flex items-center gap-3">
         <img
