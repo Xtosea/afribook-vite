@@ -8,7 +8,7 @@ const media = post.media || [];
 
 const isMulti = media.length > 1;
 
-return ( <div className="bg-white rounded-xl shadow space-y-3  p-2">
+return ( <div className="bg-white rounded-xl shadow space-y-3  p-4">
 
 {/* Header */}
   <div className="flex items-center gap-3">
@@ -76,7 +76,7 @@ return ( <div className="bg-white rounded-xl shadow space-y-3  p-2">
           <img
             src={m.url}
             alt=""
-            className="w-full h-[120px] object-cover"
+            className="w-full h-[100px] object-cover"
           />
         </div>
       );
