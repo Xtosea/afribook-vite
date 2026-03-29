@@ -29,73 +29,70 @@ const PostCard = ({
     }
   }, [setVideoRefs]);
 
-  // Professional Media Layout
+  // =============================
+  // MEDIA RENDER
+  // =============================
   const renderMedia = () => {
     if (!post.media?.length) return null;
 
-    // =============================
+    // -----------------------------
     // SINGLE MEDIA
-    // =============================
-    // Single Media
-if (post.media.length === 1) {
-  const m = post.media[0];
+    // -----------------------------
+    if (post.media.length === 1) {
+      const m = post.media[0];
+      const isPortrait = m.height > m.width;
+      const isLandscape = m.width > m.height;
 
-  const isPortrait = m.height > m.width;
-  const isLandscape = m.width > m.height;
-
-  return (
-    <div
-      className={`
-        w-full 
-        ${isPortrait ? "max-w-[500px] mx-auto" : ""}
-        ${isLandscape ? "w-full" : ""}
-      `}
-    >
-      {m.type === "image" ? (
-        <img
-          src={m.url}
+      return (
+        <div
           className={`
             w-full 
-            ${isPortrait ? "max-h-[400px] object-contain" : ""}
-            ${isLandscape ? "max-h-[700px] object-contain" : ""}
-            bg-black
-            rounded-xl
-            cursor-pointer
+            ${isPortrait ? "max-w-[500px] mx-auto" : "max-w-full"}
           `}
-          onClick={() =>
-            navigate(`/media/${post._id}?index=0`)
-          }
-          alt=""
-        />
-      ) : (
-        <video
-          data-src={m.url}
-          ref={(el) => (videoRefs.current[0] = el)}
-          className={`
-            w-full 
-            ${isPortrait ? "max-h-[500px] object-contain" : ""}
-            ${isLandscape ? "max-h-[400px] object-contain" : ""}
-            bg-black
-            rounded-xl
-          `}
-          muted
-          controls
-          onClick={() =>
-            navigate(`/media/${post._id}?index=0`)
-          }
-        />
-      )}
-    </div>
-  );
-}
+        >
+          {m.type === "image" ? (
+            <img
+              src={m.url}
+              className={`
+                w-full
+                ${isPortrait ? "max-h-[600px]" : "max-h-[450px]"}
+                object-contain
+                bg-black
+                rounded-xl
+                cursor-pointer
+              `}
+              onClick={() =>
+                navigate(`/media/${post._id}?index=0`)
+              }
+              alt=""
+            />
+          ) : (
+            <video
+              data-src={m.url}
+              ref={(el) => (videoRefs.current[0] = el)}
+              className={`
+                w-full
+                ${isPortrait ? "max-h-[600px]" : "max-h-[450px]"}
+                object-contain
+                bg-black
+                rounded-xl
+              `}
+              muted
+              controls
+              onClick={() =>
+                navigate(`/media/${post._id}?index=0`)
+              }
+            />
+          )}
+        </div>
+      );
+    }
 
-
-    // =============================
+    // -----------------------------
     // MULTIPLE MEDIA
-    // =============================
+    // -----------------------------
     return (
       <div className="grid gap-2">
-        
         {/* First Large Media */}
         <div
           className="w-full h-[420px] md:h-[500px] overflow-hidden rounded-xl cursor-pointer bg-black"
@@ -155,8 +152,11 @@ if (post.media.length === 1) {
     );
   };
 
+  // =============================
+  // RENDER POSTCARD
+  // =============================
   return (
-    <div className="bg-white p-4 rounded-xl shadow space-y-3 w-full">
+    <div className="bg-white p-4 rounded-xl shadow space-y-3 w-full max-w-full">
 
       {/* HEADER */}
       <div className="flex items-center gap-3">
@@ -167,30 +167,17 @@ if (post.media.length === 1) {
         />
 
         <div className="flex-1">
-          <p className="font-semibold">
-            {post.user.name}
-          </p>
+          <p className="font-semibold">{post.user.name}</p>
 
           <div className="text-xs text-gray-500 flex gap-2 flex-wrap">
-            <span>
-              {new Date(post.createdAt).toLocaleString()}
-            </span>
-
-            {post.feeling && (
-              <span>• feeling {post.feeling}</span>
-            )}
-
-            {post.location && (
-              <span>• {post.location}</span>
-            )}
+            <span>{new Date(post.createdAt).toLocaleString()}</span>
+            {post.feeling && <span>• feeling {post.feeling}</span>}
+            {post.location && <span>• {post.location}</span>}
           </div>
 
           {post.taggedFriends?.length > 0 && (
             <div className="text-xs text-blue-500">
-              with{" "}
-              {post.taggedFriends
-                .map((f) => f.name)
-                .join(", ")}
+              with {post.taggedFriends.map((f) => f.name).join(", ")}
             </div>
           )}
         </div>
@@ -204,15 +191,8 @@ if (post.media.length === 1) {
 
       {/* COUNTS */}
       <div className="text-sm text-gray-500 flex justify-between">
-        <span>
-          {post.reactions?.length ||
-            post.likes?.length ||
-            0} reactions
-        </span>
-
-        <span>
-          {post.comments?.length || 0} comments
-        </span>
+        <span>{post.reactions?.length || post.likes?.length || 0} reactions</span>
+        <span>{post.comments?.length || 0} comments</span>
       </div>
 
       {/* ACTION BUTTONS */}
@@ -222,10 +202,7 @@ if (post.media.length === 1) {
           onMouseEnter={() => setShowReactions(true)}
           onMouseLeave={() => setShowReactions(false)}
         >
-          <button
-            onClick={() => onLike(post._id, "👍")}
-            className="text-gray-600"
-          >
+          <button onClick={() => onLike(post._id, "👍")} className="text-gray-600">
             👍 Like
           </button>
 
@@ -244,43 +221,22 @@ if (post.media.length === 1) {
           )}
         </div>
 
-        <button
-          onClick={() =>
-            setShowComments(!showComments)
-          }
-        >
-          💬 Comment
-        </button>
-
-        <button onClick={() => onShare(post)}>
-          🔗 Share
-        </button>
+        <button onClick={() => setShowComments(!showComments)}>💬 Comment</button>
+        <button onClick={() => onShare(post)}>🔗 Share</button>
       </div>
 
       {/* COMMENTS */}
       {showComments && (
         <div className="space-y-2">
           {post.comments?.map((c) => (
-            <div
-              key={c._id}
-              className="flex gap-2"
-            >
+            <div key={c._id} className="flex gap-2">
               <img
-                src={
-                  c.user.profilePic ||
-                  "/default-avatar.png"
-                }
+                src={c.user.profilePic || "/default-avatar.png"}
                 className="w-6 h-6 rounded-full"
               />
-
               <div>
-                <span className="font-semibold text-sm">
-                  {c.user.name}
-                </span>
-
-                <p className="text-sm">
-                  {c.text}
-                </p>
+                <span className="font-semibold text-sm">{c.user.name}</span>
+                <p className="text-sm">{c.text}</p>
               </div>
             </div>
           ))}
@@ -288,20 +244,14 @@ if (post.media.length === 1) {
           <div className="flex gap-2">
             <input
               value={commentText}
-              onChange={(e) =>
-                setCommentText(e.target.value)
-              }
+              onChange={(e) => setCommentText(e.target.value)}
               className="flex-1 border rounded px-2 py-1"
               placeholder="Write comment..."
             />
-
             <button
               onClick={() => {
                 if (commentText.trim()) {
-                  onComment(
-                    post._id,
-                    commentText
-                  );
+                  onComment(post._id, commentText);
                   setCommentText("");
                 }
               }}
