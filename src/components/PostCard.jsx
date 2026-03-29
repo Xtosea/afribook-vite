@@ -39,7 +39,7 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, setVideoRef
           className={`
             w-full
             ${isPortrait ? "max-w-[500px] mx-auto p-2" : ""}
-            ${isLandscape ? "w-full p-4" : ""}
+            ${isLandscape ? "w-full p-6" : ""}
           `}
         >
           {m.type === "image" ? (
@@ -47,8 +47,8 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, setVideoRef
               src={m.url}
               className={`
                 w-full
-                ${isPortrait ? "max-h-[500px] object-contain" : ""}
-                ${isLandscape ? "max-h-[400px] object-contain" : ""}
+                ${isPortrait ? "max-h-[300px] object-contain" : ""}
+                ${isLandscape ? "max-h-[700px] object-contain" : ""}
                 bg-black rounded-xl cursor-pointer
               `}
               onClick={() => navigate(`/media/${post._id}?index=0`)}
@@ -61,7 +61,7 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, setVideoRef
               className={`
                 w-full
                 ${isPortrait ? "max-h-[500px] object-contain" : ""}
-                ${isLandscape ? "max-h-[400px] object-contain" : ""}
+                ${isLandscape ? "max-h-[700px] object-contain" : ""}
                 bg-black rounded-xl
               `}
               muted
@@ -146,7 +146,7 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, setVideoRef
   };
 
   return (
-    <div className="bg-white p-4 rounded-xl shadow space-y-3 w-full">
+    <div className="bg-white p-8 rounded-xl shadow space-y-3 w-full">
 
       {/* HEADER */}
       <div className="flex items-center gap-3">
