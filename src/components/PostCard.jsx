@@ -38,18 +38,17 @@ const PostCard = ({ post }) => {
           const isVideo = m.type === "video" || m.url?.endsWith(".mp4");
           const isPortrait = m.height > m.width;
 
-          /* PORTRAIT VIDEO */
           if (isPortrait && isVideo) {
             return (
               <div
                 key={i}
-                className="w-full max-w-[400px] mx-auto rounded-xl overflow-hidden shadow cursor-pointer"
+                className="w-full max-w-[500px] mx-auto rounded-xl overflow-hidden shadow cursor-pointer"
                 onClick={() => setFullscreen({ media: m })}
               >
                 <video
                   ref={(el) => (videoRefs.current[i] = el)}
                   src={m.url}
-                  className="w-full max-h-[500px] object-contain"
+                  className="w-full aspect-[3/4] object-cover"
                   muted
                   controls
                 />
@@ -57,24 +56,22 @@ const PostCard = ({ post }) => {
             );
           }
 
-          /* PORTRAIT IMAGE */
           if (isPortrait && !isVideo) {
             return (
               <div
                 key={i}
-                className="w-full max-w-[400px] mx-auto rounded-xl overflow-hidden shadow cursor-pointer"
+                className="w-full max-w-[500px] mx-auto rounded-xl overflow-hidden shadow cursor-pointer"
                 onClick={() => setFullscreen({ media: m })}
               >
                 <img
                   src={m.url}
                   alt=""
-                  className="w-full max-h-[300px] object-contain"
+                  className="w-full aspect-[3/4] object-cover"
                 />
               </div>
             );
           }
 
-          /* LANDSCAPE VIDEO */
           if (!isPortrait && isVideo) {
             return (
               <div
@@ -85,7 +82,7 @@ const PostCard = ({ post }) => {
                 <video
                   ref={(el) => (videoRefs.current[i] = el)}
                   src={m.url}
-                  className="w-full object-contain"
+                  className="w-full aspect-[16/9] object-cover"
                   muted
                   controls
                 />
@@ -93,7 +90,6 @@ const PostCard = ({ post }) => {
             );
           }
 
-          /* LANDSCAPE IMAGE */
           if (!isPortrait && !isVideo) {
             return (
               <div
@@ -104,7 +100,7 @@ const PostCard = ({ post }) => {
                 <img
                   src={m.url}
                   alt=""
-                  className="w-full object-contain"
+                  className="w-full aspect-[16/9] object-cover"
                 />
               </div>
             );
@@ -121,15 +117,17 @@ const PostCard = ({ post }) => {
             return (
               <div
                 key={i}
-                className="relative rounded-xl overflow-hidden cursor-pointer"
+                className={`relative rounded-xl overflow-hidden cursor-pointer ${
+                  isPortrait ? "col-span-2" : "col-span-1"
+                }`}
                 onClick={() => setFullscreen({ media, index: i })}
               >
                 {isVideo ? (
                   <video
                     src={m.url}
                     className={`w-full ${
-                      isPortrait ? "h-[300px]" : "h-[180px]"
-                    } object-contain`}
+                      isPortrait ? "aspect-[3/4]" : "aspect-[16/9]"
+                    } object-cover`}
                     muted
                   />
                 ) : (
@@ -137,8 +135,8 @@ const PostCard = ({ post }) => {
                     src={m.url}
                     alt=""
                     className={`w-full ${
-                      isPortrait ? "h-[300px]" : "h-[180px]"
-                    } object-contain`}
+                      isPortrait ? "aspect-[3/4]" : "aspect-[16/9]"
+                    } object-cover`}
                   />
                 )}
               </div>
