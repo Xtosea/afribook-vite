@@ -38,73 +38,35 @@ const PostCard = ({ post }) => {
           const isVideo = m.type === "video" || m.url?.endsWith(".mp4");
           const isPortrait = m.height > m.width;
 
-          if (isPortrait && isVideo) {
-            return (
-              <div
-                key={i}
-                className="w-full max-w-[500px] mx-auto rounded-xl overflow-hidden shadow cursor-pointer"
-                onClick={() => setFullscreen({ media: m })}
-              >
+          return (
+            <div
+              key={i}
+              className={`w-full rounded-xl overflow-hidden shadow cursor-pointer ${
+                isPortrait ? "max-w-[500px] mx-auto" : ""
+              }`}
+              onClick={() => setFullscreen({ media: m })}
+            >
+              {isVideo ? (
                 <video
                   ref={(el) => (videoRefs.current[i] = el)}
                   src={m.url}
-                  className="w-full aspect-[3/4] object-cover"
+                  className={`w-full ${
+                    isPortrait ? "aspect-[3/4]" : "aspect-[16/9]"
+                  } object-contain`}
                   muted
                   controls
                 />
-              </div>
-            );
-          }
-
-          if (isPortrait && !isVideo) {
-            return (
-              <div
-                key={i}
-                className="w-full max-w-[500px] mx-auto rounded-xl overflow-hidden shadow cursor-pointer"
-                onClick={() => setFullscreen({ media: m })}
-              >
+              ) : (
                 <img
                   src={m.url}
                   alt=""
-                  className="w-full aspect-[3/4] object-cover"
+                  className={`w-full ${
+                    isPortrait ? "aspect-[3/4]" : "aspect-[16/9]"
+                  } object-contain`}
                 />
-              </div>
-            );
-          }
-
-          if (!isPortrait && isVideo) {
-            return (
-              <div
-                key={i}
-                className="w-full rounded-xl overflow-hidden shadow cursor-pointer"
-                onClick={() => setFullscreen({ media: m })}
-              >
-                <video
-                  ref={(el) => (videoRefs.current[i] = el)}
-                  src={m.url}
-                  className="w-full aspect-[16/9] object-cover"
-                  muted
-                  controls
-                />
-              </div>
-            );
-          }
-
-          if (!isPortrait && !isVideo) {
-            return (
-              <div
-                key={i}
-                className="w-full rounded-xl overflow-hidden shadow cursor-pointer"
-                onClick={() => setFullscreen({ media: m })}
-              >
-                <img
-                  src={m.url}
-                  alt=""
-                  className="w-full aspect-[16/9] object-cover"
-                />
-              </div>
-            );
-          }
+              )}
+            </div>
+          );
         })}
 
       {/* MULTI-MEDIA GRID */}
@@ -127,7 +89,7 @@ const PostCard = ({ post }) => {
                     src={m.url}
                     className={`w-full ${
                       isPortrait ? "aspect-[3/4]" : "aspect-[16/9]"
-                    } object-cover`}
+                    } object-contain`}
                     muted
                   />
                 ) : (
@@ -136,7 +98,7 @@ const PostCard = ({ post }) => {
                     alt=""
                     className={`w-full ${
                       isPortrait ? "aspect-[3/4]" : "aspect-[16/9]"
-                    } object-cover`}
+                    } object-contain`}
                   />
                 )}
               </div>
@@ -158,7 +120,7 @@ const PostCard = ({ post }) => {
           {fullscreen.media?.type === "video" ? (
             <video
               src={fullscreen.media.url}
-              className="max-h-full max-w-full"
+              className="max-h-full max-w-full object-contain"
               controls
               autoPlay
             />
@@ -166,7 +128,7 @@ const PostCard = ({ post }) => {
             <img
               src={fullscreen.media.url}
               alt=""
-              className="max-h-full max-w-full"
+              className="max-h-full max-w-full object-contain"
             />
           )}
         </div>
