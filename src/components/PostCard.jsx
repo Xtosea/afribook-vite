@@ -59,7 +59,7 @@ const PostCard = ({
               alt=""
             />
           ) : (
-            <<video
+            <video
   data-src={m.url}
   ref={(el) => (videoRefs.current[0] = el)}
   className="w-full h-[80vh] object-cover bg-black rounded-xl"
