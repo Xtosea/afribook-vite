@@ -32,110 +32,54 @@ const PostCard = ({
   const renderMedia = () => {
     if (!post.media?.length) return null;
 
-    // Single media
-    if (post.media.length === 1) {
-      const m = post.media[0];
+    return post.media.map((m, i) => {
       const isPortrait = m.height > m.width;
       const isLandscape = m.width > m.height;
 
+      // Calculate heights individually
+      let height = "auto";
+      if (post.media.length === 1) {
+        height = isPortrait ? "h-[600px]" : "h-[300px]";
+      } else {
+        height = isPortrait ? "h-[400px]" : "h-[250px]";
+      }
+
       if (m.type === "image") {
-        return isPortrait ? (
-          // Portrait image
-          <div className="bg-white rounded-xl shadow space-y-3 w-full p-2">
+        return (
+          <div
+            key={i}
+            className={`rounded-xl shadow overflow-hidden cursor-pointer ${height} w-full`}
+            onClick={() => navigate(`/media/${post._id}?index=${i}`)}
+          >
             <img
               src={m.url}
-              className="w-full h-[600px] object-contain rounded-xl cursor-pointer"
+              className={`w-full h-full ${
+                isPortrait ? "object-contain" : "object-cover"
+              }`}
               alt=""
-              onClick={() => navigate(`/media/${post._id}?index=0`)}
-            />
-          </div>
-        ) : (
-          // Landscape image
-          <div className="bg-white rounded-xl shadow space-y-3 w-full p-2">
-            <img
-              src={m.url}
-              className="w-full h-[300px] object-cover rounded-xl cursor-pointer"
-              alt=""
-              onClick={() => navigate(`/media/${post._id}?index=0`)}
             />
           </div>
         );
       } else {
-        return isPortrait ? (
-          // Portrait video
-          <div className="bg-white rounded-xl shadow space-y-3 w-full p-2">
+        return (
+          <div
+            key={i}
+            className={`rounded-xl shadow overflow-hidden cursor-pointer ${height} w-full`}
+            onClick={() => navigate(`/media/${post._id}?index=${i}`)}
+          >
             <video
               data-src={m.url}
-              ref={(el) => (videoRefs.current[0] = el)}
-              className="w-full h-[600px] object-contain rounded-xl cursor-pointer"
+              ref={(el) => (videoRefs.current[i] = el)}
+              className={`w-full h-full ${
+                isPortrait ? "object-contain" : "object-cover"
+              }`}
               muted
               controls
-              onClick={() => navigate(`/media/${post._id}?index=0`)}
-            />
-          </div>
-        ) : (
-          // Landscape video
-          <div className="bg-white rounded-xl shadow space-y-3 w-full p-2">
-            <video
-              data-src={m.url}
-              ref={(el) => (videoRefs.current[0] = el)}
-              className="w-full h-[300px] object-cover rounded-xl cursor-pointer"
-              muted
-              controls
-              onClick={() => navigate(`/media/${post._id}?index=0`)}
             />
           </div>
         );
       }
-    }
-
-    // Multiple media
-    return (
-      <div className="grid gap-2">
-        {post.media.map((m, i) => {
-          const isPortrait = m.height > m.width;
-          const isLandscape = m.width > m.height;
-
-          if (m.type === "image") {
-            return (
-              <div
-                key={i}
-                className="bg-white rounded-xl shadow overflow-hidden cursor-pointer"
-                style={{ height: isPortrait ? "400px" : "250px" }}
-                onClick={() => navigate(`/media/${post._id}?index=${i}`)}
-              >
-                <img
-                  src={m.url}
-                  className={`w-full h-full ${
-                    isPortrait ? "object-contain" : "object-cover"
-                  }`}
-                  alt=""
-                />
-              </div>
-            );
-          } else {
-            return (
-              <div
-                key={i}
-                className="bg-white rounded-xl shadow overflow-hidden cursor-pointer"
-                style={{ height: isPortrait ? "400px" : "250px" }}
-                onClick={() => navigate(`/media/${post._id}?index=${i}`)}
-              >
-                <video
-                  data-src={m.url}
-                  ref={(el) => (videoRefs.current[i] = el)}
-                  className={`w-full h-full ${
-                    isPortrait ? "object-contain" : "object-cover"
-                  }`}
-                  muted
-                  controls
-                />
-              </div>
-            );
-          }
-        })}
-      </div>
-    );
+    });
   };
 
   return (
