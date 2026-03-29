@@ -38,7 +38,7 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, setVideoRef
         <div
           className={`
             w-full
-            ${isPortrait ? "max-w-[500px] mx-auto p-8" : ""}
+            ${isPortrait ? "max-w-[800px] mx-auto p-8" : ""}
             ${isLandscape ? "w-full p-10" : ""}
           `}
         >
