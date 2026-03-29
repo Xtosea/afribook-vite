@@ -76,7 +76,7 @@ return ( <div className="bg-white rounded-xl shadow space-y-3  p-2">
           <img
             src={m.url}
             alt=""
-            className="w-full max-h-[100px] object-cover"
+            className="w-full h-[120px] object-cover"
           />
         </div>
       );
