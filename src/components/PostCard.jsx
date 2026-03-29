@@ -38,9 +38,12 @@ const PostCard = ({
       const m = post.media[0];
 
       return m.type === "image" ? (
+
+
         <img
-          src={m.url}
-          className="w-full max-h-[90vh] object-contain cursor-pointer rounded-xl"
+  src={m.url}
+  className="w-full max-h-[650px] object-contain bg-black cursor-pointer rounded-xl"
+
           onClick={() =>
             navigate(`/media/${post._id}?index=0`)
           }
