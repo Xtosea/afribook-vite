@@ -51,7 +51,7 @@ const PostCard = ({
         <div
           className={`
             w-full
-            ${isPortrait ? "max-w-[480px] mx-auto" : ""}
+            ${isPortrait ? "max-w-[580px] mx-auto" : ""}
             ${isSquare ? "max-w-[520px] mx-auto" : ""}
             ${isLandscape ? "w-full" : ""}
           `}
@@ -66,7 +66,7 @@ const PostCard = ({
                 rounded-xl
                 cursor-pointer
                 
-                ${isPortrait ? "max-h-[650px] object-contain" : ""}
+                ${isPortrait ? "max-h-[400px] object-contain" : ""}
                 ${isSquare ? "max-h-[520px] object-contain" : ""}
                 ${isLandscape ? "max-h-[480px] object-contain" : ""}
               `}
