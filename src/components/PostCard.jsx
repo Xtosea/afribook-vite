@@ -127,9 +127,9 @@ return ( <div className="bg-white rounded-xl shadow space-y-3  p-2">
   })}
 
 
-  {/* ======================= */
-  /* MULTI MEDIA GRID */
   {/* ======================= */}
+{/* MULTI MEDIA GRID */}
+{/* ======================= */}
 
   {isMulti && (
     <div className="grid grid-cols-2 gap-2">
@@ -164,9 +164,9 @@ return ( <div className="bg-white rounded-xl shadow space-y-3  p-2">
   )}
 
 
-  {/* ======================= */
-  /* FULLSCREEN VIEWER */
   {/* ======================= */}
+{/* FULLSCREEN VIEWER */}
+{/* ======================= */}
 
   {fullscreen && (
     <div className="fixed inset-0 bg-black bg-opacity-95 flex items-center justify-center z-50">
