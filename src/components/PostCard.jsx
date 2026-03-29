@@ -8,7 +8,7 @@ const media = post.media || [];
 
 const isMulti = media.length > 1;
 
-return ( <div className="bg-white rounded-xl shadow space-y-3  p-10">
+return ( <div className="bg-white rounded-xl shadow space-y-3  p-1">
 
 {/* Header */}
   <div className="flex items-center gap-3">
@@ -76,7 +76,7 @@ if (isPortrait && !isVideo) {
       <img
         src={m.url}
         alt=""
-        className="w-full h-full object-cover"
+        className="w-full h-[100px] object-cover"
       />
     </div>
   );
