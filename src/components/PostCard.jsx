@@ -50,7 +50,7 @@ const PostCard = ({
         <video
           data-src={m.url}
           ref={(el) => (videoRefs.current[0] = el)}
-          <div className="w-full px-2 md:px-6 py-6 grid grid-cols-1 md:grid-cols-4 gap-6">
+          className="w-full max-h-[90vh] object-contain cursor-pointer rounded-xl"
           muted
           controls
           onClick={() =>
@@ -137,7 +137,7 @@ const PostCard = ({
   };
 
   return (
-    <div className="bg-white p-4 rounded-xl shadow space-y-3 w-full min-w-0">
+    <div className="bg-white p-4 rounded-xl shadow space-y-3 w-full">
 
       {/* HEADER */}
       <div className="flex items-center gap-3">
