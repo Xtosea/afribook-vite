@@ -15,22 +15,20 @@ import VerifyFailed from "./pages/VerifyFailed";
 import CreatePost from "./pages/CreatePost";
 import Reels from "./pages/Reels";
 import Messages from "./pages/Messages";
-import Notifications from "./pages/Notifications";
-import Chat from "./pages/Chat"
+import Chat from "./pages/Chat";
 import WelcomeOnboarding from "./pages/WelcomeOnboarding";
 import AddFriends from "./pages/AddFriends";
 import SyncContacts from "./pages/SyncContacts";
 import EditProfile from "./pages/EditProfile";
 import MediaViewer from "./pages/MediaViewer";
 
-
-
 function App() {
-console.log("API:", import.meta.env.VITE_API_BASE);
+  console.log("API:", import.meta.env.VITE_API_BASE);
   return (
     <Router>
       <Navbar />
-      <div className="min-h-[calc(100vh-80px)] p-4">
+      {/* Removed p-4 padding to allow full-width posts */}
+      <div className="min-h-[calc(100vh-80px)] w-full">
         <Routes>
           {/* Public routes */}
           <Route path="/login" element={<Login />} />
@@ -41,15 +39,12 @@ console.log("API:", import.meta.env.VITE_API_BASE);
           <Route path="/verify-success" element={<VerifySuccess />} />
           <Route path="/verify-failed" element={<VerifyFailed />} />
           <Route path="/welcome" element={<WelcomeOnboarding />} />
-
-<Route path="/media/:postId" element={<MediaViewer />} />
-  
+          <Route path="/media/:postId" element={<MediaViewer />} />
           <Route path="/add-friends" element={<AddFriends />} />
-         <Route path="/sync-contacts" element={<SyncContacts />} />
-         <Route path="/edit-profile" element={<EditProfile />} />
-    
+          <Route path="/sync-contacts" element={<SyncContacts />} />
+          <Route path="/edit-profile" element={<EditProfile />} />
 
-          {/* Protected routes (WebSocket-enabled pages) */}
+          {/* Protected routes */}
           <Route
             path="/"
             element={
@@ -90,7 +85,6 @@ console.log("API:", import.meta.env.VITE_API_BASE);
               </ProtectedRoute>
             }
           />
-         
           <Route
             path="/messages"
             element={
@@ -99,16 +93,14 @@ console.log("API:", import.meta.env.VITE_API_BASE);
               </ProtectedRoute>
             }
           />
-
-         <Route
-path="/chat"
-element={
-<ProtectedRoute>
-<Chat/>
-</ProtectedRoute>
-}
-/>
-          
+          <Route
+            path="/chat"
+            element={
+              <ProtectedRoute>
+                <Chat />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </div>
       <Footer />
