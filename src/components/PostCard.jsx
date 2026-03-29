@@ -26,7 +26,7 @@ const PostCard = ({ post }) => {
             `https://ui-avatars.com/api/?name=${post.user?.name || "User"}`
           }
           alt=""
-          className="w-16 h-16 rounded-full object-cover cursor-pointer"
+          className="w-18 h-18 rounded-full object-cover cursor-pointer"
           onClick={() => navigate(`/profile/${post.user?._id}`)}
         />
 
