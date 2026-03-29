@@ -8,7 +8,7 @@ const media = post.media || [];
 
 const isMulti = media.length > 1;
 
-return ( <div className="bg-white rounded-xl shadow space-y-3  p-1">
+return ( <div className="bg-white rounded-xl shadow space-y-3  p-2">
 
 {/* Header */}
   <div className="flex items-center gap-3">
@@ -54,7 +54,7 @@ return ( <div className="bg-white rounded-xl shadow space-y-3  p-1">
           <video
             ref={el => (videoRefs.current[i] = el)}
             src={m.url}
-            className="w-full max-h-[700px] object-cover"
+            className="w-full max-h-[300px] object-cover"
             muted
             controls
           />
@@ -70,7 +70,7 @@ if (isPortrait && !isVideo) {
   return (
     <div
       key={i}
-      className="w-full max-w-[500px] mx-auto rounded-xl overflow-hidden shadow cursor-pointer h-[100px]"
+      className="w-full max-w-[500px] mx-auto rounded-xl overflow-hidden shadow cursor-pointer h-[50px]"
       onClick={() => setFullscreen({ media: m })}
     >
       <img
