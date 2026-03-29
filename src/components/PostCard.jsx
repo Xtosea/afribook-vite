@@ -8,7 +8,7 @@ const media = post.media || [];
 
 const isMulti = media.length > 1;
 
-return ( <div className="bg-white rounded-xl shadow space-y-3  p-4">
+return ( <div className="bg-white rounded-xl shadow space-y-3  p-1">
 
 {/* Header */}
   <div className="flex items-center gap-3">
