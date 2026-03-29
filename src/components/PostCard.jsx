@@ -48,7 +48,7 @@ const PostCard = ({
       const isSquare = m.width === m.height;
 
       return (
-        <<div
+        <div
   className={`
     w-full
     ${isPortrait ? "w-full" : ""}
