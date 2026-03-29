@@ -4,7 +4,14 @@ import { useNavigate } from "react-router-dom";
 
 const reactions = ["👍", "❤️", "😂", "😮", "😢", "😡"];
 
-const PostCard = ({ post, currentUserId, onLike, onComment, onShare, setVideoRefs }) => {
+const PostCard = ({
+  post,
+  currentUserId,
+  onLike,
+  onComment,
+  onShare,
+  setVideoRefs,
+}) => {
   const navigate = useNavigate();
 
   const [commentText, setCommentText] = useState("");
@@ -22,50 +29,67 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, setVideoRef
     }
   }, [setVideoRefs]);
 
-  // =============================
-  // RENDER MEDIA
-  // =============================
+  /* =============================
+     RENDER MEDIA
+  ============================= */
+
   const renderMedia = () => {
     if (!post.media?.length) return null;
 
-    // SINGLE MEDIA
+    /* =============================
+       SINGLE MEDIA
+    ============================= */
+
     if (post.media.length === 1) {
       const m = post.media[0];
+
       const isPortrait = m.height > m.width;
       const isLandscape = m.width > m.height;
+      const isSquare = m.width === m.height;
 
       return (
         <div
           className={`
             w-full
-            ${isPortrait ? "max-w-[800px] mx-auto p-8" : ""}
-            ${isLandscape ? "w-full p-10" : ""}
+            ${isPortrait ? "max-w-[480px] mx-auto" : ""}
+            ${isSquare ? "max-w-[520px] mx-auto" : ""}
+            ${isLandscape ? "w-full" : ""}
           `}
         >
+          {/* IMAGE */}
           {m.type === "image" ? (
             <img
               src={m.url}
               className={`
                 w-full
-                ${isPortrait ? "max-h-[300px] object-contain" : ""}
-                ${isLandscape ? "max-h-[700px] object-contain" : ""}
-                bg-black rounded-xl cursor-pointer
+                bg-black
+                rounded-xl
+                cursor-pointer
+                
+                ${isPortrait ? "max-h-[650px] object-contain" : ""}
+                ${isSquare ? "max-h-[520px] object-contain" : ""}
+                ${isLandscape ? "max-h-[480px] object-contain" : ""}
               `}
               onClick={() => navigate(`/media/${post._id}?index=0`)}
               alt=""
             />
           ) : (
+            /* VIDEO */
             <video
               data-src={m.url}
               ref={(el) => (videoRefs.current[0] = el)}
               className={`
                 w-full
-                ${isPortrait ? "max-h-[500px] object-contain" : ""}
-                ${isLandscape ? "max-h-[700px] object-contain" : ""}
-                bg-black rounded-xl
+                bg-black
+                rounded-xl
+                
+                ${isPortrait ? "max-h-[680px] object-contain" : ""}
+                ${isSquare ? "max-h-[520px] object-contain" : ""}
+                ${isLandscape ? "max-h-[480px] object-contain" : ""}
               `}
               muted
               controls
+              playsInline
               onClick={() => navigate(`/media/${post._id}?index=0`)}
             />
           )}
@@ -73,12 +97,15 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, setVideoRef
       );
     }
 
-    // MULTI MEDIA
+    /* =============================
+       MULTI MEDIA
+    ============================= */
+
     return (
       <div className="grid gap-2">
-        {/* First Large Media */}
+        {/* FIRST LARGE MEDIA */}
         <div
-          className="w-full  h-[420px] md:h-[500px] overflow-hidden rounded-xl  cursor-pointer bg-black"
+          className="w-full h-[450px] md:h-[520px] overflow-hidden rounded-xl cursor-pointer bg-black"
           onClick={() => navigate(`/media/${post._id}?index=0`)}
         >
           {post.media[0].type === "image" ? (
@@ -97,7 +124,7 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, setVideoRef
           )}
         </div>
 
-        {/* Remaining Media */}
+        {/* REMAINING MEDIA GRID */}
         {post.media.length > 1 && (
           <div
             className={`
@@ -107,16 +134,21 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, setVideoRef
           >
             {post.media.slice(1).map((m, i) => {
               const isPortrait = m.height > m.width;
-              const isLandscape = m.width > m.height;
+              const isSquare = m.width === m.height;
 
               return (
                 <div
                   key={i + 1}
                   className={`
-                    relative 
-                    ${isPortrait ? "h-[200px] p-8" : "h-[180px] p-4"} 
-                    md:${isPortrait ? "h-[420px]" : "h-[400px]"} 
-                    overflow-hidden rounded-xl cursor-pointer bg-black
+                    relative
+                    overflow-hidden
+                    rounded-xl
+                    cursor-pointer
+                    bg-black
+                    
+                    ${isPortrait ? "h-[240px]" : ""}
+                    ${isSquare ? "h-[220px]" : ""}
+                    ${!isPortrait && !isSquare ? "h-[200px]" : ""}
                   `}
                   onClick={() =>
                     navigate(`/media/${post._id}?index=${i + 1}`)
@@ -125,14 +157,14 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, setVideoRef
                   {m.type === "image" ? (
                     <img
                       src={m.url}
-                      className="w-full h-full object-contain rounded-xl"
+                      className="w-full h-full object-cover"
                       alt=""
                     />
                   ) : (
                     <video
                       data-src={m.url}
                       ref={(el) => (videoRefs.current[i + 1] = el)}
-                      className="w-full h-full object-contain rounded-xl"
+                      className="w-full h-full object-cover"
                       muted
                     />
                   )}
@@ -146,52 +178,81 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, setVideoRef
   };
 
   return (
-    <div className="bg-white p-8 rounded-xl shadow space-y-3 w-full">
+    <div className="bg-white p-4 rounded-xl shadow space-y-3 w-full">
 
       {/* HEADER */}
       <div className="flex items-center gap-3">
         <img
-          src={post.user.profilePic || "/default-avatar.png"}
-          alt={post.user.name}
+          src={post.user?.profilePic || "/default-avatar.png"}
+          alt=""
           className="w-12 h-12 rounded-full object-cover"
         />
 
         <div className="flex-1">
-          <p className="font-semibold">{post.user.name}</p>
+          <p className="font-semibold">{post.user?.name}</p>
+
           <div className="text-xs text-gray-500 flex gap-2 flex-wrap">
-            <span>{new Date(post.createdAt).toLocaleString()}</span>
-            {post.feeling && <span>• feeling {post.feeling}</span>}
-            {post.location && <span>• {post.location}</span>}
+            <span>
+              {new Date(post.createdAt).toLocaleString()}
+            </span>
+
+            {post.feeling && (
+              <span>• feeling {post.feeling}</span>
+            )}
+
+            {post.location && (
+              <span>• {post.location}</span>
+            )}
           </div>
 
           {post.taggedFriends?.length > 0 && (
             <div className="text-xs text-blue-500">
-              with {post.taggedFriends.map((f) => f.name).join(", ")}
+              with{" "}
+              {post.taggedFriends
+                .map((f) => f.name)
+                .join(", ")}
             </div>
           )}
         </div>
       </div>
 
-      {/* CONTENT */}
-      {post.content && <p>{post.content}</p>}
+      {/* TEXT */}
+      {post.content && (
+        <p className="whitespace-pre-wrap">
+          {post.content}
+        </p>
+      )}
 
       {/* MEDIA */}
       {renderMedia()}
 
       {/* COUNTS */}
       <div className="text-sm text-gray-500 flex justify-between">
-        <span>{post.reactions?.length || post.likes?.length || 0} reactions</span>
-        <span>{post.comments?.length || 0} comments</span>
+        <span>
+          {post.reactions?.length ||
+            post.likes?.length ||
+            0}{" "}
+          reactions
+        </span>
+
+        <span>
+          {post.comments?.length || 0} comments
+        </span>
       </div>
 
-      {/* ACTION BUTTONS */}
+      {/* ACTIONS */}
       <div className="flex justify-between border-t pt-2">
+
+        {/* LIKE */}
         <div
           className="relative"
           onMouseEnter={() => setShowReactions(true)}
           onMouseLeave={() => setShowReactions(false)}
         >
-          <button onClick={() => onLike(post._id, "👍")} className="text-gray-600">
+          <button
+            onClick={() => onLike(post._id, "👍")}
+            className="text-gray-600"
+          >
             👍 Like
           </button>
 
@@ -201,7 +262,9 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, setVideoRef
                 <button
                   key={r}
                   className="text-lg hover:scale-125"
-                  onClick={() => onLike(post._id, r)}
+                  onClick={() =>
+                    onLike(post._id, r)
+                  }
                 >
                   {r}
                 </button>
@@ -210,37 +273,74 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, setVideoRef
           )}
         </div>
 
-        <button onClick={() => setShowComments(!showComments)}>💬 Comment</button>
-        <button onClick={() => onShare(post)}>🔗 Share</button>
+        {/* COMMENT */}
+        <button
+          onClick={() =>
+            setShowComments(!showComments)
+          }
+        >
+          💬 Comment
+        </button>
+
+        {/* SHARE */}
+        <button
+          onClick={() => onShare(post)}
+        >
+          🔗 Share
+        </button>
       </div>
 
       {/* COMMENTS */}
       {showComments && (
         <div className="space-y-2">
+
           {post.comments?.map((c) => (
-            <div key={c._id} className="flex gap-2">
+            <div
+              key={c._id}
+              className="flex gap-2"
+            >
               <img
-                src={c.user.profilePic || "/default-avatar.png"}
+                src={
+                  c.user?.profilePic ||
+                  "/default-avatar.png"
+                }
                 className="w-6 h-6 rounded-full"
               />
+
               <div>
-                <span className="font-semibold text-sm">{c.user.name}</span>
-                <p className="text-sm">{c.text}</p>
+                <span className="font-semibold text-sm">
+                  {c.user?.name}
+                </span>
+
+                <p className="text-sm">
+                  {c.text}
+                </p>
               </div>
             </div>
           ))}
 
+          {/* COMMENT INPUT */}
           <div className="flex gap-2">
             <input
               value={commentText}
-              onChange={(e) => setCommentText(e.target.value)}
+              onChange={(e) =>
+                setCommentText(
+                  e.target.value
+                )
+              }
               className="flex-1 border rounded px-2 py-1"
               placeholder="Write comment..."
             />
+
             <button
               onClick={() => {
-                if (commentText.trim()) {
-                  onComment(post._id, commentText);
+                if (
+                  commentText.trim()
+                ) {
+                  onComment(
+                    post._id,
+                    commentText
+                  );
                   setCommentText("");
                 }
               }}
