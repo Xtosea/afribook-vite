@@ -96,7 +96,7 @@ return ( <div className="bg-white rounded-xl shadow space-y-3 w-full p-4">
           <video
             ref={el => (videoRefs.current[i] = el)}
             src={m.url}
-            className=" max-h-[400px] object-cover"
+            className=" max-h-[200px] object-cover"
             muted
             controls
           />
