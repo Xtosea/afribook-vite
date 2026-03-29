@@ -12,17 +12,14 @@ import { getSocket, connectSocket } from "../socket";
 import { useCloudinaryUpload } from "../hooks/useCloudinaryUpload";
 import { useR2Upload } from "../hooks/useR2Upload";
 
-// Lazy load emoji picker
 const EmojiPicker = lazy(() => import("emoji-picker-react"));
 
-// Skeleton post
 const SkeletonPost = () => (
   <div className="bg-white p-4 rounded-2xl shadow animate-pulse space-y-4">
     <div className="h-64 bg-gray-300 rounded-xl"></div>
   </div>
 );
 
-// Lazy video hook
 const useLazyVideo = (videos) => {
   useEffect(() => {
     if (!videos || videos.length === 0) return;
@@ -31,6 +28,7 @@ const useLazyVideo = (videos) => {
       (entries) => {
         entries.forEach((entry) => {
           const video = entry.target;
+
           if (entry.isIntersecting) {
             if (!video.src) video.src = video.dataset.src;
             video.play().catch(() => {});
@@ -62,7 +60,6 @@ const Home = () => {
     name: localStorage.getItem("name"),
   };
 
-  // --- States ---
   const [posts, setPosts] = useState([]);
   const [loadingPosts, setLoadingPosts] = useState(true);
   const [stories, setStories] = useState([]);
@@ -81,7 +78,6 @@ const Home = () => {
   const [videoRefs, setVideoRefs] = useState([]);
   useLazyVideo(videoRefs);
 
-  // --- Fetch posts & stories ---
   useEffect(() => {
     if (!token) return;
 
@@ -93,12 +89,13 @@ const Home = () => {
         );
         setPosts(postsData);
 
-        // Fetch stories via R2 backend
         const res = await fetch(`${API_BASE}/api/stories?limit=20`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+
         const text = await res.text();
         let data;
+
         try {
           data = JSON.parse(text);
         } catch {
@@ -114,12 +111,12 @@ const Home = () => {
 
       connectSocket();
       const socket = getSocket();
-      if (!socket) return;
 
-      socket.on("new-video", (post) =>
+      socket?.on("new-video", (post) =>
         setPosts((prev) => [post, ...prev])
       );
-      socket.on("new-story", (story) =>
+
+      socket?.on("new-story", (story) =>
         setStories((prev) => [story, ...prev])
       );
     };
@@ -128,21 +125,20 @@ const Home = () => {
 
     return () => {
       const socket = getSocket();
-      if (socket) {
-        socket.off("new-video");
-        socket.off("new-story");
-      }
+      socket?.off("new-video");
+      socket?.off("new-story");
     };
   }, [token]);
 
-  // --- Create post ---
   const handleSubmitPost = async (e) => {
     e.preventDefault();
     if (!newPost && mediaFiles.length === 0) return;
+
     setPosting(true);
 
     try {
       const uploadedMedia = [];
+
       for (let file of mediaFiles) {
         let compressedFile = file;
         const type = file.type.startsWith("image") ? "image" : "video";
@@ -161,6 +157,7 @@ const Home = () => {
           type === "image"
             ? await uploadImage(compressedFile)
             : await uploadVideo(file);
+
         uploadedMedia.push({ url, type });
       }
 
@@ -180,6 +177,7 @@ const Home = () => {
       });
 
       const data = await res.json();
+
       getSocket()?.emit("new-video", data.post);
       setPosts((prev) => [data.post, ...prev]);
 
@@ -197,17 +195,15 @@ const Home = () => {
   };
 
   return (
-    // ✅ ADJUSTED PARENT CONTAINER
-    <div className="w-full min-h-screen grid grid-cols-1 md:grid-cols-4 gap-4 px-2">
+    <div className="w-full min-h-screen grid grid-cols-1 md:grid-cols-5 gap-4 px-2">
 
       {/* LEFT SIDEBAR */}
       <div className="hidden md:block md:col-span-1">
-
         <SidebarLeft />
       </div>
 
       {/* MAIN FEED */}
-      <div className="col-span-1 md:col-span-2 space-y-4 w-full">
+      <div className="col-span-1 md:col-span-3 w-full space-y-4">
 
         <StoriesBar user={currentUser} stories={stories} />
 
@@ -223,6 +219,7 @@ const Home = () => {
             placeholder="What's on your mind?"
             className="w-full border rounded-lg p-3"
           />
+
           {expanded && (
             <>
               <input
@@ -231,41 +228,13 @@ const Home = () => {
                 placeholder="Feeling..."
                 className="w-full border rounded-lg p-2"
               />
+
               <input
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 placeholder="Location..."
                 className="w-full border rounded-lg p-2"
               />
-              <input
-                value={taggedFriends.map((f) => f.name).join(", ")}
-                onChange={(e) =>
-                  setTaggedFriends(
-                    e.target.value
-                      .split(",")
-                      .map((n) => ({ name: n.trim() }))
-                  )
-                }
-                placeholder="Tag friends (comma separated)"
-                className="w-full border rounded-lg p-2"
-              />
-
-              <button
-                type="button"
-                onClick={() => setShowEmoji(!showEmoji)}
-                className="border px-3 py-1 rounded-full"
-              >
-                😊 Emoji
-              </button>
-              {showEmoji && (
-                <Suspense fallback={<div>Loading Emoji...</div>}>
-                  <EmojiPicker
-                    onEmojiClick={(e) =>
-                      setNewPost((prev) => prev + e.emoji)
-                    }
-                  />
-                </Suspense>
-              )}
 
               <MediaUpload
                 mediaFiles={mediaFiles}
@@ -282,8 +251,8 @@ const Home = () => {
           )}
         </form>
 
-        {/* POSTS FEED */}
-        <div ref={feedRef} className="space-y-4">
+        {/* POSTS */}
+        <div ref={feedRef} className="space-y-4 w-full">
           {loadingPosts
             ? [<SkeletonPost key={0} />, <SkeletonPost key={1} />]
             : posts.map((post) => (
@@ -295,12 +264,14 @@ const Home = () => {
                 />
               ))}
         </div>
+
       </div>
 
       {/* RIGHT SIDEBAR */}
       <div className="hidden md:block md:col-span-1">
         <SidebarRight />
       </div>
+
     </div>
   );
 };
