@@ -36,27 +36,59 @@ const PostCard = ({
     // =============================
     // SINGLE MEDIA
     // =============================
-    if (post.media.length === 1) {
-      const m = post.media[0];
+    // Single Media
+if (post.media.length === 1) {
+  const m = post.media[0];
 
-      return m.type === "image" ? (
+  const isPortrait = m.height > m.width;
+  const isLandscape = m.width > m.height;
+
+  return (
+    <div
+      className={`
+        w-full 
+        ${isPortrait ? "max-w-[500px] mx-auto" : ""}
+        ${isLandscape ? "w-full" : ""}
+      `}
+    >
+      {m.type === "image" ? (
         <img
           src={m.url}
-          className="w-full max-h-[650px] object-contain bg-black rounded-xl cursor-pointer"
-          onClick={() => navigate(`/media/${post._id}?index=0`)}
+          className={`
+            w-full 
+            ${isPortrait ? "max-h-[700px] object-contain" : ""}
+            ${isLandscape ? "max-h-[500px] object-contain" : ""}
+            bg-black
+            rounded-xl
+            cursor-pointer
+          `}
+          onClick={() =>
+            navigate(`/media/${post._id}?index=0`)
+          }
           alt=""
         />
       ) : (
         <video
           data-src={m.url}
           ref={(el) => (videoRefs.current[0] = el)}
-          className="w-full max-h-[650px] object-contain bg-black rounded-xl cursor-pointer"
+          className={`
+            w-full 
+            ${isPortrait ? "max-h-[700px] object-contain" : ""}
+            ${isLandscape ? "max-h-[500px] object-contain" : ""}
+            bg-black
+            rounded-xl
+          `}
           muted
           controls
-          onClick={() => navigate(`/media/${post._id}?index=0`)}
+          onClick={() =>
+            navigate(`/media/${post._id}?index=0`)
+          }
         />
-      );
-    }
+      )}
+    </div>
+  );
+}
+
 
     // =============================
     // MULTIPLE MEDIA
