@@ -12,23 +12,24 @@ import { getSocket, connectSocket } from "../socket";
 import { useCloudinaryUpload } from "../hooks/useCloudinaryUpload";
 import { useR2Upload } from "../hooks/useR2Upload";
 
+// Lazy load emoji picker
 const EmojiPicker = lazy(() => import("emoji-picker-react"));
 
+// Skeleton post
 const SkeletonPost = () => (
-  <div className="bg-white p-4 rounded-2xl shadow animate-pulse space-y-4">
-    <div className="h-64 bg-gray-300 rounded-xl"></div>
+  <div className="bg-white p-4 rounded-2xl shadow animate-pulse space-y-4 w-full">
+    <div className="h-64 bg-gray-300 rounded-xl w-full"></div>
   </div>
 );
 
+// Lazy video hook
 const useLazyVideo = (videos) => {
   useEffect(() => {
     if (!videos || videos.length === 0) return;
-
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           const video = entry.target;
-
           if (entry.isIntersecting) {
             if (!video.src) video.src = video.dataset.src;
             video.play().catch(() => {});
@@ -39,7 +40,6 @@ const useLazyVideo = (videos) => {
       },
       { threshold: 0.5 }
     );
-
     videos.forEach((v) => observer.observe(v));
     return () => observer.disconnect();
   }, [videos]);
@@ -60,6 +60,7 @@ const Home = () => {
     name: localStorage.getItem("name"),
   };
 
+  // --- States ---
   const [posts, setPosts] = useState([]);
   const [loadingPosts, setLoadingPosts] = useState(true);
   const [stories, setStories] = useState([]);
@@ -78,9 +79,9 @@ const Home = () => {
   const [videoRefs, setVideoRefs] = useState([]);
   useLazyVideo(videoRefs);
 
+  // --- Fetch posts & stories ---
   useEffect(() => {
     if (!token) return;
-
     const init = async () => {
       try {
         const postsData = await fetchWithToken(
@@ -92,16 +93,13 @@ const Home = () => {
         const res = await fetch(`${API_BASE}/api/stories?limit=20`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-
         const text = await res.text();
         let data;
-
         try {
           data = JSON.parse(text);
         } catch {
           data = { stories: [] };
         }
-
         setStories(data.stories || []);
       } catch (err) {
         console.error("Fetching posts/stories error:", err);
@@ -111,34 +109,29 @@ const Home = () => {
 
       connectSocket();
       const socket = getSocket();
-
-      socket?.on("new-video", (post) =>
-        setPosts((prev) => [post, ...prev])
-      );
-
-      socket?.on("new-story", (story) =>
-        setStories((prev) => [story, ...prev])
-      );
+      if (!socket) return;
+      socket.on("new-video", (post) => setPosts((prev) => [post, ...prev]));
+      socket.on("new-story", (story) => setStories((prev) => [story, ...prev]));
     };
-
     init();
 
     return () => {
       const socket = getSocket();
-      socket?.off("new-video");
-      socket?.off("new-story");
+      if (socket) {
+        socket.off("new-video");
+        socket.off("new-story");
+      }
     };
   }, [token]);
 
+  // --- Create post ---
   const handleSubmitPost = async (e) => {
     e.preventDefault();
     if (!newPost && mediaFiles.length === 0) return;
-
     setPosting(true);
 
     try {
       const uploadedMedia = [];
-
       for (let file of mediaFiles) {
         let compressedFile = file;
         const type = file.type.startsWith("image") ? "image" : "video";
@@ -157,7 +150,6 @@ const Home = () => {
           type === "image"
             ? await uploadImage(compressedFile)
             : await uploadVideo(file);
-
         uploadedMedia.push({ url, type });
       }
 
@@ -177,7 +169,6 @@ const Home = () => {
       });
 
       const data = await res.json();
-
       getSocket()?.emit("new-video", data.post);
       setPosts((prev) => [data.post, ...prev]);
 
@@ -195,22 +186,21 @@ const Home = () => {
   };
 
   return (
-    <div className="w-full min-h-screen grid grid-cols-1 md:grid-cols-5 gap-4 px-2">
+    <div className="w-full min-h-screen grid grid-cols-1 gap-0">
 
       {/* LEFT SIDEBAR */}
-      <div className="hidden md:block md:col-span-1">
+      <div className="hidden md:block">
         <SidebarLeft />
       </div>
 
       {/* MAIN FEED */}
-      <div className="col-span-1 md:col-span-3 w-full space-y-4">
-
+      <div className="col-span-1 space-y-4 w-full">
         <StoriesBar user={currentUser} stories={stories} />
 
         {/* CREATE POST */}
         <form
           onSubmit={handleSubmitPost}
-          className="bg-white p-4 rounded-xl shadow space-y-3"
+          className="bg-white p-4 rounded-xl shadow space-y-3 w-full"
         >
           <textarea
             value={newPost}
@@ -219,7 +209,6 @@ const Home = () => {
             placeholder="What's on your mind?"
             className="w-full border rounded-lg p-3"
           />
-
           {expanded && (
             <>
               <input
@@ -228,30 +217,29 @@ const Home = () => {
                 placeholder="Feeling..."
                 className="w-full border rounded-lg p-2"
               />
-
               <input
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 placeholder="Location..."
                 className="w-full border rounded-lg p-2"
               />
-
-              <MediaUpload
-                mediaFiles={mediaFiles}
-                setMediaFiles={setMediaFiles}
+              <input
+                value={taggedFriends.map((f) => f.name).join(", ")}
+                onChange={(e) =>
+                  setTaggedFriends(
+                    e.target.value
+                      .split(",")
+                      .map((n) => ({ name: n.trim() }))
+                  )
+                }
+                placeholder="Tag friends (comma separated)"
+                className="w-full border rounded-lg p-2"
               />
-
-              <button
-                type="submit"
-                className="bg-blue-500 text-white px-4 py-2 rounded"
-              >
-                {posting ? "Posting..." : "Post"}
-              </button>
             </>
           )}
         </form>
 
-        {/* POSTS */}
+        {/* POSTS FEED */}
         <div ref={feedRef} className="space-y-4 w-full">
           {loadingPosts
             ? [<SkeletonPost key={0} />, <SkeletonPost key={1} />]
@@ -264,14 +252,12 @@ const Home = () => {
                 />
               ))}
         </div>
-
       </div>
 
       {/* RIGHT SIDEBAR */}
-      <div className="hidden md:block md:col-span-1">
+      <div className="hidden md:block">
         <SidebarRight />
       </div>
-
     </div>
   );
 };
