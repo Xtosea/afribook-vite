@@ -155,7 +155,7 @@ const PostCard = ({
   };
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow space-y-3 w-full">
+    <div className="bg-white p-10 rounded-xl shadow space-y-3 w-full">
       {/* HEADER */}
       <div className="flex items-center gap-3">
         <img
