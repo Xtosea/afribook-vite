@@ -51,7 +51,7 @@ const PostCard = ({
         <div
           className={`
             w-full
-           ${isPortrait ? "max-w-[700px] mx-auto p-4  " : ""}
+           ${isPortrait ? "max-w-[700px] mx-auto p-1  " : ""}
             ${isSquare ? "max-w-[520px] mx-auto" : ""}
             ${isLandscape ? "w-full" : ""}
           `}
@@ -105,7 +105,7 @@ const PostCard = ({
       <div className="grid gap-2">
         {/* FIRST LARGE MEDIA */}
         <div
-          className="w-full h-[450px] md:h-[520px] overflow-hidden rounded-xl p-2 cursor-pointer bg-black"
+          className="w-full h-[450px] md:h-[520px] overflow-hidden rounded-xl  cursor-pointer bg-black"
           onClick={() => navigate(`/media/${post._id}?index=0`)}
         >
           {post.media[0].type === "image" ? (
@@ -178,7 +178,7 @@ const PostCard = ({
   };
 
   return (
-    <div className="bg-white p-4 rounded-xl shadow space-y-3 w-full">
+    <div className="bg-white p-8 rounded-xl shadow space-y-3 w-full">
 
       {/* HEADER */}
       <div className="flex items-center gap-3">
