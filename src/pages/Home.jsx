@@ -81,31 +81,60 @@ const Home = () => {
 
   // --- Fetch posts & stories ---
   useEffect(() => {
-  if (!token) return;
+    if (!token) return;
+    const init = async () => {
+      try {
+        // Fetch posts
+        const postsData = await fetchWithToken(
+          `${API_BASE}/api/posts?limit=20`,
+          token
+        );
+        setPosts(postsData);
 
-  // --- Initialize socket ---
-  connectSocket();
-  const socket = getSocket();
-  if (!socket) return;
+        // Fetch stories
+        const res = await fetch(`${API_BASE}/api/stories?limit=20`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const text = await res.text();
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch {
+          data = { stories: [] };
+        }
+        setStories(data.stories || []);
+      } catch (err) {
+        console.error("Fetching posts/stories error:", err);
+      } finally {
+        setLoadingPosts(false);
+      }
 
-  // Listen for new posts/videos and stories
-  socket.on("new-video", (post) => setPosts((prev) => [post, ...prev]));
-  socket.on("new-story", (story) => setStories((prev) => [story, ...prev]));
+      // --- Socket connection ---
+      connectSocket();
+      const socket = getSocket();
+      if (!socket) return;
 
-  // Listen for birthdays
-  socket.on("birthday", (data) => {
-    if (data?.name) {
-      alert(`🎉 Today is ${data.name}'s birthday!`);
-    }
-  });
+      // Listen for new posts/videos
+      socket.on("new-video", (post) => setPosts((prev) => [post, ...prev]));
+      // Listen for new stories
+      socket.on("new-story", (story) => setStories((prev) => [story, ...prev]));
+      // Listen for birthday notifications
+      socket.on("birthday", (data) => {
+        alert(`🎉 Today is ${data.name}'s birthday`);
+      });
+    };
+    init();
 
-  // Cleanup listeners on unmount
-  return () => {
-    socket.off("new-video");
-    socket.off("new-story");
-    socket.off("birthday");
-  };
-}, [token]);
+    // Cleanup
+    return () => {
+      const socket = getSocket();
+      if (socket) {
+        socket.off("new-video");
+        socket.off("new-story");
+        socket.off("birthday");
+      }
+    };
+  }, [token]);
 
   // --- Create post ---
   const handleSubmitPost = async (e) => {
@@ -155,6 +184,7 @@ const Home = () => {
       getSocket()?.emit("new-video", data.post);
       setPosts((prev) => [data.post, ...prev]);
 
+      // Reset form
       setNewPost("");
       setMediaFiles([]);
       setLocation("");
