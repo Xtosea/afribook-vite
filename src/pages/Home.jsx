@@ -211,13 +211,22 @@ const Home = () => {
         </form>
 
         {/* POSTS FEED */}
-        <div ref={feedRef} className="space-y-4">
-          {loadingPosts
-            ? [<SkeletonPost key={0} />, <SkeletonPost key={1} />]
-            : posts.map((post) => (
-                <PostCard key={post._id} post={post} currentUserId={currentUserId} setVideoRefs={setVideoRefs} />
-              ))}
-        </div>
+        <div ref={feedRef} className="space-y-4 w-full flex flex-col items-center">
+  {posts.map((post) => (
+    <div
+      key={post._id}
+      className={`w-full flex justify-center ${
+        post.media?.length === 1 ? "md:w-full" : "md:w-[90%]"
+      }`}
+    >
+      <PostCard
+        post={post}
+        currentUserId={currentUserId}
+        setVideoRefs={setVideoRefs}
+      />
+    </div>
+  ))}
+</div>
       </div>
 
       {/* RIGHT SIDEBAR */}
