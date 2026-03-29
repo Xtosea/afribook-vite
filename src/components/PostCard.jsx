@@ -38,7 +38,7 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, setVideoRef
         <div
           className={`
             w-full
-            ${isPortrait ? "max-w-[500px] mx-auto p-2" : ""}
+            ${isPortrait ? "max-w-[500px] mx-auto p-8" : ""}
             ${isLandscape ? "w-full p-6" : ""}
           `}
         >
@@ -78,7 +78,7 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, setVideoRef
       <div className="grid gap-2">
         {/* First Large Media */}
         <div
-          className="w-full h-[420px] md:h-[500px] overflow-hidden rounded-xl cursor-pointer bg-black"
+          className="w-full h-[420px] md:h-[500px] overflow-hidden rounded-xl p-6 cursor-pointer bg-black"
           onClick={() => navigate(`/media/${post._id}?index=0`)}
         >
           {post.media[0].type === "image" ? (
