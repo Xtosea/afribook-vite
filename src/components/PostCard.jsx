@@ -14,6 +14,12 @@ const PostCard = ({ post }) => {
   return (
     <div className="bg-white rounded-xl shadow space-y-3 p-2">
 
+    {post.type === "birthday" && (
+  <div className="bg-pink-100 text-pink-700 p-2 rounded-lg text-sm">
+    🎂 Birthday
+  </div>
+)}
+
       {/* ======================= */}
       {/* HEADER */}
       {/* ======================= */}
