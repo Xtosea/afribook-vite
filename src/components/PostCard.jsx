@@ -1,130 +1,299 @@
-// src/components/PostCard.jsx
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const reactions = ["👍", "❤️", "😂", "😮", "😢", "😡"];
 
-const PostCard = ({ post, currentUserId, onLike, onComment, onShare, setVideoRefs }) => {
+const PostCard = ({
+  post,
+  onLike,
+  onComment,
+  onShare,
+  setVideoRefs
+}) => {
   const navigate = useNavigate();
-  const [commentText, setCommentText] = useState("");
+
   const [showComments, setShowComments] = useState(false);
+  const [commentText, setCommentText] = useState("");
   const [showReactions, setShowReactions] = useState(false);
+  const [fullscreen, setFullscreen] = useState(null);
+
   const videoRefs = useRef([]);
 
   useEffect(() => {
     if (setVideoRefs) {
-      setVideoRefs(prev => [...prev, ...videoRefs.current.filter(Boolean)]);
+      setVideoRefs(prev => [
+        ...prev,
+        ...videoRefs.current.filter(Boolean)
+      ]);
     }
   }, [setVideoRefs]);
 
-  const renderMedia = () => {
-    if (!post.media?.length) return null;
 
-    if (post.media.length === 1) {
-      const m = post.media[0];
-      const isPortrait = m.height > m.width;
+/* ================= MEDIA RENDER ================= */
 
-      return (
-        <div className={`rounded-xl overflow-hidden w-full cursor-pointer ${isPortrait ? "h-[300px]" : "h-[800px]"}`} onClick={() => navigate(`/media/${post._id}?index=0`)}>
-          {m.type === "image" ? (
-            <img src={m.url} className="w-full h-full object-contain bg-black" alt="" />
-          ) : (
-            <video data-src={m.url} ref={el => (videoRefs.current[0] = el)} className="w-full h-full object-cover bg-black" muted controls />
-          )}
-        </div>
-      );
-    }
+const renderMedia = () => {
+  if (!post.media?.length) return null;
 
-    // MULTI-MEDIA GRID
+  // MULTI MEDIA GRID
+  if (post.media.length > 1) {
     return (
-      <div className="grid gap-2">
-        {post.media.map((m, i) => {
-          const isPortrait = m.height > m.width;
-
-          // Determine grid layout
-          let gridClass = "col-span-1 row-span-1";
-          if (post.media.length === 2) gridClass = "col-span-1";
-          if (post.media.length === 3 && i === 0) gridClass = "col-span-2 row-span-2";
-          if (post.media.length >= 4 && i === 0) gridClass = "col-span-2 row-span-2";
-
-          return (
-            <div key={i} className={`rounded-xl overflow-hidden cursor-pointer ${gridClass}`} style={{ aspectRatio: isPortrait ? "3/4" : "8/12" }} onClick={() => navigate(`/media/${post._id}?index=${i}`)}>
-              {m.type === "image" ? (
-                <img src={m.url} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" alt="" />
-              ) : (
-                <video data-src={m.url} ref={el => (videoRefs.current[i] = el)} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" muted controls />
-              )}
-            </div>
-          );
-        })}
+      <div className="grid grid-cols-2 gap-2">
+        {post.media.map((m, i) => renderSingleMedia(m, i, true))}
       </div>
     );
-  };
+  }
 
+  return renderSingleMedia(post.media[0], 0);
+};
+
+
+/* ================= SINGLE MEDIA ================= */
+
+const renderSingleMedia = (m, i, isGrid = false) => {
+
+  const isPortrait = m.height > m.width;
+  const isVideo = m.type === "video";
+  const isImage = m.type === "image";
+
+
+/* ================= PORTRAIT IMAGE ================= */
+
+if (isPortrait && isImage) {
   return (
-    <div className="bg-white rounded-xl shadow space-y-3 p-2 ">
-      {/* HEADER */}
-      <div className="flex items-center gap-3">
-        <img src={post.user.profilePic || "/default-avatar.png"} alt={post.user.name} className="w-12 h-12 rounded-full object-cover" />
-        <div className="flex-1">
-          <p className="font-semibold">{post.user.name}</p>
-          <div className="text-xs text-gray-500 flex gap-2 flex-wrap">
-            <span>{new Date(post.createdAt).toLocaleString()}</span>
-            {post.feeling && <span>• feeling {post.feeling}</span>}
-            {post.location && <span>• {post.location}</span>}
-          </div>
-          {post.taggedFriends?.length > 0 && <div className="text-xs text-blue-500">with {post.taggedFriends.map(f => f.name).join(", ")}</div>}
-        </div>
-      </div>
-
-      {/* CONTENT */}
-      {post.content && <p>{post.content}</p>}
-
-      {/* MEDIA */}
-      {renderMedia()}
-
-      {/* COUNTS */}
-      <div className="text-sm text-gray-500 flex justify-between">
-        <span>{post.reactions?.length || post.likes?.length || 0} reactions</span>
-        <span>{post.comments?.length || 0} comments</span>
-      </div>
-
-      {/* ACTION BUTTONS */}
-      <div className="flex justify-between border-t pt-2">
-        <div className="relative" onMouseEnter={() => setShowReactions(true)} onMouseLeave={() => setShowReactions(false)}>
-          <button onClick={() => onLike(post._id, "👍")} className="text-gray-600">👍 Like</button>
-          {showReactions && (
-            <div className="absolute bottom-8 left-0 bg-white shadow rounded-full px-2 py-1 flex gap-2 z-10">
-              {reactions.map(r => (
-                <button key={r} className="text-lg hover:scale-125" onClick={() => onLike(post._id, r)}>{r}</button>
-              ))}
-            </div>
-          )}
-        </div>
-        <button onClick={() => setShowComments(!showComments)}>💬 Comment</button>
-        <button onClick={() => onShare(post)}>🔗 Share</button>
-      </div>
-
-      {/* COMMENTS */}
-      {showComments && (
-        <div className="space-y-2">
-          {post.comments?.map(c => (
-            <div key={c._id} className="flex gap-2">
-              <img src={c.user.profilePic || "/default-avatar.png"} className="w-6 h-6 rounded-full" />
-              <div>
-                <span className="font-semibold text-sm">{c.user.name}</span>
-                <p className="text-sm">{c.text}</p>
-              </div>
-            </div>
-          ))}
-          <div className="flex gap-2">
-            <input value={commentText} onChange={e => setCommentText(e.target.value)} className="flex-1 border rounded px-2 py-1" placeholder="Write comment..." />
-            <button onClick={() => { if (commentText.trim()) { onComment(post._id, commentText); setCommentText(""); }}} className="bg-blue-500 text-white px-3 rounded">Send</button>
-          </div>
-        </div>
-      )}
+    <div
+      key={i}
+      className={`
+      ${isGrid ? "h-[350px]" : "h-[650px]"}
+      w-[80%] mx-auto
+      rounded-xl overflow-hidden shadow
+      cursor-pointer
+      `}
+      onClick={() => setFullscreen({ media: m })}
+    >
+      <img
+        src={m.url}
+        className="w-full h-full object-contain bg-black"
+        alt=""
+      />
     </div>
   );
+}
+
+
+/* ================= PORTRAIT VIDEO ================= */
+
+if (isPortrait && isVideo) {
+  return (
+    <div
+      key={i}
+      className={`
+      ${isGrid ? "h-[350px]" : "h-[700px]"}
+      w-[75%] mx-auto
+      rounded-xl overflow-hidden shadow
+      cursor-pointer
+      `}
+      onClick={() => setFullscreen({ media: m })}
+    >
+      <video
+        ref={el => (videoRefs.current[i] = el)}
+        src={m.url}
+        className="w-full h-full object-contain bg-black"
+        muted
+        controls
+      />
+    </div>
+  );
+}
+
+
+/* ================= LANDSCAPE IMAGE ================= */
+
+if (!isPortrait && isImage) {
+  return (
+    <div
+      key={i}
+      className={`
+      ${isGrid ? "h-[220px]" : "h-[400px]"}
+      w-full
+      rounded-xl overflow-hidden shadow
+      cursor-pointer
+      `}
+      onClick={() => setFullscreen({ media: m })}
+    >
+      <img
+        src={m.url}
+        className="w-full h-full object-cover"
+        alt=""
+      />
+    </div>
+  );
+}
+
+
+/* ================= LANDSCAPE VIDEO ================= */
+
+if (!isPortrait && isVideo) {
+  return (
+    <div
+      key={i}
+      className={`
+      ${isGrid ? "h-[240px]" : "h-[450px]"}
+      w-full
+      rounded-xl overflow-hidden shadow
+      cursor-pointer
+      `}
+      onClick={() => setFullscreen({ media: m })}
+    >
+      <video
+        ref={el => (videoRefs.current[i] = el)}
+        src={m.url}
+        className="w-full h-full object-cover"
+        muted
+        controls
+      />
+    </div>
+  );
+}
+
+};
+
+
+/* ================= FULLSCREEN VIEWER ================= */
+
+const FullscreenViewer = () => {
+  if (!fullscreen) return null;
+
+  const m = fullscreen.media;
+
+  return (
+    <div
+      className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center"
+      onClick={() => setFullscreen(null)}
+    >
+
+      {m.type === "image" ? (
+        <img
+          src={m.url}
+          className="max-h-full max-w-full object-contain"
+        />
+      ) : (
+        <video
+          src={m.url}
+          className="max-h-full max-w-full"
+          controls
+          autoPlay
+        />
+      )}
+
+    </div>
+  );
+};
+
+
+/* ================= POST CARD ================= */
+
+return (
+  <>
+
+  <div className="bg-white rounded-xl shadow space-y-3 w-full p-4">
+
+
+{/* HEADER */}
+
+<div className="flex gap-3 items-center">
+
+<img
+src={post.user?.profilePic}
+className="w-10 h-10 rounded-full object-cover"
+/>
+
+<div>
+
+<p className="font-semibold">
+{post.user?.name}
+</p>
+
+<p className="text-xs text-gray-500">
+{new Date(post.createdAt).toLocaleString()}
+</p>
+
+</div>
+
+</div>
+
+
+{/* CONTENT */}
+
+{post.content && (
+<p className="text-sm">
+{post.content}
+</p>
+)}
+
+
+{/* MEDIA */}
+
+{renderMedia()}
+
+
+{/* ACTIONS */}
+
+<div className="flex justify-between pt-2 border-t">
+
+<button onClick={() => onLike(post._id)}>
+👍 Like
+</button>
+
+<button onClick={() => setShowComments(!showComments)}>
+💬 Comment
+</button>
+
+<button onClick={() => onShare(post)}>
+🔗 Share
+</button>
+
+</div>
+
+
+{/* COMMENTS */}
+
+{showComments && (
+
+<div className="space-y-2">
+
+<input
+value={commentText}
+onChange={e => setCommentText(e.target.value)}
+className="w-full border rounded p-2"
+placeholder="Write comment"
+/>
+
+<button
+onClick={() => {
+
+onComment(post._id, commentText);
+setCommentText("");
+
+}}
+className="bg-blue-500 text-white px-3 py-1 rounded"
+>
+Send
+</button>
+
+</div>
+
+)}
+
+
+</div>
+
+
+<FullscreenViewer />
+
+
+</>
+);
+
 };
 
 export default PostCard;
