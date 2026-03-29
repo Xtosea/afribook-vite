@@ -81,48 +81,31 @@ const Home = () => {
 
   // --- Fetch posts & stories ---
   useEffect(() => {
-    if (!token) return;
-    const init = async () => {
-      try {
-        const postsData = await fetchWithToken(
-          `${API_BASE}/api/posts?limit=20`,
-          token
-        );
-        setPosts(postsData);
+  if (!token) return;
 
-        const res = await fetch(`${API_BASE}/api/stories?limit=20`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const text = await res.text();
-        let data;
-        try {
-          data = JSON.parse(text);
-        } catch {
-          data = { stories: [] };
-        }
-        setStories(data.stories || []);
-      } catch (err) {
-        console.error("Fetching posts/stories error:", err);
-      } finally {
-        setLoadingPosts(false);
-      }
+  // --- Initialize socket ---
+  connectSocket();
+  const socket = getSocket();
+  if (!socket) return;
 
-      connectSocket();
-      const socket = getSocket();
-      if (!socket) return;
-      socket.on("new-video", (post) => setPosts((prev) => [post, ...prev]));
-      socket.on("new-story", (story) => setStories((prev) => [story, ...prev]));
-    };
-    init();
+  // Listen for new posts/videos and stories
+  socket.on("new-video", (post) => setPosts((prev) => [post, ...prev]));
+  socket.on("new-story", (story) => setStories((prev) => [story, ...prev]));
 
-    return () => {
-      const socket = getSocket();
-      if (socket) {
-        socket.off("new-video");
-        socket.off("new-story");
-      }
-    };
-  }, [token]);
+  // Listen for birthdays
+  socket.on("birthday", (data) => {
+    if (data?.name) {
+      alert(`🎉 Today is ${data.name}'s birthday!`);
+    }
+  });
+
+  // Cleanup listeners on unmount
+  return () => {
+    socket.off("new-video");
+    socket.off("new-story");
+    socket.off("birthday");
+  };
+}, [token]);
 
   // --- Create post ---
   const handleSubmitPost = async (e) => {
