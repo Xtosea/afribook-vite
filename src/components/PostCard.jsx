@@ -59,20 +59,14 @@ const PostCard = ({
               alt=""
             />
           ) : (
-            <video
-              data-src={m.url}
-              ref={(el) => (videoRefs.current[0] = el)}
-              className={`
-                w-full
-                ${isPortrait ? "max-h-[600px] object-contain" : ""}
-                ${isLandscape ? "max-h-[400px] object-contain" : ""}
-                bg-black
-                rounded-xl
-              `}
-              muted
-              controls
-              onClick={() => navigate(`/media/${post._id}?index=0`)}
-            />
+            <<video
+  data-src={m.url}
+  ref={(el) => (videoRefs.current[0] = el)}
+  className="w-full h-[80vh] object-cover bg-black rounded-xl"
+  muted
+  controls
+  onClick={() => navigate(`/media/${post._id}?index=0`)}
+/>
           )}
         </div>
       );
