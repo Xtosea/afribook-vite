@@ -198,15 +198,17 @@ const Home = () => {
 
   return (
     // ✅ ADJUSTED PARENT CONTAINER
-    <div className="w-full min-h-screen px-0 py-0 grid grid-cols-1 gap-0">
+    <div className="w-full min-h-screen grid grid-cols-1 md:grid-cols-4 gap-4 px-2">
 
       {/* LEFT SIDEBAR */}
-      <div className="hidden md:block">
+      <div className="hidden md:block md:col-span-1">
+
         <SidebarLeft />
       </div>
 
       {/* MAIN FEED */}
-      <div className="col-span-1 space-y-4 w-full">
+      <div className="col-span-1 md:col-span-2 space-y-4 w-full">
+
         <StoriesBar user={currentUser} stories={stories} />
 
         {/* CREATE POST */}
@@ -296,7 +298,7 @@ const Home = () => {
       </div>
 
       {/* RIGHT SIDEBAR */}
-      <div className="hidden md:block">
+      <div className="hidden md:block md:col-span-1">
         <SidebarRight />
       </div>
     </div>
