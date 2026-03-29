@@ -33,48 +33,41 @@ const PostCard = ({
   const renderMedia = () => {
     if (!post.media?.length) return null;
 
-    // Single Media
+    // =============================
+    // SINGLE MEDIA
+    // =============================
     if (post.media.length === 1) {
       const m = post.media[0];
 
       return m.type === "image" ? (
-
-
         <img
-  src={m.url}
-  className="w-full max-h-[650px] object-contain bg-black cursor-pointer rounded-xl"
-
-          onClick={() =>
-            navigate(`/media/${post._id}?index=0`)
-          }
+          src={m.url}
+          className="w-full max-h-[650px] object-contain bg-black rounded-xl cursor-pointer"
+          onClick={() => navigate(`/media/${post._id}?index=0`)}
           alt=""
         />
       ) : (
         <video
           data-src={m.url}
           ref={(el) => (videoRefs.current[0] = el)}
-          className="w-full max-h-[650px] object-contain bg-black rounded-xl"
-
+          className="w-full max-h-[650px] object-contain bg-black rounded-xl cursor-pointer"
           muted
           controls
-          onClick={() =>
-            navigate(`/media/${post._id}?index=0`)
-          }
+          onClick={() => navigate(`/media/${post._id}?index=0`)}
         />
       );
     }
 
-    // Multiple Media Layout
+    // =============================
+    // MULTIPLE MEDIA
+    // =============================
     return (
       <div className="grid gap-2">
+        
         {/* First Large Media */}
         <div
-
           className="w-full h-[420px] md:h-[500px] overflow-hidden rounded-xl cursor-pointer bg-black"
-
-          onClick={() =>
-            navigate(`/media/${post._id}?index=0`)
-          }
+          onClick={() => navigate(`/media/${post._id}?index=0`)}
         >
           {post.media[0].type === "image" ? (
             <img
@@ -85,9 +78,7 @@ const PostCard = ({
           ) : (
             <video
               data-src={post.media[0].url}
-              ref={(el) =>
-                (videoRefs.current[0] = el)
-              }
+              ref={(el) => (videoRefs.current[0] = el)}
               className="w-full h-full object-cover"
               muted
             />
@@ -99,47 +90,33 @@ const PostCard = ({
           <div
             className={`
               grid gap-2
-              ${
-                post.media.length === 2
-                  ? "grid-cols-1"
-                  : "grid-cols-2"
-              }
+              ${post.media.length === 2 ? "grid-cols-1" : "grid-cols-2"}
             `}
           >
-            {post.media
-              .slice(1)
-              .map((m, i) => (
-                <div
-                  key={i + 1}
-
-                  classNameclassName="relative h-[180px] md:h-[220px] overflow-hidden rounded-xl cursor-pointer bg-black"
-
-overflow-hidden rounded-xl cursor-pointer"
-
-                  onClick={() =>
-                    navigate(
-                      `/media/${post._id}?index=${i + 1}`
-                    )
-                  }
-                >
-                  {m.type === "image" ? (
-                    <img
-                      src={m.url}
-                      className="w-full h-full object-cover"
-                      alt=""
-                    />
-                  ) : (
-                    <video
-                      data-src={m.url}
-                      ref={(el) =>
-                        (videoRefs.current[i + 1] = el)
-                      }
-                      className="w-full h-full object-cover"
-                      muted
-                    />
-                  )}
-                </div>
-              ))}
+            {post.media.slice(1).map((m, i) => (
+              <div
+                key={i + 1}
+                className="relative h-[180px] md:h-[220px] overflow-hidden rounded-xl cursor-pointer bg-black"
+                onClick={() =>
+                  navigate(`/media/${post._id}?index=${i + 1}`)
+                }
+              >
+                {m.type === "image" ? (
+                  <img
+                    src={m.url}
+                    className="w-full h-full object-cover"
+                    alt=""
+                  />
+                ) : (
+                  <video
+                    data-src={m.url}
+                    ref={(el) => (videoRefs.current[i + 1] = el)}
+                    className="w-full h-full object-cover"
+                    muted
+                  />
+                )}
+              </div>
+            ))}
           </div>
         )}
       </div>
@@ -152,10 +129,7 @@ overflow-hidden rounded-xl cursor-pointer"
       {/* HEADER */}
       <div className="flex items-center gap-3">
         <img
-          src={
-            post.user.profilePic ||
-            "/default-avatar.png"
-          }
+          src={post.user.profilePic || "/default-avatar.png"}
           alt={post.user.name}
           className="w-12 h-12 rounded-full object-cover"
         />
@@ -167,21 +141,15 @@ overflow-hidden rounded-xl cursor-pointer"
 
           <div className="text-xs text-gray-500 flex gap-2 flex-wrap">
             <span>
-              {new Date(
-                post.createdAt
-              ).toLocaleString()}
+              {new Date(post.createdAt).toLocaleString()}
             </span>
 
             {post.feeling && (
-              <span>
-                • feeling {post.feeling}
-              </span>
+              <span>• feeling {post.feeling}</span>
             )}
 
             {post.location && (
-              <span>
-                • {post.location}
-              </span>
+              <span>• {post.location}</span>
             )}
           </div>
 
@@ -197,9 +165,7 @@ overflow-hidden rounded-xl cursor-pointer"
       </div>
 
       {/* CONTENT */}
-      {post.content && (
-        <p>{post.content}</p>
-      )}
+      {post.content && <p>{post.content}</p>}
 
       {/* MEDIA */}
       {renderMedia()}
@@ -221,17 +187,11 @@ overflow-hidden rounded-xl cursor-pointer"
       <div className="flex justify-between border-t pt-2">
         <div
           className="relative"
-          onMouseEnter={() =>
-            setShowReactions(true)
-          }
-          onMouseLeave={() =>
-            setShowReactions(false)
-          }
+          onMouseEnter={() => setShowReactions(true)}
+          onMouseLeave={() => setShowReactions(false)}
         >
           <button
-            onClick={() =>
-              onLike(post._id, "👍")
-            }
+            onClick={() => onLike(post._id, "👍")}
             className="text-gray-600"
           >
             👍 Like
@@ -243,9 +203,7 @@ overflow-hidden rounded-xl cursor-pointer"
                 <button
                   key={r}
                   className="text-lg hover:scale-125"
-                  onClick={() =>
-                    onLike(post._id, r)
-                  }
+                  onClick={() => onLike(post._id, r)}
                 >
                   {r}
                 </button>
@@ -262,11 +220,7 @@ overflow-hidden rounded-xl cursor-pointer"
           💬 Comment
         </button>
 
-        <button
-          onClick={() =>
-            onShare(post)
-          }
-        >
+        <button onClick={() => onShare(post)}>
           🔗 Share
         </button>
       </div>
@@ -303,9 +257,7 @@ overflow-hidden rounded-xl cursor-pointer"
             <input
               value={commentText}
               onChange={(e) =>
-                setCommentText(
-                  e.target.value
-                )
+                setCommentText(e.target.value)
               }
               className="flex-1 border rounded px-2 py-1"
               placeholder="Write comment..."
