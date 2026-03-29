@@ -53,7 +53,8 @@ const PostCard = ({
         <video
           data-src={m.url}
           ref={(el) => (videoRefs.current[0] = el)}
-          className="w-full max-h-[90vh] object-contain cursor-pointer rounded-xl"
+          className="w-full max-h-[650px] object-contain bg-black rounded-xl"
+
           muted
           controls
           onClick={() =>
@@ -68,7 +69,9 @@ const PostCard = ({
       <div className="grid gap-2">
         {/* First Large Media */}
         <div
-          className="w-full max-h-[520px] overflow-hidden rounded-xl cursor-pointer"
+
+          className="w-full h-[420px] md:h-[500px] overflow-hidden rounded-xl cursor-pointer bg-black"
+
           onClick={() =>
             navigate(`/media/${post._id}?index=0`)
           }
@@ -108,7 +111,11 @@ const PostCard = ({
               .map((m, i) => (
                 <div
                   key={i + 1}
-                  className="relative h-[200px] md:h-[240px] overflow-hidden rounded-xl cursor-pointer"
+
+                  classNameclassName="relative h-[180px] md:h-[220px] overflow-hidden rounded-xl cursor-pointer bg-black"
+
+overflow-hidden rounded-xl cursor-pointer"
+
                   onClick={() =>
                     navigate(
                       `/media/${post._id}?index=${i + 1}`
