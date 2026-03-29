@@ -64,23 +64,23 @@ return ( <div className="bg-white rounded-xl shadow space-y-3  p-1">
 
 
     /* ======================= */
-    /* PORTRAIT IMAGE */
-    /* ======================= */
-    if (isPortrait && !isVideo) {
-      return (
-        <div
-          key={i}
-          className="w-full rounded-xl overflow-hidden shadow cursor-pointer"
-          onClick={() => setFullscreen({ media: m })}
-        >
-          <img
-            src={m.url}
-            alt=""
-            className="w-full h-[100px] object-cover"
-          />
-        </div>
-      );
-    }
+/* PORTRAIT IMAGE */
+/* ======================= */
+if (isPortrait && !isVideo) {
+  return (
+    <div
+      key={i}
+      className="w-full max-w-[500px] mx-auto rounded-xl overflow-hidden shadow cursor-pointer h-[120px]"
+      onClick={() => setFullscreen({ media: m })}
+    >
+      <img
+        src={m.url}
+        alt=""
+        className="w-full h-full object-cover"
+      />
+    </div>
+  );
+}
 
 
     /* ======================= */
