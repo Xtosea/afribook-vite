@@ -51,8 +51,9 @@ const PostCard = ({
         <div
           className={`
             w-full
-           ${isPortrait ? "max-w-[700px] mx-auto p-1  " : ""}
+           ${isPortrait ? "w-full" : ""}
             ${isSquare ? "max-w-[520px] mx-auto" : ""}
+
             ${isLandscape ? "w-full" : ""}
           `}
         >
