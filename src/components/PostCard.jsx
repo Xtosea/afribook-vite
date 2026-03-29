@@ -70,7 +70,7 @@ if (isPortrait && !isVideo) {
   return (
     <div
       key={i}
-      className="w-full max-w-[500px] mx-auto rounded-xl overflow-hidden shadow cursor-pointer h-[120px]"
+      className="w-full max-w-[500px] mx-auto rounded-xl overflow-hidden shadow cursor-pointer h-[100px]"
       onClick={() => setFullscreen({ media: m })}
     >
       <img
