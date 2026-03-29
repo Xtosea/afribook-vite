@@ -42,15 +42,15 @@ const PostCard = ({
 
       return (
         <div
-          className={`w-full ${isPortrait ? "max-w-[500px] mx-auto" : "w-full"}`}
+          className={`w-full ${isPortrait ? "max-w-[700px] mx-auto" : "w-full"}`}
         >
           {m.type === "image" ? (
             <img
               src={m.url}
               className={`
                 w-full
-                ${isPortrait ? "max-h-[600px] object-contain" : ""}
-                ${isLandscape ? "max-h-[400px] object-contain" : ""}
+                ${isPortrait ? "max-h-[400px] object-contain" : ""}
+                ${isLandscape ? "max-h-[700px] object-contain" : ""}
                 bg-black
                 rounded-xl
                 cursor-pointer
