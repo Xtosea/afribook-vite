@@ -70,13 +70,13 @@ return ( <div className="bg-white rounded-xl shadow space-y-3  p-2">
       return (
         <div
           key={i}
-          className="w-full max-w-[500px] mx-auto rounded-xl overflow-hidden shadow cursor-pointer"
+          className="w-full rounded-xl overflow-hidden shadow cursor-pointer"
           onClick={() => setFullscreen({ media: m })}
         >
           <img
             src={m.url}
             alt=""
-            className="w-full max-h-[300px] object-cover"
+            className="w-full max-h-[200px] object-cover"
           />
         </div>
       );
@@ -96,7 +96,7 @@ return ( <div className="bg-white rounded-xl shadow space-y-3  p-2">
           <video
             ref={el => (videoRefs.current[i] = el)}
             src={m.url}
-            className=" max-h-[200px] object-cover"
+            className=" object-cover"
             muted
             controls
           />
@@ -112,13 +112,13 @@ return ( <div className="bg-white rounded-xl shadow space-y-3  p-2">
       return (
         <div
           key={i}
-          className="w-full rounded-xl overflow-hidden shadow cursor-pointer"
+          className=" rounded-xl overflow-hidden shadow cursor-pointer"
           onClick={() => setFullscreen({ media: m })}
         >
           <img
             src={m.url}
             alt=""
-            className="w-full h-auto max-h-[500px] object-cover"
+            className=" object-cover"
           />
         </div>
       );
