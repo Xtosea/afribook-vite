@@ -29,15 +29,12 @@ const PostCard = ({
     }
   }, [setVideoRefs]);
 
-  // =============================
-  // MEDIA RENDER
-  // =============================
   const renderMedia = () => {
     if (!post.media?.length) return null;
 
-    // -----------------------------
+    // =============================
     // SINGLE MEDIA
-    // -----------------------------
+    // =============================
     if (post.media.length === 1) {
       const m = post.media[0];
       const isPortrait = m.height > m.width;
@@ -45,25 +42,20 @@ const PostCard = ({
 
       return (
         <div
-          className={`
-            w-full 
-            ${isPortrait ? "max-w-[500px] mx-auto" : "max-w-full"}
-          `}
+          className={`w-full ${isPortrait ? "max-w-[500px] mx-auto" : "w-full"}`}
         >
           {m.type === "image" ? (
             <img
               src={m.url}
               className={`
                 w-full
-                ${isPortrait ? "max-h-[600px]" : "max-h-[450px]"}
-                object-contain
+                ${isPortrait ? "max-h-[600px] object-contain" : ""}
+                ${isLandscape ? "max-h-[400px] object-contain" : ""}
                 bg-black
                 rounded-xl
                 cursor-pointer
               `}
-              onClick={() =>
-                navigate(`/media/${post._id}?index=0`)
-              }
+              onClick={() => navigate(`/media/${post._id}?index=0`)}
               alt=""
             />
           ) : (
@@ -72,44 +64,51 @@ const PostCard = ({
               ref={(el) => (videoRefs.current[0] = el)}
               className={`
                 w-full
-                ${isPortrait ? "max-h-[600px]" : "max-h-[450px]"}
-                object-contain
+                ${isPortrait ? "max-h-[600px] object-contain" : ""}
+                ${isLandscape ? "max-h-[400px] object-contain" : ""}
                 bg-black
                 rounded-xl
               `}
               muted
               controls
-              onClick={() =>
-                navigate(`/media/${post._id}?index=0`)
-              }
+              onClick={() => navigate(`/media/${post._id}?index=0`)}
             />
           )}
         </div>
       );
     }
 
-    // -----------------------------
+    // =============================
     // MULTIPLE MEDIA
-    // -----------------------------
+    // =============================
+    const firstMedia = post.media[0];
+    const isPortraitFirst = firstMedia.height > firstMedia.width;
+
     return (
       <div className="grid gap-2">
         {/* First Large Media */}
         <div
-          className="w-full h-[420px] md:h-[500px] overflow-hidden rounded-xl cursor-pointer bg-black"
+          className="w-full overflow-hidden rounded-xl cursor-pointer bg-black"
+          style={{ height: isPortraitFirst ? "500px" : "400px" }}
           onClick={() => navigate(`/media/${post._id}?index=0`)}
         >
-          {post.media[0].type === "image" ? (
+          {firstMedia.type === "image" ? (
             <img
-              src={post.media[0].url}
-              className="w-full h-full object-cover"
+              src={firstMedia.url}
+              className={`w-full h-full ${
+                isPortraitFirst ? "object-contain" : "object-cover"
+              }`}
               alt=""
             />
           ) : (
             <video
-              data-src={post.media[0].url}
+              data-src={firstMedia.url}
               ref={(el) => (videoRefs.current[0] = el)}
-              className="w-full h-full object-cover"
+              className={`w-full h-full ${
+                isPortraitFirst ? "object-contain" : "object-cover"
+              }`}
               muted
+              controls
             />
           )}
         </div>
@@ -117,47 +116,52 @@ const PostCard = ({
         {/* Remaining Media */}
         {post.media.length > 1 && (
           <div
-            className={`
-              grid gap-2
-              ${post.media.length === 2 ? "grid-cols-1" : "grid-cols-2"}
-            `}
+            className={`grid gap-2 ${
+              post.media.length === 2 ? "grid-cols-1" : "grid-cols-2"
+            }`}
           >
-            {post.media.slice(1).map((m, i) => (
-              <div
-                key={i + 1}
-                className="relative h-[180px] md:h-[220px] overflow-hidden rounded-xl cursor-pointer bg-black"
-                onClick={() =>
-                  navigate(`/media/${post._id}?index=${i + 1}`)
-                }
-              >
-                {m.type === "image" ? (
-                  <img
-                    src={m.url}
-                    className="w-full h-full object-cover"
-                    alt=""
-                  />
-                ) : (
-                  <video
-                    data-src={m.url}
-                    ref={(el) => (videoRefs.current[i + 1] = el)}
-                    className="w-full h-full object-cover"
-                    muted
-                  />
-                )}
-              </div>
-            ))}
+            {post.media.slice(1).map((m, i) => {
+              const isPortrait = m.height > m.width;
+
+              return (
+                <div
+                  key={i + 1}
+                  className="relative overflow-hidden rounded-xl cursor-pointer bg-black"
+                  style={{ height: isPortrait ? "250px" : "180px" }}
+                  onClick={() =>
+                    navigate(`/media/${post._id}?index=${i + 1}`)
+                  }
+                >
+                  {m.type === "image" ? (
+                    <img
+                      src={m.url}
+                      className={`w-full h-full ${
+                        isPortrait ? "object-contain" : "object-cover"
+                      }`}
+                      alt=""
+                    />
+                  ) : (
+                    <video
+                      data-src={m.url}
+                      ref={(el) => (videoRefs.current[i + 1] = el)}
+                      className={`w-full h-full ${
+                        isPortrait ? "object-contain" : "object-cover"
+                      }`}
+                      muted
+                      controls
+                    />
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
     );
   };
 
-  // =============================
-  // RENDER POSTCARD
-  // =============================
   return (
-    <div className="bg-white p-4 rounded-xl shadow space-y-3 w-full max-w-full">
-
+    <div className="bg-white p-4 rounded-xl shadow space-y-3 w-full">
       {/* HEADER */}
       <div className="flex items-center gap-3">
         <img
@@ -209,11 +213,7 @@ const PostCard = ({
           {showReactions && (
             <div className="absolute bottom-8 left-0 bg-white shadow rounded-full px-2 py-1 flex gap-2 z-10">
               {reactions.map((r) => (
-                <button
-                  key={r}
-                  className="text-lg hover:scale-125"
-                  onClick={() => onLike(post._id, r)}
-                >
+                <button key={r} className="text-lg hover:scale-125" onClick={() => onLike(post._id, r)}>
                   {r}
                 </button>
               ))}
@@ -230,10 +230,7 @@ const PostCard = ({
         <div className="space-y-2">
           {post.comments?.map((c) => (
             <div key={c._id} className="flex gap-2">
-              <img
-                src={c.user.profilePic || "/default-avatar.png"}
-                className="w-6 h-6 rounded-full"
-              />
+              <img src={c.user.profilePic || "/default-avatar.png"} className="w-6 h-6 rounded-full" />
               <div>
                 <span className="font-semibold text-sm">{c.user.name}</span>
                 <p className="text-sm">{c.text}</p>
