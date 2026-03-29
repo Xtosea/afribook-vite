@@ -31,18 +31,21 @@ const Profile = () => {
 
   const observer = useRef();
 
-  const lastPostRef = useCallback(node => {
-    if (loadingPosts) return;
-    if (observer.current) observer.current.disconnect();
+  const lastPostRef = useCallback(
+    (node) => {
+      if (loadingPosts) return;
+      if (observer.current) observer.current.disconnect();
 
-    observer.current = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && hasMore) {
-        setPage(prev => prev + 1);
-      }
-    });
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasMore) {
+          setPage((prev) => prev + 1);
+        }
+      });
 
-    if (node) observer.current.observe(node);
-  }, [loadingPosts, hasMore]);
+      if (node) observer.current.observe(node);
+    },
+    [loadingPosts, hasMore]
+  );
 
   const [formData, setFormData] = useState({
     name: "",
@@ -65,30 +68,24 @@ const Profile = () => {
   const [previewCoverPhoto, setPreviewCoverPhoto] = useState(null);
 
   const [saving, setSaving] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState({
-    profilePic: 0,
-    coverPhoto: 0,
-  });
 
   const fields = [
-    "name","bio","intro","dob","phone","education",
-    "origin","maritalStatus","spouse","gender","email","hubby"
+    "name",
+    "bio",
+    "intro",
+    "dob",
+    "phone",
+    "education",
+    "origin",
+    "maritalStatus",
+    "spouse",
+    "gender",
+    "email",
+    "hubby",
   ];
 
-  /* ================= CACHE PROFILE ================= */
-  const cachedProfile = localStorage.getItem(`profile-${finalUserId}`);
-
-  useEffect(() => {
-    if (cachedProfile) {
-      const parsed = JSON.parse(cachedProfile);
-      setUser(parsed);
-      setPreviewProfilePic(parsed.profilePic);
-      setPreviewCoverPhoto(parsed.coverPhoto);
-    }
-  }, [finalUserId]);
-
-
   /* ================= FETCH PROFILE ================= */
+
   useEffect(() => {
     if (!token) {
       navigate("/login");
@@ -106,11 +103,6 @@ const Profile = () => {
         setPreviewProfilePic(userData.profilePic);
         setPreviewCoverPhoto(userData.coverPhoto);
 
-        localStorage.setItem(
-          `profile-${finalUserId}`,
-          JSON.stringify(userData)
-        );
-
         setFormData({
           name: userData.name || "",
           bio: userData.bio || "",
@@ -127,18 +119,16 @@ const Profile = () => {
           profilePic: null,
           coverPhoto: null,
         });
-
       } catch (err) {
         console.error(err);
       }
     };
 
     fetchProfile();
-
   }, [finalUserId]);
 
+  /* ================= FETCH POSTS ================= */
 
-  /* ================= FETCH POSTS (INFINITE SCROLL) ================= */
   useEffect(() => {
     if (!token) return;
 
@@ -155,8 +145,7 @@ const Profile = () => {
           setHasMore(false);
         }
 
-        setPosts(prev => [...prev, ...data]);
-
+        setPosts((prev) => [...prev, ...data]);
       } catch (err) {
         console.error(err);
       } finally {
@@ -167,18 +156,20 @@ const Profile = () => {
     fetchPosts();
   }, [page, finalUserId]);
 
+  /* ================= HANDLE INPUT ================= */
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  /* ================= HANDLE FILE ================= */
 
   const handleFileChange = (e, field) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    setFormData(prev => ({ ...prev, [field]: file }));
+    setFormData((prev) => ({ ...prev, [field]: file }));
 
     const preview = URL.createObjectURL(file);
 
@@ -186,48 +177,164 @@ const Profile = () => {
     if (field === "coverPhoto") setPreviewCoverPhoto(preview);
   };
 
+  /* ================= HANDLE SAVE ================= */
 
   const handleSave = async () => {
-    try {
-      setSaving(true);
+  try {
+    setSaving(true);
 
-      const form = new FormData();
+    const oldUser = { ...user };
 
-      let profileUrl = previewProfilePic;
-      let coverUrl = previewCoverPhoto;
+    let profileUrl = previewProfilePic;
+    let coverUrl = previewCoverPhoto;
 
-      if (formData.profilePic instanceof File) {
-        profileUrl = await uploadImageKit(formData.profilePic);
-      }
+    if (formData.profilePic instanceof File) {
+      profileUrl = await uploadImageKit(formData.profilePic);
+    }
 
-      if (formData.coverPhoto instanceof File) {
-        coverUrl = await uploadImageKit(formData.coverPhoto);
-      }
+    if (formData.coverPhoto instanceof File) {
+      coverUrl = await uploadImageKit(formData.coverPhoto);
+    }
 
-      form.append("profilePic", profileUrl || "");
-      form.append("coverPhoto", coverUrl || "");
+    const form = new FormData();
 
-      fields.forEach(field =>
-        form.append(field, formData[field] || "")
-      );
+    form.append("profilePic", profileUrl || "");
+    form.append("coverPhoto", coverUrl || "");
 
-      const res = await fetch(`${API_BASE}/api/users/${finalUserId}`, {
-        method: "PUT",
+    fields.forEach(field =>
+      form.append(field, formData[field] || "")
+    );
+
+    const res = await fetch(`${API_BASE}/api/users/${finalUserId}`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: form,
+    });
+
+    const result = await res.json();
+
+    setUser(result.user);
+    setEditing(false);
+
+    /* ================= SMART PROFILE UPDATE POSTS ================= */
+
+    const updates = [];
+
+    // Profile Picture
+    if (profileUrl && profileUrl !== oldUser.profilePic) {
+      updates.push({
+        text: `${result.user.name} changed profile picture`,
+        media: [{ url: profileUrl, type: "image" }]
+      });
+    }
+
+    // Cover Photo
+    if (coverUrl && coverUrl !== oldUser.coverPhoto) {
+      updates.push({
+        text: `${result.user.name} changed cover photo`,
+        media: [{ url: coverUrl, type: "image" }]
+      });
+    }
+
+    // Bio
+    if (formData.bio !== oldUser.bio && formData.bio) {
+      updates.push({
+        text: `${result.user.name} updated bio`,
+        media: []
+      });
+    }
+
+    // Intro
+    if (formData.intro !== oldUser.intro && formData.intro) {
+      updates.push({
+        text: `${result.user.name} updated intro`,
+        media: []
+      });
+    }
+
+    // Relationship
+    if (formData.maritalStatus !== oldUser.maritalStatus && formData.maritalStatus) {
+      updates.push({
+        text: `${result.user.name} is now ${formData.maritalStatus}`,
+        media: []
+      });
+    }
+
+    // Education
+    if (formData.education !== oldUser.education && formData.education) {
+      updates.push({
+        text: `${result.user.name} updated education`,
+        media: []
+      });
+    }
+
+    // Origin / Location
+    if (formData.origin !== oldUser.origin && formData.origin) {
+      updates.push({
+        text: `${result.user.name} updated hometown`,
+        media: []
+      });
+    }
+
+    // Create Posts
+    for (let update of updates) {
+      await fetch(`${API_BASE}/api/posts`, {
+        method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
-        body: form,
+        body: JSON.stringify(update),
       });
+    }
 
-      const result = await res.json();
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setSaving(false);
+  }
+};
 
-      setUser(result.user);
-      setEditing(false);
+      /* ================= CREATE UPDATE POSTS ================= */
 
-      localStorage.setItem(
-        `profile-${finalUserId}`,
-        JSON.stringify(result.user)
-      );
+      const updates = [];
+
+      if (profileUrl && profileUrl !== oldProfile) {
+        updates.push({
+          text: `${result.user.name} changed profile picture`,
+          media: [
+            {
+              url: profileUrl,
+              type: "image",
+            },
+          ],
+        });
+      }
+
+      if (coverUrl && coverUrl !== oldCover) {
+        updates.push({
+          text: `${result.user.name} changed cover photo`,
+          media: [
+            {
+              url: coverUrl,
+              type: "image",
+            },
+          ],
+        });
+      }
+
+      for (let update of updates) {
+        await fetch(`${API_BASE}/api/posts`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(update),
+        });
+      }
 
     } catch (err) {
       console.error(err);
@@ -236,19 +343,15 @@ const Profile = () => {
     }
   };
 
-
   if (!user)
     return (
       <div className="p-6 animate-pulse">
         <div className="h-40 bg-gray-200 rounded mb-4" />
-        <div className="h-6 bg-gray-200 rounded w-1/3 mb-2" />
       </div>
     );
 
-
   return (
     <div className="container mx-auto py-6 space-y-6">
-
       <ProfileHeader
         user={user}
         isOwner={true}
@@ -264,28 +367,16 @@ const Profile = () => {
 
       {activeTab === "Posts" && (
         <div className="space-y-4">
-
           {posts.map((post, index) => {
             if (posts.length === index + 1) {
               return (
                 <div ref={lastPostRef} key={post._id}>
-                  <PostCard
-                    post={post}
-                    currentUserId={currentUserId}
-                    lazyLoad
-                  />
+                  <PostCard post={post} />
                 </div>
               );
             }
 
-            return (
-              <PostCard
-                key={post._id}
-                post={post}
-                currentUserId={currentUserId}
-                lazyLoad
-              />
-            );
+            return <PostCard key={post._id} post={post} />;
           })}
 
           {loadingPosts && (
@@ -293,10 +384,8 @@ const Profile = () => {
               Loading more posts...
             </div>
           )}
-
         </div>
       )}
-
 
       <EditProfileModal
         editing={editing}
@@ -306,11 +395,9 @@ const Profile = () => {
         handleInputChange={handleInputChange}
         handleFileChange={handleFileChange}
         uploading={saving}
-        uploadProgress={uploadProgress}
         previewProfilePic={previewProfilePic}
         previewCoverPhoto={previewCoverPhoto}
       />
-
     </div>
   );
 };
