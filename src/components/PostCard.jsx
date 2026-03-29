@@ -25,7 +25,7 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, setVideoRef
       const isPortrait = m.height > m.width;
 
       return (
-        <div className={`rounded-xl overflow-hidden w-full cursor-pointer ${isPortrait ? "h-[600px]" : "h-[300px]"}`} onClick={() => navigate(`/media/${post._id}?index=0`)}>
+        <div className={`rounded-xl overflow-hidden w-full cursor-pointer ${isPortrait ? "h-[300px]" : "h-[600px]"}`} onClick={() => navigate(`/media/${post._id}?index=0`)}>
           {m.type === "image" ? (
             <img src={m.url} className="w-full h-full object-contain bg-black" alt="" />
           ) : (
