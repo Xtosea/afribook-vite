@@ -56,8 +56,8 @@ if (post.media.length === 1) {
           src={m.url}
           className={`
             w-full 
-            ${isPortrait ? "max-h-[700px] object-contain" : ""}
-            ${isLandscape ? "max-h-[500px] object-contain" : ""}
+            ${isPortrait ? "max-h-[400px] object-contain" : ""}
+            ${isLandscape ? "max-h-[700px] object-contain" : ""}
             bg-black
             rounded-xl
             cursor-pointer
@@ -73,8 +73,8 @@ if (post.media.length === 1) {
           ref={(el) => (videoRefs.current[0] = el)}
           className={`
             w-full 
-            ${isPortrait ? "max-h-[700px] object-contain" : ""}
-            ${isLandscape ? "max-h-[500px] object-contain" : ""}
+            ${isPortrait ? "max-h-[500px] object-contain" : ""}
+            ${isLandscape ? "max-h-[400px] object-contain" : ""}
             bg-black
             rounded-xl
           `}
