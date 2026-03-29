@@ -15,7 +15,7 @@ return ( <div className="bg-white rounded-xl shadow space-y-3 w-full p-4">
     <img
       src={post.user?.profilePicture}
       alt=""
-      className="w-10 h-10 rounded-full object-cover"
+      className="w-12 h-12 rounded-full object-cover"
     />
 
     <div>
@@ -76,7 +76,7 @@ return ( <div className="bg-white rounded-xl shadow space-y-3 w-full p-4">
           <img
             src={m.url}
             alt=""
-            className="w-full max-h-[700px] object-cover"
+            className="w-full max-h-[300px] object-cover"
           />
         </div>
       );
@@ -90,13 +90,13 @@ return ( <div className="bg-white rounded-xl shadow space-y-3 w-full p-4">
       return (
         <div
           key={i}
-          className="w-full rounded-xl overflow-hidden shadow cursor-pointer"
+          className=" rounded-xl overflow-hidden shadow cursor-pointer"
           onClick={() => setFullscreen({ media: m })}
         >
           <video
             ref={el => (videoRefs.current[i] = el)}
             src={m.url}
-            className="w-full h-auto max-h-[500px] object-cover"
+            className=" max-h-[400px] object-cover"
             muted
             controls
           />
