@@ -78,7 +78,7 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, setVideoRef
       <div className="grid gap-2">
         {/* First Large Media */}
         <div
-          className="w-full h-[420px] md:h-[500px] overflow-hidden rounded-xl p-6 cursor-pointer bg-black"
+          className="w-full h-[520px] md:h-[500px] overflow-hidden rounded-xl p-4 cursor-pointer bg-black"
           onClick={() => navigate(`/media/${post._id}?index=0`)}
         >
           {post.media[0].type === "image" ? (
