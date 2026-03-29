@@ -62,7 +62,7 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, setVideoRef
   };
 
   return (
-    <div className="bg-white rounded-xl shadow space-y-3">
+    <div className="bg-white rounded-xl shadow space-y-3 p-2 ">
       {/* HEADER */}
       <div className="flex items-center gap-3">
         <img src={post.user.profilePic || "/default-avatar.png"} alt={post.user.name} className="w-12 h-12 rounded-full object-cover" />
