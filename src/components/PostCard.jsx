@@ -54,7 +54,7 @@ return ( <div className="bg-white rounded-xl shadow space-y-3  p-2">
           <video
             ref={el => (videoRefs.current[i] = el)}
             src={m.url}
-            className="w-full max-h-[300px] object-cover"
+            className="w-full max-h-[700px] object-cover"
             muted
             controls
           />
@@ -70,7 +70,7 @@ if (isPortrait && !isVideo) {
   return (
     <div
       key={i}
-      className="w-full max-w-[500px] mx-auto rounded-xl overflow-hidden shadow cursor-pointer h-[50px]"
+      className="w-full max-w-[500px] mx-auto rounded-xl overflow-hidden shadow cursor-pointer h-[100px]"
       onClick={() => setFullscreen({ media: m })}
     >
       <img
