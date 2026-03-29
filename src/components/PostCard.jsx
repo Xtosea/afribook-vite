@@ -130,7 +130,7 @@ const PostCard = ({ post }) => {
                   <video
                     src={m.url}
                     className={`w-full ${
-                      isPortrait ? "aspect-[3/4]" : "aspect-[16/9]"
+                      isPortrait ? "aspect-[1/4]" : "aspect-[16/9]"
                     } object-cover`}
                     muted
                   />
