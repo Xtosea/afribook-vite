@@ -1,3 +1,4 @@
+// src/pages/Home.jsx
 import React, { useEffect, useRef, useState, Suspense, lazy } from "react";
 import { useNavigate } from "react-router-dom";
 import PostCard from "../components/PostCard";
@@ -86,7 +87,10 @@ const Home = () => {
 
     const init = async () => {
       try {
-        const postsData = await fetchWithToken(`${API_BASE}/api/posts?limit=20`, token);
+        const postsData = await fetchWithToken(
+          `${API_BASE}/api/posts?limit=20`,
+          token
+        );
         setPosts(postsData);
 
         // Fetch stories via R2 backend
@@ -95,7 +99,11 @@ const Home = () => {
         });
         const text = await res.text();
         let data;
-        try { data = JSON.parse(text); } catch { data = { stories: [] }; }
+        try {
+          data = JSON.parse(text);
+        } catch {
+          data = { stories: [] };
+        }
 
         setStories(data.stories || []);
       } catch (err) {
@@ -108,8 +116,12 @@ const Home = () => {
       const socket = getSocket();
       if (!socket) return;
 
-      socket.on("new-video", (post) => setPosts((prev) => [post, ...prev]));
-      socket.on("new-story", (story) => setStories((prev) => [story, ...prev]));
+      socket.on("new-video", (post) =>
+        setPosts((prev) => [post, ...prev])
+      );
+      socket.on("new-story", (story) =>
+        setStories((prev) => [story, ...prev])
+      );
     };
 
     init();
@@ -145,14 +157,26 @@ const Home = () => {
           });
         }
 
-        const url = type === "image" ? await uploadImage(compressedFile) : await uploadVideo(file);
+        const url =
+          type === "image"
+            ? await uploadImage(compressedFile)
+            : await uploadVideo(file);
         uploadedMedia.push({ url, type });
       }
 
       const res = await fetch(`${API_BASE}/api/posts`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ content: newPost, media: uploadedMedia, location, feeling, taggedFriends }),
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          content: newPost,
+          media: uploadedMedia,
+          location,
+          feeling,
+          taggedFriends,
+        }),
       });
 
       const data = await res.json();
@@ -173,18 +197,23 @@ const Home = () => {
   };
 
   return (
-    <div className="w-full px-2 md:px-6 py-6 grid grid-cols-1 md:grid-cols-4 gap-6">
+    // ✅ ADJUSTED PARENT CONTAINER
+    <div className="w-full min-h-screen px-0 py-0 grid grid-cols-1 gap-0">
 
       {/* LEFT SIDEBAR */}
-      <div className="hidden md:block"><SidebarLeft /></div>
+      <div className="hidden md:block">
+        <SidebarLeft />
+      </div>
 
       {/* MAIN FEED */}
-      <div className="md:col-span-3 space-y-4 w-full">
-
+      <div className="col-span-1 space-y-4 w-full">
         <StoriesBar user={currentUser} stories={stories} />
 
         {/* CREATE POST */}
-        <form onSubmit={handleSubmitPost} className="bg-white p-4 rounded-xl shadow space-y-3">
+        <form
+          onSubmit={handleSubmitPost}
+          className="bg-white p-4 rounded-xl shadow space-y-3"
+        >
           <textarea
             value={newPost}
             onChange={(e) => setNewPost(e.target.value)}
@@ -194,16 +223,57 @@ const Home = () => {
           />
           {expanded && (
             <>
-              <input value={feeling} onChange={(e) => setFeeling(e.target.value)} placeholder="Feeling..." className="w-full border rounded-lg p-2" />
-              <input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Location..." className="w-full border rounded-lg p-2" />
-              <input value={taggedFriends.map(f => f.name).join(", ")} onChange={(e) => setTaggedFriends(e.target.value.split(",").map(n => ({ name: n.trim() })))} placeholder="Tag friends (comma separated)" className="w-full border rounded-lg p-2" />
+              <input
+                value={feeling}
+                onChange={(e) => setFeeling(e.target.value)}
+                placeholder="Feeling..."
+                className="w-full border rounded-lg p-2"
+              />
+              <input
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder="Location..."
+                className="w-full border rounded-lg p-2"
+              />
+              <input
+                value={taggedFriends.map((f) => f.name).join(", ")}
+                onChange={(e) =>
+                  setTaggedFriends(
+                    e.target.value
+                      .split(",")
+                      .map((n) => ({ name: n.trim() }))
+                  )
+                }
+                placeholder="Tag friends (comma separated)"
+                className="w-full border rounded-lg p-2"
+              />
 
-              <button type="button" onClick={() => setShowEmoji(!showEmoji)} className="border px-3 py-1 rounded-full">😊 Emoji</button>
-              {showEmoji && <Suspense fallback={<div>Loading Emoji...</div>}><EmojiPicker onEmojiClick={(e) => setNewPost(prev => prev + e.emoji)} /></Suspense>}
+              <button
+                type="button"
+                onClick={() => setShowEmoji(!showEmoji)}
+                className="border px-3 py-1 rounded-full"
+              >
+                😊 Emoji
+              </button>
+              {showEmoji && (
+                <Suspense fallback={<div>Loading Emoji...</div>}>
+                  <EmojiPicker
+                    onEmojiClick={(e) =>
+                      setNewPost((prev) => prev + e.emoji)
+                    }
+                  />
+                </Suspense>
+              )}
 
-              <MediaUpload mediaFiles={mediaFiles} setMediaFiles={setMediaFiles} />
+              <MediaUpload
+                mediaFiles={mediaFiles}
+                setMediaFiles={setMediaFiles}
+              />
 
-              <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
+              <button
+                type="submit"
+                className="bg-blue-500 text-white px-4 py-2 rounded"
+              >
                 {posting ? "Posting..." : "Post"}
               </button>
             </>
@@ -211,26 +281,24 @@ const Home = () => {
         </form>
 
         {/* POSTS FEED */}
-        <div ref={feedRef} className="space-y-4 w-full flex flex-col items-center">
-  {posts.map((post) => (
-    <div
-      key={post._id}
-      className={`w-full flex justify-center ${
-        post.media?.length === 1 ? "md:w-full" : "md:w-[90%]"
-      }`}
-    >
-      <PostCard
-        post={post}
-        currentUserId={currentUserId}
-        setVideoRefs={setVideoRefs}
-      />
-    </div>
-  ))}
-</div>
+        <div ref={feedRef} className="space-y-4">
+          {loadingPosts
+            ? [<SkeletonPost key={0} />, <SkeletonPost key={1} />]
+            : posts.map((post) => (
+                <PostCard
+                  key={post._id}
+                  post={post}
+                  currentUserId={currentUserId}
+                  setVideoRefs={setVideoRefs}
+                />
+              ))}
+        </div>
       </div>
 
       {/* RIGHT SIDEBAR */}
-      <div className="hidden md:block"><SidebarRight /></div>
+      <div className="hidden md:block">
+        <SidebarRight />
+      </div>
     </div>
   );
 };
