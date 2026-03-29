@@ -48,7 +48,7 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, setVideoRef
           if (post.media.length >= 4 && i === 0) gridClass = "col-span-2 row-span-2";
 
           return (
-            <div key={i} className={`rounded-xl overflow-hidden cursor-pointer ${gridClass}`} style={{ aspectRatio: isPortrait ? "3/4" : "9/12" }} onClick={() => navigate(`/media/${post._id}?index=${i}`)}>
+            <div key={i} className={`rounded-xl overflow-hidden cursor-pointer ${gridClass}`} style={{ aspectRatio: isPortrait ? "3/4" : "8/12" }} onClick={() => navigate(`/media/${post._id}?index=${i}`)}>
               {m.type === "image" ? (
                 <img src={m.url} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" alt="" />
               ) : (
@@ -62,7 +62,7 @@ const PostCard = ({ post, currentUserId, onLike, onComment, onShare, setVideoRef
   };
 
   return (
-    <div className="bg-white rounded-xl shadow space-y-3 w-full p-4">
+    <div className="bg-white rounded-xl shadow space-y-3">
       {/* HEADER */}
       <div className="flex items-center gap-3">
         <img src={post.user.profilePic || "/default-avatar.png"} alt={post.user.name} className="w-12 h-12 rounded-full object-cover" />
