@@ -48,15 +48,14 @@ const PostCard = ({
       const isSquare = m.width === m.height;
 
       return (
-        <div
-          className={`
-            w-full
-           ${isPortrait ? "w-full" : ""}
-            ${isSquare ? "max-w-[520px] mx-auto" : ""}
-
-            ${isLandscape ? "w-full" : ""}
-          `}
-        >
+        <<div
+  className={`
+    w-full
+    ${isPortrait ? "w-full" : ""}
+    ${isSquare ? "w-full" : ""}
+    ${isLandscape ? "w-full" : ""}
+  `}
+>
           {/* IMAGE */}
           {m.type === "image" ? (
             <img
