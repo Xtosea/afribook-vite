@@ -32,9 +32,11 @@ const Profile = () => {
   const [friends, setFriends] = useState([]);
   const [videos, setVideos] = useState([]);
   const [reels, setReels] = useState([]);
+
   const [loadingPosts, setLoadingPosts] = useState(true);
   const [editing, setEditing] = useState(false);
   const [activeTab, setActiveTab] = useState("Posts");
+
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
 
@@ -75,6 +77,7 @@ const Profile = () => {
 
   const [previewProfilePic, setPreviewProfilePic] = useState(null);
   const [previewCoverPhoto, setPreviewCoverPhoto] = useState(null);
+
   const [saving, setSaving] = useState(false);
 
   const fields = [
@@ -93,6 +96,7 @@ const Profile = () => {
   ];
 
   /* ================= FETCH PROFILE ================= */
+
   useEffect(() => {
     if (!token) {
       navigate("/login");
@@ -110,22 +114,7 @@ const Profile = () => {
         setPreviewProfilePic(userData.profilePic);
         setPreviewCoverPhoto(userData.coverPhoto);
 
-        setFormData({
-          name: userData.name || "",
-          bio: userData.bio || "",
-          intro: userData.intro || "",
-          dob: userData.dob || "",
-          phone: userData.phone || "",
-          education: userData.education || "",
-          origin: userData.origin || "",
-          maritalStatus: userData.maritalStatus || "",
-          spouse: userData.spouse || "",
-          gender: userData.gender || "",
-          email: userData.email || "",
-          hubby: userData.hubby || "",
-          profilePic: null,
-          coverPhoto: null,
-        });
+        setFriends(userData.friends || []);
       } catch (err) {
         console.error(err);
       }
@@ -135,6 +124,7 @@ const Profile = () => {
   }, [finalUserId]);
 
   /* ================= FETCH POSTS ================= */
+
   useEffect(() => {
     if (!token) return;
 
@@ -147,8 +137,26 @@ const Profile = () => {
           token
         );
 
-        if (data.length < POSTS_LIMIT) setHasMore(false);
+        if (data.length < POSTS_LIMIT) {
+          setHasMore(false);
+        }
+
         setPosts((prev) => [...prev, ...data]);
+
+        /* Filter Videos + Reels */
+
+        const vids = data.filter(
+          (p) =>
+            p.media?.some((m) => m.type === "video")
+        );
+
+        const reelsData = data.filter(
+          (p) => p.isReel || p.reel
+        );
+
+        setVideos((prev) => [...prev, ...vids]);
+        setReels((prev) => [...prev, ...reelsData]);
+
       } catch (err) {
         console.error(err);
       } finally {
@@ -159,163 +167,6 @@ const Profile = () => {
     fetchPosts();
   }, [page, finalUserId]);
 
-  /* ================= FETCH FRIENDS ================= */
-  useEffect(() => {
-    const fetchFriends = async () => {
-      try {
-        const data = await fetchWithToken(
-          `${API_BASE}/api/users/${finalUserId}/friends`,
-          token
-        );
-        setFriends(data);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    fetchFriends();
-  }, [finalUserId]);
-
-  /* ================= FETCH VIDEOS ================= */
-  useEffect(() => {
-    const fetchVideos = async () => {
-      try {
-        const data = await fetchWithToken(
-          `${API_BASE}/api/posts/user/${finalUserId}?type=video`,
-          token
-        );
-        setVideos(data);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    fetchVideos();
-  }, [finalUserId]);
-
-  /* ================= FETCH REELS ================= */
-  useEffect(() => {
-    const fetchReels = async () => {
-      try {
-        const data = await fetchWithToken(
-          `${API_BASE}/api/posts/user/${finalUserId}?type=reel`,
-          token
-        );
-        setReels(data);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    fetchReels();
-  }, [finalUserId]);
-
-  /* ================= HANDLE INPUT ================= */
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  /* ================= HANDLE FILE ================= */
-  const handleFileChange = (e, field) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    setFormData((prev) => ({ ...prev, [field]: file }));
-
-    const preview = URL.createObjectURL(file);
-
-    if (field === "profilePic") setPreviewProfilePic(preview);
-    if (field === "coverPhoto") setPreviewCoverPhoto(preview);
-  };
-
-  /* ================= HANDLE SAVE ================= */
-  const handleSave = async () => {
-    try {
-      setSaving(true);
-
-      const oldUser = { ...user };
-
-      let profileUrl = previewProfilePic;
-      let coverUrl = previewCoverPhoto;
-
-      if (formData.profilePic instanceof File) {
-        profileUrl = await uploadImageKit(formData.profilePic);
-      }
-
-      if (formData.coverPhoto instanceof File) {
-        coverUrl = await uploadImageKit(formData.coverPhoto);
-      }
-
-      const form = new FormData();
-      form.append("profilePic", profileUrl || "");
-      form.append("coverPhoto", coverUrl || "");
-
-      fields.forEach((field) => form.append(field, formData[field] || ""));
-
-      const res = await fetch(`${API_BASE}/api/users/${finalUserId}`, {
-        method: "PUT",
-        headers: { Authorization: `Bearer ${token}` },
-        body: form,
-      });
-
-      const result = await res.json();
-      setUser(result.user);
-      setEditing(false);
-
-      /* ================= CREATE PROFILE UPDATE POSTS ================= */
-      const updates = [];
-
-      if (profileUrl && profileUrl !== oldUser.profilePic)
-        updates.push({
-          text: `${result.user.name} changed profile picture`,
-          media: [{ url: profileUrl, type: "image" }],
-        });
-
-      if (coverUrl && coverUrl !== oldUser.coverPhoto)
-        updates.push({
-          text: `${result.user.name} changed cover photo`,
-          media: [{ url: coverUrl, type: "image" }],
-        });
-
-      if (formData.bio !== oldUser.bio && formData.bio)
-        updates.push({ text: `${result.user.name} updated bio`, media: [] });
-
-      if (formData.intro !== oldUser.intro && formData.intro)
-        updates.push({ text: `${result.user.name} updated intro`, media: [] });
-
-      if (
-        formData.maritalStatus !== oldUser.maritalStatus &&
-        formData.maritalStatus
-      )
-        updates.push({
-          text: `${result.user.name} is now ${formData.maritalStatus}`,
-          media: [],
-        });
-
-      if (formData.education !== oldUser.education && formData.education)
-        updates.push({ text: `${result.user.name} updated education`, media: [] });
-
-      if (formData.origin !== oldUser.origin && formData.origin)
-        updates.push({
-          text: `${result.user.name} updated hometown`,
-          media: [],
-        });
-
-      for (let update of updates) {
-        await fetch(`${API_BASE}/api/posts`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(update),
-        });
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setSaving(false);
-    }
-  };
-
   if (!user)
     return (
       <div className="p-6 animate-pulse">
@@ -325,6 +176,7 @@ const Profile = () => {
 
   return (
     <div className="container mx-auto py-6 space-y-6">
+
       <ProfileHeader
         user={user}
         isOwner={true}
@@ -333,41 +185,73 @@ const Profile = () => {
         previewCoverPhoto={previewCoverPhoto}
       />
 
-      <ProfileTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+      <ProfileTabs
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+      />
 
-      {/* TAB CONTENT */}
+      {/* ================= TAB CONTENT ================= */}
+
       {activeTab === "Posts" && (
         <div className="space-y-4">
           {posts.map((post, index) => {
-            if (posts.length === index + 1)
+            if (posts.length === index + 1) {
               return (
                 <div ref={lastPostRef} key={post._id}>
                   <PostCard post={post} />
                 </div>
               );
+            }
+
             return <PostCard key={post._id} post={post} />;
           })}
-          {loadingPosts && <div className="text-center py-4">Loading...</div>}
+
+          {loadingPosts && (
+            <div className="text-center py-4">
+              Loading...
+            </div>
+          )}
         </div>
       )}
 
-      {activeTab === "About" && <AboutSection user={user} />}
-      {activeTab === "Photos" && <PhotosSection posts={posts} user={user} />}
-      {activeTab === "Friends" && <FriendsSection friends={friends} />}
-      {activeTab === "Videos" && <VideosSection videos={videos} />}
-      {activeTab === "Reels" && <ReelsSection reels={reels} />}
+      {activeTab === "About" && (
+        <AboutSection user={user} />
+      )}
+
+      {activeTab === "Photos" && (
+        <PhotosSection
+          posts={posts}
+          user={user}
+        />
+      )}
+
+      {activeTab === "Friends" && (
+        <FriendsSection
+          friends={friends}
+        />
+      )}
+
+      {activeTab === "Videos" && (
+        <VideosSection
+          videos={videos}
+        />
+      )}
+
+      {activeTab === "Reels" && (
+        <ReelsSection
+          reels={reels}
+        />
+      )}
 
       <EditProfileModal
         editing={editing}
         setEditing={setEditing}
         formData={formData}
-        handleSave={handleSave}
-        handleInputChange={handleInputChange}
-        handleFileChange={handleFileChange}
-        uploading={saving}
         previewProfilePic={previewProfilePic}
         previewCoverPhoto={previewCoverPhoto}
+        uploading={saving}
       />
+
     </div>
   );
 };
