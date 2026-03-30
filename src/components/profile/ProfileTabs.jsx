@@ -1,38 +1,47 @@
 // src/components/profile/ProfileTabs.jsx
 import React from "react";
-import { Users, Image, Video, FileText, Heart } from "lucide-react";
+import {
+  FiGrid,
+  FiUser,
+  FiImage,
+  FiUsers,
+  FiVideo,
+  FiFilm,
+  FiHeart,
+  FiUserCheck,
+} from "react-icons/fi"; // Using react-icons for icons
+import classNames from "classnames";
 
 const tabs = [
-  { key: "Posts", label: "Posts", icon: FileText },
-  { key: "About", label: "About", icon: FileText },
-  { key: "Photos", label: "Photos", icon: Image },
-  { key: "Friends", label: "Friends", icon: Users },
-  { key: "Videos", label: "Videos", icon: Video },
-  { key: "Reels", label: "Reels", icon: Video },
-  { key: "Followers", label: "Followers", icon: Users },
-  { key: "Following", label: "Following", icon: Users },
+  { id: "Posts", label: "Posts", icon: <FiGrid /> },
+  { id: "About", label: "About", icon: <FiUser /> },
+  { id: "Photos", label: "Photos", icon: <FiImage /> },
+  { id: "Friends", label: "Friends", icon: <FiUsers /> },
+  { id: "Videos", label: "Videos", icon: <FiVideo /> },
+  { id: "Reels", label: "Reels", icon: <FiFilm /> },
+  { id: "Followers", label: "Followers", icon: <FiHeart /> },
+  { id: "Following", label: "Following", icon: <FiUserCheck /> },
 ];
 
 const ProfileTabs = ({ activeTab, setActiveTab }) => {
   return (
-    <div className="overflow-x-auto no-scrollbar py-2">
-      <div className="flex gap-4 px-4">
-        {tabs.map((tab) => {
-          const Icon = tab.icon;
-          const isActive = activeTab === tab.key;
-          return (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={`flex flex-col items-center justify-center min-w-[70px] px-3 py-2 rounded-lg transition ${
-                isActive ? "bg-blue-500 text-white" : "text-gray-600 hover:bg-gray-100"
-              }`}
-            >
-              <Icon className="w-5 h-5 mb-1" />
-              <span className="text-xs">{tab.label}</span>
-            </button>
-          );
-        })}
+    <div className="overflow-x-auto no-scrollbar py-2 border-b border-gray-200">
+      <div className="flex space-x-4 px-2">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={classNames(
+              "flex items-center space-x-1 whitespace-nowrap px-4 py-2 rounded-md transition-colors",
+              activeTab === tab.id
+                ? "bg-blue-500 text-white"
+                : "text-gray-600 hover:bg-gray-100"
+            )}
+          >
+            <span className="text-lg">{tab.icon}</span>
+            <span className="font-medium">{tab.label}</span>
+          </button>
+        ))}
       </div>
     </div>
   );
