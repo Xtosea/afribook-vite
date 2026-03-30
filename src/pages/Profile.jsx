@@ -16,6 +16,7 @@ import ReelsSection from "../components/profile/ReelsSection";
 import { useImageKitUpload } from "../hooks/useImageKitUpload";
 import FollowersSection from "../components/profile/FollowersSection";
 import FollowingSection from "../components/profile/FollowingSection";
+import MutualFriendsSection from "../components/profile/MutualFriendsSection";
 
 const POSTS_LIMIT = 10;
 
@@ -43,6 +44,7 @@ const [following, setFollowing] = useState([]);
 
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [mutualFriends, setMutualFriends] = useState([]);
 
   const observer = useRef();
 
@@ -191,6 +193,24 @@ useEffect(() => {
   fetchFollowData();
 }, [finalUserId, token]);
 
+useEffect(() => {
+  const fetchMutualFriends = async () => {
+    try {
+      const data = await fetchWithToken(
+        `${API_BASE}/api/users/${finalUserId}/mutual`,
+        token
+      );
+
+      setMutualFriends(data || []);
+
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  fetchMutualFriends();
+}, [finalUserId]);
+
 
 
   if (!user)
@@ -213,6 +233,10 @@ useEffect(() => {
         previewProfilePic={previewProfilePic}
         previewCoverPhoto={previewCoverPhoto}
       />
+
+     {!user.isCurrentUser && (
+  <MutualFriendsSection mutualFriends={mutualFriends} />
+)}
 
       <ProfileTabs
         activeTab={activeTab}
