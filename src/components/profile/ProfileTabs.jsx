@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import PostCard from "../../components/PostCard";
-import { fetchWithToken, API_BASE } from "../api/api";
+import { fetchWithToken, API_BASE } from "../../api/api";
 
 import ProfileHeader from "../components/profile/ProfileHeader";
 import ProfileTabs from "../components/profile/ProfileTabs";
