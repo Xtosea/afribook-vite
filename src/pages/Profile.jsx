@@ -189,7 +189,7 @@ useEffect(() => {
   };
 
   fetchFollowData();
-}, [finalUserId]);
+}, [finalUserId, token]);
 
 
 
