@@ -10,7 +10,6 @@ import {
   FiHeart,
   FiUserCheck,
 } from "react-icons/fi"; // Using react-icons for icons
-import classNames from "classnames";
 
 const tabs = [
   { id: "Posts", label: "Posts", icon: <FiGrid /> },
@@ -31,12 +30,11 @@ const ProfileTabs = ({ activeTab, setActiveTab }) => {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={classNames(
-              "flex items-center space-x-1 whitespace-nowrap px-4 py-2 rounded-md transition-colors",
+            className={`flex items-center space-x-1 whitespace-nowrap px-4 py-2 rounded-md transition-colors ${
               activeTab === tab.id
                 ? "bg-blue-500 text-white"
                 : "text-gray-600 hover:bg-gray-100"
-            )}
+            }`}
           >
             <span className="text-lg">{tab.icon}</span>
             <span className="font-medium">{tab.label}</span>
