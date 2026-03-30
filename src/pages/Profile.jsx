@@ -108,7 +108,7 @@ const Profile = () => {
     };
 
     fetchProfile();
-  }, [finalUserId]);
+  }, [finalUserId, token, navigate]);
 
   /* ================= FETCH POSTS ================= */
   useEffect(() => {
@@ -140,7 +140,7 @@ const Profile = () => {
     };
 
     fetchPosts();
-  }, [page, finalUserId]);
+  }, [page, finalUserId, token]);
 
   /* ================= FETCH FOLLOWERS/FOLLOWING ================= */
   useEffect(() => {
@@ -173,7 +173,7 @@ const Profile = () => {
       }
     };
     fetchMutualFriends();
-  }, [finalUserId]);
+  }, [finalUserId, token]);
 
   if (!user)
     return (
@@ -184,7 +184,6 @@ const Profile = () => {
 
   return (
     <div className="container mx-auto py-6 space-y-6">
-
       {/* ================= PROFILE HEADER ================= */}
       <ProfileHeader
         user={user}
@@ -197,48 +196,3 @@ const Profile = () => {
       {/* ================= MUTUAL FRIENDS ================= */}
       {!user.isCurrentUser && mutualFriends.length > 0 && (
         <MutualFriendsSection mutualFriends={mutualFriends} />
-      )}
-
-      {/* ================= TABS ================= */}
-      <ProfileTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-
-      {/* ================= TAB CONTENT ================= */}
-      <div className="space-y-4">
-        {activeTab === "Posts" && (
-          <>
-            {posts.map((post, index) =>
-              posts.length === index + 1 ? (
-                <div ref={lastPostRef} key={post._id}>
-                  <PostCard post={post} />
-                </div>
-              ) : (
-                <PostCard key={post._id} post={post} />
-              )
-            )}
-            {loadingPosts && <div className="text-center py-4">Loading...</div>}
-          </>
-        )}
-
-        {activeTab === "About" && <AboutSection user={user} />}
-        {activeTab === "Photos" && <PhotosSection posts={posts} user={user} />}
-        {activeTab === "Friends" && <FriendsSection friends={friends} />}
-        {activeTab === "Videos" && <VideosSection videos={videos} />}
-        {activeTab === "Reels" && <ReelsSection reels={reels} />}
-        {activeTab === "Followers" && <FollowersSection followers={followers} />}
-        {activeTab === "Following" && <FollowingSection following={following} />}
-      </div>
-
-      {/* ================= EDIT PROFILE MODAL ================= */}
-      <EditProfileModal
-        editing={editing}
-        setEditing={setEditing}
-        formData={formData}
-        previewProfilePic={previewProfilePic}
-        previewCoverPhoto={previewCoverPhoto}
-        uploading={saving}
-      />
-    </div>
-  );
-};
-
-export default Profile;
