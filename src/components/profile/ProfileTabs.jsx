@@ -1,51 +1,38 @@
 // src/components/profile/ProfileTabs.jsx
 import React from "react";
-import {
-  Image,
-  User,
-  Users,
-  Video,
-  Film,
-  FileText,
-  UserPlus
-} from "lucide-react";
+import { Users, Image, Video, FileText, Heart } from "lucide-react";
+
+const tabs = [
+  { key: "Posts", label: "Posts", icon: FileText },
+  { key: "About", label: "About", icon: FileText },
+  { key: "Photos", label: "Photos", icon: Image },
+  { key: "Friends", label: "Friends", icon: Users },
+  { key: "Videos", label: "Videos", icon: Video },
+  { key: "Reels", label: "Reels", icon: Video },
+  { key: "Followers", label: "Followers", icon: Users },
+  { key: "Following", label: "Following", icon: Users },
+];
 
 const ProfileTabs = ({ activeTab, setActiveTab }) => {
-  const tabs = [
-    { name: "Posts", icon: <FileText size={16}/> },
-    { name: "About", icon: <User size={16}/> },
-    { name: "Photos", icon: <Image size={16}/> },
-    { name: "Friends", icon: <Users size={16}/> },
-    { name: "Followers", icon: <UserPlus size={16}/> },
-    { name: "Following", icon: <UserPlus size={16}/> },
-    { name: "Videos", icon: <Video size={16}/> },
-    { name: "Reels", icon: <Film size={16}/> },
-  ];
-
   return (
-    <div className="bg-white rounded-lg shadow-sm">
-      <div className="flex gap-2 overflow-x-auto px-2 border-b">
-
-        {tabs.map((tab) => (
-          <button
-            key={tab.name}
-            onClick={() => setActiveTab(tab.name)}
-            className={`
-              flex items-center gap-2
-              px-4 py-3 text-sm font-medium whitespace-nowrap
-              transition-all duration-200
-              ${
-                activeTab === tab.name
-                  ? "border-b-2 border-blue-600 text-blue-600"
-                  : "text-gray-600 hover:text-blue-600"
-              }
-            `}
-          >
-            {tab.icon}
-            {tab.name}
-          </button>
-        ))}
-
+    <div className="overflow-x-auto no-scrollbar py-2">
+      <div className="flex gap-4 px-4">
+        {tabs.map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.key;
+          return (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={`flex flex-col items-center justify-center min-w-[70px] px-3 py-2 rounded-lg transition ${
+                isActive ? "bg-blue-500 text-white" : "text-gray-600 hover:bg-gray-100"
+              }`}
+            >
+              <Icon className="w-5 h-5 mb-1" />
+              <span className="text-xs">{tab.label}</span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
