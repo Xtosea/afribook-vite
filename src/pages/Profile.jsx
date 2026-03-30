@@ -14,6 +14,8 @@ import VideosSection from "../components/profile/VideosSection";
 import ReelsSection from "../components/profile/ReelsSection";
 
 import { useImageKitUpload } from "../hooks/useImageKitUpload";
+import FollowersSection from "../components/profile/FollowersSection";
+import FollowingSection from "../components/profile/FollowingSection";
 
 const POSTS_LIMIT = 10;
 
@@ -36,6 +38,8 @@ const Profile = () => {
   const [loadingPosts, setLoadingPosts] = useState(true);
   const [editing, setEditing] = useState(false);
   const [activeTab, setActiveTab] = useState("Posts");
+const [followers, setFollowers] = useState([]);
+const [following, setFollowing] = useState([]);
 
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -189,6 +193,34 @@ const Profile = () => {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
       />
+
+     useEffect(() => {
+  const fetchFollowData = async () => {
+    try {
+      const data = await fetchWithToken(
+        `${API_BASE}/api/users/${finalUserId}`,
+        token
+      );
+
+      setFollowers(data.followers || []);
+      setFollowing(data.following || []);
+
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  fetchFollowData();
+}, [finalUserId]);
+
+
+     {activeTab === "Followers" && (
+  <FollowersSection followers={followers} />
+)}
+
+{activeTab === "Following" && (
+  <FollowingSection following={following} />
+)}
 
       {/* ================= TAB CONTENT ================= */}
 
