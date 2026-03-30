@@ -171,8 +171,33 @@ const [following, setFollowing] = useState([]);
     fetchPosts();
   }, [page, finalUserId]);
 
+  
+useEffect(() => {
+  const fetchFollowData = async () => {
+    try {
+      const data = await fetchWithToken(
+        `${API_BASE}/api/users/${finalUserId}`,
+        token
+      );
+
+      setFollowers(data.followers || []);
+      setFollowing(data.following || []);
+
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  fetchFollowData();
+}, [finalUserId]);
+
+
+
   if (!user)
     return (
+
+
+
       <div className="p-6 animate-pulse">
         <div className="h-40 bg-gray-200 rounded mb-4" />
       </div>
@@ -194,34 +219,7 @@ const [following, setFollowing] = useState([]);
         setActiveTab={setActiveTab}
       />
 
-     useEffect(() => {
-  const fetchFollowData = async () => {
-    try {
-      const data = await fetchWithToken(
-        `${API_BASE}/api/users/${finalUserId}`,
-        token
-      );
-
-      setFollowers(data.followers || []);
-      setFollowing(data.following || []);
-
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  fetchFollowData();
-}, [finalUserId]);
-
-
-     {activeTab === "Followers" && (
-  <FollowersSection followers={followers} />
-)}
-
-{activeTab === "Following" && (
-  <FollowingSection following={following} />
-)}
-
+     
       {/* ================= TAB CONTENT ================= */}
 
       {activeTab === "Posts" && (
@@ -274,6 +272,14 @@ const [following, setFollowing] = useState([]);
           reels={reels}
         />
       )}
+
+     {activeTab === "Followers" && (
+  <FollowersSection followers={followers} />
+)}
+
+{activeTab === "Following" && (
+  <FollowingSection following={following} />
+)}
 
       <EditProfileModal
         editing={editing}
