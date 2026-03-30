@@ -17,6 +17,7 @@ const PostCard = ({ post, currentUserId }) => {
   const [shares, setShares] = useState(post.shares || 0);
   const [commentText, setCommentText] = useState("");
   const [showComments, setShowComments] = useState(false);
+  const [liking, setLiking] = useState(false);
 
   const likedByUser = likes.includes(currentUserId);
 
@@ -24,15 +25,24 @@ const PostCard = ({ post, currentUserId }) => {
   // Like
   // =========================
   const handleLike = async () => {
+    if (liking) return;
+    setLiking(true);
+
     try {
       const res = await fetchWithToken(
         `${API_BASE}/api/posts/${post._id}/like`,
         localStorage.getItem("token"),
         { method: "POST" }
       );
-      setLikes(res.likes);
+
+      if (res?.likes) {
+        setLikes(res.likes);
+      }
+
     } catch (err) {
       console.error("Like error:", err);
+    } finally {
+      setLiking(false);
     }
   };
 
@@ -53,42 +63,35 @@ const PostCard = ({ post, currentUserId }) => {
         }
       );
 
-      setComments(res.comments);
+      if (res?.comments) {
+        setComments(res.comments);
+      }
+
       setCommentText("");
+
     } catch (err) {
       console.error("Comment error:", err);
     }
   };
 
   // =========================
-  // Share (Native Device Share)
+  // Share
   // =========================
   const handleShare = async () => {
     try {
-      const url = `${window.location.origin}/post/${post._id}`;
-      const text = post.text || "Check this post";
+      const url = `https://africbook.globelynks.com/post/${post._id}`;
+      const text = post.text || "Check this post on Africbook";
 
-      // Native Share (Mobile + Desktop supported browsers)
       if (navigator.share) {
         await navigator.share({
-          title: post.user?.name || "Shared Post",
+          title: post.user?.name || "Africbook Post",
           text,
           url,
         });
-
-        const res = await fetchWithToken(
-          `${API_BASE}/api/posts/${post._id}/share`,
-          localStorage.getItem("token"),
-          { method: "POST" }
-        );
-
-        setShares(res.shares);
-        return;
+      } else {
+        navigator.clipboard.writeText(url);
+        alert("Link copied");
       }
-
-      // Fallback (Desktop browsers)
-      navigator.clipboard.writeText(url);
-      alert("Link copied to clipboard");
 
       const res = await fetchWithToken(
         `${API_BASE}/api/posts/${post._id}/share`,
@@ -96,7 +99,9 @@ const PostCard = ({ post, currentUserId }) => {
         { method: "POST" }
       );
 
-      setShares(res.shares);
+      if (res?.shares !== undefined) {
+        setShares(res.shares);
+      }
 
     } catch (err) {
       console.error("Share error:", err);
@@ -104,7 +109,7 @@ const PostCard = ({ post, currentUserId }) => {
   };
 
   // =========================
-  // Navigate profile
+  // Navigate Profile
   // =========================
   const goToProfile = useCallback(() => {
     navigate(`/profile/${post.user?._id}`);
@@ -183,7 +188,7 @@ const PostCard = ({ post, currentUserId }) => {
                 src={m.url}
                 className="w-full h-48 object-cover rounded-xl cursor-pointer"
                 muted
-                onClick={() => setFullscreen({ media, index: i })}
+                onClick={() => setFullscreen({ media: m })}
               />
             ) : (
               <img
@@ -191,7 +196,7 @@ const PostCard = ({ post, currentUserId }) => {
                 src={m.url}
                 alt=""
                 className="w-full h-48 object-cover rounded-xl cursor-pointer"
-                onClick={() => setFullscreen({ media, index: i })}
+                onClick={() => setFullscreen({ media: m })}
               />
             );
           })}
@@ -226,12 +231,12 @@ const PostCard = ({ post, currentUserId }) => {
       )}
 
       {/* ACTIONS */}
-      <div className="flex justify-between items-center text-sm pt-2 border-t">
+      <div className="flex justify-between text-sm pt-2 border-t">
 
         {/* LIKE */}
         <button
           onClick={handleLike}
-          className={`hover:text-blue-600 ${
+          className={`flex gap-1 ${
             likedByUser ? "text-blue-600 font-semibold" : ""
           }`}
         >
@@ -241,16 +246,12 @@ const PostCard = ({ post, currentUserId }) => {
         {/* COMMENT */}
         <button
           onClick={() => setShowComments(!showComments)}
-          className="hover:text-blue-600"
         >
           💬 {comments.length}
         </button>
 
         {/* SHARE */}
-        <button
-          onClick={handleShare}
-          className="hover:text-blue-600"
-        >
+        <button onClick={handleShare}>
           🔗 Share ({shares})
         </button>
 
@@ -258,28 +259,31 @@ const PostCard = ({ post, currentUserId }) => {
 
       {/* COMMENTS */}
       {showComments && (
-        <div className="space-y-2 pt-2">
+        <div className="space-y-2">
 
           {comments.map((c, i) => (
-            <div
-              key={i}
-              className="text-sm bg-gray-100 p-2 rounded-lg"
-            >
-              <b>{c.user?.name || "User"}</b> {c.text}
+            <div key={i} className="text-sm bg-gray-100 p-2 rounded">
+              <b>{c.user?.name}</b> {c.text}
             </div>
           ))}
 
-          <input
-            value={commentText}
-            onChange={(e) =>
-              setCommentText(e.target.value)
-            }
-            placeholder="Write comment..."
-            className="w-full border rounded-lg p-2 text-sm"
-            onKeyDown={(e) =>
-              e.key === "Enter" && handleComment()
-            }
-          />
+          <div className="flex gap-2">
+            <input
+              value={commentText}
+              onChange={(e) =>
+                setCommentText(e.target.value)
+              }
+              placeholder="Write comment..."
+              className="flex-1 border rounded-lg p-2"
+            />
+
+            <button
+              onClick={handleComment}
+              className="bg-blue-600 text-white px-4 rounded-lg"
+            >
+              Send
+            </button>
+          </div>
 
         </div>
       )}
