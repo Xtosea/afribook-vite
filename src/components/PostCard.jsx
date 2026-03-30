@@ -61,41 +61,34 @@ const PostCard = ({ post, currentUserId }) => {
   };
 
   // =========================
-  // Share
+  // Share (Native Device Share)
   // =========================
-  const handleShare = async (platform) => {
+  const handleShare = async () => {
     try {
       const url = `${window.location.origin}/post/${post._id}`;
+      const text = post.text || "Check this post";
 
-      let shareUrl = "";
+      // Native Share (Mobile + Desktop supported browsers)
+      if (navigator.share) {
+        await navigator.share({
+          title: post.user?.name || "Shared Post",
+          text,
+          url,
+        });
 
-      switch (platform) {
-        case "facebook":
-          shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
-          break;
+        const res = await fetchWithToken(
+          `${API_BASE}/api/posts/${post._id}/share`,
+          localStorage.getItem("token"),
+          { method: "POST" }
+        );
 
-        case "twitter":
-          shareUrl = `https://twitter.com/intent/tweet?url=${url}`;
-          break;
-
-        case "whatsapp":
-          shareUrl = `https://api.whatsapp.com/send?text=${url}`;
-          break;
-
-        case "telegram":
-          shareUrl = `https://t.me/share/url?url=${url}`;
-          break;
-
-        case "copy":
-          navigator.clipboard.writeText(url);
-          alert("Link copied");
-          break;
-
-        default:
-          return;
+        setShares(res.shares);
+        return;
       }
 
-      if (shareUrl) window.open(shareUrl, "_blank");
+      // Fallback (Desktop browsers)
+      navigator.clipboard.writeText(url);
+      alert("Link copied to clipboard");
 
       const res = await fetchWithToken(
         `${API_BASE}/api/posts/${post._id}/share`,
@@ -104,6 +97,7 @@ const PostCard = ({ post, currentUserId }) => {
       );
 
       setShares(res.shares);
+
     } catch (err) {
       console.error("Share error:", err);
     }
@@ -124,18 +118,18 @@ const PostCard = ({ post, currentUserId }) => {
         <img
           src={
             post.user?.profilePic ||
-            `https://ui-avatars.com/api/?name=${post.user?.name}`
+            `https://ui-avatars.com/api/?name=${post.user?.name || "User"}`
           }
-          className="w-12 h-12 rounded-full cursor-pointer"
+          className="w-12 h-12 rounded-full cursor-pointer object-cover"
           onClick={goToProfile}
         />
 
         <div>
           <p
-            className="font-semibold cursor-pointer"
+            className="font-semibold cursor-pointer hover:underline"
             onClick={goToProfile}
           >
-            {post.user?.name}
+            {post.user?.name || "User"}
           </p>
 
           <p className="text-xs text-gray-500">
@@ -163,13 +157,14 @@ const PostCard = ({ post, currentUserId }) => {
               src={m.url}
               controls
               muted
-              className="w-full rounded-xl"
+              className="w-full rounded-xl cursor-pointer"
               onClick={() => setFullscreen({ media: m })}
             />
           ) : (
             <img
               key={i}
               src={m.url}
+              alt=""
               className="w-full rounded-xl cursor-pointer"
               onClick={() => setFullscreen({ media: m })}
             />
@@ -186,7 +181,7 @@ const PostCard = ({ post, currentUserId }) => {
               <video
                 key={i}
                 src={m.url}
-                className="w-full h-48 object-cover rounded-xl"
+                className="w-full h-48 object-cover rounded-xl cursor-pointer"
                 muted
                 onClick={() => setFullscreen({ media, index: i })}
               />
@@ -194,7 +189,8 @@ const PostCard = ({ post, currentUserId }) => {
               <img
                 key={i}
                 src={m.url}
-                className="w-full h-48 object-cover rounded-xl"
+                alt=""
+                className="w-full h-48 object-cover rounded-xl cursor-pointer"
                 onClick={() => setFullscreen({ media, index: i })}
               />
             );
@@ -204,7 +200,7 @@ const PostCard = ({ post, currentUserId }) => {
 
       {/* FULLSCREEN */}
       {fullscreen && (
-        <div className="fixed inset-0 bg-black flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-95 flex items-center justify-center z-50">
           <button
             className="absolute top-4 right-4 text-white text-3xl"
             onClick={() => setFullscreen(null)}
@@ -217,24 +213,25 @@ const PostCard = ({ post, currentUserId }) => {
               src={fullscreen.media.url}
               controls
               autoPlay
-              className="max-h-full"
+              className="max-h-full max-w-full"
             />
           ) : (
             <img
               src={fullscreen.media.url}
-              className="max-h-full"
+              alt=""
+              className="max-h-full max-w-full"
             />
           )}
         </div>
       )}
 
       {/* ACTIONS */}
-      <div className="flex justify-between text-sm pt-2 border-t">
+      <div className="flex justify-between items-center text-sm pt-2 border-t">
 
         {/* LIKE */}
         <button
           onClick={handleLike}
-          className={`${
+          className={`hover:text-blue-600 ${
             likedByUser ? "text-blue-600 font-semibold" : ""
           }`}
         >
@@ -244,45 +241,31 @@ const PostCard = ({ post, currentUserId }) => {
         {/* COMMENT */}
         <button
           onClick={() => setShowComments(!showComments)}
+          className="hover:text-blue-600"
         >
           💬 {comments.length}
         </button>
 
         {/* SHARE */}
-        <div className="flex gap-2">
+        <button
+          onClick={handleShare}
+          className="hover:text-blue-600"
+        >
+          🔗 Share ({shares})
+        </button>
 
-          <button onClick={() => handleShare("facebook")}>
-            Facebook
-          </button>
-
-          <button onClick={() => handleShare("twitter")}>
-            Twitter
-          </button>
-
-          <button onClick={() => handleShare("whatsapp")}>
-            WhatsApp
-          </button>
-
-          <button onClick={() => handleShare("telegram")}>
-            Telegram
-          </button>
-
-          <button onClick={() => handleShare("copy")}>
-            Copy
-          </button>
-
-          <span>({shares})</span>
-
-        </div>
       </div>
 
       {/* COMMENTS */}
       {showComments && (
-        <div className="space-y-2">
+        <div className="space-y-2 pt-2">
 
           {comments.map((c, i) => (
-            <div key={i} className="text-sm bg-gray-100 p-2 rounded">
-              <b>{c.user?.name}</b> {c.text}
+            <div
+              key={i}
+              className="text-sm bg-gray-100 p-2 rounded-lg"
+            >
+              <b>{c.user?.name || "User"}</b> {c.text}
             </div>
           ))}
 
@@ -292,7 +275,7 @@ const PostCard = ({ post, currentUserId }) => {
               setCommentText(e.target.value)
             }
             placeholder="Write comment..."
-            className="w-full border rounded-lg p-2"
+            className="w-full border rounded-lg p-2 text-sm"
             onKeyDown={(e) =>
               e.key === "Enter" && handleComment()
             }
