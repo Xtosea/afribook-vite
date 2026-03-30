@@ -12,11 +12,11 @@ import PhotosSection from "../components/profile/PhotosSection";
 import FriendsSection from "../components/profile/FriendsSection";
 import VideosSection from "../components/profile/VideosSection";
 import ReelsSection from "../components/profile/ReelsSection";
-
-import { useImageKitUpload } from "../hooks/useImageKitUpload";
 import FollowersSection from "../components/profile/FollowersSection";
 import FollowingSection from "../components/profile/FollowingSection";
 import MutualFriendsSection from "../components/profile/MutualFriendsSection";
+
+import { useImageKitUpload } from "../hooks/useImageKitUpload";
 
 const POSTS_LIMIT = 10;
 
@@ -35,17 +35,16 @@ const Profile = () => {
   const [friends, setFriends] = useState([]);
   const [videos, setVideos] = useState([]);
   const [reels, setReels] = useState([]);
+  const [followers, setFollowers] = useState([]);
+  const [following, setFollowing] = useState([]);
+  const [mutualFriends, setMutualFriends] = useState([]);
 
   const [loadingPosts, setLoadingPosts] = useState(true);
   const [editing, setEditing] = useState(false);
   const [activeTab, setActiveTab] = useState("Posts");
-const [followers, setFollowers] = useState([]);
-const [following, setFollowing] = useState([]);
 
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [mutualFriends, setMutualFriends] = useState([]);
-
   const observer = useRef();
 
   const lastPostRef = useCallback(
@@ -83,26 +82,9 @@ const [following, setFollowing] = useState([]);
 
   const [previewProfilePic, setPreviewProfilePic] = useState(null);
   const [previewCoverPhoto, setPreviewCoverPhoto] = useState(null);
-
   const [saving, setSaving] = useState(false);
 
-  const fields = [
-    "name",
-    "bio",
-    "intro",
-    "dob",
-    "phone",
-    "education",
-    "origin",
-    "maritalStatus",
-    "spouse",
-    "gender",
-    "email",
-    "hubby",
-  ];
-
   /* ================= FETCH PROFILE ================= */
-
   useEffect(() => {
     if (!token) {
       navigate("/login");
@@ -119,7 +101,6 @@ const [following, setFollowing] = useState([]);
         setUser(userData);
         setPreviewProfilePic(userData.profilePic);
         setPreviewCoverPhoto(userData.coverPhoto);
-
         setFriends(userData.friends || []);
       } catch (err) {
         console.error(err);
@@ -130,7 +111,6 @@ const [following, setFollowing] = useState([]);
   }, [finalUserId]);
 
   /* ================= FETCH POSTS ================= */
-
   useEffect(() => {
     if (!token) return;
 
@@ -143,26 +123,15 @@ const [following, setFollowing] = useState([]);
           token
         );
 
-        if (data.length < POSTS_LIMIT) {
-          setHasMore(false);
-        }
+        if (data.length < POSTS_LIMIT) setHasMore(false);
 
         setPosts((prev) => [...prev, ...data]);
 
-        /* Filter Videos + Reels */
-
-        const vids = data.filter(
-          (p) =>
-            p.media?.some((m) => m.type === "video")
-        );
-
-        const reelsData = data.filter(
-          (p) => p.isReel || p.reel
-        );
+        const vids = data.filter((p) => p.media?.some((m) => m.type === "video"));
+        const reelsData = data.filter((p) => p.isReel || p.reel);
 
         setVideos((prev) => [...prev, ...vids]);
         setReels((prev) => [...prev, ...reelsData]);
-
       } catch (err) {
         console.error(err);
       } finally {
@@ -173,51 +142,41 @@ const [following, setFollowing] = useState([]);
     fetchPosts();
   }, [page, finalUserId]);
 
-  
-useEffect(() => {
-  const fetchFollowData = async () => {
-    try {
-      const data = await fetchWithToken(
-        `${API_BASE}/api/users/${finalUserId}`,
-        token
-      );
+  /* ================= FETCH FOLLOWERS/FOLLOWING ================= */
+  useEffect(() => {
+    const fetchFollowData = async () => {
+      try {
+        const data = await fetchWithToken(
+          `${API_BASE}/api/users/${finalUserId}`,
+          token
+        );
+        setFollowers(data.followers || []);
+        setFollowing(data.following || []);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchFollowData();
+  }, [finalUserId, token]);
 
-      setFollowers(data.followers || []);
-      setFollowing(data.following || []);
-
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  fetchFollowData();
-}, [finalUserId, token]);
-
-useEffect(() => {
-  const fetchMutualFriends = async () => {
-    try {
-      const data = await fetchWithToken(
-        `${API_BASE}/api/users/${finalUserId}/mutual`,
-        token
-      );
-
-      setMutualFriends(data || []);
-
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  fetchMutualFriends();
-}, [finalUserId]);
-
-
+  /* ================= FETCH MUTUAL FRIENDS ================= */
+  useEffect(() => {
+    const fetchMutualFriends = async () => {
+      try {
+        const data = await fetchWithToken(
+          `${API_BASE}/api/users/${finalUserId}/mutual`,
+          token
+        );
+        setMutualFriends(data || []);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchMutualFriends();
+  }, [finalUserId]);
 
   if (!user)
     return (
-
-
-
       <div className="p-6 animate-pulse">
         <div className="h-40 bg-gray-200 rounded mb-4" />
       </div>
@@ -226,6 +185,7 @@ useEffect(() => {
   return (
     <div className="container mx-auto py-6 space-y-6">
 
+      {/* ================= PROFILE HEADER ================= */}
       <ProfileHeader
         user={user}
         isOwner={true}
@@ -234,77 +194,41 @@ useEffect(() => {
         previewCoverPhoto={previewCoverPhoto}
       />
 
-     {!user.isCurrentUser && (
-  <MutualFriendsSection mutualFriends={mutualFriends} />
-)}
+      {/* ================= MUTUAL FRIENDS ================= */}
+      {!user.isCurrentUser && mutualFriends.length > 0 && (
+        <MutualFriendsSection mutualFriends={mutualFriends} />
+      )}
 
-      <ProfileTabs
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-      />
+      {/* ================= TABS ================= */}
+      <ProfileTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
-     
       {/* ================= TAB CONTENT ================= */}
-
-      {activeTab === "Posts" && (
-        <div className="space-y-4">
-          {posts.map((post, index) => {
-            if (posts.length === index + 1) {
-              return (
+      <div className="space-y-4">
+        {activeTab === "Posts" && (
+          <>
+            {posts.map((post, index) =>
+              posts.length === index + 1 ? (
                 <div ref={lastPostRef} key={post._id}>
                   <PostCard post={post} />
                 </div>
-              );
-            }
+              ) : (
+                <PostCard key={post._id} post={post} />
+              )
+            )}
+            {loadingPosts && <div className="text-center py-4">Loading...</div>}
+          </>
+        )}
 
-            return <PostCard key={post._id} post={post} />;
-          })}
+        {activeTab === "About" && <AboutSection user={user} />}
+        {activeTab === "Photos" && <PhotosSection posts={posts} user={user} />}
+        {activeTab === "Friends" && <FriendsSection friends={friends} />}
+        {activeTab === "Videos" && <VideosSection videos={videos} />}
+        {activeTab === "Reels" && <ReelsSection reels={reels} />}
+        {activeTab === "Followers" && <FollowersSection followers={followers} />}
+        {activeTab === "Following" && <FollowingSection following={following} />}
+      </div>
 
-          {loadingPosts && (
-            <div className="text-center py-4">
-              Loading...
-            </div>
-          )}
-        </div>
-      )}
-
-      {activeTab === "About" && (
-        <AboutSection user={user} />
-      )}
-
-      {activeTab === "Photos" && (
-        <PhotosSection
-          posts={posts}
-          user={user}
-        />
-      )}
-
-      {activeTab === "Friends" && (
-        <FriendsSection
-          friends={friends}
-        />
-      )}
-
-      {activeTab === "Videos" && (
-        <VideosSection
-          videos={videos}
-        />
-      )}
-
-      {activeTab === "Reels" && (
-        <ReelsSection
-          reels={reels}
-        />
-      )}
-
-     {activeTab === "Followers" && (
-  <FollowersSection followers={followers} />
-)}
-
-{activeTab === "Following" && (
-  <FollowingSection following={following} />
-)}
-
+      {/* ================= EDIT PROFILE MODAL ================= */}
       <EditProfileModal
         editing={editing}
         setEditing={setEditing}
@@ -313,7 +237,6 @@ useEffect(() => {
         previewCoverPhoto={previewCoverPhoto}
         uploading={saving}
       />
-
     </div>
   );
 };
