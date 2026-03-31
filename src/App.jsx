@@ -1,4 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { HelmetProvider } from "react-helmet-async";
+
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -24,87 +26,100 @@ import MediaViewer from "./pages/MediaViewer";
 
 function App() {
   console.log("API:", import.meta.env.VITE_API_BASE);
-  return (
-    <Router>
-      <Navbar />
-      {/* Removed p-4 padding to allow full-width posts */}
-      <div className="min-h-[calc(100vh-80px)] w-full">
-        <Routes>
-          {/* Public routes */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password/:token" element={<ResetPassword />} />
-          <Route path="/verify-email/:token" element={<VerifyEmail />} />
-          <Route path="/verify-success" element={<VerifySuccess />} />
-          <Route path="/verify-failed" element={<VerifyFailed />} />
-          <Route path="/welcome" element={<WelcomeOnboarding />} />
-          <Route path="/media/:postId" element={<MediaViewer />} />
-          <Route path="/add-friends" element={<AddFriends />} />
-          <Route path="/sync-contacts" element={<SyncContacts />} />
-          <Route path="/edit-profile" element={<EditProfile />} />
 
-          {/* Protected routes */}
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <Home />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/profile/:userId"
-            element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/create"
-            element={
-              <ProtectedRoute>
-                <CreatePost />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/reels"
-            element={
-              <ProtectedRoute>
-                <Reels />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/messages"
-            element={
-              <ProtectedRoute>
-                <Messages />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/chat"
-            element={
-              <ProtectedRoute>
-                <Chat />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-      </div>
-      <Footer />
-    </Router>
+  return (
+    <HelmetProvider>
+      <Router>
+        <Navbar />
+
+        {/* Removed p-4 padding to allow full-width posts */}
+        <div className="min-h-[calc(100vh-80px)] w-full">
+          <Routes>
+
+            {/* Public routes */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password/:token" element={<ResetPassword />} />
+            <Route path="/verify-email/:token" element={<VerifyEmail />} />
+            <Route path="/verify-success" element={<VerifySuccess />} />
+            <Route path="/verify-failed" element={<VerifyFailed />} />
+            <Route path="/welcome" element={<WelcomeOnboarding />} />
+            <Route path="/media/:postId" element={<MediaViewer />} />
+            <Route path="/add-friends" element={<AddFriends />} />
+            <Route path="/sync-contacts" element={<SyncContacts />} />
+            <Route path="/edit-profile" element={<EditProfile />} />
+
+            {/* Protected routes */}
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <Home />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/profile/:userId"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/create"
+              element={
+                <ProtectedRoute>
+                  <CreatePost />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/reels"
+              element={
+                <ProtectedRoute>
+                  <Reels />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/messages"
+              element={
+                <ProtectedRoute>
+                  <Messages />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/chat"
+              element={
+                <ProtectedRoute>
+                  <Chat />
+                </ProtectedRoute>
+              }
+            />
+
+          </Routes>
+        </div>
+
+        <Footer />
+      </Router>
+    </HelmetProvider>
   );
 }
 
