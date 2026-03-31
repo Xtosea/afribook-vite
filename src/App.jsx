@@ -23,6 +23,7 @@ import AddFriends from "./pages/AddFriends";
 import SyncContacts from "./pages/SyncContacts";
 import EditProfile from "./pages/EditProfile";
 import MediaViewer from "./pages/MediaViewer";
+import PostView from "./pages/PostView";
 
 function App() {
   console.log("API:", import.meta.env.VITE_API_BASE);
@@ -49,6 +50,7 @@ function App() {
             <Route path="/add-friends" element={<AddFriends />} />
             <Route path="/sync-contacts" element={<SyncContacts />} />
             <Route path="/edit-profile" element={<EditProfile />} />
+<Route path="/post/:id" element={<PostView />} />
 
             {/* Protected routes */}
             <Route
