@@ -1,5 +1,4 @@
-// src/pages/Home.jsx
-import React, { useEffect, useRef, useState, Suspense, lazy, useCallback } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import SidebarLeft from "../components/layout/SidebarLeft";
 import SidebarRight from "../components/layout/SidebarRight";
@@ -9,10 +8,7 @@ import CreatePost from "../components/CreatePost";
 import { API_BASE, fetchWithToken } from "../api/api";
 import { getSocket, connectSocket } from "../socket";
 
-// Lazy load emoji picker
-const EmojiPicker = lazy(() => import("emoji-picker-react"));
-
-// Skeleton post
+// Skeleton placeholder
 const SkeletonPost = () => (
   <div className="bg-white p-4 rounded-2xl shadow animate-pulse space-y-4 w-full">
     <div className="h-64 bg-gray-300 rounded-xl w-full"></div>
@@ -38,30 +34,30 @@ const Home = () => {
     name: localStorage.getItem("name"),
   };
 
-  // Redirect if no token
+  // Redirect if not logged in
   useEffect(() => {
     if (!token) navigate("/login");
   }, [token, navigate]);
 
-  // --- Socket setup ---
+  // Socket setup
   useEffect(() => {
     if (!token) return;
     connectSocket();
     const socket = getSocket();
     if (!socket) return;
 
-    socket.on("new-video", (post) => setPosts((prev) => [post, ...prev]));
+    socket.on("new-post", (post) => setPosts((prev) => [post, ...prev]));
     socket.on("new-story", (story) => setStories((prev) => [story, ...prev]));
     socket.on("birthday", (data) => alert(`🎉 Today is ${data.name}'s birthday`));
 
     return () => {
-      socket.off("new-video");
+      socket.off("new-post");
       socket.off("new-story");
       socket.off("birthday");
     };
   }, [token]);
 
-  // --- Fetch stories ---
+  // Fetch stories
   useEffect(() => {
     if (!token) return;
 
@@ -80,7 +76,7 @@ const Home = () => {
     fetchStories();
   }, [token]);
 
-  // --- Fetch posts (infinite scroll) ---
+  // Fetch posts (infinite scroll)
   const fetchPosts = useCallback(async (pageNum = 1) => {
     if (!token || !hasMore) return;
 
@@ -89,10 +85,12 @@ const Home = () => {
         `${API_BASE}/api/posts?limit=10&page=${pageNum}`,
         token
       );
+
       if (!res || res.length === 0) {
         setHasMore(false);
         return;
       }
+
       setPosts((prev) => [...prev, ...res]);
     } catch (err) {
       console.error("Posts fetch error:", err);
@@ -101,12 +99,11 @@ const Home = () => {
     }
   }, [token, hasMore]);
 
-  // Initial posts
   useEffect(() => {
     fetchPosts(page);
   }, [fetchPosts, page]);
 
-  // --- Infinite scroll ---
+  // Infinite scroll observer
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -122,7 +119,7 @@ const Home = () => {
     return () => observer.disconnect();
   }, [feedRef, hasMore, loading]);
 
-  // --- Handle new post from CreatePost ---
+  // Handle new post from CreatePost
   const handleNewPost = (post) => {
     setPosts((prev) => [post, ...prev]);
   };
@@ -146,7 +143,7 @@ const Home = () => {
 
         {/* POSTS */}
         {posts.map((post) => (
-          <PostCard key={post._id} post={post} currentUserId={currentUserId} feedRef={feedRef} />
+          <PostCard key={post._id} post={post} currentUserId={currentUserId} />
         ))}
 
         {/* LOADING */}
