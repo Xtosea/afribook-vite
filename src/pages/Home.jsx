@@ -193,70 +193,50 @@ const Home = () => {
   /* ================= SUBMIT POST ================= */
 
   const handleSubmitPost = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!newPost && mediaFiles.length === 0) return;
+  if (!newPost && mediaFiles.length === 0) return;
 
-    setPosting(true);
+  setPosting(true);
 
-    try {
-      const uploadedMedia = [];
+  try {
+    // Prepare FormData for multipart upload
+    const formData = new FormData();
+    formData.append("content", newPost);
 
-      for (let file of mediaFiles) {
-        const type = file.type.startsWith("image")
-          ? "image"
-          : "video";
+    mediaFiles.forEach((file) => {
+      formData.append("media", file); // backend expects "media"
+    });
 
-        let compressed = file;
+    const res = await fetch(`${API_BASE}/api/posts`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        // Do NOT set Content-Type; fetch will set it automatically for FormData
+      },
+      body: formData,
+    });
 
-        if (type === "image") {
-          compressed = await imageCompression(file, {
-            maxSizeMB: 0.6,
-          });
-        }
+    const data = await res.json();
 
-        const url =
-          type === "image"
-            ? await uploadImage(compressed)
-            : await uploadVideo(file);
-
-        uploadedMedia.push({ url, type });
-      }
-
-      const res = await fetch(`${API_BASE}/api/posts`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          content: newPost,
-          media: uploadedMedia,
-          location,
-          feeling,
-          taggedFriends,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (data?.post) {
-        setPosts((prev) => [data.post, ...prev]);
-      }
-
-      setNewPost("");
-      setMediaFiles([]);
-      setExpanded(false);
-      setLocation("");
-      setFeeling("");
-      setTaggedFriends([]);
-      setTagInput("");
-    } catch (err) {
-      console.log("Post error:", err);
+    if (data?.post) {
+      setPosts((prev) => [data.post, ...prev]);
     }
 
-    setPosting(false);
-  };
+    // Reset post creation state
+    setNewPost("");
+    setMediaFiles([]);
+    setExpanded(false);
+    setLocation("");
+    setFeeling("");
+    setTaggedFriends([]);
+    setTagInput("");
+  } catch (err) {
+    console.log("Post error:", err);
+  }
+
+  setPosting(false);
+};
 
   /* ================= UI ================= */
 
