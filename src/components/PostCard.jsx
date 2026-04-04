@@ -1,4 +1,3 @@
-// src/components/PostCard.jsx
 import React, { useRef, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_BASE, fetchWithToken } from "../api/api";
@@ -21,6 +20,11 @@ const PostCard = ({ post, currentUserId }) => {
 
   const likedByUser = likes.includes(currentUserId);
 
+  // FORMAT DATE
+  const formattedDate = post.createdAt
+    ? new Date(post.createdAt).toLocaleString()
+    : "";
+
   // =========================
   // Like
   // =========================
@@ -32,10 +36,18 @@ const PostCard = ({ post, currentUserId }) => {
       const res = await fetchWithToken(
         `${API_BASE}/api/posts/${post._id}/like`,
         localStorage.getItem("token"),
-        { method: "POST" }
+        { method: "PUT" }
       );
 
-      if (res?.likes) setLikes(res.likes);
+      if (res?.likesCount !== undefined) {
+        setLikes((prev) => {
+          const liked = prev.includes(currentUserId);
+          return liked
+            ? prev.filter((id) => id !== currentUserId)
+            : [...prev, currentUserId];
+        });
+      }
+
     } catch (err) {
       console.error("Like error:", err);
     } finally {
@@ -60,8 +72,9 @@ const PostCard = ({ post, currentUserId }) => {
         }
       );
 
-      if (res?.comments) setComments(res.comments);
+      if (res?.comment) setComments((prev) => [res.comment, ...prev]);
       setCommentText("");
+
     } catch (err) {
       console.error("Comment error:", err);
     }
@@ -73,14 +86,8 @@ const PostCard = ({ post, currentUserId }) => {
   const handleShare = async () => {
     try {
       const url = `https://africbook.globelynks.com/post/${post._id}`;
-      const text = post.text || "Check this post on Africbook";
-
       if (navigator.share) {
-        await navigator.share({
-          title: post.user?.name || "Africbook Post",
-          text,
-          url,
-        });
+        await navigator.share({ title: post.user?.name, url });
       } else {
         navigator.clipboard.writeText(url);
         alert("Link copied");
@@ -93,32 +100,15 @@ const PostCard = ({ post, currentUserId }) => {
       );
 
       if (res?.shares !== undefined) setShares(res.shares);
+
     } catch (err) {
       console.error("Share error:", err);
     }
   };
 
-  // =========================
-  // Navigate Profile
-  // =========================
   const goToProfile = useCallback(() => {
     navigate(`/profile/${post.user?._id}`);
   }, [navigate, post.user]);
-
-  // =========================
-  // Play video inline
-  // =========================
-  const handleVideoClick = (m, index) => {
-    if (m.type === "video") {
-      const vid = videoRefs.current[index];
-      if (vid) {
-        if (vid.paused) vid.play();
-        else vid.pause();
-      }
-    } else {
-      setFullscreen({ media: m });
-    }
-  };
 
   return (
     <div className="bg-white rounded-xl shadow p-3 space-y-3">
@@ -135,45 +125,37 @@ const PostCard = ({ post, currentUserId }) => {
         />
 
         <div>
-          <p
-            className="font-semibold cursor-pointer hover:underline"
-            onClick={goToProfile}
-          >
+          <p className="font-semibold cursor-pointer hover:underline" onClick={goToProfile}>
             {post.user?.name || "User"}
           </p>
-
-          <p className="text-xs text-gray-500">
-            {new Date(post.createdAt).toLocaleString()}
-          </p>
+          <p className="text-xs text-gray-500">{formattedDate}</p>
         </div>
       </div>
 
       {/* TEXT */}
-      {post.text && <p className="text-gray-800 whitespace-pre-wrap">{post.text}</p>}
+      {post.content && <p className="text-gray-800 whitespace-pre-wrap">{post.content}</p>}
 
       {/* MEDIA */}
-      <div className="grid grid-cols-1 gap-2">
+      <div className={`${isMulti ? "grid grid-cols-2 gap-2" : ""}`}>
         {media.map((m, i) => {
           const isVideo = m.type === "video";
-          const classes = isMulti ? "h-48 w-full object-cover rounded-xl cursor-pointer" : "w-full rounded-xl cursor-pointer";
-
           return isVideo ? (
             <video
               key={i}
               ref={(el) => (videoRefs.current[i] = el)}
               src={m.url}
+              className={`${isMulti ? "h-48" : "w-full"} rounded-xl cursor-pointer`}
               muted
               controls
-              className={classes}
-              onClick={() => handleVideoClick(m, i)}
+              onClick={() => setFullscreen({ media: m })}
             />
           ) : (
             <img
               key={i}
               src={m.url}
               alt=""
-              className={classes}
-              onClick={() => handleVideoClick(m, i)}
+              className={`${isMulti ? "h-48" : "w-full"} object-cover rounded-xl cursor-pointer`}
+              onClick={() => setFullscreen({ media: m })}
             />
           );
         })}
@@ -188,20 +170,10 @@ const PostCard = ({ post, currentUserId }) => {
           >
             ×
           </button>
-
           {fullscreen.media?.type === "video" ? (
-            <video
-              src={fullscreen.media.url}
-              controls
-              autoPlay
-              className="max-h-full max-w-full"
-            />
+            <video src={fullscreen.media.url} controls autoPlay className="max-h-full max-w-full" />
           ) : (
-            <img
-              src={fullscreen.media.url}
-              alt=""
-              className="max-h-full max-w-full"
-            />
+            <img src={fullscreen.media.url} alt="" className="max-h-full max-w-full" />
           )}
         </div>
       )}
@@ -211,25 +183,18 @@ const PostCard = ({ post, currentUserId }) => {
         <button onClick={handleLike} className={`flex gap-1 ${likedByUser ? "text-blue-600 font-semibold" : ""}`}>
           👍 {likes.length}
         </button>
-
-        <button onClick={() => setShowComments(!showComments)}>
-          💬 {comments.length}
-        </button>
-
-        <button onClick={handleShare}>
-          🔗 Share ({shares})
-        </button>
+        <button onClick={() => setShowComments(!showComments)}>💬 {comments.length}</button>
+        <button onClick={handleShare}>🔗 Share ({shares})</button>
       </div>
 
       {/* COMMENTS */}
       {showComments && (
-        <div className="space-y-2">
+        <div className="space-y-2 mt-2">
           {comments.map((c, i) => (
             <div key={i} className="text-sm bg-gray-100 p-2 rounded">
               <b>{c.user?.name}</b> {c.text}
             </div>
           ))}
-
           <div className="flex gap-2">
             <input
               value={commentText}
@@ -243,7 +208,6 @@ const PostCard = ({ post, currentUserId }) => {
           </div>
         </div>
       )}
-
     </div>
   );
 };
