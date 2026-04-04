@@ -7,7 +7,6 @@ import React, {
   lazy,
   useCallback,
 } from "react";
-
 import { useNavigate } from "react-router-dom";
 import SidebarLeft from "../components/layout/SidebarLeft";
 import SidebarRight from "../components/layout/SidebarRight";
@@ -17,8 +16,6 @@ import MediaUpload from "../components/MediaUpload";
 import imageCompression from "browser-image-compression";
 import { API_BASE, fetchWithToken } from "../api/api";
 import { getSocket, connectSocket } from "../socket";
-import { useCloudinaryUpload } from "../hooks/useCloudinaryUpload";
-import { useR2Upload } from "../hooks/useR2Upload";
 
 const EmojiPicker = lazy(() => import("emoji-picker-react"));
 
@@ -29,9 +26,6 @@ const Home = () => {
 
   const feedRef = useRef();
 
-  const { uploadImage } = useCloudinaryUpload();
-  const { uploadVideo } = useR2Upload();
-
   const currentUser = {
     _id: currentUserId,
     profilePic: localStorage.getItem("profilePic"),
@@ -39,7 +33,6 @@ const Home = () => {
   };
 
   /* ================= STATES ================= */
-
   const [posts, setPosts] = useState([]);
   const [stories, setStories] = useState([]);
   const [newPost, setNewPost] = useState("");
@@ -63,13 +56,11 @@ const Home = () => {
   const [hasMore, setHasMore] = useState(true);
 
   /* ================= AUTH ================= */
-
   useEffect(() => {
     if (!token) navigate("/login");
   }, [token, navigate]);
 
   /* ================= FETCH POSTS ================= */
-
   const fetchPosts = useCallback(
     async (pageNum = 1) => {
       try {
@@ -96,7 +87,6 @@ const Home = () => {
   }, [page, fetchPosts]);
 
   /* ================= INFINITE SCROLL ================= */
-
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -108,31 +98,26 @@ const Home = () => {
     );
 
     if (feedRef.current) observer.observe(feedRef.current);
-
     return () => observer.disconnect();
   }, [hasMore]);
 
   /* ================= FETCH STORIES ================= */
-
   useEffect(() => {
     const fetchStories = async () => {
       try {
         const res = await fetch(`${API_BASE}/api/stories`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-
         const data = await res.json();
         setStories(data?.stories || []);
       } catch (err) {
         console.log(err);
       }
     };
-
     if (token) fetchStories();
   }, [token]);
 
   /* ================= SOCKET ================= */
-
   useEffect(() => {
     connectSocket();
     const socket = getSocket();
@@ -152,22 +137,17 @@ const Home = () => {
   }, []);
 
   /* ================= LOCATION ================= */
-
   const handleLocationSearch = async (value) => {
     setLocation(value);
-
     if (!value) {
       setLocationSuggestions([]);
       return;
     }
-
     try {
       const res = await fetch(
         `https://nominatim.openstreetmap.org/search?q=${value}&format=json`
       );
-
       const data = await res.json();
-
       setLocationSuggestions(
         data.slice(0, 5).map((item) => item.display_name)
       );
@@ -177,86 +157,82 @@ const Home = () => {
   };
 
   /* ================= TAG FRIENDS ================= */
-
   const handleTagFriends = (value) => {
     setTagInput(value);
-
     const names = value
       .split(",")
       .map((n) => n.trim())
       .filter(Boolean)
       .map((name) => ({ name }));
-
     setTaggedFriends(names);
   };
 
   /* ================= SUBMIT POST ================= */
-
   const handleSubmitPost = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
+    if (!newPost && mediaFiles.length === 0) return;
 
-  if (!newPost && mediaFiles.length === 0) return;
+    setPosting(true);
 
-  setPosting(true);
+    try {
+      const formData = new FormData();
+      formData.append("content", newPost);
+      formData.append("location", location);
+      formData.append("feeling", feeling);
+      formData.append("taggedFriends", JSON.stringify(taggedFriends));
 
-  try {
-    // Prepare FormData for multipart upload
-    const formData = new FormData();
-    formData.append("content", newPost);
+      mediaFiles.forEach((file) => {
+        formData.append("media", file); // backend expects "media"
+      });
 
-    mediaFiles.forEach((file) => {
-      formData.append("media", file); // backend expects "media"
-    });
+      const res = await fetch(`${API_BASE}/api/posts`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
 
-    const res = await fetch(`${API_BASE}/api/posts`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        // Do NOT set Content-Type; fetch will set it automatically for FormData
-      },
-      body: formData,
-    });
+      const data = await res.json();
 
-    const data = await res.json();
+      if (data?.post) {
+        setPosts((prev) => [data.post, ...prev]);
+      }
 
-    if (data?.post) {
-      setPosts((prev) => [data.post, ...prev]);
+      // Reset post creation state
+      setNewPost("");
+      setMediaFiles([]);
+      setExpanded(false);
+      setLocation("");
+      setFeeling("");
+      setTaggedFriends([]);
+      setTagInput("");
+      setShowEmoji(false);
+      setShowLocation(false);
+      setShowFeeling(false);
+      setShowTag(false);
+    } catch (err) {
+      console.log("Post error:", err);
     }
 
-    // Reset post creation state
-    setNewPost("");
-    setMediaFiles([]);
-    setExpanded(false);
-    setLocation("");
-    setFeeling("");
-    setTaggedFriends([]);
-    setTagInput("");
-  } catch (err) {
-    console.log("Post error:", err);
-  }
-
-  setPosting(false);
-};
+    setPosting(false);
+  };
 
   /* ================= UI ================= */
-
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-6xl mx-auto px-2">
 
       {/* LEFT */}
-
       <div className="hidden md:block">
         <SidebarLeft />
       </div>
 
       {/* CENTER */}
-
       <div className="space-y-4">
 
         <StoriesBar user={currentUser} stories={stories} />
 
         {/* CREATE POST */}
-
         <form
           onSubmit={handleSubmitPost}
           className="bg-white p-4 rounded-xl shadow space-y-3"
@@ -277,9 +253,7 @@ const Home = () => {
               />
 
               {/* BUTTONS */}
-
               <div className="flex flex-wrap gap-2">
-
                 <button
                   type="button"
                   onClick={() => setShowEmoji(!showEmoji)}
@@ -311,11 +285,9 @@ const Home = () => {
                 >
                   🏷 Tag Friends
                 </button>
-
               </div>
 
               {/* EMOJI */}
-
               {showEmoji && (
                 <Suspense fallback="Loading...">
                   <EmojiPicker
@@ -327,7 +299,6 @@ const Home = () => {
               )}
 
               {/* LOCATION */}
-
               {showLocation && (
                 <div className="relative">
                   <input
@@ -359,7 +330,6 @@ const Home = () => {
               )}
 
               {/* FEELING */}
-
               {showFeeling && (
                 <input
                   value={feeling}
@@ -370,7 +340,6 @@ const Home = () => {
               )}
 
               {/* TAG */}
-
               {showTag && (
                 <input
                   value={tagInput}
@@ -383,9 +352,7 @@ const Home = () => {
               )}
 
               {/* ACTION */}
-
               <div className="flex justify-between">
-
                 <button
                   type="button"
                   onClick={() => setExpanded(false)}
@@ -401,14 +368,12 @@ const Home = () => {
                 >
                   {posting ? "Posting..." : "Post"}
                 </button>
-
               </div>
             </>
           )}
         </form>
 
         {/* POSTS */}
-
         {Array.isArray(posts) &&
           posts.filter(Boolean).map((post) => (
             <PostCard
@@ -419,15 +384,12 @@ const Home = () => {
           ))}
 
         <div ref={feedRef} />
-
       </div>
 
       {/* RIGHT */}
-
       <div className="hidden md:block">
         <SidebarRight />
       </div>
-
     </div>
   );
 };
