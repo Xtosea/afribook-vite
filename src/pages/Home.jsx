@@ -1,13 +1,5 @@
 // src/pages/Home.jsx
-import React, {
-  useEffect,
-  useRef,
-  useState,
-  Suspense,
-  lazy,
-  useCallback,
-} from "react";
-
+import React, { useEffect, useRef, useState, Suspense, lazy, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import SidebarLeft from "../components/layout/SidebarLeft";
 import SidebarRight from "../components/layout/SidebarRight";
@@ -20,19 +12,9 @@ import { getSocket, connectSocket } from "../socket";
 const EmojiPicker = lazy(() => import("emoji-picker-react"));
 
 const Home = () => {
-  const token = localStorage.getItem("token");
-  const currentUserId = localStorage.getItem("userId");
   const navigate = useNavigate();
-
   const feedRef = useRef();
 
-  const currentUser = {
-    _id: currentUserId,
-    profilePic: localStorage.getItem("profilePic"),
-    name: localStorage.getItem("name"),
-  };
-
-  /* ================= STATES ================= */
   const [posts, setPosts] = useState([]);
   const [stories, setStories] = useState([]);
   const [newPost, setNewPost] = useState("");
@@ -54,6 +36,15 @@ const Home = () => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
 
+  const token = localStorage.getItem("token");
+  const currentUserId = localStorage.getItem("userId");
+
+  const currentUser = {
+    _id: currentUserId,
+    profilePic: localStorage.getItem("profilePic"),
+    name: localStorage.getItem("name"),
+  };
+
   /* ================= AUTH ================= */
   useEffect(() => {
     if (!token) navigate("/login");
@@ -62,6 +53,8 @@ const Home = () => {
   /* ================= FETCH POSTS ================= */
   const fetchPosts = useCallback(
     async (pageNum = 1) => {
+      if (!token) return;
+
       try {
         const res = await fetchWithToken(
           `${API_BASE}/api/posts?page=${pageNum}&limit=10`,
@@ -75,27 +68,28 @@ const Home = () => {
 
         setPosts((prev) => [...prev, ...res.filter(Boolean)]);
       } catch (err) {
-        console.log("Fetch posts error:", err);
+        console.error("Fetch posts error:", err.message);
+        if (err.message.includes("Invalid token") || err.message.includes("No token")) {
+          localStorage.clear();
+          navigate("/login");
+        }
       }
     },
-    [token]
+    [token, navigate]
   );
 
   useEffect(() => {
-    fetchPosts(page);
-  }, [page, fetchPosts]);
+    if (token) fetchPosts(page);
+  }, [page, fetchPosts, token]);
 
   /* ================= INFINITE SCROLL ================= */
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasMore) {
-          setPage((prev) => prev + 1);
-        }
+        if (entries[0].isIntersecting && hasMore) setPage((prev) => prev + 1);
       },
       { threshold: 1 }
     );
-
     if (feedRef.current) observer.observe(feedRef.current);
     return () => observer.disconnect();
   }, [hasMore]);
@@ -103,18 +97,20 @@ const Home = () => {
   /* ================= FETCH STORIES ================= */
   useEffect(() => {
     const fetchStories = async () => {
+      if (!token) return;
       try {
-        const res = await fetch(`${API_BASE}/api/stories`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = await res.json();
-        setStories(data?.stories || []);
+        const res = await fetchWithToken(`${API_BASE}/api/stories`, token);
+        setStories(res?.stories || []);
       } catch (err) {
-        console.log(err);
+        console.error("Fetch stories error:", err.message);
+        if (err.message.includes("Invalid token") || err.message.includes("No token")) {
+          localStorage.clear();
+          navigate("/login");
+        }
       }
     };
     if (token) fetchStories();
-  }, [token]);
+  }, [token, navigate]);
 
   /* ================= SOCKET ================= */
   useEffect(() => {
@@ -135,7 +131,7 @@ const Home = () => {
     };
   }, []);
 
-  /* ================= LOCATION ================= */
+  /* ================= LOCATION SEARCH ================= */
   const handleLocationSearch = async (value) => {
     setLocation(value);
     if (!value) return setLocationSuggestions([]);
@@ -146,7 +142,7 @@ const Home = () => {
       const data = await res.json();
       setLocationSuggestions(data.slice(0, 5).map((item) => item.display_name));
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
 
@@ -162,83 +158,70 @@ const Home = () => {
   };
 
   /* ================= SUBMIT POST ================= */
-const handleSubmitPost = async (e) => {
-  e.preventDefault();
-  if (!newPost && mediaFiles.length === 0) return;
+  const handleSubmitPost = async (e) => {
+    e.preventDefault();
+    if (!newPost && mediaFiles.length === 0) return;
+    if (!token) {
+      localStorage.clear();
+      navigate("/login");
+      return;
+    }
 
-  const token = localStorage.getItem("token");
-  if (!token) {
-    console.error("No token found, redirecting to login");
-    navigate("/login");
-    return;
-  }
-
-  setPosting(true);
-
-  try {
-    const formData = new FormData();
-    formData.append("content", newPost || "");
-    formData.append("location", location || "");
-    formData.append("feeling", feeling || "");
-    formData.append("taggedFriends", JSON.stringify(taggedFriends || []));
-
-    mediaFiles.forEach((file) => formData.append("media", file));
-
-    const res = await fetch(`${API_BASE}/api/posts`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`, // must include "Bearer "
-      },
-      body: formData,
-    });
-
-    // Always try parsing JSON safely
-    let data;
+    setPosting(true);
     try {
-      data = await res.json();
-    } catch {
-      const text = await res.text();
-      console.error("Server returned non-JSON response:", text);
-      setPosting(false);
-      return;
+      const formData = new FormData();
+      formData.append("content", newPost);
+      formData.append("location", location);
+      formData.append("feeling", feeling);
+      formData.append("taggedFriends", JSON.stringify(taggedFriends));
+      mediaFiles.forEach((file) => formData.append("media", file));
+
+      const res = await fetch(`${API_BASE}/api/posts`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        const text = await res.text();
+        console.error("Server returned non-JSON:", text);
+        setPosting(false);
+        return;
+      }
+
+      if (data?.post) setPosts((prev) => [data.post, ...prev]);
+
+      // Reset
+      setNewPost("");
+      setMediaFiles([]);
+      setExpanded(false);
+      setLocation("");
+      setFeeling("");
+      setTaggedFriends([]);
+      setTagInput("");
+      setShowEmoji(false);
+      setShowLocation(false);
+      setShowFeeling(false);
+      setShowTag(false);
+    } catch (err) {
+      console.error("Post error:", err.message);
+      if (err.message.includes("Invalid token") || err.message.includes("No token")) {
+        localStorage.clear();
+        navigate("/login");
+      }
     }
 
-    if (!res.ok) {
-      console.error("Server error:", data);
-      setPosting(false);
-      return;
-    }
-
-    if (data?.post) setPosts((prev) => [data.post, ...prev]);
-
-    // Reset state
-    setNewPost("");
-    setMediaFiles([]);
-    setExpanded(false);
-    setLocation("");
-    setFeeling("");
-    setTaggedFriends([]);
-    setTagInput("");
-    setShowEmoji(false);
-    setShowLocation(false);
-    setShowFeeling(false);
-    setShowTag(false);
-  } catch (err) {
-    console.error("Post error:", err);
-  } finally {
     setPosting(false);
-  }
-};
+  };
 
-  /* ================= UI ================= */
+  /* ================= RENDER ================= */
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-6xl mx-auto px-2">
-      {/* LEFT */}
-      <div className="hidden md:block">
-        <SidebarLeft />
-      </div>
+      <div className="hidden md:block"><SidebarLeft /></div>
 
-      {/* CENTER */}
       <div className="space-y-4">
         <StoriesBar user={currentUser} stories={stories} />
 
@@ -370,10 +353,7 @@ const handleSubmitPost = async (e) => {
         <div ref={feedRef} />
       </div>
 
-      {/* RIGHT */}
-      <div className="hidden md:block">
-        <SidebarRight />
-      </div>
+      <div className="hidden md:block"><SidebarRight /></div>
     </div>
   );
 };
