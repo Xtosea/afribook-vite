@@ -352,4 +352,18 @@ const Home = () => {
         {/* POSTS */}
         {Array.isArray(posts) &&
           posts.filter(Boolean).map((post) => (
-            <PostCard key={post?._id} post={post} currentUser
+            <PostCard key={post?._id} post={post} currentUserId={currentUserId} />
+          ))}
+
+        <div ref={feedRef} />
+      </div>
+
+      {/* RIGHT */}
+      <div className="hidden md:block">
+        <SidebarRight />
+      </div>
+    </div>
+  );
+};
+
+export default Home;
