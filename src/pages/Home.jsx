@@ -7,13 +7,13 @@ import React, {
   lazy,
   useCallback,
 } from "react";
+
 import { useNavigate } from "react-router-dom";
 import SidebarLeft from "../components/layout/SidebarLeft";
 import SidebarRight from "../components/layout/SidebarRight";
 import StoriesBar from "../components/layout/StoriesBar";
 import PostCard from "../components/PostCard";
 import MediaUpload from "../components/MediaUpload";
-import imageCompression from "browser-image-compression";
 import { API_BASE, fetchWithToken } from "../api/api";
 import { getSocket, connectSocket } from "../socket";
 
@@ -42,7 +42,6 @@ const Home = () => {
 
   const [location, setLocation] = useState("");
   const [locationSuggestions, setLocationSuggestions] = useState([]);
-
   const [feeling, setFeeling] = useState("");
   const [taggedFriends, setTaggedFriends] = useState([]);
   const [tagInput, setTagInput] = useState("");
@@ -139,18 +138,13 @@ const Home = () => {
   /* ================= LOCATION ================= */
   const handleLocationSearch = async (value) => {
     setLocation(value);
-    if (!value) {
-      setLocationSuggestions([]);
-      return;
-    }
+    if (!value) return setLocationSuggestions([]);
     try {
       const res = await fetch(
         `https://nominatim.openstreetmap.org/search?q=${value}&format=json`
       );
       const data = await res.json();
-      setLocationSuggestions(
-        data.slice(0, 5).map((item) => item.display_name)
-      );
+      setLocationSuggestions(data.slice(0, 5).map((item) => item.display_name));
     } catch (err) {
       console.log(err);
     }
@@ -187,13 +181,19 @@ const Home = () => {
 
       const res = await fetch(`${API_BASE}/api/posts`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
 
-      const data = await res.json();
+      let data;
+      try {
+        data = await res.json();
+      } catch (err) {
+        const text = await res.text();
+        console.error("Server returned non-JSON:", text);
+        setPosting(false);
+        return;
+      }
 
       if (data?.post) {
         setPosts((prev) => [data.post, ...prev]);
@@ -221,7 +221,6 @@ const Home = () => {
   /* ================= UI ================= */
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-6xl mx-auto px-2">
-
       {/* LEFT */}
       <div className="hidden md:block">
         <SidebarLeft />
@@ -229,7 +228,6 @@ const Home = () => {
 
       {/* CENTER */}
       <div className="space-y-4">
-
         <StoriesBar user={currentUser} stories={stories} />
 
         {/* CREATE POST */}
@@ -247,12 +245,8 @@ const Home = () => {
 
           {expanded && (
             <>
-              <MediaUpload
-                mediaFiles={mediaFiles}
-                setMediaFiles={setMediaFiles}
-              />
+              <MediaUpload mediaFiles={mediaFiles} setMediaFiles={setMediaFiles} />
 
-              {/* BUTTONS */}
               <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
@@ -261,7 +255,6 @@ const Home = () => {
                 >
                   😊 Emoji
                 </button>
-
                 <button
                   type="button"
                   onClick={() => setShowLocation(!showLocation)}
@@ -269,7 +262,6 @@ const Home = () => {
                 >
                   📍 Location
                 </button>
-
                 <button
                   type="button"
                   onClick={() => setShowFeeling(!showFeeling)}
@@ -277,7 +269,6 @@ const Home = () => {
                 >
                   😊 Feeling
                 </button>
-
                 <button
                   type="button"
                   onClick={() => setShowTag(!showTag)}
@@ -287,29 +278,20 @@ const Home = () => {
                 </button>
               </div>
 
-              {/* EMOJI */}
               {showEmoji && (
                 <Suspense fallback="Loading...">
-                  <EmojiPicker
-                    onEmojiClick={(e) =>
-                      setNewPost((prev) => prev + e.emoji)
-                    }
-                  />
+                  <EmojiPicker onEmojiClick={(e) => setNewPost((prev) => prev + e.emoji)} />
                 </Suspense>
               )}
 
-              {/* LOCATION */}
               {showLocation && (
                 <div className="relative">
                   <input
                     value={location}
-                    onChange={(e) =>
-                      handleLocationSearch(e.target.value)
-                    }
+                    onChange={(e) => handleLocationSearch(e.target.value)}
                     placeholder="Location"
                     className="w-full border p-2 rounded"
                   />
-
                   {locationSuggestions.length > 0 && (
                     <div className="absolute w-full bg-white shadow rounded mt-1 z-50 max-h-48 overflow-y-auto">
                       {locationSuggestions.map((loc, i) => (
@@ -329,7 +311,6 @@ const Home = () => {
                 </div>
               )}
 
-              {/* FEELING */}
               {showFeeling && (
                 <input
                   value={feeling}
@@ -339,19 +320,15 @@ const Home = () => {
                 />
               )}
 
-              {/* TAG */}
               {showTag && (
                 <input
                   value={tagInput}
-                  onChange={(e) =>
-                    handleTagFriends(e.target.value)
-                  }
+                  onChange={(e) => handleTagFriends(e.target.value)}
                   placeholder="Tag friends (comma separated)"
                   className="w-full border p-2 rounded"
                 />
               )}
 
-              {/* ACTION */}
               <div className="flex justify-between">
                 <button
                   type="button"
@@ -360,7 +337,6 @@ const Home = () => {
                 >
                   Cancel
                 </button>
-
                 <button
                   type="submit"
                   disabled={posting}
@@ -376,22 +352,4 @@ const Home = () => {
         {/* POSTS */}
         {Array.isArray(posts) &&
           posts.filter(Boolean).map((post) => (
-            <PostCard
-              key={post?._id}
-              post={post}
-              currentUserId={currentUserId}
-            />
-          ))}
-
-        <div ref={feedRef} />
-      </div>
-
-      {/* RIGHT */}
-      <div className="hidden md:block">
-        <SidebarRight />
-      </div>
-    </div>
-  );
-};
-
-export default Home;
+            <PostCard key={post?._id} post={post} currentUser
