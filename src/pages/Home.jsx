@@ -1,10 +1,11 @@
 // src/pages/Home.jsx
-import React, { useEffect, useRef, useState, Suspense, lazy, useCallback } from "react";
+import React, { useEffect, useRef, useState, Suspense, lazy } from "react";
 import { useNavigate } from "react-router-dom";
+import PostCard from "../components/PostCard";
 import SidebarLeft from "../components/layout/SidebarLeft";
 import SidebarRight from "../components/layout/SidebarRight";
 import StoriesBar from "../components/layout/StoriesBar";
-import PostCard from "../components/PostCard";
+import MediaUpload from "../components/MediaUpload";
 import imageCompression from "browser-image-compression";
 import { API_BASE, fetchWithToken } from "../api/api";
 import { getSocket, connectSocket } from "../socket";
@@ -14,7 +15,7 @@ import { useR2Upload } from "../hooks/useR2Upload";
 // Lazy load emoji picker
 const EmojiPicker = lazy(() => import("emoji-picker-react"));
 
-// Skeleton post for loading
+// Skeleton post
 const SkeletonPost = () => (
   <div className="bg-white p-4 rounded-2xl shadow animate-pulse space-y-4 w-full">
     <div className="h-64 bg-gray-300 rounded-xl w-full"></div>
@@ -22,9 +23,9 @@ const SkeletonPost = () => (
 );
 
 // Lazy video hook
-const useLazyVideo = (videosRef) => {
+const useLazyVideo = (videos) => {
   useEffect(() => {
-    if (!videosRef.current) return;
+    if (!videos || videos.length === 0) return;
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -39,10 +40,9 @@ const useLazyVideo = (videosRef) => {
       },
       { threshold: 0.5 }
     );
-    const vids = videosRef.current.querySelectorAll("video[data-src]");
-    vids.forEach((v) => observer.observe(v));
+    videos.forEach((v) => observer.observe(v));
     return () => observer.disconnect();
-  }, [videosRef]);
+  }, [videos]);
 };
 
 const Home = () => {
@@ -76,26 +76,22 @@ const Home = () => {
   const feedRef = useRef();
   const { uploadImage } = useCloudinaryUpload();
   const { uploadVideo } = useR2Upload();
+  const [videoRefs, setVideoRefs] = useState([]);
+  useLazyVideo(videoRefs);
 
-  useLazyVideo(feedRef);
-
-  // --- Pagination for faster loading ---
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-
-  const fetchPostsAndStories = useCallback(async () => {
+  // --- Fetch posts & stories ---
+  useEffect(() => {
     if (!token) return;
-    try {
-      // Fetch posts (paginated)
-      const postsData = await fetchWithToken(
-        `${API_BASE}/api/posts?limit=5&page=${page}`,
-        token
-      );
-      setPosts((prev) => [...prev, ...postsData]);
-      if (postsData.length < 5) setHasMore(false);
+    const init = async () => {
+      try {
+        // Fetch posts
+        const postsData = await fetchWithToken(
+          `${API_BASE}/api/posts?limit=20`,
+          token
+        );
+        setPosts(postsData);
 
-      // Only fetch stories once
-      if (page === 1) {
+        // Fetch stories
         const res = await fetch(`${API_BASE}/api/stories?limit=20`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -107,50 +103,38 @@ const Home = () => {
           data = { stories: [] };
         }
         setStories(data.stories || []);
+      } catch (err) {
+        console.error("Fetching posts/stories error:", err);
+      } finally {
+        setLoadingPosts(false);
       }
-    } catch (err) {
-      console.error("Error fetching posts/stories:", err);
-    } finally {
-      setLoadingPosts(false);
-    }
-  }, [token, page]);
 
-  useEffect(() => {
-    fetchPostsAndStories();
-  }, [fetchPostsAndStories]);
+      // --- Socket connection ---
+      connectSocket();
+      const socket = getSocket();
+      if (!socket) return;
 
-  // --- Infinite scroll ---
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMore && !loadingPosts) {
-          setPage((p) => p + 1);
-        }
-      },
-      { threshold: 1 }
-    );
-    if (feedRef.current?.lastElementChild) {
-      observer.observe(feedRef.current.lastElementChild);
-    }
-    return () => observer.disconnect();
-  }, [posts, hasMore, loadingPosts]);
-
-  // --- Socket connection ---
-  useEffect(() => {
-    connectSocket();
-    const socket = getSocket();
-    if (!socket) return;
-
-    socket.on("new-video", (post) => setPosts((prev) => [post, ...prev]));
-    socket.on("new-story", (story) => setStories((prev) => [story, ...prev]));
-    socket.on("birthday", (data) => alert(`🎉 Today is ${data.name}'s birthday`));
-
-    return () => {
-      socket.off("new-video");
-      socket.off("new-story");
-      socket.off("birthday");
+      // Listen for new posts/videos
+      socket.on("new-video", (post) => setPosts((prev) => [post, ...prev]));
+      // Listen for new stories
+      socket.on("new-story", (story) => setStories((prev) => [story, ...prev]));
+      // Listen for birthday notifications
+      socket.on("birthday", (data) => {
+        alert(`🎉 Today is ${data.name}'s birthday`);
+      });
     };
-  }, []);
+    init();
+
+    // Cleanup
+    return () => {
+      const socket = getSocket();
+      if (socket) {
+        socket.off("new-video");
+        socket.off("new-story");
+        socket.off("birthday");
+      }
+    };
+  }, [token]);
 
   // --- Create post ---
   const handleSubmitPost = async (e) => {
@@ -215,7 +199,7 @@ const Home = () => {
   };
 
   return (
-    <div className="w-full min-h-screen grid grid-cols-1 md:grid-cols-[1fr_2fr_1fr] gap-4 p-2">
+    <div className="w-full min-h-screen grid grid-cols-1 gap-0">
 
       {/* LEFT SIDEBAR */}
       <div className="hidden md:block">
@@ -223,7 +207,7 @@ const Home = () => {
       </div>
 
       {/* MAIN FEED */}
-      <div className="space-y-4 w-full">
+      <div className="col-span-1 space-y-4 w-full">
         <StoriesBar user={currentUser} stories={stories} />
 
         {/* CREATE POST */}
@@ -270,14 +254,14 @@ const Home = () => {
 
         {/* POSTS FEED */}
         <div ref={feedRef} className="space-y-4 w-full">
-          {loadingPosts && page === 1
+          {loadingPosts
             ? [<SkeletonPost key={0} />, <SkeletonPost key={1} />]
             : posts.map((post) => (
                 <PostCard
                   key={post._id}
                   post={post}
                   currentUserId={currentUserId}
-                  feedRef={feedRef}
+                  setVideoRefs={setVideoRefs}
                 />
               ))}
         </div>
