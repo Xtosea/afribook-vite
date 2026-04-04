@@ -1,8 +1,16 @@
 // src/api/api.js
 
-export const API_BASE = "https://afribook-backend.onrender.com";
-export const BACKUP_API = "https://afribook-backup.onrender.com"; // optional
+// Main backend URL (from env)
+const MAIN_API = import.meta.env.VITE_API_BASE;
 
+// Backup backend URL
+const BACKUP_API = "https://afribook-backend.onrender.com";
+
+// Final API Base
+export const API_BASE = MAIN_API || BACKUP_API;
+
+
+// Fetch helper
 export const fetchWithToken = async (url, token, options = {}) => {
   const headers = {};
 
@@ -14,53 +22,53 @@ export const fetchWithToken = async (url, token, options = {}) => {
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const fullUrl = url.startsWith("http") ? url : `${API_BASE}${url}`;
+  const fullUrl = url.startsWith("http")
+    ? url
+    : `${API_BASE}${url}`;
 
   try {
-    const res = await fetch(fullUrl, { ...options, headers });
+    const res = await fetch(fullUrl, {
+      ...options,
+      headers
+    });
 
     if (res.status === 204) return null;
 
-    const text = await res.text();
-    let data;
-
-    try {
-      data = JSON.parse(text);
-    } catch {
-      console.error("Non-JSON response:", text);
-      throw new Error(`Invalid JSON: ${text.substring(0, 200)}`);
-    }
+    const data = await res.json();
 
     if (!res.ok) {
-      throw new Error(data.error || data.message || "Unknown error");
+      throw new Error(data.error || data.message);
     }
 
     return data;
+
   } catch (err) {
     console.error("fetchWithToken ERROR:", err);
 
-    if (typeof BACKUP_API !== "undefined" && BACKUP_API !== API_BASE) {
+    // Retry with backup
+    if (MAIN_API && BACKUP_API && MAIN_API !== BACKUP_API) {
       try {
-        const backupUrl = url.startsWith("http") ? url : `${BACKUP_API}${url}`;
-        const backupRes = await fetch(backupUrl, { ...options, headers });
+        const backupUrl = url.startsWith("http")
+          ? url
+          : `${BACKUP_API}${url}`;
+
+        const backupRes = await fetch(backupUrl, {
+          ...options,
+          headers
+        });
 
         if (backupRes.status === 204) return null;
 
-        const backupText = await backupRes.text();
-        let backupData;
-
-        try {
-          backupData = JSON.parse(backupText);
-        } catch {
-          console.error("Backup invalid JSON:", backupText);
-          throw new Error(`Backup invalid JSON: ${backupText.substring(0, 200)}`);
-        }
+        const backupData = await backupRes.json();
 
         if (!backupRes.ok) {
-          throw new Error(backupData.error || backupData.message || "Unknown backup error");
+          throw new Error(
+            backupData.error || backupData.message
+          );
         }
 
         return backupData;
+
       } catch (backupErr) {
         console.error("Backup fetch ERROR:", backupErr);
         throw backupErr;
