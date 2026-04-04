@@ -161,59 +161,67 @@ const Home = () => {
   };
 
   /* ================= SUBMIT POST ================= */
-  const handleSubmitPost = async (e) => {
-    e.preventDefault();
-    if (!newPost && mediaFiles.length === 0) return;
+  // Inside Home.jsx
 
-    setPosting(true);
-    try {
-      const formData = new FormData();
-      formData.append("content", newPost);
-      formData.append("location", location);
-      formData.append("feeling", feeling);
-      formData.append("taggedFriends", JSON.stringify(taggedFriends));
-      mediaFiles.forEach((file) => formData.append("media", file));
+const handleSubmitPost = async (e) => {
+  e.preventDefault();
+  if (!newPost && mediaFiles.length === 0) return;
 
-      const res = await fetch(`${API_BASE}/api/posts`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
-      });
+  setPosting(true);
 
-      let data;
-      try {
-        data = await res.json();
-      } catch (err) {
-        const text = await res.text();
-        console.error("Server returned non-JSON:", text);
-        setPosting(false);
-        return;
-      }
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("No token provided");
 
-      if (data?.post) setPosts((prev) => [data.post, ...prev]);
+    const formData = new FormData();
+    formData.append("content", newPost);
+    formData.append("location", location);
+    formData.append("feeling", feeling);
+    formData.append("taggedFriends", JSON.stringify(taggedFriends));
+    mediaFiles.forEach((file) => formData.append("media", file));
 
-      // Reset
-      setNewPost("");
-      setMediaFiles([]);
-      setExpanded(false);
-      setLocation("");
-      setFeeling("");
-      setTaggedFriends([]);
-      setTagInput("");
-      setShowEmoji(false);
-      setShowLocation(false);
-      setShowFeeling(false);
-      setShowTag(false);
-    } catch (err) {
-      console.log("Post error:", err);
-      if (err.message === "Invalid token" || err.message === "No token provided") {
-        localStorage.clear();
-        navigate("/login");
-      }
+    const res = await fetch(`${API_BASE}/api/posts`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`, // ⚠️ Do NOT set Content-Type manually for FormData
+      },
+      body: formData,
+    });
+
+    if (res.status === 401) {
+      localStorage.clear();
+      navigate("/login");
+      return;
     }
 
+    const data = await res.json();
+
+    if (data?.post) setPosts((prev) => [data.post, ...prev]);
+
+    // Reset post form
+    setNewPost("");
+    setMediaFiles([]);
+    setExpanded(false);
+    setLocation("");
+    setFeeling("");
+    setTaggedFriends([]);
+    setTagInput("");
+    setShowEmoji(false);
+    setShowLocation(false);
+    setShowFeeling(false);
+    setShowTag(false);
+
+  } catch (err) {
+    console.error("Post error:", err);
+    alert(err.message || "Failed to create post");
+    if (err.message === "No token provided" || err.message === "Invalid token") {
+      localStorage.clear();
+      navigate("/login");
+    }
+  } finally {
     setPosting(false);
-  };
+  }
+};
 
   /* ================= UI ================= */
   return (
