@@ -8,13 +8,20 @@ const PostCard = ({ post, currentUserId }) => {
   const videoRefs = useRef([]);
   const [fullscreen, setFullscreen] = useState(null);
 
-  const media = post.media || [];
+  // SAFE DATA
+  const media = Array.isArray(post?.media) ? post.media : [];
   const isMulti = media.length > 1;
 
   // Social states
-  const [likes, setLikes] = useState(post.likes || []);
-  const [comments, setComments] = useState(post.comments || []);
-  const [shares, setShares] = useState(post.shares || 0);
+  const [likes, setLikes] = useState(
+    Array.isArray(post?.likes) ? post.likes : []
+  );
+
+  const [comments, setComments] = useState(
+    Array.isArray(post?.comments) ? post.comments : []
+  );
+
+  const [shares, setShares] = useState(post?.shares || 0);
   const [commentText, setCommentText] = useState("");
   const [showComments, setShowComments] = useState(false);
   const [liking, setLiking] = useState(false);
@@ -30,7 +37,7 @@ const PostCard = ({ post, currentUserId }) => {
 
     try {
       const res = await fetchWithToken(
-        `${API_BASE}/api/posts/${post._id}/like`,
+        `${API_BASE}/api/posts/${post?._id}/like`,
         localStorage.getItem("token"),
         { method: "POST" }
       );
@@ -38,7 +45,6 @@ const PostCard = ({ post, currentUserId }) => {
       if (res?.likes) {
         setLikes(res.likes);
       }
-
     } catch (err) {
       console.error("Like error:", err);
     } finally {
@@ -54,7 +60,7 @@ const PostCard = ({ post, currentUserId }) => {
 
     try {
       const res = await fetchWithToken(
-        `${API_BASE}/api/posts/${post._id}/comment`,
+        `${API_BASE}/api/posts/${post?._id}/comment`,
         localStorage.getItem("token"),
         {
           method: "POST",
@@ -68,7 +74,6 @@ const PostCard = ({ post, currentUserId }) => {
       }
 
       setCommentText("");
-
     } catch (err) {
       console.error("Comment error:", err);
     }
@@ -79,12 +84,12 @@ const PostCard = ({ post, currentUserId }) => {
   // =========================
   const handleShare = async () => {
     try {
-      const url = `https://africbook.globelynks.com/post/${post._id}`;
-      const text = post.text || "Check this post on Africbook";
+      const url = `https://africbook.globelynks.com/post/${post?._id}`;
+      const text = post?.content || "Check this post on Africbook";
 
       if (navigator.share) {
         await navigator.share({
-          title: post.user?.name || "Africbook Post",
+          title: post?.user?.name || "Africbook Post",
           text,
           url,
         });
@@ -94,7 +99,7 @@ const PostCard = ({ post, currentUserId }) => {
       }
 
       const res = await fetchWithToken(
-        `${API_BASE}/api/posts/${post._id}/share`,
+        `${API_BASE}/api/posts/${post?._id}/share`,
         localStorage.getItem("token"),
         { method: "POST" }
       );
@@ -102,7 +107,6 @@ const PostCard = ({ post, currentUserId }) => {
       if (res?.shares !== undefined) {
         setShares(res.shares);
       }
-
     } catch (err) {
       console.error("Share error:", err);
     }
@@ -112,8 +116,9 @@ const PostCard = ({ post, currentUserId }) => {
   // Navigate Profile
   // =========================
   const goToProfile = useCallback(() => {
-    navigate(`/profile/${post.user?._id}`);
-  }, [navigate, post.user]);
+    if (!post?.user?._id) return;
+    navigate(`/profile/${post.user._id}`);
+  }, [navigate, post]);
 
   return (
     <div className="bg-white rounded-xl shadow p-3 space-y-3">
@@ -122,8 +127,8 @@ const PostCard = ({ post, currentUserId }) => {
       <div className="flex items-center gap-3">
         <img
           src={
-            post.user?.profilePic ||
-            `https://ui-avatars.com/api/?name=${post.user?.name || "User"}`
+            post?.user?.profilePic ||
+            `https://ui-avatars.com/api/?name=${post?.user?.name || "User"}`
           }
           className="w-12 h-12 rounded-full cursor-pointer object-cover"
           onClick={goToProfile}
@@ -134,32 +139,34 @@ const PostCard = ({ post, currentUserId }) => {
             className="font-semibold cursor-pointer hover:underline"
             onClick={goToProfile}
           >
-            {post.user?.name || "User"}
+            {post?.user?.name || "User"}
           </p>
 
           <p className="text-xs text-gray-500">
-            {new Date(post.createdAt).toLocaleString()}
+            {post?.createdAt
+              ? new Date(post.createdAt).toLocaleString()
+              : ""}
           </p>
         </div>
       </div>
 
       {/* TEXT */}
-      {post.text && (
+      {post?.content && (
         <p className="text-gray-800 whitespace-pre-wrap">
-          {post.text}
+          {post.content}
         </p>
       )}
 
       {/* MEDIA */}
       {!isMulti &&
         media.map((m, i) => {
-          const isVideo = m.type === "video";
+          const isVideo = m?.type === "video";
 
           return isVideo ? (
             <video
               key={i}
               ref={(el) => (videoRefs.current[i] = el)}
-              src={m.url}
+              src={m?.url}
               controls
               muted
               className="w-full rounded-xl cursor-pointer"
@@ -168,7 +175,7 @@ const PostCard = ({ post, currentUserId }) => {
           ) : (
             <img
               key={i}
-              src={m.url}
+              src={m?.url}
               alt=""
               className="w-full rounded-xl cursor-pointer"
               onClick={() => setFullscreen({ media: m })}
@@ -180,12 +187,12 @@ const PostCard = ({ post, currentUserId }) => {
       {isMulti && (
         <div className="grid grid-cols-2 gap-2">
           {media.map((m, i) => {
-            const isVideo = m.type === "video";
+            const isVideo = m?.type === "video";
 
             return isVideo ? (
               <video
                 key={i}
-                src={m.url}
+                src={m?.url}
                 className="w-full h-48 object-cover rounded-xl cursor-pointer"
                 muted
                 onClick={() => setFullscreen({ media: m })}
@@ -193,7 +200,7 @@ const PostCard = ({ post, currentUserId }) => {
             ) : (
               <img
                 key={i}
-                src={m.url}
+                src={m?.url}
                 alt=""
                 className="w-full h-48 object-cover rounded-xl cursor-pointer"
                 onClick={() => setFullscreen({ media: m })}
@@ -213,16 +220,16 @@ const PostCard = ({ post, currentUserId }) => {
             ×
           </button>
 
-          {fullscreen.media?.type === "video" ? (
+          {fullscreen?.media?.type === "video" ? (
             <video
-              src={fullscreen.media.url}
+              src={fullscreen?.media?.url}
               controls
               autoPlay
               className="max-h-full max-w-full"
             />
           ) : (
             <img
-              src={fullscreen.media.url}
+              src={fullscreen?.media?.url}
               alt=""
               className="max-h-full max-w-full"
             />
@@ -263,7 +270,7 @@ const PostCard = ({ post, currentUserId }) => {
 
           {comments.map((c, i) => (
             <div key={i} className="text-sm bg-gray-100 p-2 rounded">
-              <b>{c.user?.name}</b> {c.text}
+              <b>{c?.user?.name}</b> {c?.text}
             </div>
           ))}
 
