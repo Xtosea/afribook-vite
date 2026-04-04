@@ -28,7 +28,7 @@ const Home = () => {
 
   if (!token || !currentUserId) {
     navigate("/login");
-    return null; // stop rendering
+    return null;
   }
 
   const currentUser = {
@@ -64,14 +64,19 @@ const Home = () => {
           `${API_BASE}/api/posts?page=${pageNum}&limit=10`,
           token
         );
+
         if (!Array.isArray(res) || res.length === 0) {
           setHasMore(false);
           return;
         }
+
         setPosts((prev) => [...prev, ...res.filter(Boolean)]);
       } catch (err) {
-        console.log("Fetch posts error:", err.message);
-        if (err.message === "Invalid token" || err.message === "No token provided") {
+        console.error("Fetch posts error:", err.message);
+        if (
+          err.message === "Invalid token" ||
+          err.message === "No token provided"
+        ) {
           localStorage.clear();
           navigate("/login");
         }
@@ -94,6 +99,7 @@ const Home = () => {
       },
       { threshold: 1 }
     );
+
     if (feedRef.current) observer.observe(feedRef.current);
     return () => observer.disconnect();
   }, [hasMore]);
@@ -105,13 +111,17 @@ const Home = () => {
         const res = await fetchWithToken(`${API_BASE}/api/stories`, token);
         setStories(res?.stories || []);
       } catch (err) {
-        console.log("Fetch stories error:", err.message);
-        if (err.message === "Invalid token" || err.message === "No token provided") {
+        console.error("Fetch stories error:", err.message);
+        if (
+          err.message === "Invalid token" ||
+          err.message === "No token provided"
+        ) {
           localStorage.clear();
           navigate("/login");
         }
       }
     };
+
     fetchStories();
   }, [token, navigate]);
 
@@ -145,7 +155,7 @@ const Home = () => {
       const data = await res.json();
       setLocationSuggestions(data.slice(0, 5).map((item) => item.display_name));
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
 
@@ -161,67 +171,52 @@ const Home = () => {
   };
 
   /* ================= SUBMIT POST ================= */
-  // Inside Home.jsx
+  const handleSubmitPost = async (e) => {
+    e.preventDefault();
+    if (!newPost && mediaFiles.length === 0) return;
 
-const handleSubmitPost = async (e) => {
-  e.preventDefault();
-  if (!newPost && mediaFiles.length === 0) return;
+    setPosting(true);
 
-  setPosting(true);
+    try {
+      const formData = new FormData();
+      formData.append("content", newPost);
+      formData.append("location", location);
+      formData.append("feeling", feeling);
+      formData.append("taggedFriends", JSON.stringify(taggedFriends));
+      mediaFiles.forEach((file) => formData.append("media", file));
 
-  try {
-    const token = localStorage.getItem("token");
-    if (!token) throw new Error("No token provided");
+      const res = await fetchWithToken(`${API_BASE}/api/posts`, token, {
+        method: "POST",
+        body: formData,
+      });
 
-    const formData = new FormData();
-    formData.append("content", newPost);
-    formData.append("location", location);
-    formData.append("feeling", feeling);
-    formData.append("taggedFriends", JSON.stringify(taggedFriends));
-    mediaFiles.forEach((file) => formData.append("media", file));
+      if (res?.post) setPosts((prev) => [res.post, ...prev]);
 
-    const res = await fetch(`${API_BASE}/api/posts`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`, // ⚠️ Do NOT set Content-Type manually for FormData
-      },
-      body: formData,
-    });
-
-    if (res.status === 401) {
-      localStorage.clear();
-      navigate("/login");
-      return;
+      // Reset fields
+      setNewPost("");
+      setMediaFiles([]);
+      setExpanded(false);
+      setLocation("");
+      setFeeling("");
+      setTaggedFriends([]);
+      setTagInput("");
+      setShowEmoji(false);
+      setShowLocation(false);
+      setShowFeeling(false);
+      setShowTag(false);
+    } catch (err) {
+      console.error("Post error:", err.message);
+      if (
+        err.message === "Invalid token" ||
+        err.message === "No token provided"
+      ) {
+        localStorage.clear();
+        navigate("/login");
+      }
     }
 
-    const data = await res.json();
-
-    if (data?.post) setPosts((prev) => [data.post, ...prev]);
-
-    // Reset post form
-    setNewPost("");
-    setMediaFiles([]);
-    setExpanded(false);
-    setLocation("");
-    setFeeling("");
-    setTaggedFriends([]);
-    setTagInput("");
-    setShowEmoji(false);
-    setShowLocation(false);
-    setShowFeeling(false);
-    setShowTag(false);
-
-  } catch (err) {
-    console.error("Post error:", err);
-    alert(err.message || "Failed to create post");
-    if (err.message === "No token provided" || err.message === "Invalid token") {
-      localStorage.clear();
-      navigate("/login");
-    }
-  } finally {
     setPosting(false);
-  }
-};
+  };
 
   /* ================= UI ================= */
   return (
@@ -236,7 +231,10 @@ const handleSubmitPost = async (e) => {
         <StoriesBar user={currentUser} stories={stories} />
 
         {/* CREATE POST */}
-        <form onSubmit={handleSubmitPost} className="bg-white p-4 rounded-xl shadow space-y-3">
+        <form
+          onSubmit={handleSubmitPost}
+          className="bg-white p-4 rounded-xl shadow space-y-3"
+        >
           <textarea
             value={newPost}
             onChange={(e) => setNewPost(e.target.value)}
@@ -247,17 +245,48 @@ const handleSubmitPost = async (e) => {
 
           {expanded && (
             <>
-              <MediaUpload mediaFiles={mediaFiles} setMediaFiles={setMediaFiles} />
+              <MediaUpload
+                mediaFiles={mediaFiles}
+                setMediaFiles={setMediaFiles}
+              />
               <div className="flex flex-wrap gap-2">
-                <button type="button" onClick={() => setShowEmoji(!showEmoji)} className="px-3 py-2 bg-gray-100 rounded-lg">😊 Emoji</button>
-                <button type="button" onClick={() => setShowLocation(!showLocation)} className="px-3 py-2 bg-gray-100 rounded-lg">📍 Location</button>
-                <button type="button" onClick={() => setShowFeeling(!showFeeling)} className="px-3 py-2 bg-gray-100 rounded-lg">😊 Feeling</button>
-                <button type="button" onClick={() => setShowTag(!showTag)} className="px-3 py-2 bg-gray-100 rounded-lg">🏷 Tag Friends</button>
+                <button
+                  type="button"
+                  onClick={() => setShowEmoji(!showEmoji)}
+                  className="px-3 py-2 bg-gray-100 rounded-lg"
+                >
+                  😊 Emoji
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowLocation(!showLocation)}
+                  className="px-3 py-2 bg-gray-100 rounded-lg"
+                >
+                  📍 Location
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowFeeling(!showFeeling)}
+                  className="px-3 py-2 bg-gray-100 rounded-lg"
+                >
+                  😊 Feeling
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowTag(!showTag)}
+                  className="px-3 py-2 bg-gray-100 rounded-lg"
+                >
+                  🏷 Tag Friends
+                </button>
               </div>
 
               {showEmoji && (
                 <Suspense fallback="Loading...">
-                  <EmojiPicker onEmojiClick={(e) => setNewPost((prev) => prev + e.emoji)} />
+                  <EmojiPicker
+                    onEmojiClick={(e) =>
+                      setNewPost((prev) => prev + e.emoji)
+                    }
+                  />
                 </Suspense>
               )}
 
@@ -307,8 +336,18 @@ const handleSubmitPost = async (e) => {
               )}
 
               <div className="flex justify-between">
-                <button type="button" onClick={() => setExpanded(false)} className="px-4 py-2 bg-gray-200 rounded-lg">Cancel</button>
-                <button type="submit" disabled={posting} className="px-6 py-2 bg-blue-500 text-white rounded-lg">
+                <button
+                  type="button"
+                  onClick={() => setExpanded(false)}
+                  className="px-4 py-2 bg-gray-200 rounded-lg"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={posting}
+                  className="px-6 py-2 bg-blue-500 text-white rounded-lg"
+                >
                   {posting ? "Posting..." : "Post"}
                 </button>
               </div>
