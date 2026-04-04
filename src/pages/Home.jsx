@@ -5,9 +5,9 @@ import SidebarLeft from "../components/layout/SidebarLeft";
 import SidebarRight from "../components/layout/SidebarRight";
 import StoriesBar from "../components/layout/StoriesBar";
 import PostCard from "../components/PostCard";
+import CreatePost from "../components/CreatePost";
 import { API_BASE, fetchWithToken } from "../api/api";
 import { getSocket, connectSocket } from "../socket";
-import CreatePost from "../components/CreatePost"; // <-- Import the new component
 
 // Lazy load emoji picker
 const EmojiPicker = lazy(() => import("emoji-picker-react"));
@@ -122,9 +122,11 @@ const Home = () => {
     return () => observer.disconnect();
   }, [feedRef, hasMore, loading]);
 
-  // --- Handler for new post created ---
-  const handleNewPost = (newPost) => {
-    setPosts((prev) => [newPost, ...prev]);
+  // =========================
+  // Handle new post
+  // =========================
+  const handleNewPost = (post) => {
+    setPosts((prev) => [post, ...prev]);
   };
 
   return (
@@ -142,7 +144,7 @@ const Home = () => {
         <StoriesBar user={currentUser} stories={stories} />
 
         {/* CREATE POST */}
-        <CreatePost currentUser={currentUser} onPostCreated={handleNewPost} />
+        <CreatePost onPostCreated={handleNewPost} />
 
         {/* POSTS */}
         {posts.map((post) => (
