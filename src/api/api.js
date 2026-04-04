@@ -1,4 +1,8 @@
 // src/api/api.js
+
+export const API_BASE = "https://afribook-backend.onrender.com";
+export const BACKUP_API = "https://afribook-backup.onrender.com"; // optional
+
 export const fetchWithToken = async (url, token, options = {}) => {
   const headers = {};
 
@@ -15,17 +19,16 @@ export const fetchWithToken = async (url, token, options = {}) => {
   try {
     const res = await fetch(fullUrl, { ...options, headers });
 
-    // If empty response
     if (res.status === 204) return null;
 
-    const text = await res.text(); // read as text first
+    const text = await res.text();
     let data;
 
     try {
-      data = JSON.parse(text); // try parsing JSON
-    } catch (err) {
-      console.error("Non-JSON response from backend:", text);
-      throw new Error(`Invalid JSON response: ${text.substring(0, 200)}`); // first 200 chars
+      data = JSON.parse(text);
+    } catch {
+      console.error("Non-JSON response:", text);
+      throw new Error(`Invalid JSON: ${text.substring(0, 200)}`);
     }
 
     if (!res.ok) {
@@ -36,7 +39,6 @@ export const fetchWithToken = async (url, token, options = {}) => {
   } catch (err) {
     console.error("fetchWithToken ERROR:", err);
 
-    // Retry with backup if defined
     if (typeof BACKUP_API !== "undefined" && BACKUP_API !== API_BASE) {
       try {
         const backupUrl = url.startsWith("http") ? url : `${BACKUP_API}${url}`;
@@ -49,8 +51,8 @@ export const fetchWithToken = async (url, token, options = {}) => {
 
         try {
           backupData = JSON.parse(backupText);
-        } catch (backupErr) {
-          console.error("Backup response is not JSON:", backupText);
+        } catch {
+          console.error("Backup invalid JSON:", backupText);
           throw new Error(`Backup invalid JSON: ${backupText.substring(0, 200)}`);
         }
 
