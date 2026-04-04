@@ -38,6 +38,8 @@ const Home = () => {
     name: localStorage.getItem("name"),
   };
 
+  /* ================= STATES ================= */
+
   const [posts, setPosts] = useState([]);
   const [stories, setStories] = useState([]);
   const [newPost, setNewPost] = useState("");
@@ -49,7 +51,6 @@ const Home = () => {
   const [locationSuggestions, setLocationSuggestions] = useState([]);
 
   const [feeling, setFeeling] = useState("");
-
   const [taggedFriends, setTaggedFriends] = useState([]);
   const [tagInput, setTagInput] = useState("");
 
@@ -61,11 +62,14 @@ const Home = () => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
 
+  /* ================= AUTH ================= */
+
   useEffect(() => {
     if (!token) navigate("/login");
-  }, [token]);
+  }, [token, navigate]);
 
-  /* Fetch Posts */
+  /* ================= FETCH POSTS ================= */
+
   const fetchPosts = useCallback(
     async (pageNum = 1) => {
       try {
@@ -74,14 +78,14 @@ const Home = () => {
           token
         );
 
-        if (!res || res.length === 0) {
+        if (!Array.isArray(res) || res.length === 0) {
           setHasMore(false);
           return;
         }
 
-        setPosts((prev) => [...prev, ...res]);
+        setPosts((prev) => [...prev, ...res.filter(Boolean)]);
       } catch (err) {
-        console.log(err);
+        console.log("Fetch posts error:", err);
       }
     },
     [token]
@@ -89,74 +93,104 @@ const Home = () => {
 
   useEffect(() => {
     fetchPosts(page);
-  }, [page]);
+  }, [page, fetchPosts]);
 
-  /* Fetch Stories */
+  /* ================= INFINITE SCROLL ================= */
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore) {
+          setPage((prev) => prev + 1);
+        }
+      },
+      { threshold: 1 }
+    );
+
+    if (feedRef.current) observer.observe(feedRef.current);
+
+    return () => observer.disconnect();
+  }, [hasMore]);
+
+  /* ================= FETCH STORIES ================= */
 
   useEffect(() => {
     const fetchStories = async () => {
-      const res = await fetch(`${API_BASE}/api/stories`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      try {
+        const res = await fetch(`${API_BASE}/api/stories`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
-      const data = await res.json();
-      setStories(data?.stories || []);
+        const data = await res.json();
+        setStories(data?.stories || []);
+      } catch (err) {
+        console.log(err);
+      }
     };
 
     if (token) fetchStories();
   }, [token]);
 
-  /* Socket */
+  /* ================= SOCKET ================= */
 
   useEffect(() => {
     connectSocket();
     const socket = getSocket();
 
-    socket.on("new-video", (post) => {
-      setPosts((prev) => [post, ...prev]);
+    socket.on("new-post", (post) => {
+      if (post) setPosts((prev) => [post, ...prev]);
     });
 
     socket.on("new-story", (story) => {
-      setStories((prev) => [story, ...prev]);
+      if (story) setStories((prev) => [story, ...prev]);
     });
 
     return () => {
-      socket.off("new-video");
+      socket.off("new-post");
       socket.off("new-story");
     };
   }, []);
 
-  /* Location Suggest */
+  /* ================= LOCATION ================= */
 
   const handleLocationSearch = async (value) => {
     setLocation(value);
 
-    if (!value) return;
+    if (!value) {
+      setLocationSuggestions([]);
+      return;
+    }
 
-    const res = await fetch(
-      `https://nominatim.openstreetmap.org/search?q=${value}&format=json`
-    );
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${value}&format=json`
+      );
 
-    const data = await res.json();
+      const data = await res.json();
 
-    setLocationSuggestions(
-      data.slice(0, 5).map((i) => i.display_name)
-    );
+      setLocationSuggestions(
+        data.slice(0, 5).map((item) => item.display_name)
+      );
+    } catch (err) {
+      console.log(err);
+    }
   };
 
-  /* Tag Friends */
+  /* ================= TAG FRIENDS ================= */
 
   const handleTagFriends = (value) => {
     setTagInput(value);
 
-    const names = value.split(",").map((n) => ({
-      name: n.trim(),
-    }));
+    const names = value
+      .split(",")
+      .map((n) => n.trim())
+      .filter(Boolean)
+      .map((name) => ({ name }));
 
     setTaggedFriends(names);
   };
 
-  /* Submit Post */
+  /* ================= SUBMIT POST ================= */
 
   const handleSubmitPost = async (e) => {
     e.preventDefault();
@@ -206,7 +240,9 @@ const Home = () => {
 
       const data = await res.json();
 
-      setPosts((prev) => [data.post, ...prev]);
+      if (data?.post) {
+        setPosts((prev) => [data.post, ...prev]);
+      }
 
       setNewPost("");
       setMediaFiles([]);
@@ -214,15 +250,18 @@ const Home = () => {
       setLocation("");
       setFeeling("");
       setTaggedFriends([]);
+      setTagInput("");
     } catch (err) {
-      console.log(err);
+      console.log("Post error:", err);
     }
 
     setPosting(false);
   };
 
+  /* ================= UI ================= */
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-6xl mx-auto">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-6xl mx-auto px-2">
 
       {/* LEFT */}
 
@@ -257,7 +296,7 @@ const Home = () => {
                 setMediaFiles={setMediaFiles}
               />
 
-              {/* ACTION BUTTONS */}
+              {/* BUTTONS */}
 
               <div className="flex flex-wrap gap-2">
 
@@ -320,97 +359,10 @@ const Home = () => {
                     className="w-full border p-2 rounded"
                   />
 
-                  <div className="absolute w-full bg-white shadow rounded mt-1 z-50">
-                    {locationSuggestions.map((loc, i) => (
-                      <div
-                        key={i}
-                        onClick={() => {
-                          setLocation(loc);
-                          setLocationSuggestions([]);
-                        }}
-                        className="p-2 hover:bg-gray-100 cursor-pointer"
-                      >
-                        {loc}
-                      </div>
-                    ))}
-                  </div>
-
-                </div>
-              )}
-
-              {/* FEELING */}
-
-              {showFeeling && (
-                <input
-                  value={feeling}
-                  onChange={(e) => setFeeling(e.target.value)}
-                  placeholder="Feeling..."
-                  className="w-full border p-2 rounded"
-                />
-              )}
-
-              {/* TAG */}
-
-              {showTag && (
-                <input
-                  value={tagInput}
-                  onChange={(e) =>
-                    handleTagFriends(e.target.value)
-                  }
-                  placeholder="Tag friends (comma separated)"
-                  className="w-full border p-2 rounded"
-                />
-              )}
-
-              {/* BUTTONS */}
-
-              <div className="flex justify-between">
-
-                <button
-                  type="button"
-                  onClick={() => setExpanded(false)}
-                  className="px-4 py-2 bg-gray-200 rounded-lg"
-                >
-                  Cancel
-                </button>
-
-                <button
-                  type="submit"
-                  disabled={posting}
-                  className="px-6 py-2 bg-blue-500 text-white rounded-lg"
-                >
-                  {posting ? "Posting..." : "Post"}
-                </button>
-
-              </div>
-
-            </>
-          )}
-
-        </form>
-
-        {/* POSTS */}
-
-        {posts.map((post) => (
-          <PostCard
-            key={post._id}
-            post={post}
-            currentUserId={currentUserId}
-          />
-        ))}
-
-        <div ref={feedRef} />
-
-      </div>
-
-      {/* RIGHT */}
-
-      <div className="hidden md:block">
-        <SidebarRight />
-      </div>
-
-    </div>
-  );
-};
-
-export default Home;
+                  {locationSuggestions.length > 0 && (
+                    <div className="absolute w-full bg-white shadow rounded mt-1 z-50 max-h-48 overflow-y-auto">
+                      {locationSuggestions.map((loc, i) => (
+                        <div
+                          key={i}
+                          onClick={() => {
+                            setLocation
