@@ -166,48 +166,52 @@ const handleSubmitPost = async (e) => {
   e.preventDefault();
   if (!newPost && mediaFiles.length === 0) return;
 
+  const token = localStorage.getItem("token");
+  if (!token) {
+    console.error("No token found, redirecting to login");
+    navigate("/login");
+    return;
+  }
+
   setPosting(true);
 
   try {
     const formData = new FormData();
-    formData.append("content", newPost);
-    formData.append("location", location);
-    formData.append("feeling", feeling);
+    formData.append("content", newPost || "");
+    formData.append("location", location || "");
+    formData.append("feeling", feeling || "");
+    formData.append("taggedFriends", JSON.stringify(taggedFriends || []));
 
-    // Only send IDs for tagged friends
-    const taggedFriendIds = taggedFriends
-      .filter(f => f._id) // ensure we have an id
-      .map(f => f._id);
-    formData.append("taggedFriends", JSON.stringify(taggedFriendIds));
-
-    mediaFiles.forEach((file) => {
-      formData.append("media", file); // backend expects "media"
-    });
+    mediaFiles.forEach((file) => formData.append("media", file));
 
     const res = await fetch(`${API_BASE}/api/posts`, {
       method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
+      headers: {
+        Authorization: `Bearer ${token}`, // must include "Bearer "
+      },
       body: formData,
     });
 
-    // Read response as text first
-    const text = await res.text();
+    // Always try parsing JSON safely
     let data;
     try {
-      data = JSON.parse(text);
-    } catch (err) {
-      console.error("Server returned non-JSON:", text);
+      data = await res.json();
+    } catch {
+      const text = await res.text();
+      console.error("Server returned non-JSON response:", text);
       setPosting(false);
       return;
     }
 
-    if (res.ok && data?.post) {
-      setPosts((prev) => [data.post, ...prev]);
-    } else {
-      console.error("Post failed:", data);
+    if (!res.ok) {
+      console.error("Server error:", data);
+      setPosting(false);
+      return;
     }
 
-    // Reset post creation state
+    if (data?.post) setPosts((prev) => [data.post, ...prev]);
+
+    // Reset state
     setNewPost("");
     setMediaFiles([]);
     setExpanded(false);
@@ -221,9 +225,9 @@ const handleSubmitPost = async (e) => {
     setShowTag(false);
   } catch (err) {
     console.error("Post error:", err);
+  } finally {
+    setPosting(false);
   }
-
-  setPosting(false);
 };
 
   /* ================= UI ================= */
