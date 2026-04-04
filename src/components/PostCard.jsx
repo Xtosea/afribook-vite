@@ -1,3 +1,4 @@
+// src/components/PostCard.jsx
 import React, { useRef, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_BASE, fetchWithToken } from "../api/api";
@@ -16,42 +17,22 @@ const PostCard = ({ post, currentUserId }) => {
   const [shares, setShares] = useState(post.shares || 0);
   const [commentText, setCommentText] = useState("");
   const [showComments, setShowComments] = useState(false);
-  const [liking, setLiking] = useState(false);
 
   const likedByUser = likes.includes(currentUserId);
-
-  // FORMAT DATE
-  const formattedDate = post.createdAt
-    ? new Date(post.createdAt).toLocaleString()
-    : "";
 
   // =========================
   // Like
   // =========================
   const handleLike = async () => {
-    if (liking) return;
-    setLiking(true);
-
     try {
       const res = await fetchWithToken(
         `${API_BASE}/api/posts/${post._id}/like`,
         localStorage.getItem("token"),
-        { method: "PUT" }
+        { method: "POST" }
       );
-
-      if (res?.likesCount !== undefined) {
-        setLikes((prev) => {
-          const liked = prev.includes(currentUserId);
-          return liked
-            ? prev.filter((id) => id !== currentUserId)
-            : [...prev, currentUserId];
-        });
-      }
-
+      setLikes(res.likes);
     } catch (err) {
       console.error("Like error:", err);
-    } finally {
-      setLiking(false);
     }
   };
 
@@ -72,26 +53,42 @@ const PostCard = ({ post, currentUserId }) => {
         }
       );
 
-      if (res?.comment) setComments((prev) => [res.comment, ...prev]);
+      setComments(res.comments);
       setCommentText("");
-
     } catch (err) {
       console.error("Comment error:", err);
     }
   };
 
   // =========================
-  // Share
+  // Share (Native Device Share)
   // =========================
   const handleShare = async () => {
     try {
-      const url = `https://africbook.globelynks.com/post/${post._id}`;
+      const url = `${window.location.origin}/post/${post._id}`;
+      const text = post.text || "Check this post";
+
+      // Native Share (Mobile + Desktop supported browsers)
       if (navigator.share) {
-        await navigator.share({ title: post.user?.name, url });
-      } else {
-        navigator.clipboard.writeText(url);
-        alert("Link copied");
+        await navigator.share({
+          title: post.user?.name || "Shared Post",
+          text,
+          url,
+        });
+
+        const res = await fetchWithToken(
+          `${API_BASE}/api/posts/${post._id}/share`,
+          localStorage.getItem("token"),
+          { method: "POST" }
+        );
+
+        setShares(res.shares);
+        return;
       }
+
+      // Fallback (Desktop browsers)
+      navigator.clipboard.writeText(url);
+      alert("Link copied to clipboard");
 
       const res = await fetchWithToken(
         `${API_BASE}/api/posts/${post._id}/share`,
@@ -99,13 +96,16 @@ const PostCard = ({ post, currentUserId }) => {
         { method: "POST" }
       );
 
-      if (res?.shares !== undefined) setShares(res.shares);
+      setShares(res.shares);
 
     } catch (err) {
       console.error("Share error:", err);
     }
   };
 
+  // =========================
+  // Navigate profile
+  // =========================
   const goToProfile = useCallback(() => {
     navigate(`/profile/${post.user?._id}`);
   }, [navigate, post.user]);
@@ -125,28 +125,39 @@ const PostCard = ({ post, currentUserId }) => {
         />
 
         <div>
-          <p className="font-semibold cursor-pointer hover:underline" onClick={goToProfile}>
+          <p
+            className="font-semibold cursor-pointer hover:underline"
+            onClick={goToProfile}
+          >
             {post.user?.name || "User"}
           </p>
-          <p className="text-xs text-gray-500">{formattedDate}</p>
+
+          <p className="text-xs text-gray-500">
+            {new Date(post.createdAt).toLocaleString()}
+          </p>
         </div>
       </div>
 
       {/* TEXT */}
-      {post.content && <p className="text-gray-800 whitespace-pre-wrap">{post.content}</p>}
+      {post.text && (
+        <p className="text-gray-800 whitespace-pre-wrap">
+          {post.text}
+        </p>
+      )}
 
       {/* MEDIA */}
-      <div className={`${isMulti ? "grid grid-cols-2 gap-2" : ""}`}>
-        {media.map((m, i) => {
+      {!isMulti &&
+        media.map((m, i) => {
           const isVideo = m.type === "video";
+
           return isVideo ? (
             <video
               key={i}
               ref={(el) => (videoRefs.current[i] = el)}
               src={m.url}
-              className={`${isMulti ? "h-48" : "w-full"} rounded-xl cursor-pointer`}
-              muted
               controls
+              muted
+              className="w-full rounded-xl cursor-pointer"
               onClick={() => setFullscreen({ media: m })}
             />
           ) : (
@@ -154,12 +165,38 @@ const PostCard = ({ post, currentUserId }) => {
               key={i}
               src={m.url}
               alt=""
-              className={`${isMulti ? "h-48" : "w-full"} object-cover rounded-xl cursor-pointer`}
+              className="w-full rounded-xl cursor-pointer"
               onClick={() => setFullscreen({ media: m })}
             />
           );
         })}
-      </div>
+
+      {/* MULTI MEDIA */}
+      {isMulti && (
+        <div className="grid grid-cols-2 gap-2">
+          {media.map((m, i) => {
+            const isVideo = m.type === "video";
+
+            return isVideo ? (
+              <video
+                key={i}
+                src={m.url}
+                className="w-full h-48 object-cover rounded-xl cursor-pointer"
+                muted
+                onClick={() => setFullscreen({ media, index: i })}
+              />
+            ) : (
+              <img
+                key={i}
+                src={m.url}
+                alt=""
+                className="w-full h-48 object-cover rounded-xl cursor-pointer"
+                onClick={() => setFullscreen({ media, index: i })}
+              />
+            );
+          })}
+        </div>
+      )}
 
       {/* FULLSCREEN */}
       {fullscreen && (
@@ -170,44 +207,83 @@ const PostCard = ({ post, currentUserId }) => {
           >
             ×
           </button>
+
           {fullscreen.media?.type === "video" ? (
-            <video src={fullscreen.media.url} controls autoPlay className="max-h-full max-w-full" />
+            <video
+              src={fullscreen.media.url}
+              controls
+              autoPlay
+              className="max-h-full max-w-full"
+            />
           ) : (
-            <img src={fullscreen.media.url} alt="" className="max-h-full max-w-full" />
+            <img
+              src={fullscreen.media.url}
+              alt=""
+              className="max-h-full max-w-full"
+            />
           )}
         </div>
       )}
 
       {/* ACTIONS */}
-      <div className="flex justify-between text-sm pt-2 border-t">
-        <button onClick={handleLike} className={`flex gap-1 ${likedByUser ? "text-blue-600 font-semibold" : ""}`}>
+      <div className="flex justify-between items-center text-sm pt-2 border-t">
+
+        {/* LIKE */}
+        <button
+          onClick={handleLike}
+          className={`hover:text-blue-600 ${
+            likedByUser ? "text-blue-600 font-semibold" : ""
+          }`}
+        >
           👍 {likes.length}
         </button>
-        <button onClick={() => setShowComments(!showComments)}>💬 {comments.length}</button>
-        <button onClick={handleShare}>🔗 Share ({shares})</button>
+
+        {/* COMMENT */}
+        <button
+          onClick={() => setShowComments(!showComments)}
+          className="hover:text-blue-600"
+        >
+          💬 {comments.length}
+        </button>
+
+        {/* SHARE */}
+        <button
+          onClick={handleShare}
+          className="hover:text-blue-600"
+        >
+          🔗 Share ({shares})
+        </button>
+
       </div>
 
       {/* COMMENTS */}
       {showComments && (
-        <div className="space-y-2 mt-2">
+        <div className="space-y-2 pt-2">
+
           {comments.map((c, i) => (
-            <div key={i} className="text-sm bg-gray-100 p-2 rounded">
-              <b>{c.user?.name}</b> {c.text}
+            <div
+              key={i}
+              className="text-sm bg-gray-100 p-2 rounded-lg"
+            >
+              <b>{c.user?.name || "User"}</b> {c.text}
             </div>
           ))}
-          <div className="flex gap-2">
-            <input
-              value={commentText}
-              onChange={(e) => setCommentText(e.target.value)}
-              placeholder="Write comment..."
-              className="flex-1 border rounded-lg p-2"
-            />
-            <button onClick={handleComment} className="bg-blue-600 text-white px-4 rounded-lg">
-              Send
-            </button>
-          </div>
+
+          <input
+            value={commentText}
+            onChange={(e) =>
+              setCommentText(e.target.value)
+            }
+            placeholder="Write comment..."
+            className="w-full border rounded-lg p-2 text-sm"
+            onKeyDown={(e) =>
+              e.key === "Enter" && handleComment()
+            }
+          />
+
         </div>
       )}
+
     </div>
   );
 };
