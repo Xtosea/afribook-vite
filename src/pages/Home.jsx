@@ -12,24 +12,23 @@ import { getSocket, connectSocket } from "../socket";
 import { useCloudinaryUpload } from "../hooks/useCloudinaryUpload";
 import { useR2Upload } from "../hooks/useR2Upload";
 
-// Lazy load emoji picker
 const EmojiPicker = lazy(() => import("emoji-picker-react"));
 
-// Skeleton post
 const SkeletonPost = () => (
   <div className="bg-white p-4 rounded-2xl shadow animate-pulse space-y-4 w-full">
     <div className="h-64 bg-gray-300 rounded-xl w-full"></div>
   </div>
 );
 
-// Lazy video hook
 const useLazyVideo = (videos) => {
   useEffect(() => {
-    if (!videos || videos.length === 0) return;
+    if (!videos?.length) return;
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           const video = entry.target;
+
           if (entry.isIntersecting) {
             if (!video.src) video.src = video.dataset.src;
             video.play().catch(() => {});
@@ -40,7 +39,9 @@ const useLazyVideo = (videos) => {
       },
       { threshold: 0.5 }
     );
-    videos.forEach((v) => observer.observe(v));
+
+    videos.forEach((v) => v && observer.observe(v));
+
     return () => observer.disconnect();
   }, [videos]);
 };
@@ -51,8 +52,10 @@ const Home = () => {
   const navigate = useNavigate();
 
   const feedRef = useRef();
+
   const { uploadImage } = useCloudinaryUpload();
   const { uploadVideo } = useR2Upload();
+
   const [videoRefs, setVideoRefs] = useState([]);
   useLazyVideo(videoRefs);
 
@@ -62,7 +65,6 @@ const Home = () => {
     name: localStorage.getItem("name"),
   };
 
-  // --- States ---
   const [posts, setPosts] = useState([]);
   const [loadingPosts, setLoadingPosts] = useState(true);
   const [stories, setStories] = useState([]);
@@ -76,24 +78,25 @@ const Home = () => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
 
-  // Redirect if no token
   useEffect(() => {
     if (!token) navigate("/login");
   }, [token, navigate]);
 
-  // --- Fetch posts (infinite scroll) ---
   const fetchPosts = useCallback(
     async (pageNum = 1) => {
       if (!token || !hasMore) return;
+
       try {
         const res = await fetchWithToken(
           `${API_BASE}/api/posts?limit=10&page=${pageNum}`,
           token
         );
+
         if (!res || !Array.isArray(res) || res.length === 0) {
           setHasMore(false);
           return;
         }
+
         setPosts((prev) => [...prev, ...res]);
       } catch (err) {
         console.error("Posts fetch error:", err);
@@ -104,12 +107,10 @@ const Home = () => {
     [token, hasMore]
   );
 
-  // Initial fetch
   useEffect(() => {
     fetchPosts(page);
   }, [fetchPosts, page]);
 
-  // --- Infinite scroll ---
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -121,36 +122,50 @@ const Home = () => {
     );
 
     if (feedRef.current) observer.observe(feedRef.current);
+
     return () => observer.disconnect();
   }, [feedRef, hasMore, loadingPosts]);
 
-  // --- Fetch stories ---
   useEffect(() => {
     if (!token) return;
+
     const fetchStories = async () => {
       try {
         const res = await fetch(`${API_BASE}/api/stories?limit=20`, {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         });
+
         const data = await res.json();
         setStories(data?.stories || []);
       } catch (err) {
         console.error("Stories fetch error:", err);
       }
     };
+
     fetchStories();
   }, [token]);
 
-  // --- Socket setup ---
   useEffect(() => {
     if (!token) return;
+
     connectSocket();
     const socket = getSocket();
+
     if (!socket) return;
 
-    socket.on("new-video", (post) => setPosts((prev) => [post, ...prev]));
-    socket.on("new-story", (story) => setStories((prev) => [story, ...prev]));
-    socket.on("birthday", (data) => alert(`🎉 Today is ${data.name}'s birthday`));
+    socket.on("new-video", (post) => {
+      setPosts((prev) => [post, ...prev]);
+    });
+
+    socket.on("new-story", (story) => {
+      setStories((prev) => [story, ...prev]);
+    });
+
+    socket.on("birthday", (data) => {
+      alert(`🎉 Today is ${data.name}'s birthday`);
+    });
 
     return () => {
       socket.off("new-video");
@@ -159,14 +174,16 @@ const Home = () => {
     };
   }, [token]);
 
-  // --- Create post ---
   const handleSubmitPost = async (e) => {
     e.preventDefault();
+
     if (!newPost && mediaFiles.length === 0) return;
+
     setPosting(true);
 
     try {
       const uploadedMedia = [];
+
       for (let file of mediaFiles) {
         let compressedFile = file;
         const type = file.type.startsWith("image") ? "image" : "video";
@@ -185,7 +202,11 @@ const Home = () => {
           type === "image"
             ? await uploadImage(compressedFile)
             : await uploadVideo(file);
-        uploadedMedia.push({ url, type });
+
+        uploadedMedia.push({
+          url,
+          type,
+        });
       }
 
       const res = await fetch(`${API_BASE}/api/posts`, {
@@ -204,10 +225,11 @@ const Home = () => {
       });
 
       const data = await res.json();
+
       getSocket()?.emit("new-video", data.post);
+
       setPosts((prev) => [data.post, ...prev]);
 
-      // Reset form
       setNewPost("");
       setMediaFiles([]);
       setLocation("");
@@ -222,23 +244,19 @@ const Home = () => {
   };
 
   return (
-    <div className="w-full min-h-screen grid grid-cols-1 md:grid-cols-3 gap-0">
+    <div className="w-full min-h-screen grid grid-cols-1 md:grid-cols-3">
 
-      {/* LEFT SIDEBAR */}
       <div className="hidden md:block">
         <SidebarLeft />
       </div>
 
-      {/* MAIN FEED */}
-      <div className="col-span-1 md:col-span-2 space-y-4 w-full px-2">
+      <div className="col-span-1 md:col-span-2 space-y-4 px-2">
 
-        {/* STORIES */}
         <StoriesBar user={currentUser} stories={stories || []} />
 
-        {/* CREATE POST */}
         <form
           onSubmit={handleSubmitPost}
-          className="bg-white p-4 rounded-xl shadow space-y-3 w-full"
+          className="bg-white p-4 rounded-xl shadow space-y-3"
         >
           <textarea
             value={newPost}
@@ -247,62 +265,67 @@ const Home = () => {
             placeholder="What's on your mind?"
             className="w-full border rounded-lg p-3"
           />
+
           {expanded && (
             <>
-              <MediaUpload files={mediaFiles} setFiles={setMediaFiles} />
+              <MediaUpload
+                mediaFiles={mediaFiles}
+                setMediaFiles={setMediaFiles}
+              />
+
               <input
                 value={feeling}
                 onChange={(e) => setFeeling(e.target.value)}
                 placeholder="Feeling..."
                 className="w-full border rounded-lg p-2"
               />
+
               <input
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 placeholder="Location..."
                 className="w-full border rounded-lg p-2"
               />
-              <input
-                value={taggedFriends.map((f) => f.name).join(", ")}
-                onChange={(e) =>
-                  setTaggedFriends(
-                    e.target.value.split(",").map((n) => ({ name: n.trim() }))
-                  )
-                }
-                placeholder="Tag friends (comma separated)"
-                className="w-full border rounded-lg p-2"
-              />
             </>
           )}
         </form>
 
-        {/* POSTS FEED */}
-        <div className="space-y-4 w-full">
-          {loadingPosts
-            ? [<SkeletonPost key={0} />, <SkeletonPost key={1} />]
-            : posts?.length > 0
-            ? posts.map((post) => (
-                <PostCard
-                  key={post._id}
-                  post={post}
-                  currentUserId={currentUserId}
-                  setVideoRefs={setVideoRefs}
-                />
-              ))
-            : !loadingPosts && <p className="text-center text-gray-400">No posts found</p>}
-          
-          {/* Scroll sentinel */}
+        <div className="space-y-4">
+
+          {loadingPosts ? (
+            <>
+              <SkeletonPost />
+              <SkeletonPost />
+            </>
+          ) : posts?.length > 0 ? (
+            posts.map((post) => (
+              <PostCard
+                key={post._id}
+                post={post}
+                currentUserId={currentUserId}
+                setVideoRefs={setVideoRefs}
+              />
+            ))
+          ) : (
+            <p className="text-center text-gray-400">
+              No posts found
+            </p>
+          )}
+
           <div ref={feedRef} />
+
           {!hasMore && !loadingPosts && posts?.length > 0 && (
-            <p className="text-center text-gray-400 py-4">No more posts</p>
+            <p className="text-center text-gray-400 py-4">
+              No more posts
+            </p>
           )}
         </div>
       </div>
 
-      {/* RIGHT SIDEBAR */}
       <div className="hidden md:block">
         <SidebarRight />
       </div>
+
     </div>
   );
 };
