@@ -31,8 +31,8 @@ const useLazyVideo = (videos) => {
       (entries) => {
         entries.forEach((entry) => {
           const video = entry.target;
+
           if (entry.isIntersecting) {
-            if (!video.src) video.src = video.dataset.src;
             video.play().catch(() => {});
           } else {
             video.pause();
@@ -42,7 +42,8 @@ const useLazyVideo = (videos) => {
       { threshold: 0.5 }
     );
 
-    videos.forEach((v) => observer.observe(v));
+    videos.forEach((v) => v && observer.observe(v));
+
     return () => observer.disconnect();
   }, [videos]);
 };
