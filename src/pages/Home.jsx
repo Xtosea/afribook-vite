@@ -1,280 +1,167 @@
 // src/pages/Home.jsx
-import React, { useEffect, useRef, useState, Suspense, lazy } from "react";
+import React, { useEffect, useRef, useState, Suspense, lazy, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import PostCard from "../components/PostCard";
 import SidebarLeft from "../components/layout/SidebarLeft";
 import SidebarRight from "../components/layout/SidebarRight";
 import StoriesBar from "../components/layout/StoriesBar";
-import MediaUpload from "../components/MediaUpload";
-import imageCompression from "browser-image-compression";
+import PostCard from "../components/PostCard";
 import { API_BASE, fetchWithToken } from "../api/api";
 import { getSocket, connectSocket } from "../socket";
-import { useCloudinaryUpload } from "../hooks/useCloudinaryUpload";
-import { useR2Upload } from "../hooks/useR2Upload";
 
 // Lazy load emoji picker
 const EmojiPicker = lazy(() => import("emoji-picker-react"));
 
 // Skeleton post
 const SkeletonPost = () => (
-
-  <div className="bg-white p-4 rounded-2xl shadow animate-pulse space-y-4 w-full">  
-    <div className="h-64 bg-gray-300 rounded-xl w-full"></div>  
-  </div>  
-);  // Lazy video hook
-const useLazyVideo = (videos) => {
-useEffect(() => {
-if (!videos || videos.length === 0) return;
-const observer = new IntersectionObserver(
-(entries) => {
-entries.forEach((entry) => {
-const video = entry.target;
-if (entry.isIntersecting) {
-if (!video.src) video.src = video.dataset.src;
-video.play().catch(() => {});
-} else {
-video.pause();
-}
-});
-},
-{ threshold: 0.5 }
+  <div className="bg-white p-4 rounded-2xl shadow animate-pulse space-y-4 w-full">
+    <div className="h-64 bg-gray-300 rounded-xl w-full"></div>
+  </div>
 );
-videos.forEach((v) => observer.observe(v));
-return () => observer.disconnect();
-}, [videos]);
-};
 
 const Home = () => {
-const token = localStorage.getItem("token");
-const currentUserId = localStorage.getItem("userId");
-const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+  const currentUserId = localStorage.getItem("userId");
+  const navigate = useNavigate();
 
-useEffect(() => {
-if (!token) navigate("/login");
-}, [token, navigate]);
+  const [posts, setPosts] = useState([]);
+  const [stories, setStories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
 
-const currentUser = {
-_id: currentUserId,
-profilePic: localStorage.getItem("profilePic"),
-name: localStorage.getItem("name"),
-};
+  const feedRef = useRef();
 
-// --- States ---
-const [posts, setPosts] = useState([]);
-const [loadingPosts, setLoadingPosts] = useState(true);
-const [stories, setStories] = useState([]);
-const [newPost, setNewPost] = useState("");
-const [mediaFiles, setMediaFiles] = useState([]);
-const [posting, setPosting] = useState(false);
-const [expanded, setExpanded] = useState(false);
-const [showEmoji, setShowEmoji] = useState(false);
-const [location, setLocation] = useState("");
-const [feeling, setFeeling] = useState("");
-const [taggedFriends, setTaggedFriends] = useState([]);
+  const currentUser = {
+    _id: currentUserId,
+    profilePic: localStorage.getItem("profilePic"),
+    name: localStorage.getItem("name"),
+  };
 
-const feedRef = useRef();
-const { uploadImage } = useCloudinaryUpload();
-const { uploadVideo } = useR2Upload();
-const [videoRefs, setVideoRefs] = useState([]);
-useLazyVideo(videoRefs);
+  // Redirect if no token
+  useEffect(() => {
+    if (!token) navigate("/login");
+  }, [token, navigate]);
 
-// --- Fetch posts & stories ---
-useEffect(() => {
-if (!token) return;
-const init = async () => {
-try {
-// Fetch posts
-const postsData = await fetchWithToken(
-${API_BASE}/api/posts?limit=20,
-token
-);
-setPosts(postsData);
+  // --- Socket setup ---
+  useEffect(() => {
+    if (!token) return;
+    connectSocket();
+    const socket = getSocket();
+    if (!socket) return;
 
-// Fetch stories  
-    const res = await fetch(`${API_BASE}/api/stories?limit=20`, {  
-      headers: { Authorization: `Bearer ${token}` },  
-    });  
-    const text = await res.text();  
-    let data;  
-    try {  
-      data = JSON.parse(text);  
-    } catch {  
-      data = { stories: [] };  
-    }  
-    setStories(data.stories || []);  
-  } catch (err) {  
-    console.error("Fetching posts/stories error:", err);  
-  } finally {  
-    setLoadingPosts(false);  
-  }  
+    socket.on("new-video", (post) => setPosts((prev) => [post, ...prev]));
+    socket.on("new-story", (story) => setStories((prev) => [story, ...prev]));
+    socket.on("birthday", (data) => alert(`🎉 Today is ${data.name}'s birthday`));
 
-  // --- Socket connection ---  
-  connectSocket();  
-  const socket = getSocket();  
-  if (!socket) return;  
+    return () => {
+      socket.off("new-video");
+      socket.off("new-story");
+      socket.off("birthday");
+    };
+  }, [token]);
 
-  // Listen for new posts/videos  
-  socket.on("new-video", (post) => setPosts((prev) => [post, ...prev]));  
-  // Listen for new stories  
-  socket.on("new-story", (story) => setStories((prev) => [story, ...prev]));  
-  // Listen for birthday notifications  
-  socket.on("birthday", (data) => {  
-    alert(`🎉 Today is ${data.name}'s birthday`);  
-  });  
-};  
-init();  
+  // --- Fetch stories ---
+  useEffect(() => {
+    if (!token) return;
 
-// Cleanup  
-return () => {  
-  const socket = getSocket();  
-  if (socket) {  
-    socket.off("new-video");  
-    socket.off("new-story");  
-    socket.off("birthday");  
-  }  
-};
+    const fetchStories = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/stories?limit=20`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        setStories(data.stories || []);
+      } catch (err) {
+        console.error("Stories fetch error:", err);
+      }
+    };
 
-}, [token]);
+    fetchStories();
+  }, [token]);
 
-// --- Create post ---
-const handleSubmitPost = async (e) => {
-e.preventDefault();
-if (!newPost && mediaFiles.length === 0) return;
-setPosting(true);
+  // --- Fetch posts (infinite scroll) ---
+  const fetchPosts = useCallback(async (pageNum = 1) => {
+    if (!token || !hasMore) return;
 
-try {  
-  const uploadedMedia = [];  
-  for (let file of mediaFiles) {  
-    let compressedFile = file;  
-    const type = file.type.startsWith("image") ? "image" : "video";  
+    try {
+      const res = await fetchWithToken(
+        `${API_BASE}/api/posts?limit=10&page=${pageNum}`,
+        token
+      );
+      if (!res || res.length === 0) {
+        setHasMore(false);
+        return;
+      }
+      setPosts((prev) => [...prev, ...res]);
+    } catch (err) {
+      console.error("Posts fetch error:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [token, hasMore]);
 
-    if (type === "image") {  
-      compressedFile = await imageCompression(file, {  
-        maxSizeMB: 0.6,  
-        maxWidthOrHeight: 1080,  
-        useWebWorker: true,  
-        fileType: "image/webp",  
-        initialQuality: 0.8,  
-      });  
-    }  
+  // Initial posts
+  useEffect(() => {
+    fetchPosts(page);
+  }, [fetchPosts, page]);
 
-    const url =  
-      type === "image"  
-        ? await uploadImage(compressedFile)  
-        : await uploadVideo(file);  
-    uploadedMedia.push({ url, type });  
-  }  
+  // --- Infinite scroll ---
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !loading) {
+          setPage((prev) => prev + 1);
+        }
+      },
+      { threshold: 1 }
+    );
 
-  const res = await fetch(`${API_BASE}/api/posts`, {  
-    method: "POST",  
-    headers: {  
-      Authorization: `Bearer ${token}`,  
-      "Content-Type": "application/json",  
-    },  
-    body: JSON.stringify({  
-      content: newPost,  
-      media: uploadedMedia,  
-      location,  
-      feeling,  
-      taggedFriends,  
-    }),  
-  });  
+    if (feedRef.current) observer.observe(feedRef.current);
 
-  const data = await res.json();  
-  getSocket()?.emit("new-video", data.post);  
-  setPosts((prev) => [data.post, ...prev]);  
+    return () => observer.disconnect();
+  }, [feedRef, hasMore, loading]);
 
-  // Reset form  
-  setNewPost("");  
-  setMediaFiles([]);  
-  setLocation("");  
-  setFeeling("");  
-  setTaggedFriends([]);  
-  setExpanded(false);  
-} catch (err) {  
-  console.error("Post creation error:", err);  
-} finally {  
-  setPosting(false);  
-}
+  return (
+    <div className="w-full min-h-screen grid grid-cols-1 md:grid-cols-3 gap-0">
 
-};
+      {/* LEFT SIDEBAR */}
+      <div className="hidden md:block">
+        <SidebarLeft />
+      </div>
 
-return (
-<div className="w-full min-h-screen grid grid-cols-1 gap-0">
+      {/* MAIN FEED */}
+      <div className="col-span-1 md:col-span-2 space-y-4 w-full px-2">
 
-{/* LEFT SIDEBAR */}  
-  <div className="hidden md:block">  
-    <SidebarLeft />  
-  </div>  
+        {/* STORIES */}
+        <StoriesBar user={currentUser} stories={stories} />
 
-  {/* MAIN FEED */}  
-  <div className="col-span-1 space-y-4 w-full">  
-    <StoriesBar user={currentUser} stories={stories} />  
+        {/* POSTS */}
+        {posts.map((post) => (
+          <PostCard key={post._id} post={post} currentUserId={currentUserId} feedRef={feedRef} />
+        ))}
 
-    {/* CREATE POST */}  
-    <form  
-      onSubmit={handleSubmitPost}  
-      className="bg-white p-4 rounded-xl shadow space-y-3 w-full"  
-    >  
-      <textarea  
-        value={newPost}  
-        onChange={(e) => setNewPost(e.target.value)}  
-        onFocus={() => setExpanded(true)}  
-        placeholder="What's on your mind?"  
-        className="w-full border rounded-lg p-3"  
-      />  
-      {expanded && (  
-        <>  
-          <input  
-            value={feeling}  
-            onChange={(e) => setFeeling(e.target.value)}  
-            placeholder="Feeling..."  
-            className="w-full border rounded-lg p-2"  
-          />  
-          <input  
-            value={location}  
-            onChange={(e) => setLocation(e.target.value)}  
-            placeholder="Location..."  
-            className="w-full border rounded-lg p-2"  
-          />  
-          <input  
-            value={taggedFriends.map((f) => f.name).join(", ")}  
-            onChange={(e) =>  
-              setTaggedFriends(  
-                e.target.value  
-                  .split(",")  
-                  .map((n) => ({ name: n.trim() }))  
-              )  
-            }  
-            placeholder="Tag friends (comma separated)"  
-            className="w-full border rounded-lg p-2"  
-          />  
-        </>  
-      )}  
-    </form>  
+        {/* LOADING */}
+        {loading && (
+          <>
+            <SkeletonPost />
+            <SkeletonPost />
+          </>
+        )}
 
-    {/* POSTS FEED */}  
-    <div ref={feedRef} className="space-y-4 w-full">  
-      {loadingPosts  
-        ? [<SkeletonPost key={0} />, <SkeletonPost key={1} />]  
-        : posts.map((post) => (  
-            <PostCard  
-              key={post._id}  
-              post={post}  
-              currentUserId={currentUserId}  
-              setVideoRefs={setVideoRefs}  
-            />  
-          ))}  
-    </div>  
-  </div>  
+        {/* SCROLL SENTINEL */}
+        <div ref={feedRef} />
 
-  {/* RIGHT SIDEBAR */}  
-  <div className="hidden md:block">  
-    <SidebarRight />  
-  </div>  
-</div>
+        {!hasMore && !loading && (
+          <p className="text-center text-gray-400 py-4">No more posts</p>
+        )}
+      </div>
 
-);
+      {/* RIGHT SIDEBAR */}
+      <div className="hidden md:block">
+        <SidebarRight />
+      </div>
+    </div>
+  );
 };
 
 export default Home;
