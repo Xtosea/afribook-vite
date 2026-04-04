@@ -7,6 +7,7 @@ import StoriesBar from "../components/layout/StoriesBar";
 import PostCard from "../components/PostCard";
 import { API_BASE, fetchWithToken } from "../api/api";
 import { getSocket, connectSocket } from "../socket";
+import CreatePost from "../components/CreatePost"; // <-- Import the new component
 
 // Lazy load emoji picker
 const EmojiPicker = lazy(() => import("emoji-picker-react"));
@@ -121,6 +122,11 @@ const Home = () => {
     return () => observer.disconnect();
   }, [feedRef, hasMore, loading]);
 
+  // --- Handler for new post created ---
+  const handleNewPost = (newPost) => {
+    setPosts((prev) => [newPost, ...prev]);
+  };
+
   return (
     <div className="w-full min-h-screen grid grid-cols-1 md:grid-cols-3 gap-0">
 
@@ -134,6 +140,9 @@ const Home = () => {
 
         {/* STORIES */}
         <StoriesBar user={currentUser} stories={stories} />
+
+        {/* CREATE POST */}
+        <CreatePost currentUser={currentUser} onPostCreated={handleNewPost} />
 
         {/* POSTS */}
         {posts.map((post) => (
