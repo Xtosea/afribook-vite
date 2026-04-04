@@ -1,7 +1,24 @@
 // src/components/PostCard.jsx
-import React, { useRef, useState, useEffect, useCallback } from "react";
+import React, { useRef, useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_BASE, fetchWithToken } from "../api/api";
+
+// Utility to generate video thumbnail
+const generateVideoThumbnail = (videoUrl) =>
+  new Promise((resolve) => {
+    const video = document.createElement("video");
+    video.src = videoUrl;
+    video.crossOrigin = "anonymous";
+    video.currentTime = 1; // Capture frame at 1 second
+    video.addEventListener("loadeddata", () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth / 2;
+      canvas.height = video.videoHeight / 2;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      resolve(canvas.toDataURL("image/png"));
+    });
+  });
 
 const PostCard = ({ post, currentUserId }) => {
   const navigate = useNavigate();
@@ -19,36 +36,16 @@ const PostCard = ({ post, currentUserId }) => {
   const [showComments, setShowComments] = useState(false);
   const [liking, setLiking] = useState(false);
 
-  // Video thumbnails
-  const [videoThumbnails, setVideoThumbnails] = useState({});
-
   const likedByUser = likes.includes(currentUserId);
 
-  // =========================
-  // Generate video thumbnails
-  // =========================
-  const generateThumbnail = (videoUrl, index) =>
-    new Promise((resolve) => {
-      const video = document.createElement("video");
-      video.src = videoUrl;
-      video.crossOrigin = "anonymous";
-      video.muted = true;
-      video.currentTime = 1; // first second
-      video.addEventListener("loadeddata", () => {
-        const canvas = document.createElement("canvas");
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        resolve(canvas.toDataURL("image/jpeg"));
-      });
-    });
+  // Thumbnails for videos
+  const [thumbnails, setThumbnails] = useState({});
 
   useEffect(() => {
-    media.forEach((m, i) => {
-      if (m.type === "video" && !videoThumbnails[i]) {
-        generateThumbnail(m.url, i).then((thumb) => {
-          setVideoThumbnails((prev) => ({ ...prev, [i]: thumb }));
+    media.forEach((m) => {
+      if (m.type === "video") {
+        generateVideoThumbnail(m.url).then((dataUrl) => {
+          setThumbnails((prev) => ({ ...prev, [m.url]: dataUrl }));
         });
       }
     });
@@ -67,7 +64,6 @@ const PostCard = ({ post, currentUserId }) => {
         localStorage.getItem("token"),
         { method: "POST" }
       );
-
       if (res?.likes) setLikes(res.likes);
     } catch (err) {
       console.error("Like error:", err);
@@ -81,7 +77,6 @@ const PostCard = ({ post, currentUserId }) => {
   // =========================
   const handleComment = async () => {
     if (!commentText.trim()) return;
-
     try {
       const res = await fetchWithToken(
         `${API_BASE}/api/posts/${post._id}/comment`,
@@ -92,7 +87,6 @@ const PostCard = ({ post, currentUserId }) => {
           headers: { "Content-Type": "application/json" },
         }
       );
-
       if (res?.comments) setComments(res.comments);
       setCommentText("");
     } catch (err) {
@@ -120,7 +114,6 @@ const PostCard = ({ post, currentUserId }) => {
         localStorage.getItem("token"),
         { method: "POST" }
       );
-
       if (res?.shares !== undefined) setShares(res.shares);
     } catch (err) {
       console.error("Share error:", err);
@@ -140,7 +133,10 @@ const PostCard = ({ post, currentUserId }) => {
       {/* HEADER */}
       <div className="flex items-center gap-3">
         <img
-          src={post.user?.profilePic || `https://ui-avatars.com/api/?name=${post.user?.name || "User"}`}
+          src={
+            post.user?.profilePic ||
+            `https://ui-avatars.com/api/?name=${post.user?.name || "User"}`
+          }
           className="w-12 h-12 rounded-full cursor-pointer object-cover"
           onClick={goToProfile}
         />
@@ -159,30 +155,35 @@ const PostCard = ({ post, currentUserId }) => {
       {!isMulti &&
         media.map((m, i) => {
           const isVideo = m.type === "video";
-          if (isVideo) {
-            return (
-              <div key={i} className="relative cursor-pointer" onClick={() => setFullscreen({ media: m })}>
-                {videoThumbnails[i] ? (
-                  <img src={videoThumbnails[i]} alt="Video thumbnail" className="w-full rounded-xl object-cover" />
-                ) : (
-                  <div className="w-full h-64 bg-gray-300 rounded-xl animate-pulse"></div>
-                )}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-white text-4xl">▶️</span>
-                </div>
-              </div>
-            );
-          } else {
-            return (
-              <img
-                key={i}
+          return isVideo ? (
+            <div key={i} className="relative">
+              {thumbnails[m.url] && !videoRefs.current[i]?.played && (
+                <img
+                  src={thumbnails[m.url]}
+                  alt="thumbnail"
+                  className="w-full rounded-xl cursor-pointer object-cover"
+                  onClick={() => videoRefs.current[i]?.play()}
+                />
+              )}
+              <video
+                ref={(el) => (videoRefs.current[i] = el)}
                 src={m.url}
-                alt=""
-                className="w-full rounded-xl cursor-pointer"
+                controls
+                muted
+                className="w-full rounded-xl cursor-pointer hidden"
                 onClick={() => setFullscreen({ media: m })}
+                onPlay={(e) => e.target.classList.remove("hidden")}
               />
-            );
-          }
+            </div>
+          ) : (
+            <img
+              key={i}
+              src={m.url}
+              alt=""
+              className="w-full rounded-xl cursor-pointer"
+              onClick={() => setFullscreen({ media: m })}
+            />
+          );
         })}
 
       {/* MULTI MEDIA */}
@@ -190,30 +191,34 @@ const PostCard = ({ post, currentUserId }) => {
         <div className="grid grid-cols-2 gap-2">
           {media.map((m, i) => {
             const isVideo = m.type === "video";
-            if (isVideo) {
-              return (
-                <div key={i} className="relative cursor-pointer" onClick={() => setFullscreen({ media: m })}>
-                  {videoThumbnails[i] ? (
-                    <img src={videoThumbnails[i]} alt="Video thumbnail" className="w-full h-48 object-cover rounded-xl" />
-                  ) : (
-                    <div className="w-full h-48 bg-gray-300 rounded-xl animate-pulse"></div>
-                  )}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-white text-3xl">▶️</span>
-                  </div>
-                </div>
-              );
-            } else {
-              return (
-                <img
-                  key={i}
+            return isVideo ? (
+              <div key={i} className="relative">
+                {thumbnails[m.url] && (
+                  <img
+                    src={thumbnails[m.url]}
+                    alt="thumbnail"
+                    className="w-full h-48 object-cover rounded-xl cursor-pointer"
+                    onClick={() => videoRefs.current[i]?.play()}
+                  />
+                )}
+                <video
+                  ref={(el) => (videoRefs.current[i] = el)}
                   src={m.url}
-                  alt=""
-                  className="w-full h-48 object-cover rounded-xl cursor-pointer"
+                  className="w-full h-48 object-cover rounded-xl hidden"
+                  muted
                   onClick={() => setFullscreen({ media: m })}
+                  onPlay={(e) => e.target.classList.remove("hidden")}
                 />
-              );
-            }
+              </div>
+            ) : (
+              <img
+                key={i}
+                src={m.url}
+                alt=""
+                className="w-full h-48 object-cover rounded-xl cursor-pointer"
+                onClick={() => setFullscreen({ media: m })}
+              />
+            );
           })}
         </div>
       )}
