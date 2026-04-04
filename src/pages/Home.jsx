@@ -162,61 +162,69 @@ const Home = () => {
   };
 
   /* ================= SUBMIT POST ================= */
-  const handleSubmitPost = async (e) => {
-    e.preventDefault();
-    if (!newPost && mediaFiles.length === 0) return;
+const handleSubmitPost = async (e) => {
+  e.preventDefault();
+  if (!newPost && mediaFiles.length === 0) return;
 
-    setPosting(true);
+  setPosting(true);
 
+  try {
+    const formData = new FormData();
+    formData.append("content", newPost);
+    formData.append("location", location);
+    formData.append("feeling", feeling);
+
+    // Only send IDs for tagged friends
+    const taggedFriendIds = taggedFriends
+      .filter(f => f._id) // ensure we have an id
+      .map(f => f._id);
+    formData.append("taggedFriends", JSON.stringify(taggedFriendIds));
+
+    mediaFiles.forEach((file) => {
+      formData.append("media", file); // backend expects "media"
+    });
+
+    const res = await fetch(`${API_BASE}/api/posts`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: formData,
+    });
+
+    // Read response as text first
+    const text = await res.text();
+    let data;
     try {
-      const formData = new FormData();
-      formData.append("content", newPost);
-      formData.append("location", location);
-      formData.append("feeling", feeling);
-      formData.append("taggedFriends", JSON.stringify(taggedFriends));
-
-      mediaFiles.forEach((file) => {
-        formData.append("media", file); // backend expects "media"
-      });
-
-      const res = await fetch(`${API_BASE}/api/posts`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
-      });
-
-      let data;
-      try {
-        data = await res.json();
-      } catch (err) {
-        const text = await res.text();
-        console.error("Server returned non-JSON:", text);
-        setPosting(false);
-        return;
-      }
-
-      if (data?.post) {
-        setPosts((prev) => [data.post, ...prev]);
-      }
-
-      // Reset post creation state
-      setNewPost("");
-      setMediaFiles([]);
-      setExpanded(false);
-      setLocation("");
-      setFeeling("");
-      setTaggedFriends([]);
-      setTagInput("");
-      setShowEmoji(false);
-      setShowLocation(false);
-      setShowFeeling(false);
-      setShowTag(false);
+      data = JSON.parse(text);
     } catch (err) {
-      console.log("Post error:", err);
+      console.error("Server returned non-JSON:", text);
+      setPosting(false);
+      return;
     }
 
-    setPosting(false);
-  };
+    if (res.ok && data?.post) {
+      setPosts((prev) => [data.post, ...prev]);
+    } else {
+      console.error("Post failed:", data);
+    }
+
+    // Reset post creation state
+    setNewPost("");
+    setMediaFiles([]);
+    setExpanded(false);
+    setLocation("");
+    setFeeling("");
+    setTaggedFriends([]);
+    setTagInput("");
+    setShowEmoji(false);
+    setShowLocation(false);
+    setShowFeeling(false);
+    setShowTag(false);
+  } catch (err) {
+    console.error("Post error:", err);
+  }
+
+  setPosting(false);
+};
 
   /* ================= UI ================= */
   return (
