@@ -22,38 +22,6 @@ import { useR2Upload } from "../hooks/useR2Upload";
 
 const EmojiPicker = lazy(() => import("emoji-picker-react"));
 
-const SkeletonPost = () => (
-  <div className="bg-white p-4 rounded-2xl shadow animate-pulse">
-    <div className="h-64 bg-gray-300 rounded-xl"></div>
-  </div>
-);
-
-const useLazyVideo = (videos) => {
-  useEffect(() => {
-    if (!videos?.length) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          const video = entry.target;
-
-          if (entry.isIntersecting) {
-            if (!video.src) video.src = video.dataset.src;
-            video.play().catch(() => {});
-          } else {
-            video.pause();
-          }
-        });
-      },
-      { threshold: 0.5 }
-    );
-
-    videos.forEach((v) => v && observer.observe(v));
-
-    return () => observer.disconnect();
-  }, [videos]);
-};
-
 const Home = () => {
   const token = localStorage.getItem("token");
   const currentUserId = localStorage.getItem("userId");
@@ -64,18 +32,13 @@ const Home = () => {
   const { uploadImage } = useCloudinaryUpload();
   const { uploadVideo } = useR2Upload();
 
-  const [videoRefs, setVideoRefs] = useState([]);
-  useLazyVideo(videoRefs);
-
   const currentUser = {
     _id: currentUserId,
     profilePic: localStorage.getItem("profilePic"),
     name: localStorage.getItem("name"),
   };
 
-  // Post states
   const [posts, setPosts] = useState([]);
-  const [loadingPosts, setLoadingPosts] = useState(true);
   const [stories, setStories] = useState([]);
   const [newPost, setNewPost] = useState("");
   const [mediaFiles, setMediaFiles] = useState([]);
@@ -100,16 +63,14 @@ const Home = () => {
 
   useEffect(() => {
     if (!token) navigate("/login");
-  }, [token, navigate]);
+  }, [token]);
 
-  // Fetch posts
+  /* Fetch Posts */
   const fetchPosts = useCallback(
     async (pageNum = 1) => {
-      if (!token || !hasMore) return;
-
       try {
         const res = await fetchWithToken(
-          `${API_BASE}/api/posts?limit=10&page=${pageNum}`,
+          `${API_BASE}/api/posts?page=${pageNum}&limit=10`,
           token
         );
 
@@ -120,35 +81,18 @@ const Home = () => {
 
         setPosts((prev) => [...prev, ...res]);
       } catch (err) {
-        console.error(err);
-      } finally {
-        setLoadingPosts(false);
+        console.log(err);
       }
     },
-    [token, hasMore]
+    [token]
   );
 
   useEffect(() => {
     fetchPosts(page);
-  }, [fetchPosts, page]);
+  }, [page]);
 
-  // Infinite scroll
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMore) {
-          setPage((prev) => prev + 1);
-        }
-      },
-      { threshold: 1 }
-    );
+  /* Fetch Stories */
 
-    if (feedRef.current) observer.observe(feedRef.current);
-
-    return () => observer.disconnect();
-  }, [hasMore]);
-
-  // Fetch stories
   useEffect(() => {
     const fetchStories = async () => {
       const res = await fetch(`${API_BASE}/api/stories`, {
@@ -162,7 +106,8 @@ const Home = () => {
     if (token) fetchStories();
   }, [token]);
 
-  // Socket
+  /* Socket */
+
   useEffect(() => {
     connectSocket();
     const socket = getSocket();
@@ -181,26 +126,25 @@ const Home = () => {
     };
   }, []);
 
-  // Location Auto Suggest
+  /* Location Suggest */
+
   const handleLocationSearch = async (value) => {
     setLocation(value);
 
     if (!value) return;
 
-    try {
-      const res = await fetch(
-        `https://nominatim.openstreetmap.org/search?q=${value}&format=json`
-      );
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/search?q=${value}&format=json`
+    );
 
-      const data = await res.json();
+    const data = await res.json();
 
-      setLocationSuggestions(
-        data.slice(0, 5).map((item) => item.display_name)
-      );
-    } catch (err) {
-      console.log(err);
-    }
+    setLocationSuggestions(
+      data.slice(0, 5).map((i) => i.display_name)
+    );
   };
+
+  /* Tag Friends */
 
   const handleTagFriends = (value) => {
     setTagInput(value);
@@ -212,7 +156,8 @@ const Home = () => {
     setTaggedFriends(names);
   };
 
-  // Submit Post
+  /* Submit Post */
+
   const handleSubmitPost = async (e) => {
     e.preventDefault();
 
@@ -265,25 +210,29 @@ const Home = () => {
 
       setNewPost("");
       setMediaFiles([]);
+      setExpanded(false);
       setLocation("");
       setFeeling("");
       setTaggedFriends([]);
-      setExpanded(false);
     } catch (err) {
-      console.error(err);
-    } finally {
-      setPosting(false);
+      console.log(err);
     }
+
+    setPosting(false);
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-6xl mx-auto">
+
+      {/* LEFT */}
 
       <div className="hidden md:block">
         <SidebarLeft />
       </div>
 
-      <div className="space-y-4 px-2">
+      {/* CENTER */}
+
+      <div className="space-y-4">
 
         <StoriesBar user={currentUser} stories={stories} />
 
@@ -293,13 +242,12 @@ const Home = () => {
           onSubmit={handleSubmitPost}
           className="bg-white p-4 rounded-xl shadow space-y-3"
         >
-
           <textarea
             value={newPost}
             onChange={(e) => setNewPost(e.target.value)}
             onFocus={() => setExpanded(true)}
             placeholder="What's on your mind?"
-            className="w-full border rounded-lg p-3"
+            className="w-full border rounded-lg p-3 focus:outline-none"
           />
 
           {expanded && (
@@ -309,12 +257,14 @@ const Home = () => {
                 setMediaFiles={setMediaFiles}
               />
 
-              <div className="flex gap-2 flex-wrap">
+              {/* ACTION BUTTONS */}
+
+              <div className="flex flex-wrap gap-2">
 
                 <button
                   type="button"
                   onClick={() => setShowEmoji(!showEmoji)}
-                  className="btn"
+                  className="px-3 py-2 bg-gray-100 rounded-lg"
                 >
                   😊 Emoji
                 </button>
@@ -322,7 +272,7 @@ const Home = () => {
                 <button
                   type="button"
                   onClick={() => setShowLocation(!showLocation)}
-                  className="btn"
+                  className="px-3 py-2 bg-gray-100 rounded-lg"
                 >
                   📍 Location
                 </button>
@@ -330,7 +280,7 @@ const Home = () => {
                 <button
                   type="button"
                   onClick={() => setShowFeeling(!showFeeling)}
-                  className="btn"
+                  className="px-3 py-2 bg-gray-100 rounded-lg"
                 >
                   😊 Feeling
                 </button>
@@ -338,12 +288,14 @@ const Home = () => {
                 <button
                   type="button"
                   onClick={() => setShowTag(!showTag)}
-                  className="btn"
+                  className="px-3 py-2 bg-gray-100 rounded-lg"
                 >
-                  🏷 Tag
+                  🏷 Tag Friends
                 </button>
 
               </div>
+
+              {/* EMOJI */}
 
               {showEmoji && (
                 <Suspense fallback="Loading...">
@@ -355,37 +307,49 @@ const Home = () => {
                 </Suspense>
               )}
 
-              {showFeeling && (
-                <input
-                  value={feeling}
-                  onChange={(e) => setFeeling(e.target.value)}
-                  placeholder="Feeling..."
-                  className="input"
-                />
-              )}
+              {/* LOCATION */}
 
               {showLocation && (
-                <div>
+                <div className="relative">
                   <input
                     value={location}
                     onChange={(e) =>
                       handleLocationSearch(e.target.value)
                     }
                     placeholder="Location"
-                    className="input"
+                    className="w-full border p-2 rounded"
                   />
 
-                  {locationSuggestions.map((loc, i) => (
-                    <div
-                      key={i}
-                      onClick={() => setLocation(loc)}
-                      className="p-2 hover:bg-gray-100 cursor-pointer"
-                    >
-                      {loc}
-                    </div>
-                  ))}
+                  <div className="absolute w-full bg-white shadow rounded mt-1 z-50">
+                    {locationSuggestions.map((loc, i) => (
+                      <div
+                        key={i}
+                        onClick={() => {
+                          setLocation(loc);
+                          setLocationSuggestions([]);
+                        }}
+                        className="p-2 hover:bg-gray-100 cursor-pointer"
+                      >
+                        {loc}
+                      </div>
+                    ))}
+                  </div>
+
                 </div>
               )}
+
+              {/* FEELING */}
+
+              {showFeeling && (
+                <input
+                  value={feeling}
+                  onChange={(e) => setFeeling(e.target.value)}
+                  placeholder="Feeling..."
+                  className="w-full border p-2 rounded"
+                />
+              )}
+
+              {/* TAG */}
 
               {showTag && (
                 <input
@@ -393,17 +357,19 @@ const Home = () => {
                   onChange={(e) =>
                     handleTagFriends(e.target.value)
                   }
-                  placeholder="Tag friends"
-                  className="input"
+                  placeholder="Tag friends (comma separated)"
+                  className="w-full border p-2 rounded"
                 />
               )}
+
+              {/* BUTTONS */}
 
               <div className="flex justify-between">
 
                 <button
                   type="button"
                   onClick={() => setExpanded(false)}
-                  className="px-4 py-2 bg-gray-200 rounded"
+                  className="px-4 py-2 bg-gray-200 rounded-lg"
                 >
                   Cancel
                 </button>
@@ -411,12 +377,13 @@ const Home = () => {
                 <button
                   type="submit"
                   disabled={posting}
-                  className="px-6 py-2 bg-blue-500 text-white rounded"
+                  className="px-6 py-2 bg-blue-500 text-white rounded-lg"
                 >
                   {posting ? "Posting..." : "Post"}
                 </button>
 
               </div>
+
             </>
           )}
 
@@ -429,13 +396,14 @@ const Home = () => {
             key={post._id}
             post={post}
             currentUserId={currentUserId}
-            setVideoRefs={setVideoRefs}
           />
         ))}
 
         <div ref={feedRef} />
 
       </div>
+
+      {/* RIGHT */}
 
       <div className="hidden md:block">
         <SidebarRight />
