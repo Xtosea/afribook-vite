@@ -1,260 +1,295 @@
 // src/components/PostCard.jsx
-import React, { useState, useEffect, useRef } from "react";
+import React, { useRef, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_BASE, fetchWithToken } from "../api/api";
 
-const reactions = ["👍", "❤️", "😂", "😮", "😢", "😡"];
-
-const PostCard = ({
-  post,
-  currentUserId,
-  onLike,
-  onComment,
-  onShare,
-  setVideoRefs,
-}) => {
+const PostCard = ({ post, currentUserId }) => {
   const navigate = useNavigate();
+  const videoRefs = useRef([]);
+  const [fullscreen, setFullscreen] = useState(null);
 
+  const media = post.media || [];
+  const isMulti = media.length > 1;
+
+  // Social states
+  const [likes, setLikes] = useState(post.likes || []);
+  const [comments, setComments] = useState(post.comments || []);
+  const [shares, setShares] = useState(post.shares || 0);
   const [commentText, setCommentText] = useState("");
   const [showComments, setShowComments] = useState(false);
-  const [showReactions, setShowReactions] = useState(false);
+  const [liking, setLiking] = useState(false);
 
-  const videoRefs = useRef([]);
+  const likedByUser = likes.includes(currentUserId);
 
-  useEffect(() => {
-    if (setVideoRefs) {
-      setVideoRefs((prev) => [
-        ...prev,
-        ...videoRefs.current.filter(Boolean),
-      ]);
-    }
-  }, [setVideoRefs]);
+  // =========================
+  // Like
+  // =========================
+  const handleLike = async () => {
+    if (liking) return;
+    setLiking(true);
 
-  const renderMedia = () => {
-    if (!post.media?.length) return null;
-
-    // =============================
-    // SINGLE MEDIA
-    // =============================
-    if (post.media.length === 1) {
-      const m = post.media[0];
-      const isPortrait = m.height > m.width;
-      const isLandscape = m.width > m.height;
-
-      return (
-        <div
-          className={`w-full ${isPortrait ? "max-w-[700px] mx-auto" : "w-full"}`}
-        >
-          {m.type === "image" ? (
-            <img
-              src={m.url}
-              className={`
-                w-full
-                ${isPortrait ? "max-h-[400px] object-contain" : ""}
-                ${isLandscape ? "max-h-[700px] object-contain" : ""}
-                bg-black
-                rounded-xl
-                cursor-pointer
-              `}
-              onClick={() => navigate(`/media/${post._id}?index=0`)}
-              alt=""
-            />
-          ) : (
-            <video
-  data-src={m.url}
-  ref={(el) => (videoRefs.current[0] = el)}
-  className="w-full h-[80vh] object-cover bg-black rounded-xl"
-  muted
-  controls
-  onClick={() => navigate(`/media/${post._id}?index=0`)}
-/>
-          )}
-        </div>
+    try {
+      const res = await fetchWithToken(
+        `${API_BASE}/api/posts/${post._id}/like`,
+        localStorage.getItem("token"),
+        { method: "POST" }
       );
+
+      if (res?.likes) {
+        setLikes(res.likes);
+      }
+
+    } catch (err) {
+      console.error("Like error:", err);
+    } finally {
+      setLiking(false);
     }
-
-    // =============================
-    // MULTIPLE MEDIA
-    // =============================
-    const firstMedia = post.media[0];
-    const isPortraitFirst = firstMedia.height > firstMedia.width;
-
-    return (
-      <div className="grid gap-2">
-        {/* First Large Media */}
-        <div
-          className="w-full overflow-hidden rounded-xl cursor-pointer bg-black"
-          style={{ height: isPortraitFirst ? "500px" : "400px" }}
-          onClick={() => navigate(`/media/${post._id}?index=0`)}
-        >
-          {firstMedia.type === "image" ? (
-            <img
-              src={firstMedia.url}
-              className={`w-full h-full ${
-                isPortraitFirst ? "object-contain" : "object-cover"
-              }`}
-              alt=""
-            />
-          ) : (
-            <video
-              data-src={firstMedia.url}
-              ref={(el) => (videoRefs.current[0] = el)}
-              className={`w-full h-full ${
-                isPortraitFirst ? "object-contain" : "object-cover"
-              }`}
-              muted
-              controls
-            />
-          )}
-        </div>
-
-        {/* Remaining Media */}
-        {post.media.length > 1 && (
-          <div
-            className={`grid gap-2 ${
-              post.media.length === 2 ? "grid-cols-1" : "grid-cols-2"
-            }`}
-          >
-            {post.media.slice(1).map((m, i) => {
-              const isPortrait = m.height > m.width;
-
-              return (
-                <div
-                  key={i + 1}
-                  className="relative overflow-hidden rounded-xl cursor-pointer bg-black"
-                  style={{ height: isPortrait ? "250px" : "180px" }}
-                  onClick={() =>
-                    navigate(`/media/${post._id}?index=${i + 1}`)
-                  }
-                >
-                  {m.type === "image" ? (
-                    <img
-                      src={m.url}
-                      className={`w-full h-full ${
-                        isPortrait ? "object-contain" : "object-cover"
-                      }`}
-                      alt=""
-                    />
-                  ) : (
-                    <video
-                      data-src={m.url}
-                      ref={(el) => (videoRefs.current[i + 1] = el)}
-                      className={`w-full h-full ${
-                        isPortrait ? "object-contain" : "object-cover"
-                      }`}
-                      muted
-                      controls
-                    />
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-    );
   };
 
+  // =========================
+  // Comment
+  // =========================
+  const handleComment = async () => {
+    if (!commentText.trim()) return;
+
+    try {
+      const res = await fetchWithToken(
+        `${API_BASE}/api/posts/${post._id}/comment`,
+        localStorage.getItem("token"),
+        {
+          method: "POST",
+          body: JSON.stringify({ text: commentText }),
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
+      if (res?.comments) {
+        setComments(res.comments);
+      }
+
+      setCommentText("");
+
+    } catch (err) {
+      console.error("Comment error:", err);
+    }
+  };
+
+  // =========================
+  // Share
+  // =========================
+  const handleShare = async () => {
+    try {
+      const url = `https://africbook.globelynks.com/post/${post._id}`;
+      const text = post.text || "Check this post on Africbook";
+
+      if (navigator.share) {
+        await navigator.share({
+          title: post.user?.name || "Africbook Post",
+          text,
+          url,
+        });
+      } else {
+        navigator.clipboard.writeText(url);
+        alert("Link copied");
+      }
+
+      const res = await fetchWithToken(
+        `${API_BASE}/api/posts/${post._id}/share`,
+        localStorage.getItem("token"),
+        { method: "POST" }
+      );
+
+      if (res?.shares !== undefined) {
+        setShares(res.shares);
+      }
+
+    } catch (err) {
+      console.error("Share error:", err);
+    }
+  };
+
+  // =========================
+  // Navigate Profile
+  // =========================
+  const goToProfile = useCallback(() => {
+    navigate(`/profile/${post.user?._id}`);
+  }, [navigate, post.user]);
+
   return (
-    <div className="bg-white p-8 rounded-xl shadow space-y-3 w-full">
+    <div className="bg-white rounded-xl shadow p-3 space-y-3">
+
       {/* HEADER */}
       <div className="flex items-center gap-3">
         <img
-          src={post.user.profilePic || "/default-avatar.png"}
-          alt={post.user.name}
-          className="w-12 h-12 rounded-full object-cover"
+          src={
+            post.user?.profilePic ||
+            `https://ui-avatars.com/api/?name=${post.user?.name || "User"}`
+          }
+          className="w-12 h-12 rounded-full cursor-pointer object-cover"
+          onClick={goToProfile}
         />
 
-        <div className="flex-1">
-          <p className="font-semibold">{post.user.name}</p>
+        <div>
+          <p
+            className="font-semibold cursor-pointer hover:underline"
+            onClick={goToProfile}
+          >
+            {post.user?.name || "User"}
+          </p>
 
-          <div className="text-xs text-gray-500 flex gap-2 flex-wrap">
-            <span>{new Date(post.createdAt).toLocaleString()}</span>
-            {post.feeling && <span>• feeling {post.feeling}</span>}
-            {post.location && <span>• {post.location}</span>}
-          </div>
-
-          {post.taggedFriends?.length > 0 && (
-            <div className="text-xs text-blue-500">
-              with {post.taggedFriends.map((f) => f.name).join(", ")}
-            </div>
-          )}
+          <p className="text-xs text-gray-500">
+            {new Date(post.createdAt).toLocaleString()}
+          </p>
         </div>
       </div>
 
-      {/* CONTENT */}
-      {post.content && <p>{post.content}</p>}
+      {/* TEXT */}
+      {post.text && (
+        <p className="text-gray-800 whitespace-pre-wrap">
+          {post.text}
+        </p>
+      )}
 
       {/* MEDIA */}
-      {renderMedia()}
+      {!isMulti &&
+        media.map((m, i) => {
+          const isVideo = m.type === "video";
 
-      {/* COUNTS */}
-      <div className="text-sm text-gray-500 flex justify-between">
-        <span>{post.reactions?.length || post.likes?.length || 0} reactions</span>
-        <span>{post.comments?.length || 0} comments</span>
-      </div>
+          return isVideo ? (
+            <video
+              key={i}
+              ref={(el) => (videoRefs.current[i] = el)}
+              src={m.url}
+              controls
+              muted
+              className="w-full rounded-xl cursor-pointer"
+              onClick={() => setFullscreen({ media: m })}
+            />
+          ) : (
+            <img
+              key={i}
+              src={m.url}
+              alt=""
+              className="w-full rounded-xl cursor-pointer"
+              onClick={() => setFullscreen({ media: m })}
+            />
+          );
+        })}
 
-      {/* ACTION BUTTONS */}
-      <div className="flex justify-between border-t pt-2">
-        <div
-          className="relative"
-          onMouseEnter={() => setShowReactions(true)}
-          onMouseLeave={() => setShowReactions(false)}
-        >
-          <button onClick={() => onLike(post._id, "👍")} className="text-gray-600">
-            👍 Like
+      {/* MULTI MEDIA */}
+      {isMulti && (
+        <div className="grid grid-cols-2 gap-2">
+          {media.map((m, i) => {
+            const isVideo = m.type === "video";
+
+            return isVideo ? (
+              <video
+                key={i}
+                src={m.url}
+                className="w-full h-48 object-cover rounded-xl cursor-pointer"
+                muted
+                onClick={() => setFullscreen({ media: m })}
+              />
+            ) : (
+              <img
+                key={i}
+                src={m.url}
+                alt=""
+                className="w-full h-48 object-cover rounded-xl cursor-pointer"
+                onClick={() => setFullscreen({ media: m })}
+              />
+            );
+          })}
+        </div>
+      )}
+
+      {/* FULLSCREEN */}
+      {fullscreen && (
+        <div className="fixed inset-0 bg-black bg-opacity-95 flex items-center justify-center z-50">
+          <button
+            className="absolute top-4 right-4 text-white text-3xl"
+            onClick={() => setFullscreen(null)}
+          >
+            ×
           </button>
 
-          {showReactions && (
-            <div className="absolute bottom-8 left-0 bg-white shadow rounded-full px-2 py-1 flex gap-2 z-10">
-              {reactions.map((r) => (
-                <button key={r} className="text-lg hover:scale-125" onClick={() => onLike(post._id, r)}>
-                  {r}
-                </button>
-              ))}
-            </div>
+          {fullscreen.media?.type === "video" ? (
+            <video
+              src={fullscreen.media.url}
+              controls
+              autoPlay
+              className="max-h-full max-w-full"
+            />
+          ) : (
+            <img
+              src={fullscreen.media.url}
+              alt=""
+              className="max-h-full max-w-full"
+            />
           )}
         </div>
+      )}
 
-        <button onClick={() => setShowComments(!showComments)}>💬 Comment</button>
-        <button onClick={() => onShare(post)}>🔗 Share</button>
+      {/* ACTIONS */}
+      <div className="flex justify-between text-sm pt-2 border-t">
+
+        {/* LIKE */}
+        <button
+          onClick={handleLike}
+          className={`flex gap-1 ${
+            likedByUser ? "text-blue-600 font-semibold" : ""
+          }`}
+        >
+          👍 {likes.length}
+        </button>
+
+        {/* COMMENT */}
+        <button
+          onClick={() => setShowComments(!showComments)}
+        >
+          💬 {comments.length}
+        </button>
+
+        {/* SHARE */}
+        <button onClick={handleShare}>
+          🔗 Share ({shares})
+        </button>
+
       </div>
 
       {/* COMMENTS */}
       {showComments && (
         <div className="space-y-2">
-          {post.comments?.map((c) => (
-            <div key={c._id} className="flex gap-2">
-              <img src={c.user.profilePic || "/default-avatar.png"} className="w-6 h-6 rounded-full" />
-              <div>
-                <span className="font-semibold text-sm">{c.user.name}</span>
-                <p className="text-sm">{c.text}</p>
-              </div>
+
+          {comments.map((c, i) => (
+            <div key={i} className="text-sm bg-gray-100 p-2 rounded">
+              <b>{c.user?.name}</b> {c.text}
             </div>
           ))}
 
           <div className="flex gap-2">
             <input
               value={commentText}
-              onChange={(e) => setCommentText(e.target.value)}
-              className="flex-1 border rounded px-2 py-1"
+              onChange={(e) =>
+                setCommentText(e.target.value)
+              }
               placeholder="Write comment..."
+              className="flex-1 border rounded-lg p-2"
             />
+
             <button
-              onClick={() => {
-                if (commentText.trim()) {
-                  onComment(post._id, commentText);
-                  setCommentText("");
-                }
-              }}
-              className="bg-blue-500 text-white px-3 rounded"
+              onClick={handleComment}
+              className="bg-blue-600 text-white px-4 rounded-lg"
             >
               Send
             </button>
           </div>
+
         </div>
       )}
+
     </div>
   );
 };
 
-export default PostCard;
+export default React.memo(PostCard);
