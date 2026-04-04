@@ -17,8 +17,8 @@ const EmojiPicker = lazy(() => import("emoji-picker-react"));
 
 // Skeleton post
 const SkeletonPost = () => (
-  <div className="bg-white p-4 rounded-2xl shadow animate-pulse space-y-4 w-full">
-    <div className="h-64 bg-gray-300 rounded-xl w-full"></div>
+  <div className="bg-white p-4 rounded-2xl shadow animate-pulse space-y-4">
+    <div className="h-64 bg-gray-300 rounded-xl"></div>
   </div>
 );
 
@@ -26,6 +26,7 @@ const SkeletonPost = () => (
 const useLazyVideo = (videos) => {
   useEffect(() => {
     if (!videos || videos.length === 0) return;
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -40,6 +41,7 @@ const useLazyVideo = (videos) => {
       },
       { threshold: 0.5 }
     );
+
     videos.forEach((v) => observer.observe(v));
     return () => observer.disconnect();
   }, [videos]);
@@ -82,16 +84,16 @@ const Home = () => {
   // --- Fetch posts & stories ---
   useEffect(() => {
     if (!token) return;
+
     const init = async () => {
       try {
-        // Fetch posts
         const postsData = await fetchWithToken(
           `${API_BASE}/api/posts?limit=20`,
           token
         );
         setPosts(postsData);
 
-        // Fetch stories
+        // Fetch stories via R2 backend
         const res = await fetch(`${API_BASE}/api/stories?limit=20`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -102,6 +104,7 @@ const Home = () => {
         } catch {
           data = { stories: [] };
         }
+
         setStories(data.stories || []);
       } catch (err) {
         console.error("Fetching posts/stories error:", err);
@@ -109,29 +112,25 @@ const Home = () => {
         setLoadingPosts(false);
       }
 
-      // --- Socket connection ---
       connectSocket();
       const socket = getSocket();
       if (!socket) return;
 
-      // Listen for new posts/videos
-      socket.on("new-video", (post) => setPosts((prev) => [post, ...prev]));
-      // Listen for new stories
-      socket.on("new-story", (story) => setStories((prev) => [story, ...prev]));
-      // Listen for birthday notifications
-      socket.on("birthday", (data) => {
-        alert(`🎉 Today is ${data.name}'s birthday`);
-      });
+      socket.on("new-video", (post) =>
+        setPosts((prev) => [post, ...prev])
+      );
+      socket.on("new-story", (story) =>
+        setStories((prev) => [story, ...prev])
+      );
     };
+
     init();
 
-    // Cleanup
     return () => {
       const socket = getSocket();
       if (socket) {
         socket.off("new-video");
         socket.off("new-story");
-        socket.off("birthday");
       }
     };
   }, [token]);
@@ -184,7 +183,6 @@ const Home = () => {
       getSocket()?.emit("new-video", data.post);
       setPosts((prev) => [data.post, ...prev]);
 
-      // Reset form
       setNewPost("");
       setMediaFiles([]);
       setLocation("");
@@ -199,7 +197,8 @@ const Home = () => {
   };
 
   return (
-    <div className="w-full min-h-screen grid grid-cols-1 gap-0">
+    // ✅ ADJUSTED PARENT CONTAINER
+    <div className="w-full min-h-screen px-0 py-0 grid grid-cols-1 gap-0">
 
       {/* LEFT SIDEBAR */}
       <div className="hidden md:block">
@@ -213,7 +212,7 @@ const Home = () => {
         {/* CREATE POST */}
         <form
           onSubmit={handleSubmitPost}
-          className="bg-white p-4 rounded-xl shadow space-y-3 w-full"
+          className="bg-white p-4 rounded-xl shadow space-y-3"
         >
           <textarea
             value={newPost}
@@ -248,12 +247,41 @@ const Home = () => {
                 placeholder="Tag friends (comma separated)"
                 className="w-full border rounded-lg p-2"
               />
+
+              <button
+                type="button"
+                onClick={() => setShowEmoji(!showEmoji)}
+                className="border px-3 py-1 rounded-full"
+              >
+                😊 Emoji
+              </button>
+              {showEmoji && (
+                <Suspense fallback={<div>Loading Emoji...</div>}>
+                  <EmojiPicker
+                    onEmojiClick={(e) =>
+                      setNewPost((prev) => prev + e.emoji)
+                    }
+                  />
+                </Suspense>
+              )}
+
+              <MediaUpload
+                mediaFiles={mediaFiles}
+                setMediaFiles={setMediaFiles}
+              />
+
+              <button
+                type="submit"
+                className="bg-blue-500 text-white px-4 py-2 rounded"
+              >
+                {posting ? "Posting..." : "Post"}
+              </button>
             </>
           )}
         </form>
 
         {/* POSTS FEED */}
-        <div ref={feedRef} className="space-y-4 w-full">
+        <div ref={feedRef} className="space-y-4">
           {loadingPosts
             ? [<SkeletonPost key={0} />, <SkeletonPost key={1} />]
             : posts.map((post) => (
