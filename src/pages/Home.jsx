@@ -365,4 +365,91 @@ const Home = () => {
                         <div
                           key={i}
                           onClick={() => {
-                            setLocation
+                            setLocation(loc);
+                            setLocationSuggestions([]);
+                          }}
+                          className="p-2 hover:bg-gray-100 cursor-pointer"
+                        >
+                          {loc}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* FEELING */}
+
+              {showFeeling && (
+                <input
+                  value={feeling}
+                  onChange={(e) => setFeeling(e.target.value)}
+                  placeholder="Feeling..."
+                  className="w-full border p-2 rounded"
+                />
+              )}
+
+              {/* TAG */}
+
+              {showTag && (
+                <input
+                  value={tagInput}
+                  onChange={(e) =>
+                    handleTagFriends(e.target.value)
+                  }
+                  placeholder="Tag friends (comma separated)"
+                  className="w-full border p-2 rounded"
+                />
+              )}
+
+              {/* ACTION */}
+
+              <div className="flex justify-between">
+
+                <button
+                  type="button"
+                  onClick={() => setExpanded(false)}
+                  className="px-4 py-2 bg-gray-200 rounded-lg"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="submit"
+                  disabled={posting}
+                  className="px-6 py-2 bg-blue-500 text-white rounded-lg"
+                >
+                  {posting ? "Posting..." : "Post"}
+                </button>
+
+              </div>
+            </>
+          )}
+        </form>
+
+        {/* POSTS */}
+
+        {Array.isArray(posts) &&
+          posts.filter(Boolean).map((post) => (
+            <PostCard
+              key={post?._id}
+              post={post}
+              currentUserId={currentUserId}
+            />
+          ))}
+
+        <div ref={feedRef} />
+
+      </div>
+
+      {/* RIGHT */}
+
+      <div className="hidden md:block">
+        <SidebarRight />
+      </div>
+
+    </div>
+  );
+};
+
+export default Home;
