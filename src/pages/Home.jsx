@@ -70,7 +70,6 @@ const Home = () => {
   const [mediaFiles, setMediaFiles] = useState([]);
   const [posting, setPosting] = useState(false);
   const [expanded, setExpanded] = useState(false);
-  const [showEmoji, setShowEmoji] = useState(false);
   const [location, setLocation] = useState("");
   const [feeling, setFeeling] = useState("");
   const [taggedFriends, setTaggedFriends] = useState([]);
@@ -91,7 +90,7 @@ const Home = () => {
           `${API_BASE}/api/posts?limit=10&page=${pageNum}`,
           token
         );
-        if (!res || res.length === 0) {
+        if (!res || !Array.isArray(res) || res.length === 0) {
           setHasMore(false);
           return;
         }
@@ -134,7 +133,7 @@ const Home = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
-        setStories(data.stories || []);
+        setStories(data?.stories || []);
       } catch (err) {
         console.error("Stories fetch error:", err);
       }
@@ -234,7 +233,7 @@ const Home = () => {
       <div className="col-span-1 md:col-span-2 space-y-4 w-full px-2">
 
         {/* STORIES */}
-        <StoriesBar user={currentUser} stories={stories} />
+        <StoriesBar user={currentUser} stories={stories || []} />
 
         {/* CREATE POST */}
         <form
@@ -281,17 +280,20 @@ const Home = () => {
         <div className="space-y-4 w-full">
           {loadingPosts
             ? [<SkeletonPost key={0} />, <SkeletonPost key={1} />]
-            : posts.map((post) => (
+            : posts?.length > 0
+            ? posts.map((post) => (
                 <PostCard
                   key={post._id}
                   post={post}
                   currentUserId={currentUserId}
                   setVideoRefs={setVideoRefs}
                 />
-              ))}
+              ))
+            : !loadingPosts && <p className="text-center text-gray-400">No posts found</p>}
+          
           {/* Scroll sentinel */}
           <div ref={feedRef} />
-          {!hasMore && !loadingPosts && (
+          {!hasMore && !loadingPosts && posts?.length > 0 && (
             <p className="text-center text-gray-400 py-4">No more posts</p>
           )}
         </div>
