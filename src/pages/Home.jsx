@@ -122,9 +122,7 @@ const Home = () => {
     return () => observer.disconnect();
   }, [feedRef, hasMore, loading]);
 
-  // =========================
-  // Handle new post
-  // =========================
+  // --- Handle new post from CreatePost ---
   const handleNewPost = (post) => {
     setPosts((prev) => [post, ...prev]);
   };
@@ -140,11 +138,11 @@ const Home = () => {
       {/* MAIN FEED */}
       <div className="col-span-1 md:col-span-2 space-y-4 w-full px-2">
 
-        {/* STORIES */}
-        <StoriesBar user={currentUser} stories={stories} />
-
         {/* CREATE POST */}
         <CreatePost onPostCreated={handleNewPost} />
+
+        {/* STORIES */}
+        <StoriesBar user={currentUser} stories={stories} />
 
         {/* POSTS */}
         {posts.map((post) => (
