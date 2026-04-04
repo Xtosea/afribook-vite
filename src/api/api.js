@@ -1,9 +1,13 @@
 // src/api/api.js
 
-// Define your main API URL
-export const API_BASE = "https://your-main-api.com"; // <-- replace with your real API URL
-export const MAIN_API = "https://your-main-api.com";
-export const BACKUP_API = "https://your-backup-api.com"; // optional
+// Main backend URL (from env)
+const MAIN_API = import.meta.env.VITE_API_BASE;
+
+// Backup backend URL
+const BACKUP_API = "https://afribook-backend.onrender.com";
+
+// Final API Base
+export const API_BASE = MAIN_API || BACKUP_API;
 
 // Fetch helper
 export const fetchWithToken = async (url, token, options = {}) => {
