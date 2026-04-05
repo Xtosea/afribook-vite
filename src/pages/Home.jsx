@@ -279,6 +279,3 @@ return (
 
 export default Home;
 
-Let's fix the like, comment and share buttons to function.i want users to share to other social medias. Let's display counts for share, comment and like.
-
-Then the page loading is too sluggish. Let's optimize to be very fast thanks.
