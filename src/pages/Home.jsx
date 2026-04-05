@@ -57,38 +57,31 @@ const Home = () => {
   const [hasMore, setHasMore] = useState(true);
 
   /* ================= FETCH POSTS ================= */
-  const fetchPosts = useCallback(
-    async (pageNum = 1) => {
-      try {
-        const res = await fetchWithToken(
-          `${API_BASE}/api/posts?page=${pageNum}&limit=10`,
-          token
-        );
+const fetchPosts = useCallback(
+  async (pageNum = 1) => {
+    try {
+      const res = await fetch(
+        `${API_BASE}/api/posts?page=${pageNum}&limit=10`
+      );
 
-        if (!Array.isArray(res) || res.length === 0) {
-          setHasMore(false);
-          return;
-        }
-
-        setPosts((prev) => [...prev, ...res.filter(Boolean)]);
-      } catch (err) {
-        console.error("Fetch posts error:", err.message);
-        if (
-          err.message === "Invalid token" ||
-          err.message === "No token provided"
-        ) {
-          localStorage.clear();
-          navigate("/login");
-        }
+      if (!res.ok) {
+        throw new Error("Failed to fetch posts");
       }
-    },
-    [token, navigate]
-  );
 
-  useEffect(() => {
-    fetchPosts(page);
-  }, [page, fetchPosts]);
+      const data = await res.json();
 
+      if (!Array.isArray(data) || data.length === 0) {
+        setHasMore(false);
+        return;
+      }
+
+      setPosts((prev) => [...prev, ...data.filter(Boolean)]);
+    } catch (err) {
+      console.error("Fetch posts error:", err.message);
+    }
+  },
+  []
+);
   /* ================= INFINITE SCROLL ================= */
   useEffect(() => {
     const observer = new IntersectionObserver(
