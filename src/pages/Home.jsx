@@ -1,372 +1,284 @@
-import React, {
-  useEffect,
-  useRef,
-  useState,
-  Suspense,
-  lazy,
-  useCallback,
-} from "react";
+// src/pages/Home.jsx
+import React, { useEffect, useRef, useState, Suspense, lazy } from "react";
 import { useNavigate } from "react-router-dom";
+import PostCard from "../components/PostCard";
 import SidebarLeft from "../components/layout/SidebarLeft";
 import SidebarRight from "../components/layout/SidebarRight";
 import StoriesBar from "../components/layout/StoriesBar";
-import PostCard from "../components/PostCard";
 import MediaUpload from "../components/MediaUpload";
+import imageCompression from "browser-image-compression";
 import { API_BASE, fetchWithToken } from "../api/api";
 import { getSocket, connectSocket } from "../socket";
+import { useCloudinaryUpload } from "../hooks/useCloudinaryUpload";
+import { useR2Upload } from "../hooks/useR2Upload";
 
+// Lazy load emoji picker
 const EmojiPicker = lazy(() => import("emoji-picker-react"));
 
+// Skeleton post
+const SkeletonPost = () => (
+
+  <div className="bg-white p-4 rounded-2xl shadow animate-pulse space-y-4 w-full">  
+    <div className="h-64 bg-gray-300 rounded-xl w-full"></div>  
+  </div>  
+);  // Lazy video hook
+const useLazyVideo = (videos) => {
+useEffect(() => {
+if (!videos || videos.length === 0) return;
+const observer = new IntersectionObserver(
+(entries) => {
+entries.forEach((entry) => {
+const video = entry.target;
+if (entry.isIntersecting) {
+if (!video.src) video.src = video.dataset.src;
+video.play().catch(() => {});
+} else {
+video.pause();
+}
+});
+},
+{ threshold: 0.5 }
+);
+videos.forEach((v) => observer.observe(v));
+return () => observer.disconnect();
+}, [videos]);
+};
+
 const Home = () => {
-  const navigate = useNavigate();
-  const feedRef = useRef();
+const token = localStorage.getItem("token");
+const currentUserId = localStorage.getItem("userId");
+const navigate = useNavigate();
 
-  const token = localStorage.getItem("token");
-  const currentUserId = localStorage.getItem("userId");
+useEffect(() => {
+if (!token) navigate("/login");
+}, [token, navigate]);
 
-  if (!token || !currentUserId) {
-    navigate("/login");
-    return null;
-  }
+const currentUser = {
+_id: currentUserId,
+profilePic: localStorage.getItem("profilePic"),
+name: localStorage.getItem("name"),
+};
 
-  const currentUser = {
-    _id: currentUserId,
-    profilePic: localStorage.getItem("profilePic"),
-    name: localStorage.getItem("name"),
-  };
+// --- States ---
+const [posts, setPosts] = useState([]);
+const [loadingPosts, setLoadingPosts] = useState(true);
+const [stories, setStories] = useState([]);
+const [newPost, setNewPost] = useState("");
+const [mediaFiles, setMediaFiles] = useState([]);
+const [posting, setPosting] = useState(false);
+const [expanded, setExpanded] = useState(false);
+const [showEmoji, setShowEmoji] = useState(false);
+const [location, setLocation] = useState("");
+const [feeling, setFeeling] = useState("");
+const [taggedFriends, setTaggedFriends] = useState([]);
 
-  /* ================= STATES ================= */
-  const [posts, setPosts] = useState([]);
-  const [stories, setStories] = useState([]);
-  const [newPost, setNewPost] = useState("");
-  const [mediaFiles, setMediaFiles] = useState([]);
-  const [posting, setPosting] = useState(false);
-  const [expanded, setExpanded] = useState(false);
-  const [location, setLocation] = useState("");
-  const [locationSuggestions, setLocationSuggestions] = useState([]);
-  const [feeling, setFeeling] = useState("");
-  const [taggedFriends, setTaggedFriends] = useState([]);
-  const [tagInput, setTagInput] = useState("");
-  const [showEmoji, setShowEmoji] = useState(false);
-  const [showLocation, setShowLocation] = useState(false);
-  const [showFeeling, setShowFeeling] = useState(false);
-  const [showTag, setShowTag] = useState(false);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-  const [loadingPosts, setLoadingPosts] = useState(false);
+const feedRef = useRef();
+const { uploadImage } = useCloudinaryUpload();
+const { uploadVideo } = useR2Upload();
+const [videoRefs, setVideoRefs] = useState([]);
+useLazyVideo(videoRefs);
 
-  /* ================= FETCH POSTS ================= */
-  const fetchPosts = useCallback(
-    async (pageNum = 1) => {
-      if (loadingPosts || !hasMore) return;
+// --- Fetch posts & stories ---
+useEffect(() => {
+if (!token) return;
+const init = async () => {
+try {
+// Fetch posts
+const postsData = await fetchWithToken(
+${API_BASE}/api/posts?limit=20,
+token
+);
+setPosts(postsData);
 
-      setLoadingPosts(true);
-      try {
-        const res = await fetch(
-          `${API_BASE}/api/posts?page=${pageNum}&limit=10`
-        );
-        if (!res.ok) throw new Error("Failed to fetch posts");
+// Fetch stories  
+    const res = await fetch(`${API_BASE}/api/stories?limit=20`, {  
+      headers: { Authorization: `Bearer ${token}` },  
+    });  
+    const text = await res.text();  
+    let data;  
+    try {  
+      data = JSON.parse(text);  
+    } catch {  
+      data = { stories: [] };  
+    }  
+    setStories(data.stories || []);  
+  } catch (err) {  
+    console.error("Fetching posts/stories error:", err);  
+  } finally {  
+    setLoadingPosts(false);  
+  }  
 
-        const data = await res.json();
-        if (!Array.isArray(data) || data.length === 0) {
-          setHasMore(false);
-          return;
-        }
+  // --- Socket connection ---  
+  connectSocket();  
+  const socket = getSocket();  
+  if (!socket) return;  
 
-        // Filter only valid posts
-        const validPosts = data.filter(
-          (p) => p && (p.content || (Array.isArray(p.media) && p.media.length))
-        );
+  // Listen for new posts/videos  
+  socket.on("new-video", (post) => setPosts((prev) => [post, ...prev]));  
+  // Listen for new stories  
+  socket.on("new-story", (story) => setStories((prev) => [story, ...prev]));  
+  // Listen for birthday notifications  
+  socket.on("birthday", (data) => {  
+    alert(`🎉 Today is ${data.name}'s birthday`);  
+  });  
+};  
+init();  
 
-        setPosts((prev) => [...prev, ...validPosts]);
-      } catch (err) {
-        console.error("Fetch posts error:", err.message);
-      } finally {
-        setLoadingPosts(false);
-      }
-    },
-    [loadingPosts, hasMore]
-  );
+// Cleanup  
+return () => {  
+  const socket = getSocket();  
+  if (socket) {  
+    socket.off("new-video");  
+    socket.off("new-story");  
+    socket.off("birthday");  
+  }  
+};
 
-  useEffect(() => {
-    fetchPosts(page);
-  }, [page, fetchPosts]);
+}, [token]);
 
-  /* ================= INFINITE SCROLL ================= */
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMore && !loadingPosts) {
-          setPage((prev) => prev + 1);
-        }
-      },
-      { threshold: 1 }
-    );
+// --- Create post ---
+const handleSubmitPost = async (e) => {
+e.preventDefault();
+if (!newPost && mediaFiles.length === 0) return;
+setPosting(true);
 
-    if (feedRef.current) observer.observe(feedRef.current);
-    return () => observer.disconnect();
-  }, [hasMore, loadingPosts]);
+try {  
+  const uploadedMedia = [];  
+  for (let file of mediaFiles) {  
+    let compressedFile = file;  
+    const type = file.type.startsWith("image") ? "image" : "video";  
 
-  /* ================= FETCH STORIES ================= */
-  useEffect(() => {
-    const fetchStories = async () => {
-      try {
-        const res = await fetchWithToken(`${API_BASE}/api/stories`, token);
-        setStories(res?.stories || []);
-      } catch (err) {
-        console.error("Fetch stories error:", err.message);
-        if (["Invalid token", "No token provided"].includes(err.message)) {
-          localStorage.clear();
-          navigate("/login");
-        }
-      }
-    };
-    fetchStories();
-  }, [token, navigate]);
+    if (type === "image") {  
+      compressedFile = await imageCompression(file, {  
+        maxSizeMB: 0.6,  
+        maxWidthOrHeight: 1080,  
+        useWebWorker: true,  
+        fileType: "image/webp",  
+        initialQuality: 0.8,  
+      });  
+    }  
 
-  /* ================= SOCKET ================= */
-  useEffect(() => {
-    connectSocket();
-    const socket = getSocket();
+    const url =  
+      type === "image"  
+        ? await uploadImage(compressedFile)  
+        : await uploadVideo(file);  
+    uploadedMedia.push({ url, type });  
+  }  
 
-    socket.on("new-post", (post) => {
-      if (post) setPosts((prev) => [post, ...prev]);
-    });
+  const res = await fetch(`${API_BASE}/api/posts`, {  
+    method: "POST",  
+    headers: {  
+      Authorization: `Bearer ${token}`,  
+      "Content-Type": "application/json",  
+    },  
+    body: JSON.stringify({  
+      content: newPost,  
+      media: uploadedMedia,  
+      location,  
+      feeling,  
+      taggedFriends,  
+    }),  
+  });  
 
-    socket.on("new-story", (story) => {
-      if (story) setStories((prev) => [story, ...prev]);
-    });
+  const data = await res.json();  
+  getSocket()?.emit("new-video", data.post);  
+  setPosts((prev) => [data.post, ...prev]);  
 
-    return () => {
-      socket.off("new-post");
-      socket.off("new-story");
-    };
-  }, []);
+  // Reset form  
+  setNewPost("");  
+  setMediaFiles([]);  
+  setLocation("");  
+  setFeeling("");  
+  setTaggedFriends([]);  
+  setExpanded(false);  
+} catch (err) {  
+  console.error("Post creation error:", err);  
+} finally {  
+  setPosting(false);  
+}
 
-  /* ================= LOCATION ================= */
-  const handleLocationSearch = async (value) => {
-    setLocation(value);
-    if (!value) return setLocationSuggestions([]);
-    try {
-      const res = await fetch(
-        `https://nominatim.openstreetmap.org/search?q=${value}&format=json`
-      );
-      const data = await res.json();
-      setLocationSuggestions(data.slice(0, 5).map((i) => i.display_name));
-    } catch (err) {
-      console.error(err);
-    }
-  };
+};
 
-  /* ================= TAG FRIENDS ================= */
-  const handleTagFriends = (value) => {
-    setTagInput(value);
-    const names = value
-      .split(",")
-      .map((n) => n.trim())
-      .filter(Boolean)
-      .map((name) => ({ name }));
-    setTaggedFriends(names);
-  };
+return (
+<div className="w-full min-h-screen grid grid-cols-1 gap-0">
 
-  /* ================= SUBMIT POST ================= */
-  const handleSubmitPost = async (e) => {
-    e.preventDefault();
-    if (!newPost && mediaFiles.length === 0) return;
+{/* LEFT SIDEBAR */}  
+  <div className="hidden md:block">  
+    <SidebarLeft />  
+  </div>  
 
-    setPosting(true);
-    try {
-      const formData = new FormData();
-      formData.append("content", newPost);
-      formData.append("location", location);
-      formData.append("feeling", feeling);
-      formData.append("taggedFriends", JSON.stringify(taggedFriends));
-      mediaFiles.forEach((file) => formData.append("media", file));
+  {/* MAIN FEED */}  
+  <div className="col-span-1 space-y-4 w-full">  
+    <StoriesBar user={currentUser} stories={stories} />  
 
-      const res = await fetchWithToken(`${API_BASE}/api/posts`, token, {
-        method: "POST",
-        body: formData,
-      });
+    {/* CREATE POST */}  
+    <form  
+      onSubmit={handleSubmitPost}  
+      className="bg-white p-4 rounded-xl shadow space-y-3 w-full"  
+    >  
+      <textarea  
+        value={newPost}  
+        onChange={(e) => setNewPost(e.target.value)}  
+        onFocus={() => setExpanded(true)}  
+        placeholder="What's on your mind?"  
+        className="w-full border rounded-lg p-3"  
+      />  
+      {expanded && (  
+        <>  
+          <input  
+            value={feeling}  
+            onChange={(e) => setFeeling(e.target.value)}  
+            placeholder="Feeling..."  
+            className="w-full border rounded-lg p-2"  
+          />  
+          <input  
+            value={location}  
+            onChange={(e) => setLocation(e.target.value)}  
+            placeholder="Location..."  
+            className="w-full border rounded-lg p-2"  
+          />  
+          <input  
+            value={taggedFriends.map((f) => f.name).join(", ")}  
+            onChange={(e) =>  
+              setTaggedFriends(  
+                e.target.value  
+                  .split(",")  
+                  .map((n) => ({ name: n.trim() }))  
+              )  
+            }  
+            placeholder="Tag friends (comma separated)"  
+            className="w-full border rounded-lg p-2"  
+          />  
+        </>  
+      )}  
+    </form>  
 
-      if (res?.post) setPosts((prev) => [res.post, ...prev]);
+    {/* POSTS FEED */}  
+    <div ref={feedRef} className="space-y-4 w-full">  
+      {loadingPosts  
+        ? [<SkeletonPost key={0} />, <SkeletonPost key={1} />]  
+        : posts.map((post) => (  
+            <PostCard  
+              key={post._id}  
+              post={post}  
+              currentUserId={currentUserId}  
+              setVideoRefs={setVideoRefs}  
+            />  
+          ))}  
+    </div>  
+  </div>  
 
-      // Reset
-      setNewPost("");
-      setMediaFiles([]);
-      setExpanded(false);
-      setLocation("");
-      setFeeling("");
-      setTaggedFriends([]);
-      setTagInput("");
-      setShowEmoji(false);
-      setShowLocation(false);
-      setShowFeeling(false);
-      setShowTag(false);
-    } catch (err) {
-      console.error("Post error:", err.message);
-      if (["Invalid token", "No token provided"].includes(err.message)) {
-        localStorage.clear();
-        navigate("/login");
-      }
-    }
-    setPosting(false);
-  };
+  {/* RIGHT SIDEBAR */}  
+  <div className="hidden md:block">  
+    <SidebarRight />  
+  </div>  
+</div>
 
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-6xl mx-auto px-2">
-      {/* LEFT */}
-      <div className="hidden md:block">
-        <SidebarLeft />
-      </div>
-
-      {/* CENTER */}
-      <div className="space-y-4">
-        <StoriesBar user={currentUser} stories={stories} />
-
-        {/* CREATE POST */}
-        <form
-          onSubmit={handleSubmitPost}
-          className="bg-white p-4 rounded-xl shadow space-y-3"
-        >
-          <textarea
-            value={newPost}
-            onChange={(e) => setNewPost(e.target.value)}
-            onFocus={() => setExpanded(true)}
-            placeholder="What's on your mind?"
-            className="w-full border rounded-lg p-3 focus:outline-none"
-          />
-
-          {expanded && (
-            <>
-              <MediaUpload
-                mediaFiles={mediaFiles}
-                setMediaFiles={setMediaFiles}
-              />
-
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => setShowEmoji(!showEmoji)}
-                  className="px-3 py-2 bg-gray-100 rounded-lg"
-                >
-                  😊 Emoji
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowLocation(!showLocation)}
-                  className="px-3 py-2 bg-gray-100 rounded-lg"
-                >
-                  📍 Location
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowFeeling(!showFeeling)}
-                  className="px-3 py-2 bg-gray-100 rounded-lg"
-                >
-                  😊 Feeling
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowTag(!showTag)}
-                  className="px-3 py-2 bg-gray-100 rounded-lg"
-                >
-                  🏷 Tag Friends
-                </button>
-              </div>
-
-              {showEmoji && (
-                <Suspense fallback="Loading...">
-                  <EmojiPicker
-                    onEmojiClick={(e) =>
-                      setNewPost((prev) => prev + e.emoji)
-                    }
-                  />
-                </Suspense>
-              )}
-
-              {showLocation && (
-                <div className="relative">
-                  <input
-                    value={location}
-                    onChange={(e) => handleLocationSearch(e.target.value)}
-                    placeholder="Location"
-                    className="w-full border p-2 rounded"
-                  />
-                  {locationSuggestions.length > 0 && (
-                    <div className="absolute w-full bg-white shadow rounded mt-1 z-50 max-h-48 overflow-y-auto">
-                      {locationSuggestions.map((loc, i) => (
-                        <div
-                          key={i}
-                          onClick={() => {
-                            setLocation(loc);
-                            setLocationSuggestions([]);
-                          }}
-                          className="p-2 hover:bg-gray-100 cursor-pointer"
-                        >
-                          {loc}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {showFeeling && (
-                <input
-                  value={feeling}
-                  onChange={(e) => setFeeling(e.target.value)}
-                  placeholder="Feeling..."
-                  className="w-full border p-2 rounded"
-                />
-              )}
-
-              {showTag && (
-                <input
-                  value={tagInput}
-                  onChange={(e) => handleTagFriends(e.target.value)}
-                  placeholder="Tag friends (comma separated)"
-                  className="w-full border p-2 rounded"
-                />
-              )}
-
-              <div className="flex justify-between">
-                <button
-                  type="button"
-                  onClick={() => setExpanded(false)}
-                  className="px-4 py-2 bg-gray-200 rounded-lg"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={posting}
-                  className="px-6 py-2 bg-blue-500 text-white rounded-lg"
-                >
-                  {posting ? "Posting..." : "Post"}
-                </button>
-              </div>
-            </>
-          )}
-        </form>
-
-        {/* POSTS */}
-        {posts.map((post) => (
-          <PostCard
-            key={post?._id}
-            post={post}
-            currentUserId={currentUserId}
-          />
-        ))}
-
-        <div ref={feedRef} />
-      </div>
-
-      {/* RIGHT */}
-      <div className="hidden md:block">
-        <SidebarRight />
-      </div>
-    </div>
-  );
+);
 };
 
 export default Home;
+
+Let's fix the like, comment and share buttons to function.i want users to share to other social medias. Let's display counts for share, comment and like.
+
+Then the page loading is too sluggish. Let's optimize to be very fast thanks.
