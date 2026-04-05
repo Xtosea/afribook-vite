@@ -42,8 +42,13 @@ const PostCard = ({ post, currentUserId }) => {
         { method: "POST" }
       );
 
-      if (res?.likes) {
-        setLikes(res.likes);
+      // Backend returns likesCount
+      if (res?.likesCount !== undefined) {
+        setLikes((prev) =>
+          likedByUser
+            ? prev.filter((id) => id !== currentUserId)
+            : [...prev, currentUserId]
+        );
       }
     } catch (err) {
       console.error("Like error:", err);
@@ -94,7 +99,7 @@ const PostCard = ({ post, currentUserId }) => {
           url,
         });
       } else {
-        navigator.clipboard.writeText(url);
+        await navigator.clipboard.writeText(url);
         alert("Link copied");
       }
 
@@ -125,13 +130,15 @@ const PostCard = ({ post, currentUserId }) => {
 
       {/* HEADER */}
       <div className="flex items-center gap-3">
+
         <img
           src={
             post?.user?.profilePic ||
-            `https://ui-avatars.com/api/?name=${post?.user?.name || "User"}`
+            "https://ui-avatars.com/api/?name=User"
           }
           className="w-12 h-12 rounded-full cursor-pointer object-cover"
           onClick={goToProfile}
+          alt="profile"
         />
 
         <div>
@@ -148,6 +155,7 @@ const PostCard = ({ post, currentUserId }) => {
               : ""}
           </p>
         </div>
+
       </div>
 
       {/* TEXT */}
@@ -157,7 +165,7 @@ const PostCard = ({ post, currentUserId }) => {
         </p>
       )}
 
-      {/* MEDIA */}
+      {/* SINGLE MEDIA */}
       {!isMulti &&
         media.map((m, i) => {
           const isVideo = m?.type === "video";
@@ -213,6 +221,7 @@ const PostCard = ({ post, currentUserId }) => {
       {/* FULLSCREEN */}
       {fullscreen && (
         <div className="fixed inset-0 bg-black bg-opacity-95 flex items-center justify-center z-50">
+          
           <button
             className="absolute top-4 right-4 text-white text-3xl"
             onClick={() => setFullscreen(null)}
@@ -234,6 +243,7 @@ const PostCard = ({ post, currentUserId }) => {
               className="max-h-full max-w-full"
             />
           )}
+
         </div>
       )}
 
@@ -269,8 +279,11 @@ const PostCard = ({ post, currentUserId }) => {
         <div className="space-y-2">
 
           {comments.map((c, i) => (
-            <div key={i} className="text-sm bg-gray-100 p-2 rounded">
-              <b>{c?.user?.name}</b> {c?.text}
+            <div
+              key={i}
+              className="text-sm bg-gray-100 p-2 rounded"
+            >
+              <b>{c?.user?.name || "User"}</b> {c?.text}
             </div>
           ))}
 
