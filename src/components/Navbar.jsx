@@ -1,18 +1,18 @@
 // src/components/Navbar.jsx
 import React, { useEffect, useState, useRef } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { API_BASE } from "../api/api";
 import SearchBar from "./SearchBar";
 import { connectSocket } from "../socket";
 
+// Icons
 import {
   Bell,
   Home,
   Video,
   MessageCircle,
   User,
-  Settings,
-  Users
+  Settings
 } from "lucide-react";
 
 const Navbar = () => {
@@ -21,25 +21,26 @@ const Navbar = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [onlineUsers, setOnlineUsers] = useState([]);
 
   const navigate = useNavigate();
-  const location = useLocation();
-
   const dropdownRef = useRef(null);
   const settingsRef = useRef(null);
+  const socketRef = useRef(null);
 
   const currentUserId = localStorage.getItem("userId");
 
+  // Check login
   useEffect(() => {
     const token = localStorage.getItem("token");
     setIsLoggedIn(!!token);
   }, []);
 
+  // Socket connection
   useEffect(() => {
     if (!currentUserId) return;
 
     const socket = connectSocket();
+    socketRef.current = socket;
 
     socket.emit("join", currentUserId);
 
@@ -47,12 +48,25 @@ const Navbar = () => {
       setNotifications((prev) => [data, ...prev].slice(0, 50));
     });
 
-    socket.on("online-users", (users) => {
-      setOnlineUsers(users);
-    });
-
     return () => socket.disconnect();
   }, [currentUserId]);
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setShowDropdown(false);
+      }
+
+      if (settingsRef.current && !settingsRef.current.contains(e.target)) {
+        setShowSettings(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -60,140 +74,254 @@ const Navbar = () => {
     navigate("/login");
   };
 
-  const isActive = (path) => location.pathname === path;
+  const toggleDropdown = () => setShowDropdown(!showDropdown);
+  const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
+  const toggleSettings = () => setShowSettings(!showSettings);
 
   return (
-    <>
+    <nav className="bg-white shadow px-4 md:px-6 py-3 flex justify-between items-center sticky top-0 z-50">
+      
+      {/* LOGO */}
+      <Link to="/" className="font-bold text-2xl text-blue-600">
+        Afribook
+      </Link>
 
-      <nav className="bg-white shadow px-4 md:px-6 py-3 flex justify-between items-center sticky top-0 z-50">
-
-        <Link to="/" className="font-bold text-2xl text-blue-600">
-          Afribook
-        </Link>
-
-        {isLoggedIn && (
-          <div className="flex-1 mx-4 hidden md:flex">
-            <SearchBar />
-          </div>
-        )}
-
-        <div className="flex items-center space-x-4">
-
-          {isLoggedIn && (
-            <>
-
-              {/* Desktop Navigation */}
-              <div className="hidden md:flex items-center space-x-6">
-
-                <Link to="/" className={`flex items-center gap-1 ${isActive("/") ? "text-blue-600" : "hover:text-blue-500"}`}>
-                  <Home size={20}/> Home
-                </Link>
-
-                <Link to="/reels" className={`flex items-center gap-1 ${isActive("/reels") ? "text-blue-600" : "hover:text-blue-500"}`}>
-                  <Video size={20}/> Reels
-                </Link>
-
-                <Link to="/messages" className={`flex items-center gap-1 ${isActive("/messages") ? "text-blue-600" : "hover:text-blue-500"}`}>
-                  <MessageCircle size={20}/> Messages
-                </Link>
-
-                <Link to="/profile" className={`flex items-center gap-1 ${isActive("/profile") ? "text-blue-600" : "hover:text-blue-500"}`}>
-                  <User size={20}/> Profile
-                </Link>
-
-              </div>
-
-              {/* Online Users */}
-              <div className="hidden md:flex items-center gap-2 text-sm">
-                <Users size={18}/>
-                {onlineUsers.length} Online
-              </div>
-
-              {/* Notifications */}
-              <div className="relative">
-                <Bell size={22}/>
-              </div>
-
-              {/* Settings */}
-              <button onClick={()=>setShowSettings(!showSettings)}>
-                <Settings size={20}/>
-              </button>
-
-              {/* Hamburger */}
-              <button
-                className="md:hidden"
-                onClick={()=>setMobileMenuOpen(!mobileMenuOpen)}
-              >
-                ☰
-              </button>
-
-            </>
-          )}
-
+      {/* DESKTOP SEARCH */}
+      {isLoggedIn && (
+        <div className="flex-1 mx-4 hidden md:flex">
+          <SearchBar />
         </div>
+      )}
 
-      </nav>
+      {/* MENU */}
+      <div className="flex items-center space-x-4 md:space-x-6">
+        {isLoggedIn ? (
+          <>
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center space-x-6">
 
+              <Link
+                to="/"
+                className="hover:text-blue-500 flex items-center gap-1"
+              >
+                <Home size={20} />
+                Home
+              </Link>
 
-      {/* Mobile Menu */}
+              <Link
+                to="/reels"
+                className="hover:text-blue-500 flex items-center gap-1"
+              >
+                <Video size={20} />
+                Reels
+              </Link>
+
+              <Link
+                to="/messages"
+                className="hover:text-blue-500 flex items-center gap-1"
+              >
+                <MessageCircle size={20} />
+                Messages
+              </Link>
+
+              <Link
+                to="/profile"
+                className="hover:text-blue-500 flex items-center gap-1"
+              >
+                <User size={20} />
+                Profile
+              </Link>
+
+            </div>
+
+            {/* Notifications */}
+            <div className="relative" ref={dropdownRef}>
+              <div
+                className="cursor-pointer relative p-2 rounded hover:bg-gray-100"
+                onClick={toggleDropdown}
+              >
+                <Bell size={22} />
+
+                {notifications.length > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1 rounded-full">
+                    {notifications.length}
+                  </span>
+                )}
+              </div>
+
+              {showDropdown && (
+                <div className="absolute right-0 mt-2 w-80 bg-white border rounded shadow-lg z-50">
+                  <div className="p-2 font-bold border-b">
+                    Notifications
+                  </div>
+
+                  {notifications.length === 0 ? (
+                    <p className="p-3 text-gray-500 text-sm">
+                      No new notifications
+                    </p>
+                  ) : (
+                    <div className="max-h-80 overflow-y-auto">
+                      {notifications.map((n, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center space-x-3 p-3 border-b hover:bg-gray-100 cursor-pointer"
+                        >
+                          <img
+                            src={
+                              n.sender?.profilePic ||
+                              `${API_BASE}/uploads/profiles/default-profile.png`
+                            }
+                            alt=""
+                            className="w-10 h-10 rounded-full"
+                          />
+
+                          <div className="text-sm">
+                            <span className="font-semibold">
+                              {n.sender?.name || "Someone"}
+                            </span>{" "}
+                            {n.text || "New notification"}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {notifications.length > 0 && (
+                    <button
+                      onClick={() => setNotifications([])}
+                      className="w-full text-center text-blue-500 p-2 hover:bg-gray-100"
+                    >
+                      Clear All
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Settings */}
+            <div className="relative" ref={settingsRef}>
+              <button
+                onClick={toggleSettings}
+                className="p-2 rounded hover:bg-gray-100 hidden md:inline-flex"
+              >
+                <Settings size={20} />
+              </button>
+
+              {showSettings && (
+                <div className="absolute right-0 mt-2 w-40 bg-white border rounded shadow-lg z-50">
+                  <Link
+                    to="/settings"
+                    className="block px-4 py-2 hover:bg-gray-100"
+                    onClick={() => setShowSettings(false)}
+                  >
+                    Settings
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* Logout */}
+            <button
+              onClick={handleLogout}
+              className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded hidden md:block"
+            >
+              Logout
+            </button>
+
+            {/* Mobile Hamburger */}
+            <button
+              onClick={toggleMobileMenu}
+              className="md:hidden p-2 rounded hover:bg-gray-100"
+            >
+              <span className="text-2xl">
+                {mobileMenuOpen ? "✖" : "☰"}
+              </span>
+            </button>
+
+          </>
+        ) : (
+          <>
+            <Link
+              to="/login"
+              className="hover:text-blue-500 font-medium"
+            >
+              Login
+            </Link>
+
+            <Link
+              to="/register"
+              className="hover:text-blue-500 font-medium"
+            >
+              Register
+            </Link>
+          </>
+        )}
+      </div>
+
+      {/* MOBILE MENU */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-white shadow p-4 space-y-3">
+        <div className="absolute top-full left-0 w-full bg-white shadow-md md:hidden p-4 space-y-3">
 
-          <Link to="/" onClick={()=>setMobileMenuOpen(false)}>Home</Link>
-          <Link to="/reels" onClick={()=>setMobileMenuOpen(false)}>Reels</Link>
-          <Link to="/messages" onClick={()=>setMobileMenuOpen(false)}>Messages</Link>
-          <Link to="/profile" onClick={()=>setMobileMenuOpen(false)}>Profile</Link>
+          <SearchBar />
+
+          <Link
+            to="/"
+            onClick={toggleMobileMenu}
+            className="block hover:text-blue-500"
+          >
+            Home
+          </Link>
+
+          <Link
+            to="/profile"
+            onClick={toggleMobileMenu}
+            className="block hover:text-blue-500"
+          >
+            Profile
+          </Link>
+
+          <Link
+            to="/reels"
+            onClick={toggleMobileMenu}
+            className="block hover:text-blue-500"
+          >
+            Reels
+          </Link>
+
+          <Link
+            to="/messages"
+            onClick={toggleMobileMenu}
+            className="block hover:text-blue-500"
+          >
+            Messages
+          </Link>
+
+          <Link
+            to="/settings"
+            onClick={toggleMobileMenu}
+            className="block hover:text-blue-500"
+          >
+            Settings
+          </Link>
 
           <button
             onClick={handleLogout}
-            className="w-full bg-red-500 text-white py-1 rounded"
+            className="w-full bg-red-500 hover:bg-red-600 text-white py-1 rounded"
           >
             Logout
           </button>
-
         </div>
       )}
 
-
-      {/* Bottom Mobile Nav */}
-      {isLoggedIn && (
-
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t md:hidden z-50">
-
-          <div className="flex justify-around py-2">
-
-            <Link to="/" className={`flex flex-col items-center ${isActive("/") ? "text-blue-600" : "text-gray-500"}`}>
-              <Home size={22}/>
-            </Link>
-
-            <Link to="/reels" className={`flex flex-col items-center ${isActive("/reels") ? "text-blue-600" : "text-gray-500"}`}>
-              <Video size={22}/>
-            </Link>
-
-            <Link to="/messages" className={`flex flex-col items-center ${isActive("/messages") ? "text-blue-600" : "text-gray-500"}`}>
-              <MessageCircle size={22}/>
-            </Link>
-
-            <Link to="/profile" className={`flex flex-col items-center ${isActive("/profile") ? "text-blue-600" : "text-gray-500"}`}>
-              <User size={22}/>
-            </Link>
-
-          </div>
-
-        </div>
-
-      )}
-
-
-      {/* Floating Reels Button */}
+      {/* Mobile Reels Quick Access */}
       <Link
         to="/reels"
         className="fixed bottom-20 right-4 md:hidden bg-black text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg z-50"
       >
-        <Video size={22}/>
+        <Video size={22} />
       </Link>
 
-    </>
+    </nav>
   );
 };
 
