@@ -1,5 +1,12 @@
 // src/pages/Home.jsx
-import React, { useEffect, useRef, useState, Suspense, lazy } from "react";
+import React, {
+  useEffect,
+  useRef,
+  useState,
+  Suspense,
+  lazy,
+  useCallback,
+} from "react";
 import { useNavigate } from "react-router-dom";
 import PostCard from "../components/PostCard";
 import SidebarLeft from "../components/layout/SidebarLeft";
@@ -211,47 +218,130 @@ return (
   <div className="col-span-1 space-y-4 w-full">  
     <StoriesBar user={currentUser} stories={stories} />  
 
-    {/* CREATE POST */}  
-    <form  
-      onSubmit={handleSubmitPost}  
-      className="bg-white p-4 rounded-xl shadow space-y-3 w-full"  
-    >  
-      <textarea  
-        value={newPost}  
-        onChange={(e) => setNewPost(e.target.value)}  
-        onFocus={() => setExpanded(true)}  
-        placeholder="What's on your mind?"  
-        className="w-full border rounded-lg p-3"  
-      />  
-      {expanded && (  
-        <>  
-          <input  
-            value={feeling}  
-            onChange={(e) => setFeeling(e.target.value)}  
-            placeholder="Feeling..."  
-            className="w-full border rounded-lg p-2"  
-          />  
-          <input  
-            value={location}  
-            onChange={(e) => setLocation(e.target.value)}  
-            placeholder="Location..."  
-            className="w-full border rounded-lg p-2"  
-          />  
-          <input  
-            value={taggedFriends.map((f) => f.name).join(", ")}  
-            onChange={(e) =>  
-              setTaggedFriends(  
-                e.target.value  
-                  .split(",")  
-                  .map((n) => ({ name: n.trim() }))  
-              )  
-            }  
-            placeholder="Tag friends (comma separated)"  
-            className="w-full border rounded-lg p-2"  
-          />  
-        </>  
-      )}  
-    </form>  
+    {/* CREATE POST */}
+        <form
+          onSubmit={handleSubmitPost}
+          className="bg-white p-4 rounded-xl shadow space-y-3"
+        >
+          <textarea
+            value={newPost}
+            onChange={(e) => setNewPost(e.target.value)}
+            onFocus={() => setExpanded(true)}
+            placeholder="What's on your mind?"
+            className="w-full border rounded-lg p-3 focus:outline-none"
+          />
+
+          {expanded && (
+            <>
+              <MediaUpload
+                mediaFiles={mediaFiles}
+                setMediaFiles={setMediaFiles}
+              />
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowEmoji(!showEmoji)}
+                  className="px-3 py-2 bg-gray-100 rounded-lg"
+                >
+                  😊 Emoji
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowLocation(!showLocation)}
+                  className="px-3 py-2 bg-gray-100 rounded-lg"
+                >
+                  📍 Location
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowFeeling(!showFeeling)}
+                  className="px-3 py-2 bg-gray-100 rounded-lg"
+                >
+                  😊 Feeling
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowTag(!showTag)}
+                  className="px-3 py-2 bg-gray-100 rounded-lg"
+                >
+                  🏷 Tag Friends
+                </button>
+              </div>
+
+              {showEmoji && (
+                <Suspense fallback="Loading...">
+                  <EmojiPicker
+                    onEmojiClick={(e) =>
+                      setNewPost((prev) => prev + e.emoji)
+                    }
+                  />
+                </Suspense>
+              )}
+
+              {showLocation && (
+                <div className="relative">
+                  <input
+                    value={location}
+                    onChange={(e) => handleLocationSearch(e.target.value)}
+                    placeholder="Location"
+                    className="w-full border p-2 rounded"
+                  />
+                  {locationSuggestions.length > 0 && (
+                    <div className="absolute w-full bg-white shadow rounded mt-1 z-50 max-h-48 overflow-y-auto">
+                      {locationSuggestions.map((loc, i) => (
+                        <div
+                          key={i}
+                          onClick={() => {
+                            setLocation(loc);
+                            setLocationSuggestions([]);
+                          }}
+                          className="p-2 hover:bg-gray-100 cursor-pointer"
+                        >
+                          {loc}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {showFeeling && (
+                <input
+                  value={feeling}
+                  onChange={(e) => setFeeling(e.target.value)}
+                  placeholder="Feeling..."
+                  className="w-full border p-2 rounded"
+                />
+              )}
+
+              {showTag && (
+                <input
+                  value={tagInput}
+                  onChange={(e) => handleTagFriends(e.target.value)}
+                  placeholder="Tag friends (comma separated)"
+                  className="w-full border p-2 rounded"
+                />
+              )}
+
+              <div className="flex justify-between">
+                <button
+                  type="button"
+                  onClick={() => setExpanded(false)}
+                  className="px-4 py-2 bg-gray-200 rounded-lg"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={posting}
+                  className="px-6 py-2 bg-blue-500 text-white rounded-lg"
+                >
+                  {posting ? "Posting..." : "Post"}
+                </button>
+              </div>
+            </>
+          )}
+        </form>
 
     {/* POSTS FEED */}  
     <div ref={feedRef} className="space-y-4 w-full">  
