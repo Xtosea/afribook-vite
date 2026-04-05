@@ -1,4 +1,3 @@
-// src/pages/Home.jsx
 import React, {
   useEffect,
   useRef,
@@ -22,7 +21,6 @@ const Home = () => {
   const navigate = useNavigate();
   const feedRef = useRef();
 
-  /* ================= AUTH & TOKEN ================= */
   const token = localStorage.getItem("token");
   const currentUserId = localStorage.getItem("userId");
 
@@ -55,38 +53,50 @@ const Home = () => {
   const [showTag, setShowTag] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [loadingPosts, setLoadingPosts] = useState(false);
 
   /* ================= FETCH POSTS ================= */
-const fetchPosts = useCallback(
-  async (pageNum = 1) => {
-    try {
-      const res = await fetch(
-        `${API_BASE}/api/posts?page=${pageNum}&limit=10`
-      );
+  const fetchPosts = useCallback(
+    async (pageNum = 1) => {
+      if (loadingPosts || !hasMore) return;
 
-      if (!res.ok) {
-        throw new Error("Failed to fetch posts");
+      setLoadingPosts(true);
+      try {
+        const res = await fetch(
+          `${API_BASE}/api/posts?page=${pageNum}&limit=10`
+        );
+        if (!res.ok) throw new Error("Failed to fetch posts");
+
+        const data = await res.json();
+        if (!Array.isArray(data) || data.length === 0) {
+          setHasMore(false);
+          return;
+        }
+
+        // Filter only valid posts
+        const validPosts = data.filter(
+          (p) => p && (p.content || (Array.isArray(p.media) && p.media.length))
+        );
+
+        setPosts((prev) => [...prev, ...validPosts]);
+      } catch (err) {
+        console.error("Fetch posts error:", err.message);
+      } finally {
+        setLoadingPosts(false);
       }
+    },
+    [loadingPosts, hasMore]
+  );
 
-      const data = await res.json();
+  useEffect(() => {
+    fetchPosts(page);
+  }, [page, fetchPosts]);
 
-      if (!Array.isArray(data) || data.length === 0) {
-        setHasMore(false);
-        return;
-      }
-
-      setPosts((prev) => [...prev, ...data.filter(Boolean)]);
-    } catch (err) {
-      console.error("Fetch posts error:", err.message);
-    }
-  },
-  []
-);
   /* ================= INFINITE SCROLL ================= */
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasMore) {
+        if (entries[0].isIntersecting && hasMore && !loadingPosts) {
           setPage((prev) => prev + 1);
         }
       },
@@ -95,7 +105,7 @@ const fetchPosts = useCallback(
 
     if (feedRef.current) observer.observe(feedRef.current);
     return () => observer.disconnect();
-  }, [hasMore]);
+  }, [hasMore, loadingPosts]);
 
   /* ================= FETCH STORIES ================= */
   useEffect(() => {
@@ -105,16 +115,12 @@ const fetchPosts = useCallback(
         setStories(res?.stories || []);
       } catch (err) {
         console.error("Fetch stories error:", err.message);
-        if (
-          err.message === "Invalid token" ||
-          err.message === "No token provided"
-        ) {
+        if (["Invalid token", "No token provided"].includes(err.message)) {
           localStorage.clear();
           navigate("/login");
         }
       }
     };
-
     fetchStories();
   }, [token, navigate]);
 
@@ -146,7 +152,7 @@ const fetchPosts = useCallback(
         `https://nominatim.openstreetmap.org/search?q=${value}&format=json`
       );
       const data = await res.json();
-      setLocationSuggestions(data.slice(0, 5).map((item) => item.display_name));
+      setLocationSuggestions(data.slice(0, 5).map((i) => i.display_name));
     } catch (err) {
       console.error(err);
     }
@@ -169,7 +175,6 @@ const fetchPosts = useCallback(
     if (!newPost && mediaFiles.length === 0) return;
 
     setPosting(true);
-
     try {
       const formData = new FormData();
       formData.append("content", newPost);
@@ -185,7 +190,7 @@ const fetchPosts = useCallback(
 
       if (res?.post) setPosts((prev) => [res.post, ...prev]);
 
-      // Reset fields
+      // Reset
       setNewPost("");
       setMediaFiles([]);
       setExpanded(false);
@@ -199,19 +204,14 @@ const fetchPosts = useCallback(
       setShowTag(false);
     } catch (err) {
       console.error("Post error:", err.message);
-      if (
-        err.message === "Invalid token" ||
-        err.message === "No token provided"
-      ) {
+      if (["Invalid token", "No token provided"].includes(err.message)) {
         localStorage.clear();
         navigate("/login");
       }
     }
-
     setPosting(false);
   };
 
-  /* ================= UI ================= */
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-6xl mx-auto px-2">
       {/* LEFT */}
@@ -242,6 +242,7 @@ const fetchPosts = useCallback(
                 mediaFiles={mediaFiles}
                 setMediaFiles={setMediaFiles}
               />
+
               <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
@@ -349,10 +350,13 @@ const fetchPosts = useCallback(
         </form>
 
         {/* POSTS */}
-        {Array.isArray(posts) &&
-          posts.filter(Boolean).map((post) => (
-            <PostCard key={post?._id} post={post} currentUserId={currentUserId} />
-          ))}
+        {posts.map((post) => (
+          <PostCard
+            key={post?._id}
+            post={post}
+            currentUserId={currentUserId}
+          />
+        ))}
 
         <div ref={feedRef} />
       </div>
