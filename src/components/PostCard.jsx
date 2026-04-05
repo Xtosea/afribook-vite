@@ -126,8 +126,8 @@ const PostCard = ({ post, currentUserId }) => {
     <div className="bg-white rounded-xl shadow p-3 space-y-3">
 
       {/* HEADER */}
-      <div className="flex items-center gap-3">
-      <img
+<div className="flex items-center gap-3">
+  <img
     src={post?.user?.profilePic || defaultProfile}
     onError={(e) => {
       e.target.src = defaultProfile;
@@ -136,27 +136,18 @@ const PostCard = ({ post, currentUserId }) => {
     alt="profile"
     onClick={() => navigate(`/profile/${post.user?._id}`)}
   />
-
-<img
-  src={post?.user?.coverPhoto || defaultCover}
-  onError={(e) => {
-    e.target.src = defaultCover;
-  }}
-  className="w-full h-48 object-cover rounded-t-xl"
-  alt="cover"
-/>
-        <div>
-          <p
-            className="font-semibold cursor-pointer hover:underline"
-            onClick={goToProfile}
-          >
-            {post?.user?.name || "User"}
-          </p>
-          <p className="text-xs text-gray-500">
-            {post?.createdAt ? new Date(post.createdAt).toLocaleString() : ""}
-          </p>
-        </div>
-      </div>
+  <div>
+    <p
+      className="font-semibold cursor-pointer hover:underline"
+      onClick={goToProfile}
+    >
+      {post?.user?.name || "User"}
+    </p>
+    <p className="text-xs text-gray-500">
+      {post?.createdAt ? new Date(post.createdAt).toLocaleString() : ""}
+    </p>
+  </div>
+</div>
 
       {/* POST TEXT */}
       {post?.content && <p className="text-gray-800 whitespace-pre-wrap">{post.content}</p>}
