@@ -2,6 +2,8 @@ import React, { useRef, useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_BASE, fetchWithToken } from "../api/api";
 
+ const defaultProfile =
+"https://afribook-backend.onrender.com/profile/default-profile.png";
 const PostCard = ({ post, currentUserId }) => {
   const navigate = useNavigate();
   const videoRefs = useRef([]);
@@ -122,15 +124,12 @@ const PostCard = ({ post, currentUserId }) => {
 
       {/* HEADER */}
       <div className="flex items-center gap-3">
-        <img
-  src={post?.user?.profilePic}
+      <img
+  src={post?.user?.profilePic || defaultProfile}
   onError={(e) => {
-    e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(
-      post?.user?.name || "User"
-    )}`;
+    e.target.src = defaultProfile;
   }}
-  className="w-12 h-12 rounded-full cursor-pointer object-cover"
-  onClick={goToProfile}
+  className="w-12 h-12 rounded-full object-cover"
   alt="profile"
 />
         <div>
