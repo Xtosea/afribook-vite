@@ -132,7 +132,7 @@ const PostCard = ({ post, currentUserId }) => {
     onError={(e) => {
       e.target.src = defaultProfile;
     }}
-    className="w-12 h-12 rounded-full object-cover cursor-pointer"
+    className="w-16 h-16 rounded-full object-cover cursor-pointer"
     alt="profile"
     onClick={() => navigate(`/profile/${post.user?._id}`)}
   />
