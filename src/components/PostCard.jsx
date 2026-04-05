@@ -123,11 +123,16 @@ const PostCard = ({ post, currentUserId }) => {
       {/* HEADER */}
       <div className="flex items-center gap-3">
         <img
-          src={post?.user?.profilePic || "https://ui-avatars.com/api/?name=User"}
-          className="w-12 h-12 rounded-full cursor-pointer object-cover"
-          onClick={goToProfile}
-          alt="profile"
-        />
+  src={post?.user?.profilePic}
+  onError={(e) => {
+    e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+      post?.user?.name || "User"
+    )}`;
+  }}
+  className="w-12 h-12 rounded-full cursor-pointer object-cover"
+  onClick={goToProfile}
+  alt="profile"
+/>
         <div>
           <p
             className="font-semibold cursor-pointer hover:underline"
