@@ -2,6 +2,9 @@ import React, { useRef, useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_BASE, fetchWithToken } from "../api/api";
 
+const defaultCover =
+  "https://afribook-backend.onrender.com/uploads/profiles/default-cover.png";
+
 const defaultProfile =
   "https://afribook-backend.onrender.com/uploads/profiles/default-profile.png";
 const PostCard = ({ post, currentUserId }) => {
@@ -133,6 +136,15 @@ const PostCard = ({ post, currentUserId }) => {
     alt="profile"
     onClick={() => navigate(`/profile/${post.user?._id}`)}
   />
+
+<img
+  src={post?.user?.coverPhoto || defaultCover}
+  onError={(e) => {
+    e.target.src = defaultCover;
+  }}
+  className="w-full h-48 object-cover rounded-t-xl"
+  alt="cover"
+/>
         <div>
           <p
             className="font-semibold cursor-pointer hover:underline"
