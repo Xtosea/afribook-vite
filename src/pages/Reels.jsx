@@ -7,34 +7,39 @@ const Reels = () => {
   const [reels, setReels] = useState([]);
   const [likes, setLikes] = useState({});
   const [shares, setShares] = useState({});
+  const [caption, setCaption] = useState("");
+  const [showUpload, setShowUpload] = useState(false);
+  const [preview, setPreview] = useState(null);
+
   const videoRefs = useRef([]);
   const fileRef = useRef();
-  const [caption, setCaption] = useState("");
-  const navigate = useNavigate();
-  const socket = connectSocket(); // ✅ Connect once here
 
-  /** Fetch reels from backend */
+  const navigate = useNavigate();
+  const socket = connectSocket();
+
+  /** Fetch reels */
   const fetchReels = async () => {
     try {
       const res = await fetch(`${API_BASE}/api/reels`);
       const data = await res.json();
       setReels(data);
 
-      // Initialize likes & shares state
       const initialLikes = {};
       const initialShares = {};
+
       data.forEach((r) => {
         initialLikes[r._id] = r.likes?.length || 0;
         initialShares[r._id] = r.shares || 0;
       });
+
       setLikes(initialLikes);
       setShares(initialShares);
     } catch (err) {
-      console.error("Fetch reels error:", err);
+      console.error(err);
     }
   };
 
-  /** Socket event listeners */
+  /** Socket listeners */
   useEffect(() => {
     fetchReels();
 
@@ -42,8 +47,14 @@ const Reels = () => {
 
     const handleNewReel = (reel) => {
       setReels((prev) => [reel, ...prev]);
-      setLikes((prev) => ({ ...prev, [reel._id]: reel.likes?.length || 0 }));
-      setShares((prev) => ({ ...prev, [reel._id]: reel.shares || 0 }));
+      setLikes((prev) => ({
+        ...prev,
+        [reel._id]: reel.likes?.length || 0,
+      }));
+      setShares((prev) => ({
+        ...prev,
+        [reel._id]: reel.shares || 0,
+      }));
     };
 
     const handleReelLike = ({ reelId, likesCount }) => {
@@ -54,28 +65,18 @@ const Reels = () => {
       setShares((prev) => ({ ...prev, [reelId]: shares }));
     };
 
-    const handleReelComment = ({ reelId, comment }) => {
-      setReels((prev) =>
-        prev.map((r) =>
-          r._id === reelId ? { ...r, comments: [...(r.comments || []), comment] } : r
-        )
-      );
-    };
-
     socket.on("new-reel", handleNewReel);
     socket.on("reel-like", handleReelLike);
     socket.on("reel-share", handleReelShare);
-    socket.on("reel-comment", handleReelComment);
 
     return () => {
       socket.off("new-reel", handleNewReel);
       socket.off("reel-like", handleReelLike);
       socket.off("reel-share", handleReelShare);
-      socket.off("reel-comment", handleReelComment);
     };
   }, [socket]);
 
-  /** Auto-play videos when visible */
+  /** Auto play videos */
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -88,14 +89,19 @@ const Reels = () => {
     );
 
     videoRefs.current.forEach((video) => video && observer.observe(video));
+
     return () =>
-      videoRefs.current.forEach((video) => video && observer.unobserve(video));
+      videoRefs.current.forEach(
+        (video) => video && observer.unobserve(video)
+      );
   }, [reels]);
 
   /** Record view */
   const recordView = async (id) => {
     try {
-      await fetch(`${API_BASE}/api/reels/view/${id}`, { method: "POST" });
+      await fetch(`${API_BASE}/api/reels/view/${id}`, {
+        method: "POST",
+      });
     } catch (err) {
       console.error(err);
     }
@@ -105,12 +111,20 @@ const Reels = () => {
   const likeReel = async (id) => {
     try {
       const token = localStorage.getItem("token");
+
       const res = await fetch(`${API_BASE}/api/reels/${id}/like`, {
         method: "PUT",
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
+
       const data = await res.json();
-      setLikes((prev) => ({ ...prev, [id]: data.likesCount }));
+
+      setLikes((prev) => ({
+        ...prev,
+        [id]: data.likesCount,
+      }));
     } catch (err) {
       console.error(err);
     }
@@ -120,23 +134,37 @@ const Reels = () => {
   const shareReel = async (id) => {
     try {
       const token = localStorage.getItem("token");
+
       const res = await fetch(`${API_BASE}/api/reels/${id}/share`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
+
       const data = await res.json();
-      setShares((prev) => ({ ...prev, [id]: data.shares }));
-      alert("Reel shared!");
+
+      setShares((prev) => ({
+        ...prev,
+        [id]: data.shares,
+      }));
     } catch (err) {
       console.error(err);
     }
   };
 
-  /** Upload */
-  const uploadReel = async (e) => {
-    e.preventDefault();
+  /** Handle file preview */
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setPreview(URL.createObjectURL(file));
+    }
+  };
+
+  /** Upload reel */
+  const uploadReel = async () => {
     const file = fileRef.current.files[0];
-    if (!file) return alert("Select a video");
+    if (!file) return alert("Select video");
 
     const formData = new FormData();
     formData.append("video", file);
@@ -144,41 +172,32 @@ const Reels = () => {
 
     try {
       const token = localStorage.getItem("token");
+
       await fetch(`${API_BASE}/api/reels/upload`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
         body: formData,
       });
+
       setCaption("");
+      setPreview(null);
+      setShowUpload(false);
       fileRef.current.value = null;
+
     } catch (err) {
-      console.error("Upload error:", err);
+      console.error(err);
     }
   };
 
   return (
     <div className="h-screen overflow-y-scroll snap-y snap-mandatory bg-black relative">
-      {/* Top bar */}
-      <div className="fixed top-0 left-0 right-0 bg-black text-white p-3 z-50 flex justify-between items-center">
-        <h1 className="font-bold text-lg">Reels</h1>
-        <button
-          onClick={() => fileRef.current.click()}
-          className="bg-white text-black px-3 py-1 rounded"
-        >
-          Upload
-        </button>
-        <input
-          type="file"
-          accept="video/*"
-          ref={fileRef}
-          className="hidden"
-          onChange={uploadReel}
-        />
-      </div>
 
-      {/* Reels list */}
+      {/* Reels */}
       {reels.map((reel, i) => (
         <div key={reel._id} className="h-screen snap-start relative">
+
           <video
             ref={(el) => (videoRefs.current[i] = el)}
             src={reel.media[0]?.url}
@@ -189,30 +208,146 @@ const Reels = () => {
             onPlay={() => recordView(reel._id)}
           />
 
-          {/* Overlay actions */}
+          {/* Overlay */}
           <div className="absolute inset-0 flex flex-col justify-between p-4">
-            {/* User info */}
+
+            {/* User */}
             <div
               className="flex items-center gap-2 text-white cursor-pointer"
               onClick={() => navigate(`/profile/${reel.user._id}`)}
             >
-              <img src={reel.user.profilePic} className="w-10 h-10 rounded-full" />
-              <span>{reel.user.name}</span>
+              <img
+                src={reel.user.profilePic}
+                className="w-10 h-10 rounded-full object-cover"
+              />
+              <span className="font-semibold">
+                {reel.user.name}
+              </span>
             </div>
 
-            {/* Bottom actions */}
-            <div className="flex flex-col items-end gap-4 text-white">
-              <button onClick={() => likeReel(reel._id)} className="text-2xl">
-                ❤️ {likes[reel._id] || 0}
-              </button>
-              <button onClick={() => shareReel(reel._id)} className="text-2xl">
-                🔗 {shares[reel._id] || 0}
-              </button>
-              <div className="bg-black/50 rounded p-2 max-w-xs text-sm">{reel.content}</div>
+            {/* Actions */}
+            <div className="flex justify-between items-end">
+
+              {/* Caption */}
+              <div className="text-white max-w-xs">
+                <p className="bg-black/50 p-2 rounded-lg text-sm">
+                  {reel.content}
+                </p>
+              </div>
+
+              {/* Buttons */}
+              <div className="flex flex-col items-center gap-5 text-white">
+
+                <button
+                  onClick={() => likeReel(reel._id)}
+                  className="flex flex-col items-center"
+                >
+                  ❤️
+                  <span className="text-sm">
+                    {likes[reel._id] || 0}
+                  </span>
+                </button>
+
+                <button
+                  onClick={() => shareReel(reel._id)}
+                  className="flex flex-col items-center"
+                >
+                  🔗
+                  <span className="text-sm">
+                    {shares[reel._id] || 0}
+                  </span>
+                </button>
+
+              </div>
+
             </div>
+
           </div>
+
         </div>
       ))}
+
+      {/* Floating Upload Button */}
+      <button
+        onClick={() => setShowUpload(true)}
+        className="fixed bottom-6 right-6 bg-white text-black w-14 h-14 rounded-full shadow-lg text-3xl z-50"
+      >
+        +
+      </button>
+
+      {/* Upload Modal */}
+      {showUpload && (
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center">
+
+          <div className="bg-gray-900 p-4 rounded-xl w-[90%] max-w-md text-white">
+
+            <h2 className="text-lg font-bold mb-3">
+              Create Reel
+            </h2>
+
+            {/* Preview */}
+            {preview && (
+              <video
+                src={preview}
+                className="w-full h-60 object-cover rounded-lg mb-3"
+                controls
+              />
+            )}
+
+            {/* Caption */}
+            <textarea
+              placeholder="Write caption..."
+              value={caption}
+              onChange={(e) => setCaption(e.target.value)}
+              className="w-full bg-black border border-gray-700 p-2 rounded mb-3"
+            />
+
+            {/* Buttons */}
+            <div className="flex justify-between">
+
+              <button
+                onClick={() => fileRef.current.click()}
+                className="bg-gray-700 px-4 py-2 rounded"
+              >
+                Select Video
+              </button>
+
+              <div className="flex gap-2">
+
+                <button
+                  onClick={() => {
+                    setShowUpload(false);
+                    setPreview(null);
+                  }}
+                  className="bg-red-500 px-4 py-2 rounded"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  onClick={uploadReel}
+                  className="bg-blue-500 px-4 py-2 rounded"
+                >
+                  Post
+                </button>
+
+              </div>
+
+            </div>
+
+            <input
+              type="file"
+              accept="video/*"
+              ref={fileRef}
+              className="hidden"
+              onChange={handleFileChange}
+            />
+
+          </div>
+
+        </div>
+      )}
+
     </div>
   );
 };
