@@ -85,7 +85,7 @@ const init = async () => {
 try {
 // Fetch posts
 const postsData = await fetchWithToken(
-${API_BASE}/api/posts?limit=20,
+'${API_BASE}/api/posts?limit=20',
 token
 );
 setPosts(postsData);
