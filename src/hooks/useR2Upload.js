@@ -1,32 +1,26 @@
 import { useState } from "react";
 import { API_BASE } from "../api/api";
 
-export const useR2Upload = () => {
-  const [error, setError] = useState(null);
+const uploadVideo = async (file) => {
+  try {
+    const formData = new FormData();
+    formData.append("video", file);
 
-  const uploadVideo = async (file) => {
-    try {
-      const formData = new FormData();
-      formData.append("video", file);
+    const res = await fetch(`${API_BASE}/api/posts/upload`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      body: formData,
+    });
 
-      const res = await fetch(`${API_BASE}/api/posts/upload`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: formData,
-      });
+    const data = await res.json();
 
-      const data = await res.json();
+    // FIXED RETURN
+    return data?.media?.[0]?.url || data?.media?.url || data?.post?.media?.[0]?.url;
 
-      return data?.media?.[0]?.url || data?.media?.url;
-
-    } catch (err) {
-      console.error("Video upload error:", err);
-      setError(err);
-      return null;
-    }
-  };
-
-  return { uploadVideo, error };
+  } catch (err) {
+    console.error("Video upload error:", err);
+    return null;
+  }
 };
