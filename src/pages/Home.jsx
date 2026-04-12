@@ -127,9 +127,9 @@ const Home = () => {
       const socket = getSocket();
       if (!socket) return;
 
-      socket.on("new-video", (post) => {
-        setPosts((prev) => [post, ...prev]);
-      });
+      socket.on("new-post", (post) => {
+  setPosts((prev) => [post, ...prev]);
+});
 
       socket.on("new-story", (story) => {
         setStories((prev) => [story, ...prev]);
