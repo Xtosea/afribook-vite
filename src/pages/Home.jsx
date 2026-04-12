@@ -379,20 +379,27 @@ const Home = () => {
           )}
         </form>
 
-        {/* POSTS */}
-        <div ref={feedRef} className="space-y-4">
-          {loadingPosts
-            ? [<SkeletonPost key={1} />, <SkeletonPost key={2} />]
-            {Array.isArray(posts) &&
-  posts.map((post) => (
-    <Suspense fallback={<SkeletonPost />} key={post._id}>
-      <PostCard
-        post={post}
-        currentUserId={currentUserId}
-        setVideoRefs={setVideoRefs}
-      />
-    </Suspense>
-))}
+        
+      {/* POSTS */}
+<div ref={feedRef} className="space-y-4">
+  {loadingPosts ? (
+    <>
+      <SkeletonPost key={1} />
+      <SkeletonPost key={2} />
+    </>
+  ) : (
+    Array.isArray(posts) &&
+    posts.map((post) => (
+      <Suspense fallback={<SkeletonPost />} key={post._id}>
+        <PostCard
+          post={post}
+          currentUserId={currentUserId}
+          setVideoRefs={setVideoRefs}
+        />
+      </Suspense>
+    ))
+  )}
+</div>
         </div>
       </div>
 
