@@ -109,7 +109,7 @@ const Home = () => {
           `${API_BASE}/api/posts?limit=20`,
           token
         );
-        setPosts(postsData);
+        setPosts(Array.isArray(postsData) ? postsData : []);
 
         const res = await fetch(`${API_BASE}/api/stories?limit=20`, {
           headers: { Authorization: `Bearer ${token}` },
@@ -383,15 +383,16 @@ const Home = () => {
         <div ref={feedRef} className="space-y-4">
           {loadingPosts
             ? [<SkeletonPost key={1} />, <SkeletonPost key={2} />]
-            : posts.map((post) => (
-                <Suspense fallback={<SkeletonPost />} key={post._id}>
-                  <PostCard
-                    post={post}
-                    currentUserId={currentUserId}
-                    setVideoRefs={setVideoRefs}
-                  />
-                </Suspense>
-              ))}
+            {Array.isArray(posts) &&
+  posts.map((post) => (
+    <Suspense fallback={<SkeletonPost />} key={post._id}>
+      <PostCard
+        post={post}
+        currentUserId={currentUserId}
+        setVideoRefs={setVideoRefs}
+      />
+    </Suspense>
+))}
         </div>
       </div>
 
