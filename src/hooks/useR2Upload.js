@@ -9,7 +9,7 @@ export const useR2Upload = () => {
       const formData = new FormData();
       formData.append("video", file);
 
-      const res = await fetch(`${API_BASE}/api/videos/upload`, {
+      const res = await fetch(`${API_BASE}/api/posts/upload`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
