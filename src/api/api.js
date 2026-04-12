@@ -1,27 +1,25 @@
 // src/api/api.js
 
-// Main backend URL (from env)
 const MAIN_API = import.meta.env.VITE_API_BASE;
-
-// Backup backend URL
 const BACKUP_API = "https://afribook-backend.onrender.com";
 
-// Final API Base
 export const API_BASE = MAIN_API || BACKUP_API;
 
-
 export const fetchWithToken = async (url, token, options = {}) => {
-  const fullUrl = url.startsWith("http") ? url : `${API_BASE}${url}`;
+  const fullUrl = url.startsWith("http")
+    ? url
+    : `${API_BASE}${url}`;
 
   const headers = {
     ...(options.headers || {}),
   };
 
-  // Only set Content-Type if NOT FormData
+  // Set JSON header only if NOT FormData
   if (!(options.body instanceof FormData)) {
     headers["Content-Type"] = "application/json";
   }
 
+  // Attach token
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
@@ -38,12 +36,20 @@ export const fetchWithToken = async (url, token, options = {}) => {
     try {
       data = JSON.parse(text);
     } catch {
-      console.error("Server returned non-JSON:", text);
+      console.error("❌ Server returned non-JSON:", text);
       throw new Error("Invalid server response");
     }
 
+    // 🚨 IMPORTANT FIX
     if (!res.ok) {
-      console.error("API Error:", data);
+      console.error("❌ API ERROR:", data);
+
+      if (res.status === 401) {
+        // optional auto logout
+        localStorage.removeItem("token");
+        window.location.href = "/login";
+      }
+
       throw new Error(data?.message || "Request failed");
     }
 
