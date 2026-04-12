@@ -19,10 +19,13 @@ export const useR2Upload = () => {
 
       const data = await res.json();
 
+      console.log("Upload response:", data); // DEBUG
+
       return (
         data?.media?.[0]?.url ||
-        data?.media?.url ||
-        data?.post?.media?.[0]?.url
+        data?.post?.media?.[0]?.url ||
+        data?.url ||
+        null
       );
 
     } catch (err) {
