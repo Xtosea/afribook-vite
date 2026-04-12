@@ -221,7 +221,7 @@ const Home = () => {
 
       const data = await res.json();
 
-      getSocket()?.emit("new-video", data.post);
+      
       setPosts((prev) => [data.post, ...prev]);
 
       // Reset form
