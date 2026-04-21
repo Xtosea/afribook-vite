@@ -45,4 +45,8 @@ export default function WelcomeOnboarding() {
       </div>
     </div>
   );
-}
+
+
+
+
+export default WelcomeOnboarding;
