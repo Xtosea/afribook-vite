@@ -10,14 +10,20 @@ export const useR2Upload = () => {
       formData.append("video", file);
 
       const res = await fetch(`${API_BASE}/api/posts/upload`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: formData,
-      });
+  method: "POST",
+  headers: {
+    Authorization: `Bearer ${localStorage.getItem("token")}`,
+  },
+  body: formData,
+});
 
-      const data = await res.json();
+if (!res.ok) {
+  const text = await res.text(); // 👈 see real error
+  console.error("Server error:", text);
+  throw new Error("Upload failed");
+}
+
+const data = await res.json();
 
       console.log("Upload response:", data); // DEBUG
 
