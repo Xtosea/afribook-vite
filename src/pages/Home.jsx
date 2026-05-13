@@ -126,22 +126,30 @@ const Home = () => {
       }
 
       connectSocket();
-      const socket = getSocket();
+const socket = getSocket();
 
-      if (!socket) return;
+if (!socket) return;
 
-      socket.on("new-post", (post) => {
-        setPosts((prev) => [post, ...prev]);
-      });
+socket.on("new-post", (post) => {
+  setPosts((prev) => {
 
-      socket.on("new-story", (story) => {
-        setStories((prev) => [story, ...prev]);
-      });
+    const exists = prev.some(
+      (p) => p._id === post._id
+    );
 
-      socket.on("birthday", (data) => {
-        alert(`🎉 Today is ${data.name}'s birthday`);
-      });
-    };
+    if (exists) return prev;
+
+    return [post, ...prev];
+  });
+});
+
+socket.on("new-story", (story) => {
+  setStories((prev) => [story, ...prev]);
+});
+
+socket.on("birthday", (data) => {
+  alert(`🎉 Today is ${data.name}'s birthday`);
+});
 
     init();
 
