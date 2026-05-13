@@ -323,6 +323,91 @@ setMediaFiles([]);
               />
 
               <div className="flex gap-2 flex-wrap">
+
+
+{/* EMOJI PICKER */}
+{showEmoji && (
+  <div className="border rounded-xl p-2">
+    <Suspense fallback={<div>Loading emojis...</div>}>
+      <EmojiPicker
+        onEmojiClick={(emojiData) => {
+          setNewPost((prev) => prev + emojiData.emoji);
+        }}
+      />
+    </Suspense>
+  </div>
+)}
+
+{/* LOCATION */}
+{showLocation && (
+  <div className="space-y-2">
+    <input
+      type="text"
+      placeholder="Enter location..."
+      value={location}
+      onChange={(e) =>
+        handleLocationSearch(e.target.value)
+      }
+      className="w-full border p-2 rounded-lg"
+    />
+
+    {locationSuggestions.map((item, i) => (
+      <div
+        key={i}
+        onClick={() => {
+          setLocation(item);
+          setLocationSuggestions([]);
+        }}
+        className="p-2 border rounded cursor-pointer hover:bg-gray-100"
+      >
+        {item}
+      </div>
+    ))}
+  </div>
+)}
+
+{/* FEELING */}
+{showFeeling && (
+  <div>
+    <input
+      type="text"
+      placeholder="How are you feeling?"
+      value={feeling}
+      onChange={(e) =>
+        setFeeling(e.target.value)
+      }
+      className="w-full border p-2 rounded-lg"
+    />
+  </div>
+)}
+
+{/* TAG FRIENDS */}
+{showTag && (
+  <div>
+    <input
+      type="text"
+      placeholder="Tag friends (comma separated)"
+      value={tagInput}
+      onChange={(e) =>
+        handleTagFriends(e.target.value)
+      }
+      className="w-full border p-2 rounded-lg"
+    />
+
+    {taggedFriends.length > 0 && (
+      <div className="flex flex-wrap gap-2 mt-2">
+        {taggedFriends.map((friend, i) => (
+          <span
+            key={i}
+            className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-sm"
+          >
+            @{friend.trim()}
+          </span>
+        ))}
+      </div>
+    )}
+  </div>
+)}
                 <button type="button" onClick={() => setShowEmoji(!showEmoji)}>
                   😊 Emoji
                 </button>
