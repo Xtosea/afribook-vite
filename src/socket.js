@@ -20,7 +20,7 @@ export const connectSocket = () => {
       },
 
       // ✅ Render-friendly transport
-      transports: ["polling"],
+      transports: ["websocket","polling"],
 
       // ✅ Allow cookies
       withCredentials: true,
@@ -33,6 +33,9 @@ export const connectSocket = () => {
 
       // ✅ Timeout
       timeout: 20000,
+      
+      autoConnect: true,
+      forceNew: false,
     });
 
     // ✅ Connected
