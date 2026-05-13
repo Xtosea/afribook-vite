@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { API_BASE } from "../api/api";
 import { useNavigate } from "react-router-dom";
-import { connectSocket } from "../socket";
+import { safeEmit, getSocket } from "../../socket";
 
 const Reels = () => {
   const [reels, setReels] = useState([]);
@@ -20,7 +20,7 @@ const Reels = () => {
   /** Fetch reels */
   const fetchReels = async () => {
     try {
-      const res = await fetch(`${API_BASE}/api/reels`);
+      const uploadUrl = `${API_BASE}/api/posts/reels/upload`;
       const data = await res.json();
       setReels(data);
 
