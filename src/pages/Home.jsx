@@ -273,10 +273,10 @@ useEffect(() => {
 
     const data = await res.json();
 
-    setPosts((prev) => [data.post, ...prev]);
+// Socket.IO will add the post automatically
 
-    setNewPost("");
-    setMediaFiles([]);
+setNewPost("");
+setMediaFiles([]);
 
   } catch (err) {
 
