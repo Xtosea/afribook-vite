@@ -23,12 +23,13 @@ const PostView = () => {
     "https://africbook.globelynks.com/logo.png";
 
   const title =
-    post?.text?.substring(0, 60) ||
-    `${post.user?.name} shared a post`;
+    const title =
+  post?.content?.substring(0, 60) ||
+  `${post.user?.name} shared a post`;
 
-  const description =
-    post?.text?.substring(0, 160) ||
-    "Check this post on Africbook";
+const description =
+  post?.content?.substring(0, 160) ||
+  "Check this post on Africbook";
 
   const url = `https://africbook.globelynks.com/post/${post._id}`;
 
