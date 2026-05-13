@@ -4,19 +4,23 @@ import { connectSocket } from "../socket";
 const Messages = () => {
   useEffect(() => {
     const socket = connectSocket();
+
     if (!socket) return;
 
-    // Join user room for private messaging
     const userId = localStorage.getItem("userId");
+
+    // join room
     socket.emit("join", userId);
 
-    // Listen for messages
+    // receive messages
     socket.on("receive-message", (message) => {
       console.log("New message:", message);
     });
 
-    // Clean up on unmount
-    return () => socket.disconnect();
+    // cleanup
+    return () => {
+      socket.off("receive-message");
+    };
   }, []);
 
   return <div>Messages Page</div>;
