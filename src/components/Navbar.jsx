@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { API_BASE } from "../api/api";
 import SearchBar from "./SearchBar";
-import { connectSocket } from "../socket";
+import { connectSocket, safeEmit } from "../socket";
 
 import {
   Bell,
@@ -37,22 +37,35 @@ const Navbar = () => {
 
   /* Socket */
   useEffect(() => {
-    if (!currentUserId) return;
+  useEffect(() => {
+  if (!currentUserId) return;
 
-    const socket = connectSocket();
+  const socket = connectSocket();
 
-    socket.emit("join", currentUserId);
+  if (!socket) {
+    console.log("❌ Navbar socket unavailable");
+    return;
+  }
 
-    socket.on("new-notification", (data) => {
-      setNotifications((prev) => [data, ...prev].slice(0, 50));
-    });
+  safeEmit("join", currentUserId);
 
-    socket.on("online-users", (users) => {
-      setOnlineUsers(users);
-    });
+  const handleNotification = (data) => {
+    setNotifications((prev) => [data, ...prev].slice(0, 50));
+  };
 
-    return () => socket.disconnect();
-  }, [currentUserId]);
+  const handleOnlineUsers = (users) => {
+    setOnlineUsers(users);
+  };
+
+  socket.on("new-notification", handleNotification);
+  socket.on("online-users", handleOnlineUsers);
+
+  return () => {
+    socket.off("new-notification", handleNotification);
+    socket.off("online-users", handleOnlineUsers);
+  };
+}, [currentUserId]);
+
 
   /* Close dropdowns */
   useEffect(() => {
