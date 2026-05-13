@@ -183,67 +183,75 @@ const Home = () => {
 
   // SUBMIT POST
   const handleSubmitPost = async (e) => {
-    e.preventDefault();
-    if (!newPost && mediaFiles.length === 0) return;
+  e.preventDefault();
 
-    setPosting(true);
+  if (!newPost && mediaFiles.length === 0) return;
 
-    try {
-      const uploadedMedia = [];
+  setPosting(true);
 
-      for (let file of mediaFiles) {
-        let compressedFile = file;
-        const type = file.type.startsWith("image") ? "image" : "video";
+  try {
 
-        if (type === "image") {
-          compressedFile = await imageCompression(file, {
-            maxSizeMB: 0.6,
-            maxWidthOrHeight: 1080,
-            useWebWorker: true,
-            fileType: "image/webp",
-            initialQuality: 0.8,
-          });
-        }
+    const uploadedMedia = [];
 
-        const url =
-          type === "image"
-            ? await uploadImage(compressedFile)
-            : await uploadVideo(file);
+    // Upload all files first
+    for (let file of mediaFiles) {
 
-        uploadedMedia.push({ url, type });
+      const type = file.type.startsWith("image")
+        ? "image"
+        : "video";
+
+      let url = "";
+
+      // IMAGE
+      if (type === "image") {
+
+        url = await uploadImage(file);
+
+      } else {
+
+        // VIDEO → R2
+        url = await uploadVideo(file);
+
       }
 
-      const res = await fetch(`${API_BASE}/api/posts`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          content: newPost,
-          media: uploadedMedia,
-          location,
-          feeling,
-          taggedFriends,
-        }),
+      uploadedMedia.push({
+        url,
+        type,
       });
-
-      const data = await res.json();
-
-      setPosts((prev) => [data.post, ...prev]);
-
-      setNewPost("");
-      setMediaFiles([]);
-      setLocation("");
-      setFeeling("");
-      setTaggedFriends([]);
-      setExpanded(false);
-    } catch (err) {
-      console.error(err);
     }
 
-    setPosting(false);
-  };
+    // CREATE POST IN DATABASE
+    const res = await fetch(`${API_BASE}/api/posts`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        content: newPost,
+        media: uploadedMedia,
+        location,
+        feeling,
+        taggedFriends,
+      }),
+    });
+
+    const data = await res.json();
+
+    setPosts((prev) => [data.post, ...prev]);
+
+    setNewPost("");
+    setMediaFiles([]);
+
+  } catch (err) {
+
+    console.error(err);
+    alert("Post failed");
+
+  }
+
+  setPosting(false);
+};
 
   return (
     <div className="w-full min-h-screen grid grid-cols-1 md:grid-cols-4 gap-4 max-w-7xl mx-auto">
