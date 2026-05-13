@@ -87,3 +87,39 @@ export const disconnectSocket = () => {
     console.log("🔌 Socket manually disconnected");
   }
 };
+
+
+// ✅ SAFE DEBUG EMIT
+export const safeEmit = (event, data) => {
+  console.log("📡 TRYING EMIT:", event);
+
+  const s = getSocket();
+
+  console.log("🧩 SOCKET STATUS:", {
+    exists: !!s,
+    connected: s?.connected,
+    id: s?.id,
+  });
+
+  if (!s) {
+    console.log("❌ EMIT BLOCKED — socket is null");
+    return false;
+  }
+
+  if (!s.connected) {
+    console.log("❌ EMIT BLOCKED — socket not connected");
+    return false;
+  }
+
+  try {
+    s.emit(event, data);
+
+    console.log("✅ EMIT SUCCESS:", event);
+
+    return true;
+  } catch (err) {
+    console.error("❌ EMIT CRASH:", event, err);
+
+    return false;
+  }
+};
