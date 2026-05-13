@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { getSocket } from "../../socket";
+import { getSocket, safeEmit } from "../../socket";
 
 const ChatWindow = ({ selectedUser, messages = [] }) => {
   const currentUserId = localStorage.getItem("userId");
@@ -61,7 +61,7 @@ const ChatWindow = ({ selectedUser, messages = [] }) => {
     };
 
     // Emit to server
-    socket?.emit("send-message", newMessage);
+    safeEmit("send-message", newMessage);
 
     // Optimistic UI (instant display)
     setLocalMessages((prev) => [...prev, newMessage]);
