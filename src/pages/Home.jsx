@@ -101,67 +101,94 @@ const Home = () => {
   }, [token, navigate]);
 
   // FETCH DATA
-  useEffect(() => {
-    if (!token) return;
+useEffect(() => {
+  if (!token) return;
 
-    const init = async () => {
-      try {
-        const postsData = await fetchWithToken(
-          `${API_BASE}/api/posts?limit=20`,
-          token
+  const init = async () => {
+    try {
+
+      const postsData = await fetchWithToken(
+        `${API_BASE}/api/posts?limit=20`,
+        token
+      );
+
+      setPosts(Array.isArray(postsData) ? postsData : []);
+
+      const res = await fetch(
+        `${API_BASE}/api/stories?limit=20`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await res.json();
+
+      setStories(data.stories || []);
+
+    } catch (err) {
+
+      console.error(err);
+
+    } finally {
+
+      setLoadingPosts(false);
+
+    }
+
+    // CONNECT SOCKET
+    connectSocket();
+
+    const socket = getSocket();
+
+    if (!socket) return;
+
+    // NEW POST
+    socket.on("new-post", (post) => {
+
+      setPosts((prev) => {
+
+        const exists = prev.some(
+          (p) => p._id === post._id
         );
 
-        setPosts(Array.isArray(postsData) ? postsData : []);
+        if (exists) return prev;
 
-        const res = await fetch(`${API_BASE}/api/stories?limit=20`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        return [post, ...prev];
+      });
 
-        const data = await res.json();
-        setStories(data.stories || []);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoadingPosts(false);
-      }
+    });
 
-      connectSocket();
-const socket = getSocket();
+    // NEW STORY
+    socket.on("new-story", (story) => {
+      setStories((prev) => [story, ...prev]);
+    });
 
-if (!socket) return;
+    // BIRTHDAY
+    socket.on("birthday", (data) => {
+      alert(`🎉 Today is ${data.name}'s birthday`);
+    });
 
-socket.on("new-post", (post) => {
-  setPosts((prev) => {
+  };
 
-    const exists = prev.some(
-      (p) => p._id === post._id
-    );
+  // RUN INIT
+  init();
 
-    if (exists) return prev;
+  // CLEANUP
+  return () => {
 
-    return [post, ...prev];
-  });
-});
+    const socket = getSocket();
 
-socket.on("new-story", (story) => {
-  setStories((prev) => [story, ...prev]);
-});
+    if (!socket) return;
 
-socket.on("birthday", (data) => {
-  alert(`🎉 Today is ${data.name}'s birthday`);
-});
+    socket.off("new-post");
+    socket.off("new-story");
+    socket.off("birthday");
 
-    init();
+  };
 
-    return () => {
-      const socket = getSocket();
-      if (!socket) return;
-      socket.off("new-post");
-      socket.off("new-story");
-      socket.off("birthday");
-    };
-  }, [token]);
-
+}, [token]);
   // LOCATION SEARCH
   const handleLocationSearch = async (value) => {
     setLocation(value);
