@@ -50,8 +50,12 @@ export const connectSocket = () => {
 
     // 🔴 Disconnected
     socket.on("disconnect", (reason) => {
-      console.log("🔴 Socket disconnected:", reason);
-    });
+  console.log("🔴 Socket disconnected:", reason);
+
+  if (reason === "transport close") {
+    socket.connect();
+  }
+});
 
     // 🔄 Reconnecting
     socket.on("reconnect_attempt", (attempt) => {
