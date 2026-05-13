@@ -6,8 +6,8 @@ export const useR2Upload = () => {
 
     // STEP 1
     const res = await fetch(
-      `${API_BASE}/api/r2/signed-url`
-    );
+  `${API_BASE}/api/r2/signed-url?contentType=${encodeURIComponent(file.type)}`
+);
 
     const data = await res.json();
 
