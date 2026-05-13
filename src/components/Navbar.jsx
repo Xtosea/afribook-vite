@@ -37,7 +37,6 @@ const Navbar = () => {
 
   /* Socket */
   useEffect(() => {
-  useEffect(() => {
   if (!currentUserId) return;
 
   const socket = connectSocket();
