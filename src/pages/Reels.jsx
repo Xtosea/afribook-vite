@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { API_BASE } from "../api/api";
 import { useNavigate } from "react-router-dom";
-import { safeEmit, getSocket } from "../../socket";
+import { safeEmit, getSocket } from "../socket";
 
 const Reels = () => {
   const [reels, setReels] = useState([]);
@@ -15,29 +15,32 @@ const Reels = () => {
   const fileRef = useRef();
 
   const navigate = useNavigate();
-  const socket = connectSocket();
+  const socket = getSocket();
 
   /** Fetch reels */
   const fetchReels = async () => {
-    try {
-      const uploadUrl = `${API_BASE}/api/posts/reels/upload`;
-      const data = await res.json();
-      setReels(data);
+  try {
+    const res = await fetch(`${API_BASE}/api/reels`);
 
-      const initialLikes = {};
-      const initialShares = {};
+    const data = await res.json();
 
-      data.forEach((r) => {
-        initialLikes[r._id] = r.likes?.length || 0;
-        initialShares[r._id] = r.shares || 0;
-      });
+    setReels(data);
 
-      setLikes(initialLikes);
-      setShares(initialShares);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+    const initialLikes = {};
+    const initialShares = {};
+
+    data.forEach((r) => {
+      initialLikes[r._id] = r.likes?.length || 0;
+      initialShares[r._id] = r.shares || 0;
+    });
+
+    setLikes(initialLikes);
+    setShares(initialShares);
+
+  } catch (err) {
+    console.error(err);
+  }
+};
 
   /** Socket listeners */
   useEffect(() => {
