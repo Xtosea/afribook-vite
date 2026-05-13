@@ -1,45 +1,32 @@
-import { useState } from "react";
 import { API_BASE } from "../api/api";
 
 export const useR2Upload = () => {
-  const [error, setError] = useState(null);
 
   const uploadVideo = async (file) => {
-    try {
-      const formData = new FormData();
-      formData.append("video", file);
 
-      const res = await fetch(`${API_BASE}/api/posts/upload`, {
-  method: "POST",
-  headers: {
-    Authorization: `Bearer ${localStorage.getItem("token")}`,
-  },
-  body: formData,
-});
+    // STEP 1
+    const res = await fetch(
+      `${API_BASE}/api/r2/signed-url`
+    );
 
-if (!res.ok) {
-  const text = await res.text(); // 👈 see real error
-  console.error("Server error:", text);
-  throw new Error("Upload failed");
-}
+    const data = await res.json();
 
-const data = await res.json();
+    // STEP 2
+    const uploadRes = await fetch(data.uploadUrl, {
+      method: "PUT",
+      body: file,
+      headers: {
+        "Content-Type": file.type,
+      },
+    });
 
-      console.log("Upload response:", data); // DEBUG
-
-      return (
-        data?.media?.[0]?.url ||
-        data?.post?.media?.[0]?.url ||
-        data?.url ||
-        null
-      );
-
-    } catch (err) {
-      console.error("Video upload error:", err);
-      setError(err);
-      return null;
+    if (!uploadRes.ok) {
+      throw new Error("R2 upload failed");
     }
+
+    // STEP 3
+    return data.fileUrl;
   };
 
-  return { uploadVideo, error };
+  return { uploadVideo };
 };
