@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { connectSocket } from "../socket";
+import { connectSocket, safeEmit } from "../socket";
 
 const Chat = () => {
   const [messages, setMessages] = useState([]);
@@ -29,7 +29,7 @@ const Chat = () => {
     return;
   }
 
-  socket.emit("send-message", {
+  safeEmit("send-message", {
     text,
     receiver: "USER_ID",
   });
