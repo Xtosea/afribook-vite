@@ -31,22 +31,27 @@ const Navbar = () => {
   const currentUserId = localStorage.getItem("userId");
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    setIsLoggedIn(!!token);
-  }, []);
+  const token = localStorage.getItem("token");
 
-  /* Socket */
-  useEffect(() => {
-  if (!currentUserId) return;
+  if (!token || !currentUserId) return;
 
   const socket = connectSocket();
 
-  if (!socket) {
-    console.log("❌ Navbar socket unavailable");
-    return;
+  if (!socket) return;
+
+  const joinUser = () => {
+    console.log("✅ JOINING USER:", currentUserId);
+
+    safeEmit("join", currentUserId);
+  };
+
+  // already connected
+  if (socket.connected) {
+    joinUser();
   }
 
-  safeEmit("join", currentUserId);
+  // wait for connection
+  socket.on("connect", joinUser);
 
   const handleNotification = (data) => {
     setNotifications((prev) => [data, ...prev].slice(0, 50));
@@ -60,6 +65,7 @@ const Navbar = () => {
   socket.on("online-users", handleOnlineUsers);
 
   return () => {
+    socket.off("connect", joinUser);
     socket.off("new-notification", handleNotification);
     socket.off("online-users", handleOnlineUsers);
   };
