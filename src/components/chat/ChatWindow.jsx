@@ -47,10 +47,10 @@ const ChatWindow = ({ selectedUser, messages = [] }) => {
   const sendMessage = () => {
     const socket = getSocket();
 
-    if (!socket) {
-      console.log("❌ Socket not connected yet");
-      return;
-    }
+    if (!socket || !socket.connected) {
+  console.log("❌ Socket not connected yet");
+  return;
+}
 
     if (!text.trim() || !safeSelectedId) return;
 
@@ -61,7 +61,7 @@ const ChatWindow = ({ selectedUser, messages = [] }) => {
     };
 
     // Emit to server
-    socket.emit("send-message", newMessage);
+    socket?.emit("send-message", newMessage);
 
     // Optimistic UI (instant display)
     setLocalMessages((prev) => [...prev, newMessage]);
