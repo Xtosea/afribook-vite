@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 import { API_BASE } from "../../api/api";
-import { getSocket } from "../../socket"; // optional
+import { safeEmit } from "../../socket"; // optional
 
 const ReelUpload = () => {
   const fileRef = useRef();
@@ -65,7 +65,7 @@ const ReelUpload = () => {
 
         // Optional: notify Reels page via socket
         const socket = getSocket();
-        if (socket) socket.emit("new-reel-uploaded", data);
+        if (socket) safeEmit("new-reel-uploaded", data);
       }
     } catch (err) {
       console.error("Upload error:", err);
