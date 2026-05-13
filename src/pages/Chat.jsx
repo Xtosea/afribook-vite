@@ -1,62 +1,64 @@
-import React,{useEffect,useState} from "react"
-import { connectSocket } from "../socket"
+import React, { useEffect, useState } from "react";
+import { connectSocket } from "../socket";
 
 const Chat = () => {
+  const [messages, setMessages] = useState([]);
+  const [text, setText] = useState([]);
 
-const [messages,setMessages] = useState([])
-const [text,setText] = useState("")
+  useEffect(() => {
+    const socket = connectSocket();
 
-useEffect(()=>{
+    if (!socket) return;
 
-const socket = connectSocket()
+    const handleMessage = (msg) => {
+      setMessages((prev) => [...prev, msg]);
+    };
 
-socket.on("receive-message",(msg)=>{
-setMessages(prev=>[...prev,msg])
-})
+    socket.on("receive-message", handleMessage);
 
-},[])
+    return () => {
+      socket.off("receive-message", handleMessage);
+    };
+  }, []);
 
-const sendMessage = ()=>{
+  const sendMessage = () => {
+    const socket = connectSocket();
 
-const socket = connectSocket()
+    // ✅ VERY IMPORTANT
+    if (!socket) {
+      console.log("❌ Socket unavailable");
+      return;
+    }
 
-socket.emit("send-message",{
-text,
-receiver:"USER_ID"
-})
+    socket.emit("send-message", {
+      text,
+      receiver: "USER_ID",
+    });
 
-setText("")
+    setText("");
+  };
 
-}
+  return (
+    <div className="max-w-xl mx-auto">
+      <div className="h-96 overflow-y-auto border">
+        {messages.map((m, i) => (
+          <div key={i} className="p-2">
+            {m.text}
+          </div>
+        ))}
+      </div>
 
-return (
+      <input
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        className="border w-full p-2"
+      />
 
-<div className="max-w-xl mx-auto">
+      <button onClick={sendMessage}>
+        Send
+      </button>
+    </div>
+  );
+};
 
-<div className="h-96 overflow-y-auto border">
-
-{messages.map((m,i)=>(
-<div key={i} className="p-2">
-{m.text}
-</div>
-))}
-
-</div>
-
-<input
-value={text}
-onChange={e=>setText(e.target.value)}
-className="border w-full p-2"
-/>
-
-<button onClick={sendMessage}>
-Send
-</button>
-
-</div>
-
-)
-
-}
-
-export default Chat
+export default Chat;
