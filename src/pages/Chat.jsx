@@ -22,21 +22,20 @@ const Chat = () => {
   }, []);
 
   const sendMessage = () => {
-    const socket = connectSocket();
+  const socket = connectSocket();
 
-    // ✅ VERY IMPORTANT
-    if (!socket) {
-      console.log("❌ Socket unavailable");
-      return;
-    }
+  if (!socket || !socket.connected) {
+    console.log("❌ Socket unavailable");
+    return;
+  }
 
-    socket.emit("send-message", {
-      text,
-      receiver: "USER_ID",
-    });
+  socket.emit("send-message", {
+    text,
+    receiver: "USER_ID",
+  });
 
-    setText("");
-  };
+  setText("");
+};
 
   return (
     <div className="max-w-xl mx-auto">
