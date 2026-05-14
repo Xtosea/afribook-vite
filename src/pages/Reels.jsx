@@ -19,7 +19,7 @@ const Reels = () => {
   const socket = getSocket();
 
   // ✅ R2
-  const { uploadVideo } = useR2Upload();
+  const { uploadFile, loading, progress } = useR2Upload();
 
   /** Fetch reels */
   const fetchReels = async () => {
@@ -170,33 +170,47 @@ const Reels = () => {
 
   /** Upload reel */
   const uploadReel = async () => {
+  try {
     const file = fileRef.current.files[0];
-    if (!file) return alert("Select video");
 
-    const formData = new FormData();
-    formData.append("video", file);
-    formData.append("caption", caption);
-
-    try {
-      const token = localStorage.getItem("token");
-
-      await fetch(`${API_BASE}/api/posts/reels/upload`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
-
-      setCaption("");
-      setPreview(null);
-      setShowUpload(false);
-      fileRef.current.value = null;
-
-    } catch (err) {
-      console.error(err);
+    if (!file) {
+      return alert("Select video");
     }
-  };
+
+    // upload directly to R2
+    const uploadedUrl = await uploadFile(file);
+
+    const token = localStorage.getItem("token");
+
+    // save reel metadata only
+    const res = await fetch(`${API_BASE}/api/posts/reels`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        caption,
+        videoUrl: uploadedUrl,
+      }),
+    });
+
+    const newReel = await res.json();
+
+    setReels((prev) => [newReel, ...prev]);
+
+    setCaption("");
+    setPreview(null);
+    setShowUpload(false);
+
+    if (fileRef.current) {
+      fileRef.current.value = null;
+    }
+
+  } catch (err) {
+    console.error("UPLOAD ERROR:", err);
+  }
+};
 
   return (
     <div className="h-screen overflow-y-scroll snap-y snap-mandatory bg-black relative">
@@ -241,6 +255,22 @@ const Reels = () => {
                   {reel.content}
                 </p>
               </div>
+
+
+    {loading && (
+  <div className="mb-3">
+    <div className="w-full bg-gray-700 rounded-full h-3 overflow-hidden">
+      <div
+        className="bg-green-500 h-3 transition-all"
+        style={{ width: `${progress}%` }}
+      />
+    </div>
+
+    <p className="text-sm mt-1 text-center">
+      Uploading... {progress}%
+    </p>
+  </div>
+)}
 
               {/* Buttons */}
               <div className="flex flex-col items-center gap-5 text-white">
