@@ -8,45 +8,51 @@ const API_BASE = import.meta.env.VITE_API_BASE;
 export function use2Upload() {
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [error, setError] = useState(null);
 
   const uploadFile = async (file) => {
     try {
       setLoading(true);
       setProgress(0);
+      setError(null);
 
       // 1. Get signed URL
-      const signRes = await fetch(
+      const signedRes = await fetch(
         `${API_BASE}/api/r2/signed-url?contentType=${file.type}`
       );
 
-      const signData = await signRes.json();
+      const signedData = await signedRes.json();
 
-      if (!signRes.ok) {
-        throw new Error(signData.error || "Failed to get signed URL");
+      if (!signedData.uploadUrl) {
+        throw new Error("Failed to get signed URL");
       }
 
-      const { uploadUrl, fileUrl } = signData;
-
       // 2. Upload directly to R2
-      await axios.put(uploadUrl, file, {
-        headers: {
-          "Content-Type": file.type,
-        },
+      await axios.put(
+        signedData.uploadUrl,
+        file,
+        {
+          headers: {
+            "Content-Type": file.type,
+          },
 
-        onUploadProgress: (progressEvent) => {
-          const percent = Math.round(
-            (progressEvent.loaded * 100) /
-              progressEvent.total
-          );
+          onUploadProgress: (event) => {
+            const percent = Math.round(
+              (event.loaded * 100) / event.total
+            );
 
-          setProgress(percent);
-        },
-      });
+            setProgress(percent);
+          },
+        }
+      );
 
-      return fileUrl;
+      return signedData.fileUrl;
 
     } catch (err) {
-      console.error("R2 UPLOAD ERROR:", err);
+      console.error("R2 Upload Error:", err);
+
+      setError(err.message);
+
       throw err;
 
     } finally {
@@ -58,5 +64,6 @@ export function use2Upload() {
     uploadFile,
     loading,
     progress,
+    error,
   };
 }
