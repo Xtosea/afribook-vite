@@ -20,7 +20,7 @@ const Reels = () => {
   /** Fetch reels */
   const fetchReels = async () => {
   try {
-    const res = await fetch(`${API_BASE}/api/reels`);
+    const res = await fetch(`${API_BASE}/api/posts/reels`);
 
     const data = await res.json();
 
@@ -115,7 +115,7 @@ const Reels = () => {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await fetch(`${API_BASE}/api/reels/${id}/like`, {
+      const res = await fetch(`${API_BASE}/api/posts/${id}/like`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -138,7 +138,7 @@ const Reels = () => {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await fetch(`${API_BASE}/api/reels/${id}/share`, {
+      const res = await fetch(`${API_BASE}/api/posts/${id}/share`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -176,7 +176,7 @@ const Reels = () => {
     try {
       const token = localStorage.getItem("token");
 
-      await fetch(`${API_BASE}/api/reels/upload`, {
+      await fetch(`${API_BASE}/api/posts/reels/upload`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
