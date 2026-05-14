@@ -60,7 +60,7 @@ const PostComposer = ({
           formData.append("file", file);
 
           const res = await fetch(
-            `${API_BASE}/api/upload-image`,
+            `${API_BASE}/api/posts`,
             {
               method: "POST",
               headers: {
@@ -74,7 +74,7 @@ const PostComposer = ({
           url = data.url;
         } else {
           const res = await fetch(
-            `${API_BASE}/api/upload-video`,
+            `${API_BASE}/api/posts`,
             {
               method: "POST",
               headers: {
