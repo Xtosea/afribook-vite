@@ -18,6 +18,9 @@ const Reels = () => {
   const navigate = useNavigate();
   const socket = getSocket();
 
+  // ✅ R2
+  const { uploadVideo } = useR2Upload();
+
   /** Fetch reels */
   const fetchReels = async () => {
   try {
