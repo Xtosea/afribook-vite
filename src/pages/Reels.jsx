@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { API_BASE } from "../api/api";
 import { useNavigate } from "react-router-dom";
 import { safeEmit, getSocket } from "../socket";
+import { useR2Upload } from "../hooks/useR2Upload";
 
 const Reels = () => {
   const [reels, setReels] = useState([]);
