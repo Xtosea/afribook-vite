@@ -11,6 +11,47 @@ const ReelCard = ({
   shares,
 }) => {
   const navigate = useNavigate();
+const [showHeart, setShowHeart] = useState(false);
+const [buffering, setBuffering] = useState(true);
+const [page, setPage] = useState(1);
+const [hasMore, setHasMore] = useState(true);
+
+const handleDoubleTap = () => {
+  setShowHeart(true);
+
+  likeReel(reel._id);
+
+  setTimeout(() => {
+    setShowHeart(false);
+  }, 800);
+};
+
+
+onWaiting={() => setBuffering(true)}
+onPlaying={() => setBuffering(false)}
+
+const fetchMoreReels = async () => {
+  try {
+    const res = await fetch(
+      `${API_BASE}/api/posts/reels?page=${page}`
+    );
+
+    const data = await res.json();
+
+    if (!data.length) {
+      setHasMore(false);
+      return;
+    }
+
+    setReels((prev) => [...prev, ...data]);
+
+    setPage((prev) => prev + 1);
+
+  } catch (err) {
+    console.error(err);
+  }
+};
+
 
   return (
     <div className="h-screen snap-start relative bg-black">
@@ -24,6 +65,8 @@ const ReelCard = ({
         playsInline
         onPlay={() => recordView(reel._id)}
       />
+
+      onDoubleClick={handleDoubleTap}
 
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent">
 
@@ -79,6 +122,24 @@ const ReelCard = ({
                   {shares[reel._id] || 0}
                 </span>
               </button>
+
+           {showHeart && (
+  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+
+    <div className="text-7xl animate-ping">
+      ❤️
+    </div>
+
+  </div>
+)}
+
+{buffering && (
+  <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+
+    <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin" />
+
+  </div>
+)}
 
             </div>
 
