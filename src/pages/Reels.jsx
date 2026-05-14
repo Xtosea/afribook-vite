@@ -6,7 +6,7 @@ import React, {
 
 import { API_BASE } from "../api/api";
 import { getSocket } from "../socket";
-import { useR2Upload } from "../hooks/useR2Upload";
+import { use2Upload } from "../hooks/use2Upload";
 
 import ReelCard from "../components/reels/ReelCard";
 import ReelUploadModal from "../components/reels/ReelUploadModal";
@@ -33,7 +33,7 @@ const Reels = () => {
     uploadFile,
     loading,
     progress,
-  } = useR2Upload();
+  } = use2Upload();
 
   useEffect(() => {
     fetchReels();
