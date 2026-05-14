@@ -28,14 +28,14 @@ const ReelCard = ({
 
   return (
     <div
-      className="h-[80vh] snap-start relative bg-black overflow-hidden"
+      className="h-screen snap-start relative bg-black overflow-hidden"
       onDoubleClick={handleDoubleTap}
     >
       {/* VIDEO */}
       <video
         ref={reelRef}
         src={reel.media?.[0]?.url}
-        className="h-[70v] w-full object-cover"
+        className="h-full w-full object-cover"
         loop
         muted
         playsInline
