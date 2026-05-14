@@ -1,54 +1,63 @@
 import { useState } from "react";
-import { API_BASE } from "../api/api";
-import { useR2Upload } from "./useR2Upload";
+import axios from "axios";
 
-export const useStoryUpload = () => {
-  const { uploadVideo } = useR2Upload();
-  const [uploading, setUploading] = useState(false);
+const API_BASE = import.meta.env.VITE_API_BASE;
 
-  const uploadStory = async (file) => {
+export function useStoryUpload() {
+  const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [error, setError] = useState(null);
+
+  const uploadFile = async (file) => {
     try {
-      setUploading(true);
+      setLoading(true);
+      setProgress(0);
+      setError(null);
 
-      console.log("Uploading file:", file);
+      // Get signed URL
+      const signedRes = await fetch(
+        `${API_BASE}/api/r2/signed-url?contentType=${file.type}`
+      );
 
-      const mediaUrl = await uploadVideo(file);
+      const signedData = await signedRes.json();
 
-      console.log("R2 URL:", mediaUrl);
-
-      if (!mediaUrl) {
-        throw new Error("Upload failed");
+      if (!signedData.uploadUrl) {
+        throw new Error("Failed to generate signed URL");
       }
 
-      const token = localStorage.getItem("token");
-
-      console.log("Token:", token);
-
-      const res = await fetch(`${API_BASE}/api/stories/upload-video`, {
-        method: "POST",
+      // Upload directly to R2
+      await axios.put(signedData.uploadUrl, file, {
         headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          "Content-Type": file.type,
         },
-        body: JSON.stringify({
-          url: mediaUrl,
-          type: file.type.startsWith("image") ? "image" : "video",
-        }),
+
+        onUploadProgress: (event) => {
+          const percent = Math.round(
+            (event.loaded * 100) / event.total
+          );
+
+          setProgress(percent);
+        },
       });
 
-      const data = await res.json();
-
-      console.log("Story response:", data);
-
-      return data;
+      return signedData.fileUrl;
 
     } catch (err) {
-      console.error("Story upload error:", err);
-      return null;
+      console.error("R2 Upload Error:", err);
+
+      setError(err.message);
+
+      throw err;
+
     } finally {
-      setUploading(false);
+      setLoading(false);
     }
   };
 
-  return { uploadStory, uploading };
-};
+  return {
+    uploadFile,
+    loading,
+    progress,
+    error,
+  };
+}
