@@ -5,16 +5,23 @@ const API_BASE = import.meta.env.VITE_API_BASE;
 
 export function useStoryUpload() {
   const [loading, setLoading] = useState(false);
+
   const [progress, setProgress] = useState(0);
+
   const [error, setError] = useState(null);
 
-  const uploadFile = async (file) => {
+  const uploadStory = async (file) => {
     try {
       setLoading(true);
+
       setProgress(0);
+
       setError(null);
 
-      // Get signed URL
+      // =========================
+      // GET SIGNED URL
+      // =========================
+
       const signedRes = await fetch(
         `${API_BASE}/api/r2/signed-url?contentType=${file.type}`
       );
@@ -25,37 +32,80 @@ export function useStoryUpload() {
         throw new Error("Failed to generate signed URL");
       }
 
-      // Upload directly to R2
-      await axios.put(signedData.uploadUrl, file, {
-        headers: {
-          "Content-Type": file.type,
-        },
+      // =========================
+      // UPLOAD DIRECTLY TO R2
+      // =========================
 
-        onUploadProgress: (event) => {
-          const percent = Math.round(
-            (event.loaded * 100) / event.total
-          );
+      await axios.put(
+        signedData.uploadUrl,
+        file,
+        {
+          headers: {
+            "Content-Type": file.type,
+          },
 
-          setProgress(percent);
-        },
-      });
+          onUploadProgress: (event) => {
+            const percent = Math.round(
+              (event.loaded * 100) / event.total
+            );
 
-      return signedData.fileUrl;
+            setProgress(percent);
+          },
+        }
+      );
+
+      // =========================
+      // SAVE STORY TO DATABASE
+      // =========================
+
+      const token = localStorage.getItem("token");
+
+      const res = await fetch(
+        `${API_BASE}/api/stories`,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json",
+
+            Authorization: `Bearer ${token}`,
+          },
+
+          body: JSON.stringify({
+            media: [
+              {
+                url: signedData.fileUrl,
+
+                type: file.type.startsWith("video")
+                  ? "video"
+                  : "image",
+              },
+            ],
+          }),
+        }
+      );
+
+      const story = await res.json();
+
+      return story;
 
     } catch (err) {
-      console.error("R2 Upload Error:", err);
+
+      console.error("Story Upload Error:", err);
 
       setError(err.message);
 
       throw err;
 
     } finally {
+
       setLoading(false);
+
     }
   };
 
   return {
-    uploadFile,
+    uploadStory,
     loading,
     progress,
     error,
