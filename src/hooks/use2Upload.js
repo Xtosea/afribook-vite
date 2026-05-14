@@ -1,5 +1,3 @@
-// hooks/useR2Upload.js
-
 import { useState } from "react";
 import axios from "axios";
 
@@ -16,7 +14,7 @@ export function use2Upload() {
       setProgress(0);
       setError(null);
 
-      // 1. Get signed URL
+      // Get signed URL
       const signedRes = await fetch(
         `${API_BASE}/api/r2/signed-url?contentType=${file.type}`
       );
@@ -24,27 +22,23 @@ export function use2Upload() {
       const signedData = await signedRes.json();
 
       if (!signedData.uploadUrl) {
-        throw new Error("Failed to get signed URL");
+        throw new Error("Failed to generate signed URL");
       }
 
-      // 2. Upload directly to R2
-      await axios.put(
-        signedData.uploadUrl,
-        file,
-        {
-          headers: {
-            "Content-Type": file.type,
-          },
+      // Upload directly to R2
+      await axios.put(signedData.uploadUrl, file, {
+        headers: {
+          "Content-Type": file.type,
+        },
 
-          onUploadProgress: (event) => {
-            const percent = Math.round(
-              (event.loaded * 100) / event.total
-            );
+        onUploadProgress: (event) => {
+          const percent = Math.round(
+            (event.loaded * 100) / event.total
+          );
 
-            setProgress(percent);
-          },
-        }
-      );
+          setProgress(percent);
+        },
+      });
 
       return signedData.fileUrl;
 
