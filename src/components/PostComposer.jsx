@@ -338,6 +338,23 @@ const PostComposer = ({
 
             </div>
 
+          <button
+  type="button"
+  onClick={() => {
+    setExpanded(false);
+    setNewPost("");
+    setMediaFiles([]);
+    setLocation("");
+    setFeeling("");
+    setTagInput("");
+    setTaggedFriends([]);
+  }}
+  className="px-6 py-2 rounded-full bg-red-500 hover:bg-red-600 text-white font-medium transition"
+>
+  Cancel
+</button>
+
+
             {/* POST BUTTON */}
 
             <button
