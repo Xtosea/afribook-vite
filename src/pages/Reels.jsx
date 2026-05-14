@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { API_BASE } from "../api/api";
 import { useNavigate } from "react-router-dom";
 import { safeEmit, getSocket } from "../socket";
-import { useR2Upload } from "../hooks/useR2Upload";
+import { use2Upload } from "../hooks/use2Upload";
 
 const Reels = () => {
   const [reels, setReels] = useState([]);
@@ -19,7 +19,7 @@ const Reels = () => {
   const socket = getSocket();
 
   // ✅ R2
-  const { uploadFile, loading, progress } = useR2Upload();
+  const { uploadFile, loading, progress } = use2Upload();
 
   /** Fetch reels */
   const fetchReels = async () => {
