@@ -245,7 +245,9 @@ useEffect(() => {
       } else {
 
         // VIDEO → R2
-        url = await uploadVideo(file);
+        await validateVideoDuration(file, 60);
+
+         url = await uploadVideo(file);
 
       }
 
