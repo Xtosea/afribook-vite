@@ -217,14 +217,14 @@ const Reels = () => {
             {/* User */}
             <div
               className="flex items-center gap-2 text-white cursor-pointer"
-              onClick={() => navigate(`/profile/${reel.user._id}`)}
+              onClick={() => reel.user?._id && navigate(`/profile/${reel.user._id}`)}
             >
               <img
-                src={reel.user.profilePic}
+                src={reel.user?.profilePic || "/default-avatar.png"}
                 className="w-10 h-10 rounded-full object-cover"
               />
               <span className="font-semibold">
-                {reel.user.name}
+               {reel.user?.name || "Unknown User"}
               </span>
             </div>
 
