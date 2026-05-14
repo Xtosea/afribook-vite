@@ -3,7 +3,7 @@ import { fetchFile } from "@ffmpeg/util";
 
 const ffmpeg = new FFmpeg();
 
-export const compressVideo = async (file) => {
+const compressVideo = async (file) => {
   if (!ffmpeg.loaded) {
     await ffmpeg.load();
   }
