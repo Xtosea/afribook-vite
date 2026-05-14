@@ -20,6 +20,7 @@ import { useCloudinaryUpload } from "../hooks/useCloudinaryUpload";
 import { useR2Upload } from "../hooks/useR2Upload";
 import validateVideoDuration from "../utils/validateVideoDuration";
 import compressVideo from "../utils/compressVideo";
+import PostComposer from "../components/PostComposer";
 
 // Lazy-loaded components
 const EmojiPicker = lazy(() => import("emoji-picker-react"));
