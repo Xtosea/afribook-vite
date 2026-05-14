@@ -35,7 +35,7 @@ const ReelCard = ({
       <video
         ref={reelRef}
         src={reel.media?.[0]?.url}
-        className="h-full w-full object-cover"
+        className="h-[70v] w-full object-cover"
         loop
         muted
         playsInline
