@@ -28,7 +28,7 @@ const ReelCard = ({
 
   return (
     <div
-      className="h-screen snap-start relative bg-black overflow-hidden"
+      className="h-[75vh] snap-start relative bg-black overflow-hidden"
       onDoubleClick={handleDoubleTap}
     >
       {/* VIDEO */}
