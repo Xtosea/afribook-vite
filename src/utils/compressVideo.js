@@ -27,7 +27,9 @@ const compressVideo = async (file) => {
     "output.mp4",
   ]);
 
-  const data = await ffmpeg.readFile("output.mp4");
+  const data = await ffmpeg.readFile(
+    "output.mp4"
+  );
 
   return new File(
     [data.buffer],
@@ -37,3 +39,5 @@ const compressVideo = async (file) => {
     }
   );
 };
+
+export default compressVideo;
