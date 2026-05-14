@@ -1,16 +1,3 @@
-🚀 NOW UPDATE Home.jsx (VERY IMPORTANT)
-Replace your old post form with:
-JSX
-<PostComposer
-token={token}
-currentUser={currentUser}
-onPostCreated={(post) => {
-setPosts((prev) => [post, ...prev]);
-}}
-/>
-
-Help to replace it thanks
-
 import React, {
 useEffect,
 useRef,
