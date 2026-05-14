@@ -211,7 +211,7 @@ const Reels = () => {
   }
 
   return (
-    <div className="h-screen overflow-y-scroll snap-y snap-mandatory bg-black relative">
+    <div className="w-full h-[90vh] object-cover overflow-y-scroll snap-y snap-mandatory bg-black relative">
 
       {reels.map((reel, i) => (
         <ReelCard
