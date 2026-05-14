@@ -4,9 +4,16 @@ import { fetchFile } from "@ffmpeg/util";
 const ffmpeg = new FFmpeg();
 
 const compressVideo = async (file) => {
+
   if (!ffmpeg.loaded) {
     await ffmpeg.load();
   }
+
+  // Clear old files
+  try {
+    await ffmpeg.deleteFile("input.mp4");
+    await ffmpeg.deleteFile("output.mp4");
+  } catch {}
 
   await ffmpeg.writeFile(
     "input.mp4",
@@ -23,7 +30,7 @@ const compressVideo = async (file) => {
     "-b:v",
     "1M",
     "-preset",
-    "fast",
+    "ultrafast",
     "output.mp4",
   ]);
 
@@ -32,7 +39,7 @@ const compressVideo = async (file) => {
   );
 
   return new File(
-    [data.buffer],
+    [data],
     "compressed.mp4",
     {
       type: "video/mp4",
