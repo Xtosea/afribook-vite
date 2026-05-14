@@ -1,27 +1,39 @@
-const validateVideoDuration = (file, maxSeconds = 60) => {
-  return new Promise((resolve, reject) => {
-    const video = document.createElement("video");
+import { FFmpeg } from "@ffmpeg/ffmpeg";
+import { fetchFile } from "@ffmpeg/util";
 
-    video.preload = "metadata";
+const ffmpeg = new FFmpeg();
 
-    video.onloadedmetadata = () => {
-      URL.revokeObjectURL(video.src);
+export const compressVideo = async (file) => {
+  if (!ffmpeg.loaded) {
+    await ffmpeg.load();
+  }
 
-      if (video.duration > maxSeconds) {
-        reject(
-          `Video exceeds ${maxSeconds} seconds`
-        );
-      } else {
-        resolve(video.duration);
-      }
-    };
+  await ffmpeg.writeFile(
+    "input.mp4",
+    await fetchFile(file)
+  );
 
-    video.onerror = () => {
-      reject("Invalid video file");
-    };
+  await ffmpeg.exec([
+    "-i",
+    "input.mp4",
+    "-vf",
+    "scale=720:-1",
+    "-r",
+    "30",
+    "-b:v",
+    "1M",
+    "-preset",
+    "fast",
+    "output.mp4",
+  ]);
 
-    video.src = URL.createObjectURL(file);
-  });
+  const data = await ffmpeg.readFile("output.mp4");
+
+  return new File(
+    [data.buffer],
+    "compressed.mp4",
+    {
+      type: "video/mp4",
+    }
+  );
 };
-
-export default validateVideoDuration;
