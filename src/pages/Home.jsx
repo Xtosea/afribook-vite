@@ -18,6 +18,8 @@ import { getSocket, connectSocket } from "../socket";
 
 import { useCloudinaryUpload } from "../hooks/useCloudinaryUpload";
 import { useR2Upload } from "../hooks/useR2Upload";
+import validateVideoDuration from "../utils/validateVideoDuration";
+
 
 // Lazy-loaded components
 const EmojiPicker = lazy(() => import("emoji-picker-react"));
