@@ -19,6 +19,7 @@ import { getSocket, connectSocket } from "../socket";
 import { useCloudinaryUpload } from "../hooks/useCloudinaryUpload";
 import { useR2Upload } from "../hooks/useR2Upload";
 import validateVideoDuration from "../utils/validateVideoDuration";
+import compressVideo from "../utils/compressVideo";
 
 
 // Lazy-loaded components
