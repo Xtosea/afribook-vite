@@ -7,7 +7,11 @@ const StoriesBar = ({ user, stories = [] }) => {
   const safeUser = user && typeof user === "object" && !user.$$typeof ? user : {};
   const fileRef = useRef();
   const socket = getSocket();
-  const { uploadStory, loading } = useStoryUpload();
+  const {
+  uploadStory,
+  loading,
+  progress,
+} = useStoryUpload();
 
   const [storiesLikes, setStoriesLikes] = useState({});
   const [heartAnim, setHeartAnim] = useState({});
@@ -97,6 +101,27 @@ const StoriesBar = ({ user, stories = [] }) => {
         className={`min-w-[80px] h-32 bg-gray-200 rounded-lg flex flex-col items-center justify-center text-sm cursor-pointer hover:ring-2 hover:ring-blue-500 ${
           loading ? "opacity-50 cursor-wait" : ""
         }`}
+
+     {loading && (
+  <div className="w-full px-2 mt-2">
+
+    <div className="w-full h-2 bg-gray-300 rounded-full overflow-hidden">
+
+      <div
+        className="h-2 bg-blue-500 transition-all"
+        style={{
+          width: `${progress}%`,
+        }}
+      />
+
+    </div>
+
+    <p className="text-[10px] text-center mt-1">
+      {progress}%
+    </p>
+
+  </div>
+)}
         onClick={handleAddStory}
       >
         <img
