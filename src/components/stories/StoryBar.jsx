@@ -8,10 +8,17 @@ import StoryCard from "./StoryCard";
 import StoryViewer from "./StoryViewer";
 
 import { API_BASE } from "../../api/api";
+import { useStoryUpload } from "../../hooks/useStoryUpload";
 
 const StoryBar = ({ user }) => {
 
   const fileRef = useRef();
+
+  const {
+    uploadStory,
+    loading,
+    progress,
+  } = useStoryUpload();
 
   const [selectedStory, setSelectedStory] =
     useState(null);
@@ -22,74 +29,92 @@ const StoryBar = ({ user }) => {
   const [activeStories, setActiveStories] =
     useState([]);
 
-  const [loading, setLoading] =
-    useState(true);
-
   // ================= FETCH STORIES =================
-  useEffect(() => {
+  const fetchStories = async () => {
 
-    const fetchStories = async () => {
+    try {
 
-      try {
+      const token =
+        localStorage.getItem("token");
 
-        setLoading(true);
-
-        const token =
-          localStorage.getItem("token");
-
-        const res = await fetch(
-          `${API_BASE}/api/stories`,
-          {
-            headers: {
-              Authorization:
-                `Bearer ${token}`,
-            },
-          }
-        );
-
-        const data =
-          await res.json();
-
-        console.log(
-          "Stories response:",
-          data
-        );
-
-        // SAFE ARRAY
-        if (
-          data &&
-          Array.isArray(data.stories)
-        ) {
-
-          setActiveStories(
-            data.stories
-          );
-
-        } else {
-
-          setActiveStories([]);
-
+      const res = await fetch(
+        `${API_BASE}/api/stories`,
+        {
+          headers: {
+            Authorization:
+              `Bearer ${token}`,
+          },
         }
+      );
 
-      } catch (err) {
+      const data =
+        await res.json();
 
-        console.error(
-          "Fetch stories error:",
-          err
-        );
+      console.log(
+        "Fetched stories:",
+        data
+      );
 
-        setActiveStories([]);
+      setActiveStories(
+        Array.isArray(data.stories)
+          ? data.stories
+          : []
+      );
 
-      } finally {
+    } catch (err) {
 
-        setLoading(false);
+      console.error(
+        "Fetch stories error:",
+        err
+      );
+    }
+  };
 
-      }
-    };
+  useEffect(() => {
 
     fetchStories();
 
   }, []);
+
+  // ================= CREATE STORY =================
+  const handleCreateStory = () => {
+
+    fileRef.current?.click();
+
+  };
+
+  // ================= UPLOAD STORY =================
+  const handleUpload = async (e) => {
+
+    const file =
+      e.target.files[0];
+
+    if (!file) return;
+
+    try {
+
+      const newStory =
+        await uploadStory(file);
+
+      console.log(
+        "Uploaded story:",
+        newStory
+      );
+
+      // instantly add to UI
+      setActiveStories((prev) => [
+        newStory,
+        ...prev,
+      ]);
+
+    } catch (err) {
+
+      console.error(
+        "Upload story error:",
+        err
+      );
+    }
+  };
 
   // ================= OPEN STORY =================
   const openStory = (story) => {
@@ -186,13 +211,6 @@ const StoryBar = ({ user }) => {
     }
   };
 
-  // ================= CREATE STORY =================
-  const handleCreateStory = () => {
-
-    fileRef.current?.click();
-
-  };
-
   return (
     <>
 
@@ -207,7 +225,7 @@ const StoryBar = ({ user }) => {
         "
       >
 
-        {/* CREATE STORY CARD */}
+        {/* CREATE STORY */}
         <div
           onClick={
             handleCreateStory
@@ -255,64 +273,41 @@ const StoryBar = ({ user }) => {
               mt-3
             "
           >
-            Create Story
+            {loading
+              ? `Uploading ${progress}%`
+              : "Create Story"}
           </p>
 
+          {/* HIDDEN INPUT */}
           <input
             type="file"
             ref={fileRef}
             className="hidden"
             accept="image/*,video/*"
+            onChange={handleUpload}
           />
 
         </div>
 
-        {/* LOADING */}
-        {loading && (
-
-          <div className="text-gray-500 text-sm pt-3">
-            Loading stories...
-          </div>
-
-        )}
-
         {/* STORIES */}
-        {!loading &&
-          activeStories.map(
-            (story) => (
+        {activeStories.map(
+          (story) => (
 
-              <StoryCard
-                key={story._id}
-                story={story}
-                viewed={viewedStories.includes(
-                  story._id
-                )}
-                onOpen={openStory}
-              />
+            <StoryCard
+              key={story._id}
+              story={story}
+              viewed={viewedStories.includes(
+                story._id
+              )}
+              onOpen={openStory}
+            />
 
-            )
-          )}
-
-        {/* EMPTY */}
-        {!loading &&
-          activeStories.length === 0 && (
-
-            <div
-              className="
-                text-gray-500
-                text-sm
-                flex
-                items-center
-              "
-            >
-              No stories yet
-            </div>
-
-          )}
+          )
+        )}
 
       </div>
 
-      {/* VIEWER */}
+      {/* STORY VIEWER */}
       {selectedStory && (
 
         <StoryViewer
