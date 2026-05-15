@@ -1,17 +1,13 @@
-import React, {
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { API_BASE } from "../../api/api";
+import { getSocket } from "../../socket";
 
 import StoryProgress from "./StoryProgress";
 import StoryActions from "./StoryActions";
 import StoryReplies from "./StoryReplies";
 import StoryReactions from "./StoryReactions";
-
-import { getSocket } from "../../socket";
+import StoryAnalytics from "./StoryAnalytics";
 
 const StoryViewer = ({
   story,
@@ -30,20 +26,37 @@ const StoryViewer = ({
 
   const [showReplies, setShowReplies] = useState(false);
   const [showReactions, setShowReactions] = useState(false);
+  const [showAnalytics, setShowAnalytics] = useState(false);
 
-  /* ================= SYNC DATA ================= */
+  /* ================= SYNC STORY DATA ================= */
   useEffect(() => {
     setReactions(story?.reactions || []);
     setReplies(story?.replies || []);
+    setProgress(0);
   }, [story]);
 
-  /* ================= SOCKET: NEW REPLY ================= */
+  /* ================= SOCKET: REACTIONS ================= */
   useEffect(() => {
-    if (!socket) return;
+    if (!socket || !story?._id) return;
+
+    const handleReactionUpdate = ({ storyId, reactions }) => {
+      if (storyId !== story._id) return;
+      setReactions(reactions || []);
+    };
+
+    socket.on("story-reacted", handleReactionUpdate);
+
+    return () => {
+      socket.off("story-reacted", handleReactionUpdate);
+    };
+  }, [socket, story?._id]);
+
+  /* ================= SOCKET: REPLIES ================= */
+  useEffect(() => {
+    if (!socket || !story?._id) return;
 
     const handleReply = ({ storyId, reply }) => {
-      if (storyId !== story?._id) return;
-
+      if (storyId !== story._id) return;
       setReplies((prev) => [...prev, reply]);
     };
 
@@ -56,13 +69,10 @@ const StoryViewer = ({
 
   /* ================= PLAY / PAUSE ================= */
   useEffect(() => {
-    if (videoRef.current && !paused) {
-      videoRef.current.play();
-    }
+    if (!videoRef.current) return;
 
-    if (videoRef.current && paused) {
-      videoRef.current.pause();
-    }
+    if (paused) videoRef.current.pause();
+    else videoRef.current.play();
   }, [paused]);
 
   /* ================= STORY VIEW ================= */
@@ -73,15 +83,12 @@ const StoryViewer = ({
 
     const recordView = async () => {
       try {
-        await fetch(
-          `${API_BASE}/api/stories/view/${story._id}`,
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        await fetch(`${API_BASE}/api/stories/view/${story._id}`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
       } catch (err) {
         console.error("View error:", err);
       }
@@ -90,12 +97,7 @@ const StoryViewer = ({
     recordView();
   }, [story]);
 
-  /* ================= RESET PROGRESS ================= */
-  useEffect(() => {
-    setProgress(0);
-  }, [story]);
-
-  /* ================= PROGRESS TIMER ================= */
+  /* ================= PROGRESS ================= */
   useEffect(() => {
     let interval;
 
@@ -119,34 +121,29 @@ const StoryViewer = ({
 
   const media = story.media?.[0];
 
-  /* ================= REACTION ================= */
+  /* ================= REACTION HANDLER ================= */
   const handleReaction = async (reaction) => {
     try {
       const token = localStorage.getItem("token");
 
-      await fetch(
-        `${API_BASE}/api/stories/react/${story._id}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ reaction }),
-        }
-      );
+      await fetch(`${API_BASE}/api/stories/react/${story._id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ reaction }),
+      });
 
-      setReactions((prev) => [
-        ...prev,
-        { type: reaction },
-      ]);
-
+      setReactions((prev) => [...prev, { type: reaction }]);
       setShowReactions(false);
 
     } catch (err) {
       console.error("Reaction error:", err);
     }
   };
+
+  const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
 
   return (
     <div className="fixed inset-0 bg-black z-[999] flex items-center justify-center">
@@ -158,6 +155,16 @@ const StoryViewer = ({
       >
         ✕
       </button>
+
+      {/* ANALYTICS BUTTON (OWNER ONLY) */}
+      {story.user?._id === currentUser?._id && (
+        <button
+          onClick={() => setShowAnalytics(true)}
+          className="absolute top-5 left-5 text-white text-xl"
+        >
+          📊
+        </button>
+      )}
 
       {/* PROGRESS */}
       <div className="absolute top-3 left-3 right-3 z-50">
@@ -177,7 +184,6 @@ const StoryViewer = ({
           className="w-full h-full object-contain"
           autoPlay
           playsInline
-          controls={false}
           loop
           onClick={() => setPaused(!paused)}
         />
@@ -187,7 +193,7 @@ const StoryViewer = ({
       <div className="absolute top-0 left-0 right-0 p-4 flex items-center gap-3 bg-gradient-to-b from-black/70 to-transparent">
         <img
           src={story.user?.profilePic || "/default-avatar.png"}
-          className="w-10 h-10 rounded-full"
+          className="w-10 h-10 rounded-full object-cover"
         />
 
         <div>
@@ -198,7 +204,7 @@ const StoryViewer = ({
         </div>
       </div>
 
-      {/* BOTTOM */}
+      {/* BOTTOM ACTIONS */}
       <div className="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-black/80 to-transparent">
 
         <p className="text-white text-sm mb-4">
@@ -213,7 +219,7 @@ const StoryViewer = ({
         />
       </div>
 
-      {/* REACTIONS BUTTON */}
+      {/* BUTTONS */}
       <button
         onClick={() => setShowReactions(!showReactions)}
         className="absolute bottom-20 right-5 text-white text-2xl"
@@ -221,7 +227,6 @@ const StoryViewer = ({
         😊
       </button>
 
-      {/* VIEWS */}
       <div className="absolute bottom-20 left-5 text-white text-sm">
         👁 {story.viewsCount || 0}
       </div>
@@ -238,11 +243,19 @@ const StoryViewer = ({
         <span>😮 {reactions.filter(r => r.type === "😮").length}</span>
       </div>
 
-      {/* REPLIES MODAL */}
+      {/* REPLIES */}
       {showReplies && (
         <StoryReplies
           story={story}
           onClose={() => setShowReplies(false)}
+        />
+      )}
+
+      {/* ANALYTICS MODAL */}
+      {showAnalytics && (
+        <StoryAnalytics
+          story={story}
+          onClose={() => setShowAnalytics(false)}
         />
       )}
     </div>
