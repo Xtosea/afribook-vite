@@ -1,6 +1,7 @@
 import React, {
   useState,
   useEffect,
+  useRef,
 } from "react";
 
 import StoryCard from "./StoryCard";
@@ -8,7 +9,9 @@ import StoryViewer from "./StoryViewer";
 
 import { API_BASE } from "../../api/api";
 
-const StoryBar = () => {
+const StoryBar = ({ user }) => {
+
+  const fileRef = useRef();
 
   const [selectedStory, setSelectedStory] =
     useState(null);
@@ -19,57 +22,76 @@ const StoryBar = () => {
   const [activeStories, setActiveStories] =
     useState([]);
 
-  // FETCH STORIES
+  const [loading, setLoading] =
+    useState(true);
+
+  // ================= FETCH STORIES =================
   useEffect(() => {
 
-    const fetchStories =
-      async () => {
+    const fetchStories = async () => {
 
-        try {
+      try {
 
-          const token =
-            localStorage.getItem(
-              "token"
-            );
+        setLoading(true);
 
-          const res =
-            await fetch(
-              `${API_BASE}/api/stories`,
-              {
-                headers: {
-                  Authorization:
-                    `Bearer ${token}`,
-                },
-              }
-            );
+        const token =
+          localStorage.getItem("token");
 
-          const data =
-            await res.json();
+        const res = await fetch(
+          `${API_BASE}/api/stories`,
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+            },
+          }
+        );
 
-          console.log(
-            "Stories:",
-            data
-          );
+        const data =
+          await res.json();
 
-          // ✅ FIX
+        console.log(
+          "Stories response:",
+          data
+        );
+
+        // SAFE ARRAY
+        if (
+          data &&
+          Array.isArray(data.stories)
+        ) {
+
           setActiveStories(
-            data.stories || []
+            data.stories
           );
 
-        } catch (err) {
+        } else {
 
-          console.error(
-            "Fetch stories error:",
-            err
-          );
+          setActiveStories([]);
+
         }
-      };
+
+      } catch (err) {
+
+        console.error(
+          "Fetch stories error:",
+          err
+        );
+
+        setActiveStories([]);
+
+      } finally {
+
+        setLoading(false);
+
+      }
+    };
 
     fetchStories();
 
   }, []);
 
-  // OPEN STORY
+  // ================= OPEN STORY =================
   const openStory = (story) => {
 
     setSelectedStory(story);
@@ -79,14 +101,16 @@ const StoryBar = () => {
         story._id
       )
     ) {
+
       setViewedStories((prev) => [
         ...prev,
         story._id,
       ]);
+
     }
   };
 
-  // LIKE STORY
+  // ================= LIKE =================
   const handleLike = async (
     story
   ) => {
@@ -98,7 +122,7 @@ const StoryBar = () => {
           "token"
         );
 
-      const res = await fetch(
+      await fetch(
         `${API_BASE}/api/stories/like/${story._id}`,
         {
           method: "POST",
@@ -107,14 +131,6 @@ const StoryBar = () => {
               `Bearer ${token}`,
           },
         }
-      );
-
-      const data =
-        await res.json();
-
-      console.log(
-        "Liked:",
-        data
       );
 
     } catch (err) {
@@ -126,25 +142,29 @@ const StoryBar = () => {
     }
   };
 
-  // SHARE STORY
+  // ================= SHARE =================
   const handleShare = async (
     story
   ) => {
 
     try {
 
+      const url =
+        story.media?.[0]?.url;
+
+      if (!url) return;
+
       if (navigator.share) {
 
         await navigator.share({
           title: "Story",
-          url:
-            story.media?.[0]?.url,
+          url,
         });
 
       } else {
 
         await navigator.clipboard.writeText(
-          story.media?.[0]?.url
+          url
         );
 
         alert("Link copied");
@@ -166,6 +186,13 @@ const StoryBar = () => {
     }
   };
 
+  // ================= CREATE STORY =================
+  const handleCreateStory = () => {
+
+    fileRef.current?.click();
+
+  };
+
   return (
     <>
 
@@ -175,29 +202,119 @@ const StoryBar = () => {
           gap-4
           overflow-x-auto
           py-3
-          px-2
+          px-3
           scrollbar-hide
         "
       >
 
-        {activeStories.map(
-          (story) => (
+        {/* CREATE STORY CARD */}
+        <div
+          onClick={
+            handleCreateStory
+          }
+          className="
+            min-w-[110px]
+            h-[180px]
+            rounded-2xl
+            bg-gradient-to-b
+            from-blue-500
+            to-blue-700
+            flex
+            flex-col
+            items-center
+            justify-center
+            cursor-pointer
+            shadow-lg
+            relative
+            overflow-hidden
+          "
+        >
 
-            <StoryCard
-              key={story._id}
-              story={story}
-              viewed={viewedStories.includes(
-                story._id
-              )}
-              onOpen={openStory}
-            />
+          <div
+            className="
+              w-14
+              h-14
+              rounded-full
+              bg-white
+              flex
+              items-center
+              justify-center
+              text-3xl
+              font-bold
+              text-blue-600
+            "
+          >
+            +
+          </div>
 
-          )
+          <p
+            className="
+              text-white
+              text-sm
+              font-semibold
+              mt-3
+            "
+          >
+            Create Story
+          </p>
+
+          <input
+            type="file"
+            ref={fileRef}
+            className="hidden"
+            accept="image/*,video/*"
+          />
+
+        </div>
+
+        {/* LOADING */}
+        {loading && (
+
+          <div className="text-gray-500 text-sm pt-3">
+            Loading stories...
+          </div>
+
         )}
+
+        {/* STORIES */}
+        {!loading &&
+          activeStories.map(
+            (story) => (
+
+              <StoryCard
+                key={story._id}
+                story={story}
+                viewed={viewedStories.includes(
+                  story._id
+                )}
+                onOpen={openStory}
+              />
+
+            )
+          )}
+
+        {/* EMPTY */}
+        {!loading &&
+          activeStories.length === 0 && (
+
+            <div
+              className="
+                text-gray-500
+                text-sm
+                flex
+                items-center
+              "
+            >
+              No stories yet
+            </div>
+
+          )}
 
       </div>
 
+      {/* VIEWER */}
       {selectedStory && (
+
         <StoryViewer
           story={selectedStory}
           onClose={() =>
@@ -206,6 +323,7 @@ const StoryBar = () => {
           onLike={handleLike}
           onShare={handleShare}
         />
+
       )}
 
     </>
