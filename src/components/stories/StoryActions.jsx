@@ -1,65 +1,147 @@
-import React from "react";
+import React, {
+  useState,
+} from "react";
+
+import { API_BASE } from "../../api/api";
+
+const reactions = [
+  {
+    type: "like",
+    emoji: "👍",
+  },
+
+  {
+    type: "love",
+    emoji: "❤️",
+  },
+
+  {
+    type: "haha",
+    emoji: "😂",
+  },
+
+  {
+    type: "wow",
+    emoji: "😮",
+  },
+
+  {
+    type: "sad",
+    emoji: "😢",
+  },
+
+  {
+    type: "fire",
+    emoji: "🔥",
+  },
+];
 
 const StoryActions = ({
   story,
-  onLike,
   onReply,
   onShare,
 }) => {
+  const [showReactions, setShowReactions] =
+    useState(false);
+
+  const reactToStory =
+    async (type) => {
+      try {
+        const token =
+          localStorage.getItem(
+            "token"
+          );
+
+        await fetch(
+          `${API_BASE}/api/stories/react/${story._id}`,
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+
+              Authorization:
+                `Bearer ${token}`,
+            },
+
+            body: JSON.stringify({
+              type,
+            }),
+          }
+        );
+
+        setShowReactions(false);
+
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
   return (
-    <div
-      className="
-        absolute
-        bottom-5
-        right-5
-        flex
-        flex-col
-        gap-5
-        z-50
-      "
-    >
-      {/* LIKE */}
-      <button
-        onClick={() =>
-          onLike(story)
-        }
-        className="
-          flex
-          flex-col
-          items-center
-          text-white
-        "
-      >
-        <span className="text-3xl">
+    <div className="flex items-center gap-5">
+
+      {/* REACTIONS */}
+      <div className="relative">
+
+        <button
+          onClick={() =>
+            setShowReactions(
+              !showReactions
+            )
+          }
+          className="text-white text-2xl"
+        >
           ❤️
-        </span>
+        </button>
 
-        <span className="text-xs">
-          {story.reactions
-            ?.length || 0}
-        </span>
-      </button>
+        {showReactions && (
+          <div
+            className="
+              absolute
+              bottom-14
+              left-0
+              bg-black/80
+              backdrop-blur-md
+              p-2
+              rounded-full
+              flex
+              gap-2
+            "
+          >
+            {reactions.map(
+              (reaction) => (
+                <button
+                  key={
+                    reaction.type
+                  }
+                  onClick={() =>
+                    reactToStory(
+                      reaction.type
+                    )
+                  }
+                  className="
+                    text-2xl
+                    hover:scale-125
+                    transition
+                  "
+                >
+                  {
+                    reaction.emoji
+                  }
+                </button>
+              )
+            )}
+          </div>
+        )}
+      </div>
 
-      {/* REPLY */}
+      {/* COMMENT */}
       <button
-        onClick={() =>
-          onReply(story)
-        }
-        className="
-          flex
-          flex-col
-          items-center
-          text-white
-        "
+        onClick={onReply}
+        className="text-white text-2xl"
       >
-        <span className="text-3xl">
-          💬
-        </span>
-
-        <span className="text-xs">
-          {story.replies
-            ?.length || 0}
-        </span>
+        💬
       </button>
 
       {/* SHARE */}
@@ -67,40 +149,11 @@ const StoryActions = ({
         onClick={() =>
           onShare(story)
         }
-        className="
-          flex
-          flex-col
-          items-center
-          text-white
-        "
+        className="text-white text-2xl"
       >
-        <span className="text-3xl">
-          📤
-        </span>
-
-        <span className="text-xs">
-          {story.shares || 0}
-        </span>
+        📤
       </button>
 
-      {/* VIEWS */}
-      <div
-        className="
-          flex
-          flex-col
-          items-center
-          text-white
-        "
-      >
-        <span className="text-3xl">
-          👁
-        </span>
-
-        <span className="text-xs">
-          {story.views
-            ?.length || 0}
-        </span>
-      </div>
     </div>
   );
 };
