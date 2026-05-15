@@ -207,16 +207,20 @@ const StoryViewer = ({
       {/* BOTTOM ACTIONS */}
       <div className="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-black/80 to-transparent">
 
-        <p className="text-white text-sm mb-4">
-          {story.caption}
-        </p>
+        <p className="text-white text-sm mb-2">
+  {story.caption}
+</p>
 
-        <StoryActions
-          story={story}
-          onLike={() => onLike(story)}
-          onReply={() => setShowReplies(true)}
-          onShare={() => onShare(story)}
-        />
+<div className="text-white text-sm mb-3">
+  {reactions.length || 0} reactions
+</div>
+
+<StoryActions
+  story={story}
+  onLike={() => onLike(story)}
+  onReply={() => setShowReplies(true)}
+  onShare={() => onShare(story)}
+/>
       </div>
 
       {/* BUTTONS */}
