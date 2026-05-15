@@ -1,168 +1,73 @@
-import React, {
-  useState,
-} from "react";
-
+import React, { useState } from "react";
 import { API_BASE } from "../../api/api";
 
-const StoryReplies = ({
-  story,
-  onClose,
-}) => {
-  const [text, setText] =
-    useState("");
-
-  const [loading, setLoading] =
-    useState(false);
+const StoryReplies = ({ story, onClose }) => {
+  const [text, setText] = useState("");
+  const [sending, setSending] = useState(false);
 
   const sendReply = async () => {
     if (!text.trim()) return;
 
     try {
-      setLoading(true);
+      setSending(true);
 
-      const token =
-        localStorage.getItem(
-          "token"
-        );
+      const token = localStorage.getItem("token");
 
-      const res = await fetch(
+      await fetch(
         `${API_BASE}/api/stories/reply/${story._id}`,
         {
           method: "POST",
-
           headers: {
-            "Content-Type":
-              "application/json",
-
+            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-
-          body: JSON.stringify({
-            text,
-          }),
+          body: JSON.stringify({ text }),
         }
       );
-
-      const data =
-        await res.json();
-
-      console.log(data);
 
       setText("");
 
     } catch (err) {
-      console.error(err);
+      console.error("Reply error:", err);
     } finally {
-      setLoading(false);
+      setSending(false);
     }
   };
 
   return (
-    <div
-      className="
-        fixed
-        inset-0
-        bg-black/70
-        z-[1000]
-        flex
-        items-end
-      "
-    >
-      <div
-        className="
-          bg-white
-          w-full
-          rounded-t-3xl
-          p-4
-          max-h-[70vh]
-          overflow-y-auto
-        "
-      >
-        {/* HEADER */}
-        <div
-          className="
-            flex
-            justify-between
-            items-center
-            mb-4
-          "
+    <div className="fixed inset-0 bg-black/90 z-[999] flex flex-col justify-end">
+
+      {/* HEADER */}
+      <div className="p-4 text-white flex justify-between">
+        <h2 className="font-bold">Replies</h2>
+        <button onClick={onClose}>✕</button>
+      </div>
+
+      {/* REPLIES LIST */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+        {story.replies?.map((r, i) => (
+          <div key={i} className="bg-white/10 p-3 rounded-lg text-white">
+            <p className="text-sm">{r.text}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* INPUT */}
+      <div className="p-3 flex gap-2 bg-black">
+        <input
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Send a reply..."
+          className="flex-1 p-2 rounded bg-gray-800 text-white"
+        />
+
+        <button
+          onClick={sendReply}
+          disabled={sending}
+          className="bg-blue-500 px-4 rounded"
         >
-          <h2 className="text-lg font-bold">
-            Replies
-          </h2>
-
-          <button
-            onClick={onClose}
-            className="text-2xl"
-          >
-            ✕
-          </button>
-        </div>
-
-        {/* REPLIES */}
-        <div className="space-y-3">
-          {story.replies?.map(
-            (reply, index) => (
-              <div
-                key={index}
-                className="
-                  bg-gray-100
-                  p-3
-                  rounded-xl
-                "
-              >
-                <p className="font-semibold">
-                  {reply.user?.name ||
-                    "User"}
-                </p>
-
-                <p className="text-sm">
-                  {reply.text}
-                </p>
-              </div>
-            )
-          )}
-        </div>
-
-        {/* INPUT */}
-        <div
-          className="
-            mt-5
-            flex
-            gap-2
-          "
-        >
-          <input
-            type="text"
-            value={text}
-            onChange={(e) =>
-              setText(
-                e.target.value
-              )
-            }
-            placeholder="Reply..."
-            className="
-              flex-1
-              border
-              rounded-full
-              px-4
-              py-3
-            "
-          />
-
-          <button
-            onClick={sendReply}
-            disabled={loading}
-            className="
-              bg-blue-500
-              text-white
-              px-5
-              rounded-full
-            "
-          >
-            Send
-          </button>
-        </div>
+          Send
+        </button>
       </div>
     </div>
   );
