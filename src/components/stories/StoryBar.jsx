@@ -34,45 +34,47 @@ const StoryBar = ({ user }) => {
     useState([]);
 
   // ================= FETCH STORIES =================
-  const fetchStories = async () => {
+const fetchStories = async () => {
 
-    try {
+  try {
 
-      const token =
-        localStorage.getItem("token");
+    const token =
+      localStorage.getItem("token");
 
-      const res = await fetch(
-        `${API_BASE}/api/stories`,
-        {
-          headers: {
-            Authorization:
-              `Bearer ${token}`,
-          },
-        }
-      );
+    const res = await fetch(
+      `${API_BASE}/api/stories`,
+      {
+        headers: {
+          Authorization:
+            `Bearer ${token}`,
+        },
+      }
+    );
 
-      const data =
-        await res.json();
+    const data =
+      await res.json();
 
-      console.log(
-        "Fetched stories:",
-        data
-      );
+    console.log(
+      "Fetched stories:",
+      data
+    );
 
-      setActiveStories(
-        Array.isArray(data.stories)
-          ? data.stories
-          : []
-      );
+    // FIXED
+    setActiveStories(
+      Array.isArray(data)
+        ? data
+        : []
+    );
 
-    } catch (err) {
+  } catch (err) {
 
-      console.error(
-        "Fetch stories error:",
-        err
-      );
-    }
-  };
+    console.error(
+      "Fetch stories error:",
+      err
+    );
+  }
+};
+
 
   useEffect(() => {
 
