@@ -14,6 +14,8 @@ import {
   Settings,
   Users,
 } from "lucide-react";
+import InstallPWAButton from "./components/InstallPWAButton";
+
 
 const Navbar = () => {
   const navigate = useNavigate();
