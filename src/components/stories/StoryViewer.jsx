@@ -244,10 +244,10 @@ const StoryViewer = ({
 
       {/* REACTION COUNTS */}
       <div className="absolute bottom-32 left-5 flex gap-3 text-white text-sm">
-        <span>❤️ {reactions.filter(r => r.type === "❤️").length}</span>
-        <span>😂 {reactions.filter(r => r.type === "😂").length}</span>
-        <span>😮 {reactions.filter(r => r.type === "😮").length}</span>
-      </div>
+  reactions.filter(r => r?.type === "❤️").length
+  reactions.filter(r => r?.type === "😂").length
+  reactions.filter(r => r?.type === "😮").length
+</div>
 
       {/* REPLIES */}
       {showReplies && (
