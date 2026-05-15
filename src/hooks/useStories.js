@@ -1,49 +1,127 @@
 import { useState } from "react";
+
+import axios from "axios";
+
 import { API_BASE } from "../api/api";
-import { useR2Upload } from "./useR2Upload"; // your existing R2 upload hook
 
-export const useStoryUpload = () => {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const { uploadVideo } = useR2Upload(); // R2 upload function
+export function useStoryUpload() {
 
-  const uploadStory = async (file) => {
-    if (!file) return null;
-    setLoading(true);
-    setError(null);
+  const [loading, setLoading] =
+    useState(false);
 
-    try {
-      // 1️⃣ Upload to R2
-      const url = await uploadVideo(file);
+  const [progress, setProgress] =
+    useState(0);
 
-      if (!url) throw new Error("R2 upload failed");
+  const uploadStory =
+    async (file) => {
 
-      // 2️⃣ Create story in backend
-      const token = localStorage.getItem("token");
-      const type = file.type.startsWith("video") ? "video" : "image";
+      try {
 
-      const res = await fetch(`${API_BASE}/api/stories/upload-video`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ url, type }),
-      });
+        setLoading(true);
 
-      const data = await res.json();
+        /* GET SIGNED URL */
 
-      if (!res.ok || !data?._id) throw new Error(data?.error || "Story creation failed");
+        const signedRes =
+          await fetch(
+            `${API_BASE}/api/r2/signed-url?contentType=${file.type}`
+          );
 
-      setLoading(false);
-      return data; // return the created story
-    } catch (err) {
-      console.error("Story upload error:", err);
-      setError(err);
-      setLoading(false);
-      return null;
-    }
+        const signedData =
+          await signedRes.json();
+
+        /* UPLOAD TO R2 */
+
+        await axios.put(
+          signedData.uploadUrl,
+          file,
+          {
+            headers: {
+              "Content-Type":
+                file.type,
+            },
+
+            onUploadProgress:
+              (event) => {
+
+                const percent =
+                  Math.round(
+                    (
+                      event.loaded *
+                      100
+                    ) /
+                      event.total
+                  );
+
+                setProgress(
+                  percent
+                );
+              },
+          }
+        );
+
+        /* SAVE STORY */
+
+        const token =
+          localStorage.getItem(
+            "token"
+          );
+
+        const mediaType =
+          file.type.startsWith(
+            "video"
+          )
+            ? "video"
+            : "image";
+
+        const res =
+          await fetch(
+            `${API_BASE}/api/stories`,
+            {
+              method: "POST",
+
+              headers: {
+                "Content-Type":
+                  "application/json",
+
+                Authorization:
+                  `Bearer ${token}`,
+              },
+
+              body: JSON.stringify(
+                {
+                  media: [
+                    {
+                      url:
+                        signedData.fileUrl,
+
+                      type:
+                        mediaType,
+                    },
+                  ],
+                }
+              ),
+            }
+          );
+
+        return await res.json();
+
+      } catch (err) {
+
+        console.error(
+          err
+        );
+
+        throw err;
+
+      } finally {
+
+        setLoading(false);
+      }
+    };
+
+  return {
+    uploadStory,
+    loading,
+    progress,
   };
-
-  return { uploadStory, loading, error };
-};
+}
