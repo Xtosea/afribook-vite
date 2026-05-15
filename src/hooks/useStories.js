@@ -1,127 +1,126 @@
 import { useState } from "react";
-
 import axios from "axios";
 
-import { API_BASE } from "../api/api";
+const API_BASE =
+  import.meta.env.VITE_API_BASE;
 
-export function useStoryUpload() {
+export const useStoryUpload =
+  () => {
 
-  const [loading, setLoading] =
-    useState(false);
+    const [loading, setLoading] =
+      useState(false);
 
-  const [progress, setProgress] =
-    useState(0);
+    const [progress, setProgress] =
+      useState(0);
 
-  const uploadStory =
-    async (file) => {
+    const uploadStory =
+      async (file) => {
 
-      try {
+        try {
 
-        setLoading(true);
+          setLoading(true);
 
-        /* GET SIGNED URL */
+          // 1. GET SIGNED URL
+          const signedRes =
+            await fetch(
+              `${API_BASE}/api/r2/signed-url?contentType=${file.type}`
+            );
 
-        const signedRes =
-          await fetch(
-            `${API_BASE}/api/r2/signed-url?contentType=${file.type}`
-          );
+          const signedData =
+            await signedRes.json();
 
-        const signedData =
-          await signedRes.json();
-
-        /* UPLOAD TO R2 */
-
-        await axios.put(
-          signedData.uploadUrl,
-          file,
-          {
-            headers: {
-              "Content-Type":
-                file.type,
-            },
-
-            onUploadProgress:
-              (event) => {
-
-                const percent =
-                  Math.round(
-                    (
-                      event.loaded *
-                      100
-                    ) /
-                      event.total
-                  );
-
-                setProgress(
-                  percent
-                );
-              },
-          }
-        );
-
-        /* SAVE STORY */
-
-        const token =
-          localStorage.getItem(
-            "token"
-          );
-
-        const mediaType =
-          file.type.startsWith(
-            "video"
-          )
-            ? "video"
-            : "image";
-
-        const res =
-          await fetch(
-            `${API_BASE}/api/stories`,
+          // 2. UPLOAD TO R2
+          await axios.put(
+            signedData.uploadUrl,
+            file,
             {
-              method: "POST",
-
               headers: {
                 "Content-Type":
-                  "application/json",
-
-                Authorization:
-                  `Bearer ${token}`,
+                  file.type,
               },
 
-              body: JSON.stringify(
-                {
+              onUploadProgress:
+                (event) => {
+
+                  const percent =
+                    Math.round(
+                      (
+                        event.loaded *
+                        100
+                      ) /
+                        event.total
+                    );
+
+                  setProgress(
+                    percent
+                  );
+                },
+            }
+          );
+
+          // 3. SAVE STORY TO DB
+          const token =
+            localStorage.getItem(
+              "token"
+            );
+
+          const res =
+            await fetch(
+              `${API_BASE}/api/stories`,
+              {
+                method: "POST",
+
+                headers: {
+                  "Content-Type":
+                    "application/json",
+
+                  Authorization:
+                    `Bearer ${token}`,
+                },
+
+                body: JSON.stringify({
                   media: [
                     {
                       url:
                         signedData.fileUrl,
 
                       type:
-                        mediaType,
+                        file.type.startsWith(
+                          "video"
+                        )
+                          ? "video"
+                          : "image",
                     },
                   ],
-                }
-              ),
-            }
+                }),
+              }
+            );
+
+          const story =
+            await res.json();
+
+          return story;
+
+        } catch (err) {
+
+          console.error(
+            "Story upload error:",
+            err
           );
 
-        return await res.json();
+          throw err;
 
-      } catch (err) {
+        } finally {
 
-        console.error(
-          err
-        );
+          setLoading(false);
 
-        throw err;
+          setProgress(0);
+        }
+      };
 
-      } finally {
-
-        setLoading(false);
-      }
+    return {
+      uploadStory,
+      loading,
+      progress,
     };
-
-  return {
-    uploadStory,
-    loading,
-    progress,
   };
-}
