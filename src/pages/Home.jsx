@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 
 import SidebarLeft from "../components/layout/SidebarLeft";
 import SidebarRight from "../components/layout/SidebarRight";
-import StoriesBar from "../components/layout/StoriesBar";
+import StoryBar from "../components/stories/StoryBar";
 import MediaUpload from "../components/MediaUpload";
 
 import imageCompression from "browser-image-compression";
