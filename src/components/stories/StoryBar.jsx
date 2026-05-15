@@ -16,6 +16,49 @@ const StoryBar = ({
   const [viewedStories, setViewedStories] =
     useState([]);
 
+useEffect(() => {
+
+  const fetchStories =
+    async () => {
+
+      try {
+
+        const token =
+          localStorage.getItem(
+            "token"
+          );
+
+        const res =
+          await fetch(
+            `${API_BASE}/api/stories`,
+            {
+              headers: {
+                Authorization:
+                  `Bearer ${token}`,
+              },
+            }
+          );
+
+        const data =
+          await res.json();
+
+        setActiveStories(
+          data
+        );
+
+      } catch (err) {
+
+        console.error(
+          err
+        );
+      }
+    };
+
+  fetchStories();
+
+}, []);
+
+
   const openStory = (story) => {
     setSelectedStory(story);
 
