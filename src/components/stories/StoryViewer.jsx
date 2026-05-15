@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { fetchStoryAnalytics } from "../api/storyApi";
 
 import { API_BASE } from "../../api/api";
 import { getSocket } from "../../socket";
@@ -8,6 +9,7 @@ import StoryActions from "./StoryActions";
 import StoryReplies from "./StoryReplies";
 import StoryReactions from "./StoryReactions";
 import StoryAnalytics from "./StoryAnalytics";
+
 
 const StoryViewer = ({
   story,
