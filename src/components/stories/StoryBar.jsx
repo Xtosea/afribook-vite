@@ -4,6 +4,8 @@ import React, {
 
 import StoryCard from "./StoryCard";
 import StoryViewer from "./StoryViewer";
+import { getSocket } from "../../socket";
+import { useStoryUpload } from "../../hooks/useStoryUpload";
 
 const StoryBar = ({
   stories = [],
