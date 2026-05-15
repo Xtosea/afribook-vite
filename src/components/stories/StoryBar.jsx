@@ -136,10 +136,14 @@ const StoryBar = ({ user }) => {
 
       const newStory = await uploadStory(file);
 
-      setActiveStories((prev) => [
-        newStory,
-        ...prev,
-      ]);
+      if (newStory?._id) {
+
+  setActiveStories((prev) => [
+    newStory,
+    ...prev,
+  ]);
+
+}
 
     } catch (err) {
       console.error("Upload story error:", err);
