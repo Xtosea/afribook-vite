@@ -79,22 +79,15 @@ export const useStoryUpload =
                 },
 
                 body: JSON.stringify({
-                  media: [
-                    {
-                      url:
-                        signedData.fileUrl,
-
-                      type:
-                        file.type.startsWith(
-                          "video"
-                        )
-                          ? "video"
-                          : "image",
-                    },
-                  ],
-                }),
-              }
-            );
+  media: [
+    {
+      url: signedData.fileUrl,
+      type: file.type.startsWith("video")
+        ? "video"
+        : "image",
+    },
+  ],
+}),
 
           const story =
             await res.json();
