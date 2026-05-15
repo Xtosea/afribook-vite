@@ -10,7 +10,11 @@ import StoryViewer from "./StoryViewer";
 import { API_BASE } from "../../api/api";
 import { useStoryUpload } from "../../hooks/useStoryUpload";
 
+import { getSocket } from "../../socket"; // adjust path if needed
+
 const StoryBar = ({ user }) => {
+
+  const socket = getSocket();
 
   const fileRef = useRef();
 
@@ -75,6 +79,59 @@ const StoryBar = ({ user }) => {
     fetchStories();
 
   }, []);
+
+  // ================= SOCKET STORY VIEWS =================
+  useEffect(() => {
+
+    if (!socket) return;
+
+    const handleViewUpdate = ({
+      storyId,
+      viewsCount,
+    }) => {
+
+      setActiveStories((prev) =>
+        prev.map((story) =>
+          story._id === storyId
+            ? {
+                ...story,
+                viewsCount,
+              }
+            : story
+        )
+      );
+
+      // also update selected story if open
+      setSelectedStory((prev) => {
+
+        if (!prev) return prev;
+
+        if (prev._id === storyId) {
+
+          return {
+            ...prev,
+            viewsCount,
+          };
+        }
+
+        return prev;
+      });
+    };
+
+    socket.on(
+      "story-view",
+      handleViewUpdate
+    );
+
+    return () => {
+
+      socket.off(
+        "story-view",
+        handleViewUpdate
+      );
+    };
+
+  }, [socket]);
 
   // ================= CREATE STORY =================
   const handleCreateStory = () => {
