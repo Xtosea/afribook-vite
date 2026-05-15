@@ -48,21 +48,44 @@ const StoryViewer = ({
   /* ================= STORY VIEW ================= */
 
   useEffect(() => {
-    if (!story?._id) return;
 
-    const token =
-      localStorage.getItem("token");
+  if (!story?._id) return;
 
-    fetch(
-      `${API_BASE}/api/stories/view/${story._id}`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+  const token =
+    localStorage.getItem(
+      "token"
+    );
+
+  const recordView =
+    async () => {
+
+      try {
+
+        await fetch(
+          `${API_BASE}/api/stories/view/${story._id}`,
+          {
+            method: "POST",
+
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+            },
+          }
+        );
+
+      } catch (err) {
+
+        console.error(
+          "View error:",
+          err
+        );
       }
-    ).catch(console.error);
-  }, [story]);
+    };
+
+  recordView();
+
+}, [story]);
+
 
   /* ================= STORY PROGRESS ================= */
 
@@ -244,6 +267,11 @@ const StoryViewer = ({
           }
         />
       </div>
+
+
+     <div className="text-white text-sm">
+  👁 {story.viewsCount || 0}
+</div>
 
       {/* REPLIES MODAL */}
       {showReplies && (
