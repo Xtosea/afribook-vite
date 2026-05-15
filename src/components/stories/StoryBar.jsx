@@ -32,13 +32,36 @@ const StoryBar = ({
   };
 
   const handleLike = async (
-    story
-  ) => {
-    console.log(
-      "Like story:",
-      story._id
+  story
+) => {
+  try {
+    const token =
+      localStorage.getItem(
+        "token"
+      );
+
+    const res = await fetch(
+      `${API_BASE}/api/stories/like/${story._id}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
     );
-  };
+
+    const data =
+      await res.json();
+
+    console.log(data);
+
+  } catch (err) {
+    console.error(
+      "Like story error:",
+      err
+    );
+  }
+};
 
   const handleShare = async (
     story
