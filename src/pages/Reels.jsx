@@ -177,38 +177,62 @@ const Reels = () => {
   };
 
   const shareReel = async (id) => {
-    try {
-      const token = localStorage.getItem("token");
+  try {
+    const reel = reels.find((r) => r._id === id);
 
-      const res = await fetch(
-        `${API_BASE}/api/posts/${id}/share`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+    if (!reel) return;
+
+    const shareData = {
+      title: "Check out this reel",
+      text: reel.content || "Watch this reel",
+      url: `${window.location.origin}/reel/${id}`,
+    };
+
+    // Native mobile share
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        // User cancelled share
+        if (err.name === "AbortError") {
+          return;
         }
+
+        console.error("Share error:", err);
+      }
+    } else {
+      // Fallback copy link
+      await navigator.clipboard.writeText(
+        shareData.url
       );
 
-      const data = await res.json();
-
-      setShares((prev) => ({
-        ...prev,
-        [id]: data.shares,
-      }));
-
-    } catch (err) {
-      console.error(err);
+      alert("Link copied");
     }
-  };
 
-  if (!reels.length) {
-    return (
-      <div className="h-screen bg-black text-white flex items-center justify-center">
-        Loading reels...
-      </div>
+    // Update backend share count
+    const token = localStorage.getItem("token");
+
+    const res = await fetch(
+      `${API_BASE}/api/posts/${id}/share`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
     );
+
+    const data = await res.json();
+
+    setShares((prev) => ({
+      ...prev,
+      [id]: data.shares,
+    }));
+
+  } catch (err) {
+    console.error("Share failed:", err);
   }
+};
 
   return (
     <div className="h-screen overflow-y-scroll snap-y snap-mandatory bg-black relative">
