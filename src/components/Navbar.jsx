@@ -14,7 +14,7 @@ import {
   Settings,
   Users,
 } from "lucide-react";
-import InstallPWAButton from "./components/InstallPWAButton";
+import InstallPWAButton from "./InstallPWAButton";
 
 
 const Navbar = () => {
