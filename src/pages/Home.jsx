@@ -305,7 +305,7 @@ return (
   {/* MAIN FEED */}  
   <div className="md:col-span-2 space-y-4">  
 
-    <StoriesBar user={currentUser} stories={stories} />  
+    <StoryBar user={currentUser} stories={stories} />  
 
     {/* CREATE POST */}  
    <PostComposer
