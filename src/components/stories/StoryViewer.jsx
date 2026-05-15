@@ -11,26 +11,48 @@ import StoryActions from "./StoryActions";
 import StoryReplies from "./StoryReplies";
 import StoryReactions from "./StoryReactions";
 
+import { getSocket } from "../../socket";
+
 const StoryViewer = ({
   story,
   onClose,
   onLike,
   onShare,
 }) => {
+  const socket = getSocket();
   const videoRef = useRef();
 
   const [paused, setPaused] = useState(false);
   const [progress, setProgress] = useState(0);
 
   const [reactions, setReactions] = useState([]);
+  const [replies, setReplies] = useState([]);
 
   const [showReplies, setShowReplies] = useState(false);
   const [showReactions, setShowReactions] = useState(false);
 
-  /* ================= SYNC REACTIONS ================= */
+  /* ================= SYNC DATA ================= */
   useEffect(() => {
     setReactions(story?.reactions || []);
+    setReplies(story?.replies || []);
   }, [story]);
+
+  /* ================= SOCKET: NEW REPLY ================= */
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleReply = ({ storyId, reply }) => {
+      if (storyId !== story?._id) return;
+
+      setReplies((prev) => [...prev, reply]);
+    };
+
+    socket.on("story-reply", handleReply);
+
+    return () => {
+      socket.off("story-reply", handleReply);
+    };
+  }, [socket, story?._id]);
 
   /* ================= PLAY / PAUSE ================= */
   useEffect(() => {
@@ -114,7 +136,6 @@ const StoryViewer = ({
         }
       );
 
-      // ✅ FIXED: proper state update (NO mutation)
       setReactions((prev) => [
         ...prev,
         { type: reaction },
@@ -130,7 +151,7 @@ const StoryViewer = ({
   return (
     <div className="fixed inset-0 bg-black z-[999] flex items-center justify-center">
 
-      {/* CLOSE BUTTON */}
+      {/* CLOSE */}
       <button
         onClick={onClose}
         className="absolute top-5 right-5 text-white text-3xl z-50"
@@ -147,7 +168,6 @@ const StoryViewer = ({
       {media?.type === "image" ? (
         <img
           src={media.url}
-          alt=""
           className="w-full h-full object-contain"
         />
       ) : (
@@ -167,7 +187,7 @@ const StoryViewer = ({
       <div className="absolute top-0 left-0 right-0 p-4 flex items-center gap-3 bg-gradient-to-b from-black/70 to-transparent">
         <img
           src={story.user?.profilePic || "/default-avatar.png"}
-          className="w-10 h-10 rounded-full object-cover"
+          className="w-10 h-10 rounded-full"
         />
 
         <div>
@@ -206,7 +226,7 @@ const StoryViewer = ({
         👁 {story.viewsCount || 0}
       </div>
 
-      {/* REACTION POPUP */}
+      {/* REACTIONS */}
       {showReactions && (
         <StoryReactions onReact={handleReaction} />
       )}
@@ -218,7 +238,7 @@ const StoryViewer = ({
         <span>😮 {reactions.filter(r => r.type === "😮").length}</span>
       </div>
 
-      {/* REPLIES */}
+      {/* REPLIES MODAL */}
       {showReplies && (
         <StoryReplies
           story={story}
