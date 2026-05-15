@@ -510,4 +510,7 @@ const Navbar = () => {
   );
 };
 
+  <InstallPWAButton />
+
+
 export default Navbar;
