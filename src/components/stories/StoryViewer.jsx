@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { fetchStoryAnalytics } from "../api/storyApi";
+import { fetchStoryAnalytics } from "../../api/storyApi";
 
 import { API_BASE } from "../../api/api";
 import { getSocket } from "../../socket";
