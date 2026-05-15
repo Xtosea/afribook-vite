@@ -506,11 +506,12 @@ const Navbar = () => {
 
         </div>
       )}
+<InstallPWAButton />
     </>
   );
 };
 
-  <InstallPWAButton />
+  
 
 
 export default Navbar;
