@@ -268,6 +268,46 @@ const Navbar = () => {
                   Profile
                 </Link>
 
+
+                 <Link
+                  to="/friends"
+                  className={`flex items-center gap-1 ${
+                    isActive("/profile")
+                      ? "text-blue-600"
+                      : "hover:text-blue-500"
+                  }`}
+                >
+                  <User size={20} />
+                  Friends 
+                </Link>
+
+           
+                <Link
+                  to="/friend-request"
+                  className={`flex items-center gap-1 ${
+                    isActive("/profile")
+                      ? "text-blue-600"
+                      : "hover:text-blue-500"
+                  }`}
+                >
+                  <User size={20} />
+                  Requests 
+                </Link>
+
+
+               <Link
+                  to="/wallet"
+                  className={`flex items-center gap-1 ${
+                    isActive("/profile")
+                      ? "text-blue-600"
+                      : "hover:text-blue-500"
+                  }`}
+                >
+                  <User size={20} />
+                  Wallet 
+                </Link>
+
+
               </div>
 
               {/* ========================= */}
@@ -447,6 +487,39 @@ const Navbar = () => {
           >
             Profile
           </Link>
+
+
+           <Link
+            to="/frinds"
+            className="block"
+            onClick={() =>
+              setMobileMenuOpen(false)
+            }
+          >
+            Friends
+          </Link>
+
+           <Link
+            to="/friend-requests"
+            className="block"
+            onClick={() =>
+              setMobileMenuOpen(false)
+            }
+          >
+            Requests 
+          </Link>
+          
+           <Link
+            to="/wallet"
+            className="block"
+            onClick={() =>
+              setMobileMenuOpen(false)
+            }
+          >
+         
+          Wallet 
+          </link>
+
 
           <button
             onClick={handleLogout}
