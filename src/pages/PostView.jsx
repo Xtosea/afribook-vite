@@ -53,7 +53,7 @@ const PostView = () => {
 
   const image =
     post?.media?.[0]?.url ||
-    "https://africbook.globelynks.com/logo.png";
+    "https://africsocial.globelynks.com/logo.png";
 
   const title =
     post?.content?.substring(0, 60) ||
@@ -61,10 +61,10 @@ const PostView = () => {
 
   const description =
     post?.content?.substring(0, 160) ||
-    "Check this post on Africbook";
+    "Check this post on AfricSocial";
 
   const url =
-    `https://africbook.globelynks.com/post/${post._id}`;
+    `https://africsocial.globelynks.com/post/${post._id}`;
 
   return (
     <>
