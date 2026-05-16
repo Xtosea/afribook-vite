@@ -24,6 +24,10 @@ import SyncContacts from "./pages/SyncContacts";
 import EditProfile from "./pages/EditProfile";
 import MediaViewer from "./pages/MediaViewer";
 import PostView from "./pages/PostView";
+import AddFriends from "./pages/onboarding/AddFriends";
+import FriendRequests from "./pages/friends/FriendRequests";
+import FriendsList from "./pages/friends/FriendsList";
+import Wallet from "./pages/Wallet";
 
 function App() {
   console.log("API:", import.meta.env.VITE_API_BASE);
@@ -112,6 +116,52 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Chat />
+                </ProtectedRoute>
+              }
+            />
+
+           <Route
+              path="/editprofile"
+              element={
+                <ProtectedRoute>
+                  <Editprofile />
+                </ProtectedRoute>
+              }
+            />
+
+           <Route
+              path="/wallet"
+              element={
+                <ProtectedRoute>
+                  <Wallet />
+                </ProtectedRoute>
+              }
+            />
+
+          <Route
+              path="/add-friends"
+              element={
+                <ProtectedRoute>
+                  <AddFriends />
+                </ProtectedRoute>
+              }
+            />
+
+           <Route
+              path="//friend-requests"
+              element={
+                <ProtectedRoute>
+                  <FriendRequests />
+                </ProtectedRoute>
+              }
+            />
+
+
+            <Route
+              path="/friends"
+              element={
+                <ProtectedRoute>
+                  <FriendsList />
                 </ProtectedRoute>
               }
             />
