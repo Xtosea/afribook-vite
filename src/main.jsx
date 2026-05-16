@@ -9,6 +9,10 @@ registerSW({
   immediate: true,
 });
 
+onRegisterError(error) {
+    console.log("❌ SW registration error", error);
+  },
+
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <AuthProvider>
