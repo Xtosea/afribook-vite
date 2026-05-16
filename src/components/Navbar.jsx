@@ -192,7 +192,7 @@ const Navbar = () => {
           to="/"
           className="font-bold text-2xl text-blue-600"
         >
-          Afribook
+          AfricSocial
         </Link>
 
         {/* SEARCH */}
