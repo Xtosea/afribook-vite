@@ -268,7 +268,7 @@ const Navbar = () => {
               {/* ========================= */}
 
 
-            <InstallPWAButton />
+            
               <div className="hidden md:flex items-center gap-2 text-sm">
 
                 <Users size={18} />
