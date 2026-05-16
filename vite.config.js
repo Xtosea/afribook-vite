@@ -16,8 +16,15 @@ export default defineConfig({
         "apple-touch-icon.png",
       ],
 
+      workbox: {
+        globPatterns: [
+          "**/*.{js,css,html,png,svg,jpg}"
+        ],
+      },
+
       manifest: {
         name: "AfriBook",
+
         short_name: "AfriBook",
 
         description:
@@ -41,11 +48,6 @@ export default defineConfig({
             sizes: "192x192",
             type: "image/png",
           },
-
-
-          workbox: {
-  globPatterns: ["**/*.{js,css,html,png,svg,jpg}"],
-},
 
           {
             src: "/pwa-512x512.png",
