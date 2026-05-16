@@ -7,7 +7,7 @@ export default function WelcomeOnboarding() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 px-4">
       <div className="bg-white shadow-xl rounded-2xl p-8 max-w-lg w-full text-center">
         <div className="text-6xl mb-4">🎉</div>
-        <h1 className="text-3xl font-bold mb-3">Welcome to Afribook</h1>
+        <h1 className="text-3xl font-bold mb-3">Welcome to AfricSocial</h1>
 
         <p className="text-gray-600 mb-6">
           Your account is ready! Start connecting, sharing, and earning on Africa's fastest growing social platform.
