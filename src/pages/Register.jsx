@@ -92,13 +92,15 @@ export default function Register() {
           <Link to="/forgot-password" className="text-blue-600">Forgot Password?</Link>
         </span>
 
-<script async="async" data-cfasync="false" src="https://pl29467278.effectivecpmnetwork.com/1ac49ab91139c0ad3e13572497cfbe18/invoke.js"></script>
-<div id="container-1ac49ab91139c0ad3e13572497cfbe18"></div>
-
-
-      </div>
+ </div>
     </div>
 
+<div>
+<script async="async" data-cfasync="false" src="https://pl29467278.effectivecpmnetwork.com/1ac49ab91139c0ad3e13572497cfbe18/invoke.js"></script>
+<div id="container-1ac49ab91139c0ad3e13572497cfbe18"></div>
+</div>
+
+     
 
 
 
