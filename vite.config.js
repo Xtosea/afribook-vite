@@ -42,6 +42,11 @@ export default defineConfig({
             type: "image/png",
           },
 
+
+          workbox: {
+  globPatterns: ["**/*.{js,css,html,png,svg,jpg}"],
+},
+
           {
             src: "/pwa-512x512.png",
             sizes: "512x512",
