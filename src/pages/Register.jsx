@@ -93,7 +93,7 @@ export default function Register() {
         </span>
 
  </div>
-    </div>
+ </div>
 
 );
 <div>
@@ -101,10 +101,4 @@ export default function Register() {
 <div id="container-1ac49ab91139c0ad3e13572497cfbe18"></div>
 </div>
 
-     
-
-
-
-
-  
 }
