@@ -29,7 +29,7 @@ export default function VerifyEmail() {
           localStorage.setItem("name", data.user.name);
           localStorage.setItem("profilePic", data.user.profilePic || "");
 
-          alert("🎉 Welcome to Afribook! Your email is verified.");
+          alert("🎉 Welcome to AfricSocial! Your email is verified.");
 
           window.location.href = "/welcome";
           return;
@@ -59,7 +59,7 @@ export default function VerifyEmail() {
         <div className="text-5xl mb-4">🎉</div>
 
         <h2 className="text-2xl font-bold mb-2">
-          Welcome to Afribook
+          Welcome to AfricSocial 
         </h2>
 
         <p className="text-gray-600 mb-6">
