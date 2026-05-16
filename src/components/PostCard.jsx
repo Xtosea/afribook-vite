@@ -28,27 +28,51 @@ const PostCard = ({ post, currentUserId }) => {
 
   /* ================= LIKE ================= */
   const handleLike = async () => {
-    if (liking) return;
-    setLiking(true);
-    try {
-      const res = await fetchWithToken(
-        `${API_BASE}/api/posts/${post?._id}/like`,
-        localStorage.getItem("token"),
-        { method: "POST" }
-      );
-      if (res?.likesCount !== undefined) {
-        setLikes(prev =>
-          likedByUser
-            ? prev.filter(id => id !== currentUserId)
-            : [...prev, currentUserId]
-        );
+
+  if (liking) return;
+
+  setLiking(true);
+
+  try {
+
+    const res = await fetchWithToken(
+      `${API_BASE}/api/posts/${post?._id}/like`,
+      localStorage.getItem("token"),
+      {
+        method: "POST",
       }
-    } catch (err) {
-      console.error("Like error:", err);
-    } finally {
-      setLiking(false);
+    );
+
+    console.log("LIKE RESPONSE:", res);
+
+    // USE BACKEND LIKES IF AVAILABLE
+    if (res?.likes) {
+
+      setLikes(res.likes);
+
     }
-  };
+
+    // FALLBACK UI UPDATE
+    else {
+
+      setLikes(prev =>
+        likedByUser
+          ? prev.filter(id => id !== currentUserId)
+          : [...prev, currentUserId]
+      );
+
+    }
+
+  } catch (err) {
+
+    console.error("Like error:", err);
+
+  } finally {
+
+    setLiking(false);
+
+  }
+};
 
   /* ================= COMMENT ================= */
   const handleComment = async () => {
@@ -73,8 +97,8 @@ const PostCard = ({ post, currentUserId }) => {
   /* ================= SHARE ================= */
   const handleShare = async () => {
     try {
-      const url = `https://africbook.globelynks.com/post/${post?._id}`;
-      const text = post?.content || "Check this post on Africbook";
+      const url = `https://africsocial.globelynks.com/post/${post?._id}`;
+      const text = post?.content || "Check this post on AfricSocial";
       if (navigator.share) {
         await navigator.share({ title: post?.user?.name || "Africbook Post", text, url });
       } else {
