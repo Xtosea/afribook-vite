@@ -452,62 +452,66 @@ const Navbar = () => {
       )}
 
       {/* ========================= */}
-      {/* BOTTOM MOBILE NAV */}
-      {/* ========================= */}
+{/* BOTTOM MOBILE NAV */}
+{/* ========================= */}
 
-      {isLoggedIn && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t md:hidden z-50">
+{isLoggedIn && (
+  <div className="fixed bottom-0 left-0 right-0 bg-white border-t md:hidden z-50">
 
-          <div className="flex justify-around py-2">
+    <div className="flex justify-around py-2">
 
-            <Link
-              to="/"
-              className={`flex flex-col items-center ${
-                isActive("/")
-                  ? "text-blue-600"
-                  : "text-gray-500"
-              }`}
-            >
-              <Home size={22} />
-            </Link>
+      <Link
+        to="/"
+        className={`flex flex-col items-center text-xs ${
+          isActive("/")
+            ? "text-blue-600"
+            : "text-gray-500"
+        }`}
+      >
+        <Home size={22} />
+        <span>Home</span>
+      </Link>
 
-            <Link
-              to="/reels"
-              className={`flex flex-col items-center ${
-                isActive("/reels")
-                  ? "text-blue-600"
-                  : "text-gray-500"
-              }`}
-            >
-              <Video size={22} />
-            </Link>
+      <Link
+        to="/reels"
+        className={`flex flex-col items-center text-xs ${
+          isActive("/reels")
+            ? "text-blue-600"
+            : "text-gray-500"
+        }`}
+      >
+        <Video size={22} />
+        <span>Reels</span>
+      </Link>
 
-            <Link
-              to="/messages"
-              className={`flex flex-col items-center ${
-                isActive("/messages")
-                  ? "text-blue-600"
-                  : "text-gray-500"
-              }`}
-            >
-              <MessageCircle size={22} />
-            </Link>
+      <Link
+        to="/messages"
+        className={`flex flex-col items-center text-xs ${
+          isActive("/messages")
+            ? "text-blue-600"
+            : "text-gray-500"
+        }`}
+      >
+        <MessageCircle size={22} />
+        <span>Messages</span>
+      </Link>
 
-            <Link
-              to="/profile"
-              className={`flex flex-col items-center ${
-                isActive("/profile")
-                  ? "text-blue-600"
-                  : "text-gray-500"
-              }`}
-            >
-              <User size={22} />
-            </Link>
+      <Link
+        to="/profile"
+        className={`flex flex-col items-center text-xs ${
+          isActive("/profile")
+            ? "text-blue-600"
+            : "text-gray-500"
+        }`}
+      >
+        <User size={22} />
+        <span>Profile</span>
+      </Link>
 
-          </div>
+    </div>
 
-        </div>
-      )}
+  </div>
+)}
 <InstallPWAButton />
     </>
   );
