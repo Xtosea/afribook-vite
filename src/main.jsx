@@ -1,19 +1,34 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+
 import App from "./App";
 import "./index.css";
+
 import { AuthProvider } from "./context/AuthContext";
+
 import { registerSW } from "virtual:pwa-register";
 
 registerSW({
   immediate: true,
-});
 
-onRegisterError(error) {
-    console.log("❌ SW registration error", error);
+  onRegistered(registration) {
+    console.log(
+      "✅ Service Worker Registered:",
+      registration
+    );
   },
 
-ReactDOM.createRoot(document.getElementById("root")).render(
+  onRegisterError(error) {
+    console.log(
+      "❌ SW registration error:",
+      error
+    );
+  },
+});
+
+ReactDOM.createRoot(
+  document.getElementById("root")
+).render(
   <React.StrictMode>
     <AuthProvider>
       <App />
