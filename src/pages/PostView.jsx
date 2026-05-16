@@ -51,9 +51,13 @@ const PostView = () => {
     );
   }
 
-  const image =
-    post?.media?.[0]?.url ||
-    "https://africsocial.globelynks.com/logo.png";
+  const rawImage = post?.media?.[0]?.url;
+
+const image = rawImage
+  ? rawImage.startsWith("http")
+    ? rawImage
+    : `https://africsocial.globelynks.com${rawImage}`
+  : "https://africsocial.globelynks.com/social-preview.png";
 
   const title =
     post?.content?.substring(0, 60) ||
