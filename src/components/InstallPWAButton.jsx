@@ -1,57 +1,88 @@
 import React, { useEffect, useState } from "react";
 
 export default function InstallPWAButton() {
-  const [deferredPrompt, setDeferredPrompt] = useState(null);
-  const [showButton, setShowButton] = useState(true); // always show for demo
+  const [deferredPrompt, setDeferredPrompt] =
+    useState(null);
+
+  const [showButton, setShowButton] =
+    useState(true);
 
   useEffect(() => {
     const handler = (e) => {
-      e.preventDefault(); // Prevent automatic prompt
+      e.preventDefault();
       setDeferredPrompt(e);
     };
 
-    window.addEventListener("beforeinstallprompt", handler);
+    window.addEventListener(
+      "beforeinstallprompt",
+      handler
+    );
 
     const appInstalledHandler = () => {
       setShowButton(false);
-      console.log("JobLink app installed");
+
+      console.log(
+        "AfriBook app installed"
+      );
     };
-    window.addEventListener("appinstalled", appInstalledHandler);
+
+    window.addEventListener(
+      "appinstalled",
+      appInstalledHandler
+    );
 
     return () => {
-      window.removeEventListener("beforeinstallprompt", handler);
-      window.removeEventListener("appinstalled", appInstalledHandler);
+      window.removeEventListener(
+        "beforeinstallprompt",
+        handler
+      );
+
+      window.removeEventListener(
+        "appinstalled",
+        appInstalledHandler
+      );
     };
   }, []);
 
   const handleInstall = async () => {
     if (deferredPrompt) {
-      deferredPrompt.prompt(); // show native install prompt
-      const choiceResult = await deferredPrompt.userChoice;
-      if (choiceResult.outcome === "accepted") {
-        console.log("User accepted the install prompt");
+      deferredPrompt.prompt();
+
+      const choiceResult =
+        await deferredPrompt.userChoice;
+
+      if (
+        choiceResult.outcome ===
+        "accepted"
+      ) {
+        console.log(
+          "User accepted install"
+        );
       } else {
-        console.log("User dismissed the install prompt");
+        console.log(
+          "User dismissed install"
+        );
       }
+
       setDeferredPrompt(null);
+
     } else {
-      // fallback: manual info if no beforeinstallprompt
+
       alert(
-        "To install JobLink, tap ⋮ in Chrome and select 'Add to Home screen'."
+        "To install AfriBook, tap Chrome menu ⋮ and select 'Add to Home Screen'."
       );
     }
-    setShowButton(false);
   };
 
   if (!showButton) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 z-50">
+    <div className="fixed bottom-20 right-4 z-[9999]">
       <button
         onClick={handleInstall}
-        className="bg-brand text-white px-4 py-2 rounded shadow-lg"
+        className="bg-blue-600 text-white px-4 py-3 rounded-full shadow-xl"
       >
-        Install JobLink App
+        Install App
       </button>
     </div>
   );
