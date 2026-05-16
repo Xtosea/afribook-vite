@@ -164,12 +164,19 @@ const Navbar = () => {
   // =========================
 
   const handleLogout = () => {
-    localStorage.clear();
+  localStorage.clear();
 
-    setIsLoggedIn(false);
+  setIsLoggedIn(false);
 
-    navigate("/login");
-  };
+  // CLOSE MOBILE MENU
+  setMobileMenuOpen(false);
+
+  // CLOSE DROPDOWNS
+  setShowDropdown(false);
+  setShowSettings(false);
+
+  navigate("/login");
+};
 
   // =========================
   // ACTIVE ROUTE
