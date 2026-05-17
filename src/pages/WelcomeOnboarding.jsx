@@ -1,15 +1,12 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-
 export default function WelcomeOnboarding() {
 
   const navigate = useNavigate();
 
-
-const navigate = useNavigate();
-
   useEffect(() => {
+
     const script1 = document.createElement("script");
 
     script1.innerHTML = `
@@ -29,25 +26,21 @@ const navigate = useNavigate();
 
     script2.async = true;
 
-    const container = document.getElementById("onboarding-ad");
+    const container =
+      document.getElementById("onboarding-ad");
 
-    if (container && container.childNodes.length === 0) {
+    if (
+      container &&
+      container.childNodes.length === 0
+    ) {
       container.appendChild(script1);
       container.appendChild(script2);
     }
+
   }, []);
 
   return (
-    <div>
-      {/* your component */}
-    </div>
-  );
-}
 
-
-
-
-  return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 px-4">
 
       <div className="bg-white shadow-xl rounded-2xl p-8 max-w-lg w-full text-center">
@@ -61,61 +54,20 @@ const navigate = useNavigate();
         </h1>
 
         <p className="text-gray-600 mb-6">
-          Your account is ready! Start connecting,
-          sharing and earning on Africa’s fastest
-          growing social platform.
+          Your account is ready!
         </p>
 
         {/* FEATURES */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left mb-6">
 
-          <div className="bg-gray-50 p-4 rounded-xl">
-            <div className="text-xl mb-1">👥</div>
+          {/* cards */}
 
-            <h3 className="font-semibold">
-              Add Friends
-            </h3>
+        </div>
 
-            <p className="text-sm text-gray-500">
-              Connect with people you know
-            </p>
-          </div>
+        {/* AD */}
+        <div className="flex justify-center mb-6 overflow-hidden">
 
-          <div className="bg-gray-50 p-4 rounded-xl">
-            <div className="text-xl mb-1">📱</div>
-
-            <h3 className="font-semibold">
-              Sync Contacts
-            </h3>
-
-            <p className="text-sm text-gray-500">
-              Find friends from your phonebook
-            </p>
-          </div>
-
-          <div className="bg-gray-50 p-4 rounded-xl">
-            <div className="text-xl mb-1">💰</div>
-
-            <h3 className="font-semibold">
-              Earn Points
-            </h3>
-
-            <p className="text-sm text-gray-500">
-              Get rewarded for engagement
-            </p>
-          </div>
-
-          <div className="bg-gray-50 p-4 rounded-xl">
-            <div className="text-xl mb-1">🔥</div>
-
-            <h3 className="font-semibold">
-              Go Viral
-            </h3>
-
-            <p className="text-sm text-gray-500">
-              Reach thousands of users
-            </p>
-          </div>
+          <div id="onboarding-ad"></div>
 
         </div>
 
@@ -124,29 +76,17 @@ const navigate = useNavigate();
 
           <button
             onClick={() => navigate("/sync-contacts")}
-            className="w-full bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-700 transition"
+            className="w-full bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold"
           >
             Sync Contacts
           </button>
 
           <button
             onClick={() => navigate("/add-friends")}
-            className="w-full border border-gray-300 px-6 py-3 rounded-xl font-semibold hover:bg-gray-100 transition"
+            className="w-full border border-gray-300 px-6 py-3 rounded-xl font-semibold"
           >
             Skip For Now
           </button>
-
-<script>
-  atOptions = {
-    'key' : '682c7f724231a50f97aebde0e408fce5',
-    'format' : 'iframe',
-    'height' : 50,
-    'width' : 320,
-    'params' : {}
-  };
-</script>
-<script src="https://www.highperformanceformat.com/682c7f724231a50f97aebde0e408fce5/invoke.js"></script>
-
 
         </div>
 
