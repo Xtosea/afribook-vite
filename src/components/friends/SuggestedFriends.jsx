@@ -17,65 +17,58 @@ const SuggestedFriends = () => {
   const [sending, setSending] = useState({});
 
   useEffect(() => {
-    const fetchSuggestions = async () => {
-      try {
-        const data = await fetchWithToken(
-          `${API_BASE}/api/friends/suggestions`,
-          token
-        );
 
-     console.log("SUGGESTIONS:", data);
+  const fetchSuggestions = async () => {
 
-        setUsers(Array.isArray(data) ? data : []);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchSuggestions();
-  }, [token]);
-
-  const handleAddFriend = async (userId) => {
     try {
-      setSending((prev) => ({
-        ...prev,
-        [userId]: true,
-      }));
+
+      const token =
+        localStorage.getItem("token");
+
+      console.log("TOKEN:", token);
 
       const res = await fetch(
-        `${API_BASE}/api/friends/request/${userId}`,
+        `${API_BASE}/api/friends/suggestions`,
         {
-          method: "POST",
+          method: "GET",
+
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization:
+              `Bearer ${token}`,
+            "Content-Type":
+              "application/json",
           },
         }
       );
 
-      const data = await res.json();
+      const data =
+        await res.json();
 
-      if (!res.ok) {
-        alert(data.error || "Failed");
-        return;
-      }
+      console.log(
+        "SUGGESTIONS:",
+        data
+      );
 
-      setUsers((prev) =>
-        prev.filter((u) => u._id !== userId)
+      setUsers(
+        Array.isArray(data)
+          ? data
+          : []
       );
 
     } catch (err) {
+
       console.error(err);
 
-      alert("Failed to send request");
     } finally {
-      setSending((prev) => ({
-        ...prev,
-        [userId]: false,
-      }));
+
+      setLoading(false);
+
     }
   };
+
+  fetchSuggestions();
+
+}, []);
 
   return (
     <div className="bg-white rounded-2xl shadow p-4 space-y-4">
