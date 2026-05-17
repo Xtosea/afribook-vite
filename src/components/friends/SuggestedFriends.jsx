@@ -35,19 +35,30 @@ const SuggestedFriends = () => {
           headers: {
             Authorization:
               `Bearer ${token}`,
-            "Content-Type":
-              "application/json",
           },
         }
+      );
+
+      console.log(
+        "STATUS:",
+        res.status
       );
 
       const data =
         await res.json();
 
       console.log(
-        "SUGGESTIONS:",
+        "DATA:",
         data
       );
+
+      if (!res.ok) {
+        console.log(
+          "FETCH FAILED"
+        );
+
+        return;
+      }
 
       setUsers(
         Array.isArray(data)
@@ -57,7 +68,10 @@ const SuggestedFriends = () => {
 
     } catch (err) {
 
-      console.error(err);
+      console.error(
+        "FETCH ERROR:",
+        err
+      );
 
     } finally {
 
