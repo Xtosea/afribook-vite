@@ -343,7 +343,7 @@ return (
 <div className="hidden md:block md:col-span-1 space-y-4">
   <SidebarRight />
 
-  <SuggestedFriends />
+  
 </div>
 
 </div>
