@@ -21,6 +21,7 @@ import { useR2Upload } from "../hooks/useR2Upload";
 import validateVideoDuration from "../utils/validateVideoDuration";
 import compressVideo from "../utils/compressVideo";
 import PostComposer from "../components/PostComposer";
+import SuggestedFriends from "../components/friends/SuggestedFriends";
 
 // Lazy-loaded components
 const EmojiPicker = lazy(() => import("emoji-picker-react"));
@@ -338,11 +339,11 @@ return (
 
   </div>  
 
-  {/* RIGHT SIDEBAR */}  
-  <div className="hidden md:block md:col-span-1">  
-    <SidebarRight />  
-  </div>  
+  {/* RIGHT SIDEBAR */}
+<div className="hidden md:block md:col-span-1 space-y-4">
+  <SidebarRight />
 
+  <SuggestedFriends />
 </div>
 
 );
