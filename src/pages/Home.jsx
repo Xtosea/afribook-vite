@@ -346,6 +346,7 @@ return (
   <SuggestedFriends />
 </div>
 
+</div>
 );
 };
 
