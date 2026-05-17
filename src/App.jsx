@@ -24,9 +24,9 @@ import SyncContacts from "./pages/SyncContacts";
 import EditProfile from "./pages/EditProfile";
 import MediaViewer from "./pages/MediaViewer";
 import PostView from "./pages/PostView";
-import AddFriends from "./pages/onboarding/AddFriends";
-import FriendRequests from "./pages/friends/FriendRequests";
-import FriendsList from "./pages/friends/FriendsList";
+import AddFriends from "../pages/onboarding/AddFriends";
+import FriendRequests from "../pages/friends/FriendRequests";
+import FriendsList from "../pages/friends/FriendsList";
 import Wallet from "./pages/Wallet";
 
 function App() {
