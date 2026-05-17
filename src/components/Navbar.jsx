@@ -518,7 +518,7 @@ const Navbar = () => {
           >
          
           Wallet 
-          </link>
+          </Link>
 
 
           <button
