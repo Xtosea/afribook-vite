@@ -281,7 +281,7 @@ const Navbar = () => {
                   Friends 
                 </Link>
 
-           
+
                 <Link
                   to="/friend-request"
                   className={`flex items-center gap-1 ${
@@ -315,7 +315,7 @@ const Navbar = () => {
               {/* ========================= */}
 
 
-            
+
               <div className="hidden md:flex items-center gap-2 text-sm">
 
                 <Users size={18} />
@@ -508,7 +508,7 @@ const Navbar = () => {
           >
             Requests 
           </Link>
-          
+
            <Link
             to="/wallet"
             className="block"
@@ -516,7 +516,7 @@ const Navbar = () => {
               setMobileMenuOpen(false)
             }
           >
-         
+
           Wallet 
           </Link>
 
@@ -597,7 +597,7 @@ const Navbar = () => {
   );
 };
 
-  
+
 
 
 export default Navbar;
