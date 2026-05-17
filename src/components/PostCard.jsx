@@ -97,7 +97,8 @@ const PostCard = ({ post, currentUserId }) => {
   /* ================= SHARE ================= */
   const handleShare = async () => {
     try {
-      const url = `https://africsocial.globelynks.com/post/${post?._id}`;
+      const url =
+  `https://afribook-backend.onrender.com/post/${post?._id}`;
       const text = post?.content || "Check this post on AfricSocial";
       if (navigator.share) {
         await navigator.share({ title: post?.user?.name || "Africbook Post", text, url });
