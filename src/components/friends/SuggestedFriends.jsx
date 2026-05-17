@@ -24,6 +24,8 @@ const SuggestedFriends = () => {
           token
         );
 
+     console.log("SUGGESTIONS:", data);
+
         setUsers(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error(err);
