@@ -28,6 +28,7 @@ import AddFriends from "./pages/onboarding/AddFriends";
 import FriendRequests from "./pages/friends/FriendRequests";
 import FriendsList from "./pages/friends/FriendsList";
 import Wallet from "./pages/Wallet";
+import FriendSuggestions from "./pages/friends/FriendSuggestions";
 
 function App() {
   console.log("API:", import.meta.env.VITE_API_BASE);
@@ -158,6 +159,13 @@ function App() {
                 </ProtectedRoute>
               }
             />
+
+
+          <Route
+  path="/friends"
+  element={<FriendSuggestions />}
+/>
+
 
           </Routes>
         </div>
