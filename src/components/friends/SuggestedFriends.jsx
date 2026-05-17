@@ -137,7 +137,7 @@ const SuggestedFriends = () => {
                       {user.name}
                     </h3>
 
-                    <<p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-500">
   Registered user
 </p>
                   </div>
