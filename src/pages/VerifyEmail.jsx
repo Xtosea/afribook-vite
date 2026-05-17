@@ -52,6 +52,29 @@ export default function VerifyEmail() {
     if (token) verify();
   }, [token, searchParams]);
 
+
+useEffect(() => {
+
+  if (document.getElementById("verify-email-ad-script")) {
+    return;
+  }
+
+  const script = document.createElement("script");
+
+  script.id = "verify-email-ad-script";
+
+  script.async = true;
+
+  script.setAttribute("data-cfasync", "false");
+
+  script.src =
+    "https://pl29467278.effectivecpmnetwork.com/1ac49ab91139c0ad3e13572497cfbe18/invoke.js";
+
+  document.body.appendChild(script);
+
+}, []);
+
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="bg-white shadow-lg rounded-2xl p-8 max-w-md w-full text-center">
@@ -70,6 +93,14 @@ export default function VerifyEmail() {
         <div className="flex justify-center">
           <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500"></div>
         </div>
+
+
+   {/* AD HERE */}
+
+<p className="text-sm text-gray-400 mt-6">
+  You're about to join Africa's fastest growing social network 🚀
+</p>
+
 
         <p className="text-sm text-gray-400 mt-6">
           You're about to join Africa's fastest growing social network 🚀
