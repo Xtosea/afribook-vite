@@ -439,7 +439,7 @@ const Navbar = () => {
       {/* ========================= */}
 
       {mobileMenuOpen && (
-        <div className="md:hidden bg-white shadow p-4 space-y-4">
+        <div className="fixed top-[64px] left-0 right-0 bottom-0 md:hidden bg-white shadow p-4 space-y-4 z-50 overflow-y-auto">
 
           <SearchBar />
 
