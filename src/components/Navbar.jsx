@@ -13,9 +13,10 @@ import {
   User,
   Settings,
   Users,
+  Wallet,
 } from "lucide-react";
-import InstallPWAButton from "./InstallPWAButton";
 
+import InstallPWAButton from "./InstallPWAButton";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -164,19 +165,19 @@ const Navbar = () => {
   // =========================
 
   const handleLogout = () => {
-  localStorage.clear();
+    localStorage.clear();
 
-  setIsLoggedIn(false);
+    setIsLoggedIn(false);
 
-  // CLOSE MOBILE MENU
-  setMobileMenuOpen(false);
+    // CLOSE MOBILE MENU
+    setMobileMenuOpen(false);
 
-  // CLOSE DROPDOWNS
-  setShowDropdown(false);
-  setShowSettings(false);
+    // CLOSE DROPDOWNS
+    setShowDropdown(false);
+    setShowSettings(false);
 
-  navigate("/login");
-};
+    navigate("/login");
+  };
 
   // =========================
   // ACTIVE ROUTE
@@ -268,53 +269,47 @@ const Navbar = () => {
                   Profile
                 </Link>
 
-
-                 <Link
+                <Link
                   to="/friends"
                   className={`flex items-center gap-1 ${
-                    isActive("/profile")
+                    isActive("/friends")
                       ? "text-blue-600"
                       : "hover:text-blue-500"
                   }`}
                 >
-                  <User size={20} />
-                  Friends 
+                  <Users size={20} />
+                  Friends
                 </Link>
-
 
                 <Link
-                  to="/friend-request"
+                  to="/friend-requests"
                   className={`flex items-center gap-1 ${
-                    isActive("/profile")
+                    isActive("/friend-requests")
                       ? "text-blue-600"
                       : "hover:text-blue-500"
                   }`}
                 >
-                  <User size={20} />
-                  Requests 
+                  <Users size={20} />
+                  Requests
                 </Link>
 
-
-               <Link
+                <Link
                   to="/wallet"
                   className={`flex items-center gap-1 ${
-                    isActive("/profile")
+                    isActive("/wallet")
                       ? "text-blue-600"
                       : "hover:text-blue-500"
                   }`}
                 >
-                  <User size={20} />
-                  Wallet 
+                  <Wallet size={20} />
+                  Wallet
                 </Link>
-
 
               </div>
 
               {/* ========================= */}
               {/* ONLINE USERS */}
               {/* ========================= */}
-
-
 
               <div className="hidden md:flex items-center gap-2 text-sm">
 
@@ -488,9 +483,8 @@ const Navbar = () => {
             Profile
           </Link>
 
-
-           <Link
-            to="/frinds"
+          <Link
+            to="/friends"
             className="block"
             onClick={() =>
               setMobileMenuOpen(false)
@@ -499,27 +493,25 @@ const Navbar = () => {
             Friends
           </Link>
 
-           <Link
+          <Link
             to="/friend-requests"
             className="block"
             onClick={() =>
               setMobileMenuOpen(false)
             }
           >
-            Requests 
+            Requests
           </Link>
 
-           <Link
+          <Link
             to="/wallet"
             className="block"
             onClick={() =>
               setMobileMenuOpen(false)
             }
           >
-
-          Wallet 
+            Wallet
           </Link>
-
 
           <button
             onClick={handleLogout}
@@ -532,72 +524,71 @@ const Navbar = () => {
       )}
 
       {/* ========================= */}
-{/* BOTTOM MOBILE NAV */}
-{/* ========================= */}
+      {/* BOTTOM MOBILE NAV */}
+      {/* ========================= */}
 
-{isLoggedIn && (
-  <div className="fixed bottom-0 left-0 right-0 bg-white border-t md:hidden z-50">
+      {isLoggedIn && (
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t md:hidden z-50">
 
-    <div className="flex justify-around py-2">
+          <div className="flex justify-around py-2">
 
-      <Link
-        to="/"
-        className={`flex flex-col items-center text-xs ${
-          isActive("/")
-            ? "text-blue-600"
-            : "text-gray-500"
-        }`}
-      >
-        <Home size={22} />
-        <span>Home</span>
-      </Link>
+            <Link
+              to="/"
+              className={`flex flex-col items-center text-xs ${
+                isActive("/")
+                  ? "text-blue-600"
+                  : "text-gray-500"
+              }`}
+            >
+              <Home size={22} />
+              <span>Home</span>
+            </Link>
 
-      <Link
-        to="/reels"
-        className={`flex flex-col items-center text-xs ${
-          isActive("/reels")
-            ? "text-blue-600"
-            : "text-gray-500"
-        }`}
-      >
-        <Video size={22} />
-        <span>Reels</span>
-      </Link>
+            <Link
+              to="/reels"
+              className={`flex flex-col items-center text-xs ${
+                isActive("/reels")
+                  ? "text-blue-600"
+                  : "text-gray-500"
+              }`}
+            >
+              <Video size={22} />
+              <span>Reels</span>
+            </Link>
 
-      <Link
-        to="/messages"
-        className={`flex flex-col items-center text-xs ${
-          isActive("/messages")
-            ? "text-blue-600"
-            : "text-gray-500"
-        }`}
-      >
-        <MessageCircle size={22} />
-        <span>Messages</span>
-      </Link>
+            <Link
+              to="/messages"
+              className={`flex flex-col items-center text-xs ${
+                isActive("/messages")
+                  ? "text-blue-600"
+                  : "text-gray-500"
+              }`}
+            >
+              <MessageCircle size={22} />
+              <span>Messages</span>
+            </Link>
 
-      <Link
-        to="/profile"
-        className={`flex flex-col items-center text-xs ${
-          isActive("/profile")
-            ? "text-blue-600"
-            : "text-gray-500"
-        }`}
-      >
-        <User size={22} />
-        <span>Profile</span>
-      </Link>
+            <Link
+              to="/profile"
+              className={`flex flex-col items-center text-xs ${
+                isActive("/profile")
+                  ? "text-blue-600"
+                  : "text-gray-500"
+              }`}
+            >
+              <User size={22} />
+              <span>Profile</span>
+            </Link>
 
-    </div>
+          </div>
 
-  </div>
-)}
-<InstallPWAButton />
+        </div>
+      )}
+
+      <InstallPWAButton />
+
     </>
   );
 };
-
-
-
 
 export default Navbar;
