@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import {
   API_BASE,
   fetchWithToken,
-} from "../api/api";
+} from "../../api/api";
 
 const FriendSuggestions = () => {
 
