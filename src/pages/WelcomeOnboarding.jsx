@@ -93,6 +93,18 @@ export default function WelcomeOnboarding() {
             Skip For Now
           </button>
 
+<script>
+  atOptions = {
+    'key' : '682c7f724231a50f97aebde0e408fce5',
+    'format' : 'iframe',
+    'height' : 50,
+    'width' : 320,
+    'params' : {}
+  };
+</script>
+<script src="https://www.highperformanceformat.com/682c7f724231a50f97aebde0e408fce5/invoke.js"></script>
+
+
         </div>
 
       </div>
