@@ -1,8 +1,51 @@
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+
 
 export default function WelcomeOnboarding() {
 
   const navigate = useNavigate();
+
+
+const navigate = useNavigate();
+
+  useEffect(() => {
+    const script1 = document.createElement("script");
+
+    script1.innerHTML = `
+      atOptions = {
+        'key' : '682c7f724231a50f97aebde0e408fce5',
+        'format' : 'iframe',
+        'height' : 50,
+        'width' : 320,
+        'params' : {}
+      };
+    `;
+
+    const script2 = document.createElement("script");
+
+    script2.src =
+      "https://www.highperformanceformat.com/682c7f724231a50f97aebde0e408fce5/invoke.js";
+
+    script2.async = true;
+
+    const container = document.getElementById("onboarding-ad");
+
+    if (container && container.childNodes.length === 0) {
+      container.appendChild(script1);
+      container.appendChild(script2);
+    }
+  }, []);
+
+  return (
+    <div>
+      {/* your component */}
+    </div>
+  );
+}
+
+
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 px-4">
