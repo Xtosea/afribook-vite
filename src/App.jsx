@@ -120,14 +120,7 @@ function App() {
               }
             />
 
-           <Route
-              path="/editprofile"
-              element={
-                <ProtectedRoute>
-                  <Editprofile />
-                </ProtectedRoute>
-              }
-            />
+           
 
            <Route
               path="/wallet"
