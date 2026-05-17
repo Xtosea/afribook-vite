@@ -6,16 +6,32 @@ export default function SyncContacts() {
   const navigate = useNavigate();
 
   const handleSync = async () => {
-    // Example: Fetch contacts from backend
-    const synced = await fetch("/api/users/sync-contacts", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ contacts: ["+2348001234567"] }),
-    }).then(res => res.json());
 
-    setContacts(synced);
-  };
+  try {
 
+    const res = await fetch(
+      "/api/users/sync-contacts",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contacts: sampleContacts,
+        }),
+      }
+    );
+
+    const data = await res.json();
+
+    setContacts(data);
+
+  } catch (err) {
+
+    console.error(err);
+
+  }
+};
   return (
     <div className="p-6 max-w-md mx-auto">
       <h1 className="text-xl font-bold mb-4">Sync Contacts</h1>
