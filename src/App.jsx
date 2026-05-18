@@ -27,8 +27,8 @@ import PostView from "./pages/PostView";
 import AddFriends from "./pages/onboarding/AddFriends";
 import FriendRequests from "./pages/friends/FriendRequests";
 import FriendsList from "./pages/friends/FriendsList";
-import Wallet from "./pages/Wallet";
 import FriendSuggestions from "./pages/friends/FriendSuggestions";
+import Wallet from "./pages/Wallet";
 
 function App() {
   console.log("API:", import.meta.env.VITE_API_BASE);
@@ -36,28 +36,62 @@ function App() {
   return (
     <HelmetProvider>
       <Router>
+
+        {/* Navbar */}
         <Navbar />
 
-        {/* Removed p-4 padding to allow full-width posts */}
+        {/* Main Content */}
         <div className="min-h-[calc(100vh-80px)] w-full">
           <Routes>
 
-            {/* Public routes */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password/:token" element={<ResetPassword />} />
-            <Route path="/verify-email/:token" element={<VerifyEmail />} />
-            <Route path="/verify-success" element={<VerifySuccess />} />
-            <Route path="/verify-failed" element={<VerifyFailed />} />
-            <Route path="/welcome" element={<WelcomeOnboarding />} />
-            <Route path="/media/:postId" element={<MediaViewer />} />
-            <Route path="/add-friends" element={<AddFriends />} />
-            <Route path="/sync-contacts" element={<SyncContacts />} />
-            <Route path="/edit-profile" element={<EditProfile />} />
-<Route path="/post/:id" element={<PostView />} />
+            {/* ================= PUBLIC ROUTES ================= */}
 
-            {/* Protected routes */}
+            <Route path="/login" element={<Login />} />
+
+            <Route path="/register" element={<Register />} />
+
+            <Route
+              path="/forgot-password"
+              element={<ForgotPassword />}
+            />
+
+            <Route
+              path="/reset-password/:token"
+              element={<ResetPassword />}
+            />
+
+            <Route
+              path="/verify-email/:token"
+              element={<VerifyEmail />}
+            />
+
+            <Route
+              path="/verify-success"
+              element={<VerifySuccess />}
+            />
+
+            <Route
+              path="/verify-failed"
+              element={<VerifyFailed />}
+            />
+
+            <Route
+              path="/welcome"
+              element={<WelcomeOnboarding />}
+            />
+
+            <Route
+              path="/media/:postId"
+              element={<MediaViewer />}
+            />
+
+            <Route
+              path="/post/:id"
+              element={<PostView />}
+            />
+
+            {/* ================= PROTECTED ROUTES ================= */}
+
             <Route
               path="/"
               element={
@@ -121,9 +155,7 @@ function App() {
               }
             />
 
-           
-
-           <Route
+            <Route
               path="/wallet"
               element={
                 <ProtectedRoute>
@@ -132,7 +164,7 @@ function App() {
               }
             />
 
-          <Route
+            <Route
               path="/add-friends"
               element={
                 <ProtectedRoute>
@@ -141,15 +173,32 @@ function App() {
               }
             />
 
-           <Route
-              path="//friend-requests"
+            <Route
+              path="/sync-contacts"
+              element={
+                <ProtectedRoute>
+                  <SyncContacts />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/edit-profile"
+              element={
+                <ProtectedRoute>
+                  <EditProfile />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/friend-requests"
               element={
                 <ProtectedRoute>
                   <FriendRequests />
                 </ProtectedRoute>
               }
             />
-
 
             <Route
               path="/friends"
@@ -160,17 +209,21 @@ function App() {
               }
             />
 
-
-          <Route
-  path="/friends"
-  element={<FriendSuggestions />}
-/>
-
+            <Route
+              path="/friend-suggestions"
+              element={
+                <ProtectedRoute>
+                  <FriendSuggestions />
+                </ProtectedRoute>
+              }
+            />
 
           </Routes>
         </div>
 
+        {/* Footer */}
         <Footer />
+
       </Router>
     </HelmetProvider>
   );
