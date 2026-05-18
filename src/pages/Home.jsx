@@ -22,6 +22,7 @@ import validateVideoDuration from "../utils/validateVideoDuration";
 import compressVideo from "../utils/compressVideo";
 import PostComposer from "../components/PostComposer";
 import SuggestedFriends from "../components/friends/SuggestedFriends";
+import Adsterra from "../components/Adsterra.jsx";
 
 // Lazy-loaded components
 const EmojiPicker = lazy(() => import("emoji-picker-react"));
@@ -308,6 +309,9 @@ return (
 
     <StoryBar user={currentUser} stories={stories} />  
 
+{/* Adsterra 1*/}  
+<Adsterra containerId="container-ad-top" />
+
     {/* CREATE POST */}  
    <PostComposer
   token={token}
@@ -316,32 +320,47 @@ return (
     setPosts((prev) => [post, ...prev]);
   }}
 />
-    {/* POSTS */}  
-    <div ref={feedRef} className="space-y-4">  
-      {loadingPosts ? (  
-        <>  
-          <SkeletonPost />  
-          <SkeletonPost />  
-        </>  
-      ) : (  
-        Array.isArray(posts) &&  
-        posts.map((post) => (  
-          <Suspense fallback={<SkeletonPost />} key={post._id}>  
-            <PostCard  
-              post={post}  
-              currentUserId={currentUserId}  
-              setVideoRefs={setVideoRefs}  
-            />  
-          </Suspense>  
-        ))  
-      )}  
-    </div>  
+    {/* POSTS */}
+<div ref={feedRef} className="space-y-4">
+  {loadingPosts ? (
+    <>
+      <SkeletonPost />
+      <SkeletonPost />
+    </>
+  ) : (
+    Array.isArray(posts) &&
+    posts.map((post, index) => (
+      <React.Fragment key={post._id}>
+        <Suspense fallback={<SkeletonPost />}>
+          <PostCard
+            post={post}
+            currentUserId={currentUserId}
+            setVideoRefs={setVideoRefs}
+          />
+        </Suspense>
+
+        {/* ADSTERRA 2 */}
+        {(index + 1) === 4 && (
+          <Adsterra containerId="container-ad-middle-1" />
+        )}
+
+        {/* ADSTERRA 3 */}
+        {(index + 1) === 8 && (
+          <Adsterra containerId="container-ad-middle-2" />
+        )}
+      </React.Fragment>
+    ))
+  )}
+</div>
 
   </div>  
 
   {/* RIGHT SIDEBAR */}
-<div className="md:col-span-1">
+<div className="md:col-span-1 space-y-4">
   <SidebarRight />
+
+{/* Adsterra 4*/}
+  <Adsterra containerId="container-ad-sidebar" />
 </div>
 
 </div>
