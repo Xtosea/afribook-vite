@@ -1,3 +1,5 @@
+import { API_BASE } from "../api/api";
+
 export const useAIEnhance = () => {
   const enhanceImage = async (file) => {
     const formData = new FormData();
