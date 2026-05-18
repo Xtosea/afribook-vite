@@ -71,28 +71,37 @@ const PostComposer = ({
     setLocationSuggestions,
   ] = useState([]);
 
+  // =========================
   // TEXT STYLE STATES
+  // =========================
 
   const [textColor, setTextColor] =
     useState("#000000");
 
-  const [background, setBackground] = useState("white");
+  const [backgroundStyle, setBackgroundStyle] =
+    useState("white");
 
   const [fontStyle, setFontStyle] =
     useState("font-sans");
-const [backgroundStyle, setBackgroundStyle] = useState("");
-  
 
+  // =========================
+  // CLOUDINARY
+  // =========================
 
-  // ✅ CLOUDINARY
   const { uploadImage } =
     useCloudinaryUpload();
 
-  // ✅ R2
+  // =========================
+  // R2 VIDEO
+  // =========================
+
   const { uploadVideo } =
     useR2Upload();
 
-  // ✅ AI ENHANCE
+  // =========================
+  // AI ENHANCE
+  // =========================
+
   const { enhanceImage } =
     useAIEnhance();
 
@@ -108,6 +117,7 @@ const [backgroundStyle, setBackgroundStyle] = useState("");
       value
         .split(",")
         .map((f) => f.trim())
+        .filter(Boolean)
     );
   };
 
@@ -116,36 +126,80 @@ const [backgroundStyle, setBackgroundStyle] = useState("");
   // =========================
 
   const handleEnhance = async () => {
-  try {
-    const image = mediaFiles.find((f) =>
-      f.type?.startsWith("image")
-    );
 
-    if (!image) {
-      alert("Please upload an image first");
-      return;
+    try {
+
+      // find first image
+      const image = mediaFiles.find(
+        (f) =>
+          f.type &&
+          f.type.startsWith("image")
+      );
+
+      if (!image) {
+
+        alert(
+          "Please upload an image first"
+        );
+
+        return;
+      }
+
+      setLoading(true);
+
+      let imageUrl = image.url;
+
+      // if not uploaded yet → upload first
+      if (!imageUrl && image instanceof File) {
+
+        imageUrl =
+          await uploadImage(image);
+      }
+
+      if (!imageUrl) {
+
+        alert(
+          "Image upload failed"
+        );
+
+        return;
+      }
+
+      // send URL to AI
+      const enhancedUrl =
+        await enhanceImage(imageUrl);
+
+      // replace image
+      setMediaFiles((prev) => [
+
+        ...prev.filter(
+          (f) => f !== image
+        ),
+
+        {
+          url: enhancedUrl,
+          type: "image",
+          enhanced: true,
+        },
+      ]);
+
+      alert("Image enhanced!");
+
+    } catch (err) {
+
+      console.error(err);
+
+      alert(
+        err.message ||
+        "Enhance failed"
+      );
+
+    } finally {
+
+      setLoading(false);
+
     }
-
-    setLoading(true);
-
-    const enhancedUrl = await enhanceImage(image);
-
-    setMediaFiles((prev) => [
-      ...prev.filter((f) => f !== image),
-      {
-        url: enhancedUrl,
-        type: "image",
-        enhanced: true,
-      },
-    ]);
-
-  } catch (err) {
-    console.error(err);
-    alert("Enhance failed");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   // =========================
   // SUBMIT POST
@@ -174,7 +228,7 @@ const [backgroundStyle, setBackgroundStyle] = useState("");
 
       for (let file of mediaFiles) {
 
-        // AI ENHANCED IMAGE
+        // already enhanced
         if (
           file.enhanced &&
           file.url
@@ -189,14 +243,14 @@ const [backgroundStyle, setBackgroundStyle] = useState("");
         }
 
         const type =
-          file.type.startsWith("image")
+          file.type?.startsWith("image")
             ? "image"
             : "video";
 
         let url = "";
 
         // =========================
-        // IMAGE → CLOUDINARY
+        // IMAGE
         // =========================
 
         if (type === "image") {
@@ -207,12 +261,11 @@ const [backgroundStyle, setBackgroundStyle] = useState("");
         }
 
         // =========================
-        // VIDEO → R2
+        // VIDEO
         // =========================
 
         else {
 
-          // 3 MINUTES MAX
           await validateVideoDuration(
             file,
             180
@@ -220,14 +273,12 @@ const [backgroundStyle, setBackgroundStyle] = useState("");
 
           url =
             await uploadVideo(file);
-
         }
 
         uploadedMedia.push({
           url,
           type,
         });
-
       }
 
       // =========================
@@ -270,11 +321,6 @@ const [backgroundStyle, setBackgroundStyle] = useState("");
       const data =
         await res.json();
 
-      console.log(
-        "POST RESPONSE:",
-        data
-      );
-
       if (!res.ok) {
 
         throw new Error(
@@ -284,7 +330,7 @@ const [backgroundStyle, setBackgroundStyle] = useState("");
       }
 
       // =========================
-      // ADD TO FEED
+      // UPDATE FEED
       // =========================
 
       onPostCreated?.(data.post);
@@ -311,6 +357,12 @@ const [backgroundStyle, setBackgroundStyle] = useState("");
 
       setExpanded(false);
 
+      setTextColor("#000000");
+
+      setBackgroundStyle("white");
+
+      setFontStyle("font-sans");
+
     } catch (err) {
 
       console.error(err);
@@ -320,10 +372,43 @@ const [backgroundStyle, setBackgroundStyle] = useState("");
         "Post failed"
       );
 
+    } finally {
+
+      setPosting(false);
+
     }
+  };
 
-    setPosting(false);
+  // =========================
+  // BACKGROUND STYLES
+  // =========================
 
+  const getBackgroundStyle = () => {
+
+    switch (backgroundStyle) {
+
+      case "gradient-purple":
+        return {
+          background:
+            "linear-gradient(to right, #ec4899, #8b5cf6)",
+        };
+
+      case "gradient-blue":
+        return {
+          background:
+            "linear-gradient(to right, #3b82f6, #06b6d4)",
+        };
+
+      case "dark":
+        return {
+          background: "#111827",
+        };
+
+      default:
+        return {
+          background: "#ffffff",
+        };
+    }
   };
 
   return (
@@ -335,37 +420,44 @@ const [backgroundStyle, setBackgroundStyle] = useState("");
 
       {/* TEXTAREA */}
 
-     <textarea
-  rows={expanded ? 4 : 1}
-  value={newPost}
-  onChange={(e) => setNewPost(e.target.value)}
-  onFocus={() => setExpanded(true)}
-  placeholder={`Upload Video/Picture, ${currentUser?.name || "User"}?`}
-  style={{
-    color: textColor,
-  }}
-  className={`
-    w-full
-    p-4
-    rounded-2xl
-    border
-    resize-none
-    transition-all
-    duration-200
-    focus:outline-none
-    focus:ring-2
-    focus:ring-blue-400
-    ${expanded ? "h-28" : "h-12"}
-    ${backgroundStyle}
-    ${fontStyle}
-  `}
-/>
+      <textarea
+        rows={expanded ? 4 : 1}
+        value={newPost}
+        onChange={(e) =>
+          setNewPost(e.target.value)
+        }
+        onFocus={() =>
+          setExpanded(true)
+        }
+        placeholder={`What's on your mind, ${
+          currentUser?.name ||
+          "User"
+        }?`}
+        style={{
+          color: textColor,
+          ...getBackgroundStyle(),
+        }}
+        className={`
+          w-full
+          p-4
+          rounded-2xl
+          border
+          resize-none
+          transition-all
+          duration-200
+          focus:outline-none
+          focus:ring-2
+          focus:ring-blue-400
+          ${expanded ? "h-28" : "h-12"}
+          ${fontStyle}
+        `}
+      />
 
       {/* EXPANDED */}
 
       {expanded && (
 
-        <div className="space-y-3">
+        <div className="space-y-4">
 
           {/* EMOJI */}
 
@@ -439,13 +531,10 @@ const [backgroundStyle, setBackgroundStyle] = useState("");
                     console.error(err);
 
                   }
-
                 }}
                 placeholder="Add location..."
                 className="w-full border p-2 rounded-lg"
               />
-
-              {/* SUGGESTIONS */}
 
               {locationSuggestions.length > 0 && (
 
@@ -468,7 +557,6 @@ const [backgroundStyle, setBackgroundStyle] = useState("");
                           setLocationSuggestions(
                             []
                           );
-
                         }}
                         className="w-full text-left px-4 py-3 hover:bg-gray-100 text-sm"
                       >
@@ -477,16 +565,11 @@ const [backgroundStyle, setBackgroundStyle] = useState("");
                           item.display_name
                         }
                       </button>
-
                     )
                   )}
-
                 </div>
-
               )}
-
             </div>
-
           )}
 
           {/* FEELING */}
@@ -503,7 +586,6 @@ const [backgroundStyle, setBackgroundStyle] = useState("");
               placeholder="How are you feeling?"
               className="w-full border p-2 rounded-lg"
             />
-
           )}
 
           {/* TAG */}
@@ -520,7 +602,6 @@ const [backgroundStyle, setBackgroundStyle] = useState("");
               placeholder="Tag friends"
               className="w-full border p-2 rounded-lg"
             />
-
           )}
 
           {/* MEDIA */}
@@ -535,12 +616,13 @@ const [backgroundStyle, setBackgroundStyle] = useState("");
             }
           />
 
-          {/* AI ENHANCE */}
+          {/* AI BUTTON */}
 
           <button
             type="button"
             onClick={handleEnhance}
-            className="bg-purple-500 text-white px-4 py-2 rounded-xl"
+            disabled={loading}
+            className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-xl transition"
           >
             {loading
               ? "Enhancing..."
@@ -549,55 +631,143 @@ const [backgroundStyle, setBackgroundStyle] = useState("");
 
           {/* STYLE OPTIONS */}
 
-          <div className="flex gap-2 flex-wrap">
+          <div className="space-y-3">
 
-            <button
-              type="button"
-              onClick={() =>
-                setTextColor(
-                  "#ff0000"
-                )
-              }
-              className="w-8 h-8 rounded-full bg-red-500"
-            />
+            <p className="text-sm font-semibold text-gray-600">
+              Customize Post
+            </p>
 
-            <button
-              type="button"
-              onClick={() =>
-                setTextColor(
-                  "#0000ff"
-                )
-              }
-              className="w-8 h-8 rounded-full bg-blue-500"
-            />
+            {/* TEXT COLORS */}
 
-            <button
-  type="button"
-  onClick={() => setBackgroundStyle("white")}
-  className="px-3 py-1 rounded bg-gray-200"
->
-  Default
-</button>
+            <div className="flex gap-2 flex-wrap">
 
-<button
-  type="button"
-  onClick={() => setBackgroundStyle("gradient")}
-  className="px-3 py-1 rounded bg-purple-500 text-white"
->
-  Gradient
-</button>
+              <button
+                type="button"
+                onClick={() =>
+                  setTextColor("#000000")
+                }
+                className="w-8 h-8 rounded-full bg-black border"
+              />
 
-            <button
-              type="button"
-              onClick={() =>
-                setFontStyle(
-                  "font-serif"
-                )
-              }
-              className="px-3 py-1 rounded bg-gray-200"
-            >
-              Serif
-            </button>
+              <button
+                type="button"
+                onClick={() =>
+                  setTextColor("#ffffff")
+                }
+                className="w-8 h-8 rounded-full bg-white border"
+              />
+
+              <button
+                type="button"
+                onClick={() =>
+                  setTextColor("#ef4444")
+                }
+                className="w-8 h-8 rounded-full bg-red-500"
+              />
+
+              <button
+                type="button"
+                onClick={() =>
+                  setTextColor("#3b82f6")
+                }
+                className="w-8 h-8 rounded-full bg-blue-500"
+              />
+
+              <button
+                type="button"
+                onClick={() =>
+                  setTextColor("#22c55e")
+                }
+                className="w-8 h-8 rounded-full bg-green-500"
+              />
+
+            </div>
+
+            {/* BACKGROUNDS */}
+
+            <div className="flex gap-2 flex-wrap">
+
+              <button
+                type="button"
+                onClick={() =>
+                  setBackgroundStyle("white")
+                }
+                className="px-3 py-1 rounded bg-gray-200"
+              >
+                Default
+              </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  setBackgroundStyle(
+                    "gradient-purple"
+                  )
+                }
+                className="px-3 py-1 rounded bg-purple-500 text-white"
+              >
+                Purple
+              </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  setBackgroundStyle(
+                    "gradient-blue"
+                  )
+                }
+                className="px-3 py-1 rounded bg-blue-500 text-white"
+              >
+                Blue
+              </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  setBackgroundStyle("dark")
+                }
+                className="px-3 py-1 rounded bg-black text-white"
+              >
+                Dark
+              </button>
+
+            </div>
+
+            {/* FONTS */}
+
+            <div className="flex gap-2 flex-wrap">
+
+              <button
+                type="button"
+                onClick={() =>
+                  setFontStyle("font-sans")
+                }
+                className="px-3 py-1 border rounded"
+              >
+                Normal
+              </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  setFontStyle("font-serif")
+                }
+                className="px-3 py-1 border rounded font-serif"
+              >
+                Serif
+              </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  setFontStyle("font-mono")
+                }
+                className="px-3 py-1 border rounded font-mono"
+              >
+                Mono
+              </button>
+
+            </div>
 
           </div>
 
@@ -657,63 +827,65 @@ const [backgroundStyle, setBackgroundStyle] = useState("");
 
             </div>
 
-            {/* CANCEL */}
+            {/* RIGHT ACTIONS */}
 
-            <button
-              type="button"
-              onClick={() => {
+            <div className="flex gap-2">
 
-                setExpanded(false);
+              <button
+                type="button"
+                onClick={() => {
 
-                setNewPost("");
+                  setExpanded(false);
 
-                setMediaFiles([]);
+                  setNewPost("");
 
-                setSelectedFile(
-                  null
-                );
+                  setMediaFiles([]);
 
-                setLocation("");
+                  setSelectedFile(
+                    null
+                  );
 
-                setLocationSuggestions(
-                  []
-                );
+                  setLocation("");
 
-                setFeeling("");
+                  setLocationSuggestions(
+                    []
+                  );
 
-                setTagInput("");
+                  setFeeling("");
 
-                setTaggedFriends([]);
+                  setTagInput("");
 
-              }}
-              className="px-6 py-2 rounded-full bg-red-500 hover:bg-red-600 text-white font-medium transition"
-            >
-              Cancel
-            </button>
+                  setTaggedFriends([]);
 
-            {/* POST */}
+                }}
+                className="px-6 py-2 rounded-full bg-red-500 hover:bg-red-600 text-white font-medium transition"
+              >
+                Cancel
+              </button>
 
-            <button
-              type="submit"
-              disabled={posting}
-              className={`
-                px-6
-                py-2
-                rounded-full
-                text-white
-                font-medium
-                transition
-                ${
-                  posting
-                    ? "bg-gray-400"
-                    : "bg-blue-500 hover:bg-blue-600"
-                }
-              `}
-            >
-              {posting
-                ? "Posting..."
-                : "Post"}
-            </button>
+              <button
+                type="submit"
+                disabled={posting}
+                className={`
+                  px-6
+                  py-2
+                  rounded-full
+                  text-white
+                  font-medium
+                  transition
+                  ${
+                    posting
+                      ? "bg-gray-400"
+                      : "bg-blue-500 hover:bg-blue-600"
+                  }
+                `}
+              >
+                {posting
+                  ? "Posting..."
+                  : "Post"}
+              </button>
+
+            </div>
 
           </div>
 
@@ -722,9 +894,7 @@ const [backgroundStyle, setBackgroundStyle] = useState("");
       )}
 
     </form>
-
   );
-
 };
 
 export default PostComposer;
