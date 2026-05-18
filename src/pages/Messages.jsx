@@ -27,6 +27,9 @@ const Messages = () => {
 
   const [showCall, setShowCall] = useState(false);
 
+  const [showSidebar, setShowSidebar] =
+    useState(false);
+
   // AUTO SCROLL
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({
@@ -52,10 +55,15 @@ const Messages = () => {
       if (
         selectedUser &&
         (message.sender === selectedUser._id ||
-          message.receiver === selectedUser._id ||
-          message.sender?._id === selectedUser._id)
+          message.receiver ===
+            selectedUser._id ||
+          message.sender?._id ===
+            selectedUser._id)
       ) {
-        setMessages((prev) => [...prev, message]);
+        setMessages((prev) => [
+          ...prev,
+          message,
+        ]);
       }
     });
 
@@ -93,6 +101,9 @@ const Messages = () => {
       const data = await res.json();
 
       setMessages(data);
+
+      // close sidebar on mobile
+      setShowSidebar(false);
     } catch (err) {
       console.log(err);
     }
@@ -119,12 +130,15 @@ const Messages = () => {
           "YOUR_UPLOAD_PRESET"
         );
 
-        const cloudName = "YOUR_CLOUD_NAME";
+        const cloudName =
+          "YOUR_CLOUD_NAME";
 
         const resourceType =
           media.type.startsWith("video")
             ? "video"
-            : media.type.startsWith("image")
+            : media.type.startsWith(
+                "image"
+              )
             ? "image"
             : "video";
 
@@ -139,7 +153,8 @@ const Messages = () => {
         const uploadData =
           await uploadRes.json();
 
-        uploadedMedia = uploadData.secure_url;
+        uploadedMedia =
+          uploadData.secure_url;
 
         mediaType =
           resourceType === "video"
@@ -157,7 +172,8 @@ const Messages = () => {
               "application/json",
           },
           body: JSON.stringify({
-            receiver: selectedUser._id,
+            receiver:
+              selectedUser._id,
             text,
             media: uploadedMedia,
             mediaType,
@@ -188,14 +204,40 @@ const Messages = () => {
   };
 
   return (
-    <div className="h-screen flex bg-gray-100 overflow-hidden">
+    <div className="h-screen flex bg-gray-100 overflow-hidden relative">
+      {/* MOBILE OVERLAY */}
+      {showSidebar && (
+        <div
+          className="fixed inset-0 bg-black/40 z-30 md:hidden"
+          onClick={() =>
+            setShowSidebar(false)
+          }
+        />
+      )}
+
       {/* SIDEBAR */}
-      <div className="w-[320px] bg-white border-r flex flex-col">
+      <div
+        className={`fixed md:relative z-40 md:z-0 top-0 left-0 h-full w-[300px] bg-white border-r flex flex-col transform transition-transform duration-300 ${
+          showSidebar
+            ? "translate-x-0"
+            : "-translate-x-full md:translate-x-0"
+        }`}
+      >
         {/* HEADER */}
-        <div className="p-4 border-b">
+        <div className="p-4 border-b flex items-center justify-between">
           <h1 className="text-2xl font-bold text-blue-600">
             Messages
           </h1>
+
+          {/* CLOSE BUTTON MOBILE */}
+          <button
+            onClick={() =>
+              setShowSidebar(false)
+            }
+            className="md:hidden text-2xl"
+          >
+            ✕
+          </button>
         </div>
 
         {/* USERS */}
@@ -208,7 +250,8 @@ const Messages = () => {
                 loadMessages(user._id);
               }}
               className={`flex items-center gap-3 p-4 cursor-pointer transition hover:bg-gray-100 ${
-                selectedUser?._id === user._id
+                selectedUser?._id ===
+                user._id
                   ? "bg-blue-50"
                   : ""
               }`}
@@ -237,12 +280,22 @@ const Messages = () => {
       </div>
 
       {/* CHAT AREA */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col w-full">
         {selectedUser ? (
           <>
             {/* TOP BAR */}
             <div className="bg-white border-b p-4 flex items-center justify-between shadow-sm">
               <div className="flex items-center gap-3">
+                {/* MENU BUTTON */}
+                <button
+                  onClick={() =>
+                    setShowSidebar(true)
+                  }
+                  className="md:hidden text-2xl"
+                >
+                  ☰
+                </button>
+
                 <img
                   src={
                     selectedUser.profilePic ||
@@ -278,7 +331,8 @@ const Messages = () => {
             <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-gray-50 to-gray-100">
               {messages.map((msg, index) => {
                 const isMe =
-                  msg.sender === currentUser ||
+                  msg.sender ===
+                    currentUser ||
                   msg.sender?._id ===
                     currentUser;
 
@@ -292,7 +346,7 @@ const Messages = () => {
                     }`}
                   >
                     <div
-                      className={`max-w-[75%] px-4 py-3 rounded-2xl shadow-sm ${
+                      className={`max-w-[80%] px-4 py-3 rounded-2xl shadow-sm ${
                         isMe
                           ? "bg-blue-600 text-white rounded-br-sm"
                           : "bg-white text-gray-800 rounded-bl-sm"
@@ -326,7 +380,7 @@ const Messages = () => {
                         "audio" && (
                         <audio
                           controls
-                          className="mt-2"
+                          className="mt-2 w-full"
                         >
                           <source
                             src={msg.media}
@@ -349,10 +403,14 @@ const Messages = () => {
                       >
                         {new Date(
                           msg.createdAt
-                        ).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
+                        ).toLocaleTimeString(
+                          [],
+                          {
+                            hour: "2-digit",
+                            minute:
+                              "2-digit",
+                          }
+                        )}
                       </p>
                     </div>
                   </div>
@@ -363,7 +421,7 @@ const Messages = () => {
             </div>
 
             {/* INPUT AREA */}
-            <div className="bg-white border-t p-4 flex items-center gap-3">
+            <div className="bg-white border-t p-3 flex items-center gap-2">
               {/* FILE PICKER */}
               <label className="cursor-pointer bg-gray-200 hover:bg-gray-300 px-4 py-3 rounded-full transition">
                 📎
@@ -397,7 +455,9 @@ const Messages = () => {
 
               {/* VOICE NOTE */}
               <VoiceRecorder
-                onSend={async (audioUrl) => {
+                onSend={async (
+                  audioUrl
+                ) => {
                   const res =
                     await fetchWithToken(
                       `${API_BASE}/messages`,
@@ -407,23 +467,28 @@ const Messages = () => {
                           "Content-Type":
                             "application/json",
                         },
-                        body: JSON.stringify({
-                          receiver:
-                            selectedUser._id,
-                          media: audioUrl,
-                          mediaType:
-                            "audio",
-                        }),
+                        body: JSON.stringify(
+                          {
+                            receiver:
+                              selectedUser._id,
+                            media:
+                              audioUrl,
+                            mediaType:
+                              "audio",
+                          }
+                        ),
                       }
                     );
 
                   const newMessage =
                     await res.json();
 
-                  setMessages((prev) => [
-                    ...prev,
-                    newMessage,
-                  ]);
+                  setMessages(
+                    (prev) => [
+                      ...prev,
+                      newMessage,
+                    ]
+                  );
 
                   socketRef.current.emit(
                     "send-message",
@@ -436,17 +501,27 @@ const Messages = () => {
               <button
                 onClick={sendMessage}
                 disabled={uploading}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full font-semibold transition"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-full font-semibold transition"
               >
                 {uploading
-                  ? "Uploading..."
+                  ? "..."
                   : "Send"}
               </button>
             </div>
           </>
         ) : (
-          <div className="flex-1 flex items-center justify-center bg-gray-50">
-            <div className="text-center">
+          <div className="flex-1 flex flex-col items-center justify-center bg-gray-50">
+            {/* MOBILE MENU BUTTON */}
+            <button
+              onClick={() =>
+                setShowSidebar(true)
+              }
+              className="md:hidden absolute top-4 left-4 text-3xl"
+            >
+              ☰
+            </button>
+
+            <div className="text-center px-4">
               <h2 className="text-2xl font-bold text-gray-700">
                 Welcome to Messages
               </h2>
