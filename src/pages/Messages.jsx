@@ -63,7 +63,7 @@ const Chat = () => {
   );
 };
 
-export default Chat;([
+export default Messages;([
     { text: "Hello 👋", sender: "me" },
     { text: "Hi there!", sender: "other" },
   ]);
