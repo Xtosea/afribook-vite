@@ -174,8 +174,34 @@ const PostCard = ({ post, currentUserId }) => {
   </div>
 </div>
 
-      {/* POST TEXT */}
-      {post?.content && <p className="text-gray-800 whitespace-pre-wrap">{post.content}</p>}
+      {/* HEADER */}
+<div className="flex items-center gap-3">
+  ...
+</div>
+
+{/* POST TEXT */}
+{post?.content && (
+  <div
+    className={`
+      ${post.backgroundStyle || "bg-white"}
+      ${post.fontStyle || ""}
+      rounded-2xl
+      p-4
+      whitespace-pre-wrap
+      break-words
+    `}
+    style={{
+      color: post.textColor || "#000",
+    }}
+  >
+    {post.content}
+  </div>
+)}
+
+{/* MEDIA DISPLAY */}
+{media.length > 0 && (
+  ...
+)}
 
       {/* MEDIA DISPLAY */}
       {media.length > 0 && (
