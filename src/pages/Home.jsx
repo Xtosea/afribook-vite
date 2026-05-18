@@ -251,9 +251,20 @@ for (let file of mediaFiles) {
   } else {  
 
     // VIDEO → R2  
-    await validateVideoDuration(file, 180); 
+    // VIDEO VALIDATION
+await validateVideoDuration(
+  file,
+  180
+);
 
-     url = await uploadVideo(file);  
+// VIDEO COMPRESSION
+const compressedVideo =
+  await compressVideo(file);
+
+// UPLOAD TO R2
+url = await uploadVideo(
+  compressedVideo
+);  
 
   }  
 
