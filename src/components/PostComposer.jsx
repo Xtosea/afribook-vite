@@ -128,12 +128,16 @@ const [locationSuggestions, setLocationSuggestions] = useState([]);
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            content: newPost,
-            media: uploadedMedia,
-            location,
-            feeling,
-            taggedFriends,
-          }),
+  content: newPost,
+  media: uploadedMedia,
+  location,
+  feeling,
+  taggedFriends,
+
+  textColor,
+  backgroundStyle,
+  fontStyle,
+}),
         }
       );
 
