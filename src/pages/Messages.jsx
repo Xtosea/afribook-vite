@@ -192,56 +192,25 @@ const Messages = () => {
   };
 
   return (
-    <div className="h-screen bg-gray-100 flex overflow-hidden relative">
-      {/* MOBILE OVERLAY */}
-      {showSidebar && (
-        <div
-          className="fixed inset-0 bg-black/40 z-30 md:hidden"
-          onClick={() =>
-            setShowSidebar(false)
-          }
-        />
-      )}
+    return (
+  <div className="h-screen bg-gray-100 overflow-hidden">
+    <div className="h-full grid grid-cols-1 md:grid-cols-[320px_1fr]">
 
       {/* SIDEBAR */}
-      <div
-        className={`
-          fixed md:relative z-40
-          top-0 left-0 h-full
-          w-[320px]
-          bg-white border-r
-          flex flex-col
-          transition-transform duration-300
-          ${
-            showSidebar
-              ? "translate-x-0"
-              : "-translate-x-full md:translate-x-0"
-          }
-        `}
-      >
-        {/* HEADER */}
-        <div className="p-4 border-b bg-white shadow-sm">
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-blue-600">
-              Messages
-            </h1>
+      <div className="bg-white border-r h-full flex flex-col overflow-hidden">
 
-            <button
-              onClick={() =>
-                setShowSidebar(false)
-              }
-              className="md:hidden text-2xl"
-            >
-              ✕
-            </button>
-          </div>
+        {/* HEADER */}
+        <div className="p-4 border-b bg-white shrink-0">
+          <h1 className="text-2xl font-bold text-blue-600">
+            Messages
+          </h1>
 
           {/* SEARCH */}
           <div className="mt-4">
             <input
               type="text"
-              placeholder="Search..."
-              className="w-full bg-gray-100 rounded-full px-4 py-3 outline-none border border-gray-200 focus:ring-2 focus:ring-blue-500"
+              placeholder="Search users..."
+              className="w-full bg-gray-100 border border-gray-200 rounded-full px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
         </div>
@@ -255,13 +224,13 @@ const Messages = () => {
                 setSelectedUser(user);
                 loadMessages(user._id);
               }}
-              className={`flex items-center gap-3 p-4 border-b cursor-pointer transition hover:bg-gray-50 ${
+              className={`flex items-center gap-3 px-4 py-4 cursor-pointer border-b hover:bg-gray-50 transition ${
                 selectedUser?._id === user._id
                   ? "bg-blue-50"
                   : ""
               }`}
             >
-              <div className="relative">
+              <div className="relative shrink-0">
                 <img
                   src={
                     user.profilePic ||
@@ -275,12 +244,12 @@ const Messages = () => {
               </div>
 
               <div className="flex-1 min-w-0">
-                <h2 className="font-semibold truncate">
+                <h2 className="font-semibold truncate text-gray-800">
                   {user.name}
                 </h2>
 
                 <p className="text-sm text-gray-500 truncate">
-                  Start chatting...
+                  Tap to chat
                 </p>
               </div>
             </div>
@@ -288,23 +257,14 @@ const Messages = () => {
         </div>
       </div>
 
+
       {/* CHAT AREA */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex flex-col h-full min-w-0 overflow-hidden">
         {selectedUser ? (
           <>
             {/* TOP BAR */}
-            <div className="bg-white border-b px-4 py-3 flex items-center justify-between shadow-sm">
-              <div className="flex items-center gap-3">
-                {/* MOBILE MENU */}
-                <button
-                  onClick={() =>
-                    setShowSidebar(true)
-                  }
-                  className="md:hidden text-2xl"
-                >
-                  ☰
-                </button>
-
+            <div className="bg-white border-b px-5 py-4 flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-3 min-w-0">
                 <img
                   src={
                     selectedUser.profilePic ||
@@ -314,8 +274,8 @@ const Messages = () => {
                   className="w-12 h-12 rounded-full object-cover"
                 />
 
-                <div>
-                  <h2 className="font-bold text-lg">
+                <div className="min-w-0">
+                  <h2 className="font-bold text-lg truncate">
                     {selectedUser.name}
                   </h2>
 
@@ -330,14 +290,15 @@ const Messages = () => {
                 onClick={() =>
                   setShowCall(true)
                 }
-                className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-full transition"
+                className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-full"
               >
                 📹
               </button>
             </div>
 
+
             {/* MESSAGES */}
-            <div className="flex-1 overflow-y-auto px-3 py-5 bg-gradient-to-b from-gray-100 via-white to-gray-100">
+            <div className="flex-1 overflow-y-auto px-4 py-6 bg-gray-100">
               <div className="max-w-4xl mx-auto space-y-4">
                 {messages.map((msg, index) => {
                   const isMe =
@@ -355,7 +316,7 @@ const Messages = () => {
                       }`}
                     >
                       <div
-                        className={`max-w-[85%] md:max-w-[70%] px-4 py-3 rounded-3xl shadow break-words ${
+                        className={`max-w-[85%] md:max-w-[70%] px-4 py-3 rounded-3xl shadow-sm break-words ${
                           isMe
                             ? "bg-blue-600 text-white rounded-br-md"
                             : "bg-white text-gray-800 rounded-bl-md"
@@ -399,7 +360,7 @@ const Messages = () => {
 
                         {/* TEXT */}
                         {msg.text && (
-                          <p className="leading-relaxed">
+                          <p>
                             {msg.text}
                           </p>
                         )}
@@ -414,14 +375,10 @@ const Messages = () => {
                         >
                           {new Date(
                             msg.createdAt
-                          ).toLocaleTimeString(
-                            [],
-                            {
-                              hour: "2-digit",
-                              minute:
-                                "2-digit",
-                            }
-                          )}
+                          ).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
                         </p>
                       </div>
                     </div>
@@ -432,9 +389,11 @@ const Messages = () => {
               </div>
             </div>
 
+
             {/* INPUT AREA */}
-            <div className="bg-white border-t px-3 py-3">
-              <div className="flex items-center gap-2 max-w-4xl mx-auto">
+            <div className="bg-white border-t p-4 shrink-0">
+              <div className="max-w-4xl mx-auto flex items-center gap-3">
+
                 {/* FILE PICKER */}
                 <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 px-4 py-3 rounded-full transition">
                   📎
@@ -454,12 +413,10 @@ const Messages = () => {
                 {/* INPUT */}
                 <input
                   type="text"
-                  placeholder="Type message..."
+                  placeholder="Type a message..."
                   value={text}
                   onChange={(e) =>
-                    setText(
-                      e.target.value
-                    )
+                    setText(e.target.value)
                   }
                   onKeyDown={(e) =>
                     e.key === "Enter" &&
@@ -470,9 +427,7 @@ const Messages = () => {
 
                 {/* VOICE */}
                 <VoiceRecorder
-                  onSend={async (
-                    audioUrl
-                  ) => {
+                  onSend={async (audioUrl) => {
                     const res =
                       await fetchWithToken(
                         `${API_BASE}/messages`,
@@ -482,16 +437,13 @@ const Messages = () => {
                             "Content-Type":
                               "application/json",
                           },
-                          body: JSON.stringify(
-                            {
-                              receiver:
-                                selectedUser._id,
-                              media:
-                                audioUrl,
-                              mediaType:
-                                "audio",
-                            }
-                          ),
+                          body: JSON.stringify({
+                            receiver:
+                              selectedUser._id,
+                            media: audioUrl,
+                            mediaType:
+                              "audio",
+                          }),
                         }
                       );
 
@@ -514,10 +466,10 @@ const Messages = () => {
                 <button
                   onClick={sendMessage}
                   disabled={uploading}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-full font-semibold transition"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full font-semibold"
                 >
                   {uploading
-                    ? "..."
+                    ? "Uploading..."
                     : "Send"}
                 </button>
               </div>
@@ -525,39 +477,29 @@ const Messages = () => {
           </>
         ) : (
           <div className="flex-1 flex items-center justify-center bg-gray-50">
-            <div className="text-center px-6">
-              {/* MOBILE MENU */}
-              <button
-                onClick={() =>
-                  setShowSidebar(true)
-                }
-                className="md:hidden mb-5 bg-blue-600 text-white px-5 py-3 rounded-full"
-              >
-                Open Chats
-              </button>
-
+            <div className="text-center px-5">
               <h2 className="text-3xl font-bold text-gray-700">
                 Welcome to Messages
               </h2>
 
               <p className="text-gray-500 mt-3">
-                Select a user to start
-                chatting
+                Select a user to start chatting
               </p>
             </div>
           </div>
         )}
       </div>
-
-      {/* VIDEO CALL */}
-      {showCall && (
-        <VideoCall
-          currentUser={currentUser}
-          selectedUser={selectedUser}
-        />
-      )}
     </div>
-  );
+
+    {/* VIDEO CALL */}
+    {showCall && (
+      <VideoCall
+        currentUser={currentUser}
+        selectedUser={selectedUser}
+      />
+    )}
+  </div>
+);
 };
 
 export default Messages;
