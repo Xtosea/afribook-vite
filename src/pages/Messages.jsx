@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const Messages = () => {
+const Message = () => {
   const [messages, setMessages] = import React, { useEffect, useState } from "react";
 import { connectSocket, safeEmit } from "../socket";
 
