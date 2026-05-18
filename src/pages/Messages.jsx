@@ -23,14 +23,10 @@ const Messages = () => {
   const [showCall, setShowCall] = useState(false);
 
   // AUTO SCROLL
-  const scrollToBottom = () => {
+  useEffect(() => {
     messagesEndRef.current?.scrollIntoView({
       behavior: "smooth",
     });
-  };
-
-  useEffect(() => {
-    scrollToBottom();
   }, [messages]);
 
   // SOCKET
@@ -83,10 +79,10 @@ const Messages = () => {
   const sendMessage = async () => {
     if (!text.trim() && !media) return;
 
-    let uploadedMedia = "";
-    let mediaType = "";
-
     try {
+      let uploadedMedia = "";
+      let mediaType = "";
+
       if (media) {
         setUploading(true);
 
@@ -140,129 +136,162 @@ const Messages = () => {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-gray-100">
+    <div className="h-screen w-full flex bg-gray-100 overflow-hidden">
 
-      {/* TOP USER SCROLL BAR (NO SIDEBAR) */}
-      <div className="bg-white border-b p-3 overflow-x-auto flex gap-3">
-        {friends.map((user) => (
-          <div
-            key={user._id}
-            onClick={() => loadMessages(user)}
-            className={`flex flex-col items-center min-w-[70px] cursor-pointer ${
-              selectedUser?._id === user._id
-                ? "opacity-100"
-                : "opacity-70"
-            }`}
-          >
-            <img
-              src={user.profilePic || defaultProfile}
-              className="w-12 h-12 rounded-full object-cover border"
-            />
-            <p className="text-xs truncate w-[60px] text-center">
-              {user.name}
-            </p>
-          </div>
-        ))}
-      </div>
+      {/* LEFT SIDE USERS */}
+      <div className="w-[300px] bg-white border-r flex flex-col shrink-0">
 
-      {/* CHAT HEADER */}
-      <div className="bg-white px-4 py-3 flex items-center justify-between border-b">
-        {selectedUser ? (
-          <>
-            <div className="flex items-center gap-3">
+        <div className="p-4 border-b">
+          <h1 className="text-xl font-bold text-blue-600">
+            Messages
+          </h1>
+        </div>
+
+        <div className="flex-1 overflow-y-auto overflow-x-hidden">
+          {friends.map((user) => (
+            <div
+              key={user._id}
+              onClick={() => loadMessages(user)}
+              className={`flex items-center gap-3 px-4 py-4 cursor-pointer border-b hover:bg-gray-50 ${
+                selectedUser?._id === user._id
+                  ? "bg-blue-50"
+                  : ""
+              }`}
+            >
               <img
-                src={
-                  selectedUser.profilePic || defaultProfile
-                }
-                className="w-10 h-10 rounded-full"
+                src={user.profilePic || defaultProfile}
+                className="w-12 h-12 rounded-full object-cover shrink-0"
               />
-              <div>
-                <h2 className="font-bold">
-                  {selectedUser.name}
+
+              <div className="min-w-0">
+                <h2 className="font-semibold truncate">
+                  {user.name}
                 </h2>
-                <p className="text-xs text-green-500">
-                  online
+                <p className="text-sm text-gray-500 truncate">
+                  Tap to chat
                 </p>
               </div>
             </div>
-
-            <button
-              onClick={() => setShowCall(true)}
-              className="bg-green-500 text-white px-4 py-2 rounded-full"
-            >
-              📹
-            </button>
-          </>
-        ) : (
-          <h2 className="font-bold text-gray-600">
-            Select a user to start chatting
-          </h2>
-        )}
+          ))}
+        </div>
       </div>
 
-      {/* MESSAGES */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
-        {messages.map((msg, i) => {
-          const isMe = msg.sender === currentUser;
+      {/* RIGHT CHAT AREA */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
 
-          return (
-            <div
-              key={i}
-              className={`flex ${
-                isMe ? "justify-end" : "justify-start"
-              }`}
-            >
-              <div
-                className={`px-4 py-2 rounded-2xl max-w-[75%] ${
-                  isMe
-                    ? "bg-blue-600 text-white"
-                    : "bg-white"
-                }`}
-              >
-                {msg.text}
+        {/* TOP BAR */}
+        <div className="bg-white border-b px-4 py-3 flex items-center justify-between shrink-0 min-w-0">
+
+          {selectedUser ? (
+            <>
+              <div className="flex items-center gap-3 min-w-0">
+                <img
+                  src={
+                    selectedUser.profilePic ||
+                    defaultProfile
+                  }
+                  className="w-10 h-10 rounded-full shrink-0"
+                />
+
+                <div className="min-w-0">
+                  <h2 className="font-bold truncate">
+                    {selectedUser.name}
+                  </h2>
+                  <p className="text-xs text-green-500">
+                    Online
+                  </p>
+                </div>
               </div>
-            </div>
-          );
-        })}
-        <div ref={messagesEndRef} />
-      </div>
 
-      {/* INPUT */}
-      <div className="bg-white p-3 flex items-center gap-2 border-t">
-        <input
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="Type message..."
-          className="flex-1 border rounded-full px-4 py-2"
-        />
+              <button
+                onClick={() => setShowCall(true)}
+                className="bg-green-500 text-white px-4 py-2 rounded-full"
+              >
+                📹
+              </button>
+            </>
+          ) : (
+            <h2 className="font-semibold text-gray-500">
+              Select a user
+            </h2>
+          )}
+        </div>
 
-        <VoiceRecorder
-          onSend={async (audioUrl) => {
-            const res = await fetchWithToken(
-              `${API_BASE}/messages`,
-              {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  receiver: selectedUser._id,
-                  media: audioUrl,
-                  mediaType: "audio",
-                }),
-              }
-            );
+        {/* MESSAGES */}
+        <div className="flex-1 overflow-y-auto px-4 py-6 min-w-0">
+          <div className="max-w-4xl mx-auto space-y-4 min-w-0">
 
-            const newMessage = await res.json();
-            setMessages((prev) => [...prev, newMessage]);
-            socketRef.current.emit("send-message", newMessage);
-          }}
-        />
+            {messages.map((msg, i) => {
+              const isMe =
+                msg.sender === currentUser ||
+                msg.sender?._id === currentUser;
 
-        <button
-          onClick={sendMessage}
-          className="bg-blue-600 text-white px-4 py-2 rounded-full"
-        >
-          Send
-        </button>
+              return (
+                <div
+                  key={i}
+                  className={`flex ${
+                    isMe
+                      ? "justify-end"
+                      : "justify-start"
+                  }`}
+                >
+                  <div
+                    className={`px-4 py-3 rounded-2xl max-w-[75%] break-words ${
+                      isMe
+                        ? "bg-blue-600 text-white"
+                        : "bg-white"
+                    }`}
+                  >
+                    {msg.text}
+                  </div>
+                </div>
+              );
+            })}
+
+            <div ref={messagesEndRef} />
+          </div>
+        </div>
+
+        {/* INPUT */}
+        <div className="bg-white border-t p-3 flex gap-2 shrink-0 min-w-0">
+
+          <input
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="Type message..."
+            className="flex-1 border rounded-full px-4 py-2 outline-none"
+          />
+
+          <VoiceRecorder
+            onSend={async (audioUrl) => {
+              const res = await fetchWithToken(
+                `${API_BASE}/messages`,
+                {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    receiver: selectedUser._id,
+                    media: audioUrl,
+                    mediaType: "audio",
+                  }),
+                }
+              );
+
+              const newMessage = await res.json();
+              setMessages((prev) => [...prev, newMessage]);
+              socketRef.current.emit("send-message", newMessage);
+            }}
+          />
+
+          <button
+            onClick={sendMessage}
+            className="bg-blue-600 text-white px-5 py-2 rounded-full"
+          >
+            Send
+          </button>
+        </div>
       </div>
 
       {/* VIDEO CALL */}
