@@ -1,14 +1,22 @@
-import React, { useState, lazy, Suspense } from "react";
+import React, {
+  useState,
+  lazy,
+  Suspense,
+} from "react";
+
 import MediaUpload from "./MediaUpload";
 
 import { API_BASE } from "../api/api";
 
 import { useCloudinaryUpload } from "../hooks/useCloudinaryUpload";
 import { useR2Upload } from "../hooks/useR2Upload";
+import { useAIEnhance } from "../hooks/useAIEnhance";
 
 import validateVideoDuration from "../utils/validateVideoDuration";
 
-const EmojiPicker = lazy(() => import("emoji-picker-react"));
+const EmojiPicker = lazy(() =>
+  import("emoji-picker-react")
+);
 
 const PostComposer = ({
   token,
@@ -16,29 +24,77 @@ const PostComposer = ({
   onPostCreated,
 }) => {
 
-  const [expanded, setExpanded] = useState(false);
-  const [posting, setPosting] = useState(false);
+  const [expanded, setExpanded] =
+    useState(false);
 
-  const [newPost, setNewPost] = useState("");
-  const [mediaFiles, setMediaFiles] = useState([]);
+  const [posting, setPosting] =
+    useState(false);
 
-  const [showEmoji, setShowEmoji] = useState(false);
-  const [showLocation, setShowLocation] = useState(false);
-  const [showFeeling, setShowFeeling] = useState(false);
-  const [showTag, setShowTag] = useState(false);
+  const [loading, setLoading] =
+    useState(false);
 
-  const [location, setLocation] = useState("");
-  const [feeling, setFeeling] = useState("");
+  const [newPost, setNewPost] =
+    useState("");
 
-  const [tagInput, setTagInput] = useState("");
-  const [taggedFriends, setTaggedFriends] = useState([]);
-const [locationSuggestions, setLocationSuggestions] = useState([]);
+  const [mediaFiles, setMediaFiles] =
+    useState([]);
+
+  const [selectedFile, setSelectedFile] =
+    useState(null);
+
+  const [showEmoji, setShowEmoji] =
+    useState(false);
+
+  const [showLocation, setShowLocation] =
+    useState(false);
+
+  const [showFeeling, setShowFeeling] =
+    useState(false);
+
+  const [showTag, setShowTag] =
+    useState(false);
+
+  const [location, setLocation] =
+    useState("");
+
+  const [feeling, setFeeling] =
+    useState("");
+
+  const [tagInput, setTagInput] =
+    useState("");
+
+  const [taggedFriends, setTaggedFriends] =
+    useState([]);
+
+  const [
+    locationSuggestions,
+    setLocationSuggestions,
+  ] = useState([]);
+
+  // TEXT STYLE STATES
+
+  const [textColor, setTextColor] =
+    useState("#000000");
+
+  const [
+    backgroundStyle,
+    setBackgroundStyle,
+  ] = useState("");
+
+  const [fontStyle, setFontStyle] =
+    useState("font-sans");
 
   // ✅ CLOUDINARY
-  const { uploadImage } = useCloudinaryUpload();
+  const { uploadImage } =
+    useCloudinaryUpload();
 
   // ✅ R2
-  const { uploadVideo } = useR2Upload();
+  const { uploadVideo } =
+    useR2Upload();
+
+  // ✅ AI ENHANCE
+  const { enhanceImage } =
+    useAIEnhance();
 
   // =========================
   // TAG FRIENDS
@@ -56,6 +112,53 @@ const [locationSuggestions, setLocationSuggestions] = useState([]);
   };
 
   // =========================
+  // AI ENHANCE
+  // =========================
+
+  const handleEnhance = async () => {
+
+    try {
+
+      if (!selectedFile) {
+
+        alert(
+          "Please select an image first"
+        );
+
+        return;
+      }
+
+      setLoading(true);
+
+      const enhancedUrl =
+        await enhanceImage(
+          selectedFile
+        );
+
+      // Replace selected image
+      setMediaFiles([
+        {
+          url: enhancedUrl,
+          type: "image",
+          enhanced: true,
+        },
+      ]);
+
+      alert("Image enhanced!");
+
+    } catch (err) {
+
+      console.error(err);
+
+      alert("Enhance failed");
+
+    }
+
+    setLoading(false);
+
+  };
+
+  // =========================
   // SUBMIT POST
   // =========================
 
@@ -63,7 +166,10 @@ const [locationSuggestions, setLocationSuggestions] = useState([]);
 
     e.preventDefault();
 
-    if (!newPost && mediaFiles.length === 0) {
+    if (
+      !newPost &&
+      mediaFiles.length === 0
+    ) {
       return;
     }
 
@@ -79,9 +185,24 @@ const [locationSuggestions, setLocationSuggestions] = useState([]);
 
       for (let file of mediaFiles) {
 
-        const type = file.type.startsWith("image")
-          ? "image"
-          : "video";
+        // AI ENHANCED IMAGE
+        if (
+          file.enhanced &&
+          file.url
+        ) {
+
+          uploadedMedia.push({
+            url: file.url,
+            type: "image",
+          });
+
+          continue;
+        }
+
+        const type =
+          file.type.startsWith("image")
+            ? "image"
+            : "video";
 
         let url = "";
 
@@ -91,7 +212,8 @@ const [locationSuggestions, setLocationSuggestions] = useState([]);
 
         if (type === "image") {
 
-          url = await uploadImage(file);
+          url =
+            await uploadImage(file);
 
         }
 
@@ -101,10 +223,14 @@ const [locationSuggestions, setLocationSuggestions] = useState([]);
 
         else {
 
-          // CHECK VIDEO LENGTH
-          await validateVideoDuration(file, 60);
+          // 3 MINUTES MAX
+          await validateVideoDuration(
+            file,
+            180
+          );
 
-          url = await uploadVideo(file);
+          url =
+            await uploadVideo(file);
 
         }
 
@@ -123,30 +249,49 @@ const [locationSuggestions, setLocationSuggestions] = useState([]);
         `${API_BASE}/api/posts`,
         {
           method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-  content: newPost,
-  media: uploadedMedia,
-  location,
-  feeling,
-  taggedFriends,
 
-  textColor,
-  backgroundStyle,
-  fontStyle,
-}),
+          headers: {
+            Authorization:
+              `Bearer ${token}`,
+
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify({
+            content: newPost,
+
+            media: uploadedMedia,
+
+            location,
+
+            feeling,
+
+            taggedFriends,
+
+            textColor,
+
+            backgroundStyle,
+
+            fontStyle,
+          }),
         }
       );
 
-      const data = await res.json();
+      const data =
+        await res.json();
 
-      console.log("POST RESPONSE:", data);
+      console.log(
+        "POST RESPONSE:",
+        data
+      );
 
       if (!res.ok) {
-        throw new Error(data.error || "Post failed");
+
+        throw new Error(
+          data.error ||
+          "Post failed"
+        );
       }
 
       // =========================
@@ -160,23 +305,31 @@ const [locationSuggestions, setLocationSuggestions] = useState([]);
       // =========================
 
       setNewPost("");
+
       setMediaFiles([]);
 
+      setSelectedFile(null);
+
       setLocation("");
+
       setFeeling("");
 
       setTagInput("");
-setTaggedFriends([]);
 
-setLocationSuggestions([]);
+      setTaggedFriends([]);
 
-setExpanded(false);
+      setLocationSuggestions([]);
+
+      setExpanded(false);
 
     } catch (err) {
 
       console.error(err);
 
-      alert(err.message || "Post failed");
+      alert(
+        err.message ||
+        "Post failed"
+      );
 
     }
 
@@ -196,11 +349,19 @@ setExpanded(false);
       <textarea
         rows={expanded ? 4 : 1}
         value={newPost}
-        onChange={(e) => setNewPost(e.target.value)}
-        onFocus={() => setExpanded(true)}
+        onChange={(e) =>
+          setNewPost(e.target.value)
+        }
+        onFocus={() =>
+          setExpanded(true)
+        }
         placeholder={`What's on your mind, ${
-          currentUser?.name || "User"
+          currentUser?.name ||
+          "User"
         }?`}
+        style={{
+          color: textColor,
+        }}
         className={`
           w-full
           p-4
@@ -213,6 +374,8 @@ setExpanded(false);
           focus:ring-2
           focus:ring-blue-400
           ${expanded ? "h-28" : "h-12"}
+          ${backgroundStyle}
+          ${fontStyle}
         `}
       />
 
@@ -231,10 +394,14 @@ setExpanded(false);
               <Suspense fallback={<div>Loading...</div>}>
 
                 <EmojiPicker
-                  onEmojiClick={(emojiData) => {
+                  onEmojiClick={(
+                    emojiData
+                  ) => {
+
                     setNewPost(
                       (prev) =>
-                        prev + emojiData.emoji
+                        prev +
+                        emojiData.emoji
                     );
                   }}
                 />
@@ -247,78 +414,115 @@ setExpanded(false);
 
           {/* LOCATION */}
 
-{showLocation && (
+          {showLocation && (
 
-  <div className="relative">
+            <div className="relative">
 
-    <input
-      value={location}
-      onChange={async (e) => {
+              <input
+                value={location}
+                onChange={async (e) => {
 
-        const value = e.target.value;
+                  const value =
+                    e.target.value;
 
-        setLocation(value);
+                  setLocation(value);
 
-        if (value.length < 2) {
-          setLocationSuggestions([]);
-          return;
-        }
+                  if (
+                    value.length < 2
+                  ) {
 
-        try {
+                    setLocationSuggestions(
+                      []
+                    );
 
-          const res = await fetch(
-            `https://nominatim.openstreetmap.org/search?format=json&q=${value}`
-          );
+                    return;
+                  }
 
-          const data = await res.json();
+                  try {
 
-          setLocationSuggestions(
-            data.slice(0, 5)
-          );
+                    const res =
+                      await fetch(
+                        `https://nominatim.openstreetmap.org/search?format=json&q=${value}`
+                      );
 
-        } catch (err) {
+                    const data =
+                      await res.json();
 
-          console.error(err);
+                    setLocationSuggestions(
+                      data.slice(0, 5)
+                    );
 
-        }
+                  } catch (err) {
 
-      }}
-      placeholder="Add location..."
-      className="w-full border p-2 rounded-lg"
-    />
+                    console.error(err);
 
-    {/* SUGGESTIONS */}
+                  }
 
-    {locationSuggestions.length > 0 && (
+                }}
+                placeholder="Add location..."
+                className="w-full border p-2 rounded-lg"
+              />
 
-      <div className="absolute z-50 w-full bg-white border rounded-xl shadow-lg mt-1 max-h-60 overflow-y-auto">
+              {/* SUGGESTIONS */}
 
-        {locationSuggestions.map((item) => (
+              {locationSuggestions.length > 0 && (
 
-          <button
-            key={item.place_id}
-            type="button"
-            onClick={() => {
+                <div className="absolute z-50 w-full bg-white border rounded-xl shadow-lg mt-1 max-h-60 overflow-y-auto">
 
-              setLocation(item.display_name);
+                  {locationSuggestions.map(
+                    (item) => (
 
-              setLocationSuggestions([]);
+                      <button
+                        key={
+                          item.place_id
+                        }
+                        type="button"
+                        onClick={() => {
 
-            }}
-            className="w-full text-left px-4 py-3 hover:bg-gray-100 text-sm"
-          >
-            📍 {item.display_name}
-          </button>
+                          setLocation(
+                            item.display_name
+                          );
 
-        ))}
+                          setLocationSuggestions(
+                            []
+                          );
 
-      </div>
+                        }}
+                        className="w-full text-left px-4 py-3 hover:bg-gray-100 text-sm"
+                      >
+                        📍{" "}
+                        {
+                          item.display_name
+                        }
+                      </button>
 
-    )}
+                    )
+                  )}
 
-  </div>
+                </div>
 
-)}
+              )}
+
+            </div>
+
+          )}
+
+          {/* FEELING */}
+
+          {showFeeling && (
+
+            <input
+              value={feeling}
+              onChange={(e) =>
+                setFeeling(
+                  e.target.value
+                )
+              }
+              placeholder="How are you feeling?"
+              className="w-full border p-2 rounded-lg"
+            />
+
+          )}
 
           {/* TAG */}
 
@@ -327,7 +531,9 @@ setExpanded(false);
             <input
               value={tagInput}
               onChange={(e) =>
-                handleTagFriends(e.target.value)
+                handleTagFriends(
+                  e.target.value
+                )
               }
               placeholder="Tag friends"
               className="w-full border p-2 rounded-lg"
@@ -339,37 +545,75 @@ setExpanded(false);
 
           <MediaUpload
             mediaFiles={mediaFiles}
-            setMediaFiles={setMediaFiles}
+            setMediaFiles={
+              setMediaFiles
+            }
+            setSelectedFile={
+              setSelectedFile
+            }
           />
+
+          {/* AI ENHANCE */}
+
+          <button
+            type="button"
+            onClick={handleEnhance}
+            className="bg-purple-500 text-white px-4 py-2 rounded-xl"
+          >
+            {loading
+              ? "Enhancing..."
+              : "✨ AI Enhance"}
+          </button>
+
+          {/* STYLE OPTIONS */}
 
           <div className="flex gap-2 flex-wrap">
 
-  <button
-    type="button"
-    onClick={() => setTextColor("#ff0000")}
-    className="w-8 h-8 rounded-full bg-red-500"
-  />
+            <button
+              type="button"
+              onClick={() =>
+                setTextColor(
+                  "#ff0000"
+                )
+              }
+              className="w-8 h-8 rounded-full bg-red-500"
+            />
 
-  <button
-    type="button"
-    onClick={() => setTextColor("#0000ff")}
-    className="w-8 h-8 rounded-full bg-blue-500"
-  />
+            <button
+              type="button"
+              onClick={() =>
+                setTextColor(
+                  "#0000ff"
+                )
+              }
+              className="w-8 h-8 rounded-full bg-blue-500"
+            />
 
-  <button
-    type="button"
-    onClick={() =>
-      setBackgroundStyle(
-        "bg-gradient-to-r from-pink-500 to-purple-500"
-      )
-    }
-    className="px-3 py-1 rounded bg-purple-500 text-white"
-  >
-    Gradient
-  </button>
+            <button
+              type="button"
+              onClick={() =>
+                setBackgroundStyle(
+                  "bg-gradient-to-r from-pink-500 to-purple-500"
+                )
+              }
+              className="px-3 py-1 rounded bg-purple-500 text-white"
+            >
+              Gradient
+            </button>
 
-</div>
+            <button
+              type="button"
+              onClick={() =>
+                setFontStyle(
+                  "font-serif"
+                )
+              }
+              className="px-3 py-1 rounded bg-gray-200"
+            >
+              Serif
+            </button>
 
+          </div>
 
           {/* ACTIONS */}
 
@@ -380,7 +624,9 @@ setExpanded(false);
               <button
                 type="button"
                 onClick={() =>
-                  setShowEmoji(!showEmoji)
+                  setShowEmoji(
+                    !showEmoji
+                  )
                 }
                 className="px-3 py-1.5 rounded-full bg-yellow-100 text-yellow-700 text-sm"
               >
@@ -390,7 +636,9 @@ setExpanded(false);
               <button
                 type="button"
                 onClick={() =>
-                  setShowLocation(!showLocation)
+                  setShowLocation(
+                    !showLocation
+                  )
                 }
                 className="px-3 py-1.5 rounded-full bg-blue-100 text-blue-700 text-sm"
               >
@@ -400,7 +648,9 @@ setExpanded(false);
               <button
                 type="button"
                 onClick={() =>
-                  setShowFeeling(!showFeeling)
+                  setShowFeeling(
+                    !showFeeling
+                  )
                 }
                 className="px-3 py-1.5 rounded-full bg-green-100 text-green-700 text-sm"
               >
@@ -410,7 +660,9 @@ setExpanded(false);
               <button
                 type="button"
                 onClick={() =>
-                  setShowTag(!showTag)
+                  setShowTag(
+                    !showTag
+                  )
                 }
                 className="px-3 py-1.5 rounded-full bg-purple-100 text-purple-700 text-sm"
               >
@@ -419,29 +671,41 @@ setExpanded(false);
 
             </div>
 
-          <button
-  type="button"
-  onClick={() => {
-  setExpanded(false);
+            {/* CANCEL */}
 
-  setNewPost("");
-  setMediaFiles([]);
+            <button
+              type="button"
+              onClick={() => {
 
-  setLocation("");
-  setLocationSuggestions([]);
+                setExpanded(false);
 
-  setFeeling("");
+                setNewPost("");
 
-  setTagInput("");
-  setTaggedFriends([]);
-}}
-  className="px-6 py-2 rounded-full bg-red-500 hover:bg-red-600 text-white font-medium transition"
->
-  Cancel
-</button>
+                setMediaFiles([]);
 
+                setSelectedFile(
+                  null
+                );
 
-            {/* POST BUTTON */}
+                setLocation("");
+
+                setLocationSuggestions(
+                  []
+                );
+
+                setFeeling("");
+
+                setTagInput("");
+
+                setTaggedFriends([]);
+
+              }}
+              className="px-6 py-2 rounded-full bg-red-500 hover:bg-red-600 text-white font-medium transition"
+            >
+              Cancel
+            </button>
+
+            {/* POST */}
 
             <button
               type="submit"
