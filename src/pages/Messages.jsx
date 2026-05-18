@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
 import { connectSocket } from "../socket";
 import { fetchWithToken, API_BASE } from "../api/api";
+import VideoCall from "../components/VideoCall";
+import VoiceRecorder from "../components/VoiceRecorder";
 
 const defaultProfile =
   "https://afribook-backend.onrender.com/uploads/profiles/default-profile.png";
@@ -15,6 +17,8 @@ const Messages = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
+const [showCall, setShowCall] =
+  useState(false);
 
   // auto scroll
   const scrollToBottom = () => {
