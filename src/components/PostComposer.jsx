@@ -76,17 +76,12 @@ const PostComposer = ({
   const [textColor, setTextColor] =
     useState("#000000");
 
-  const [
-    backgroundStyle,
-    setBackgroundStyle,
-  ] = useState("");
+  const [background, setBackground] = useState("white");
 
   const [fontStyle, setFontStyle] =
     useState("font-sans");
 
-  // IMPORTANT: store selected image properly
-const [selectedFile, setSelectedFile] = useState(null);
-const [previewUrl, setPreviewUrl] = useState(null);
+  
 
 
   // ✅ CLOUDINARY
@@ -122,32 +117,34 @@ const [previewUrl, setPreviewUrl] = useState(null);
 
   const handleEnhance = async () => {
   try {
-    if (!selectedFile) {
-      alert("Please select an image first");
+    const image = mediaFiles.find((f) =>
+      f.type?.startsWith("image")
+    );
+
+    if (!image) {
+      alert("Please upload an image first");
       return;
     }
 
     setLoading(true);
 
-    const enhancedUrl = await enhanceImage(selectedFile);
+    const enhancedUrl = await enhanceImage(image);
 
-    const enhancedFile = {
-      url: enhancedUrl,
-      type: "image",
-      enhanced: true,
-    };
-
-    setMediaFiles((prev) => [enhancedFile]);
-
-    setPreviewUrl(enhancedUrl);
-    setSelectedFile(null);
+    setMediaFiles((prev) => [
+      ...prev.filter((f) => f !== image),
+      {
+        url: enhancedUrl,
+        type: "image",
+        enhanced: true,
+      },
+    ]);
 
   } catch (err) {
     console.error(err);
     alert("Enhance failed");
+  } finally {
+    setLoading(false);
   }
-
-  setLoading(false);
 };
 
   // =========================
@@ -338,36 +335,31 @@ const [previewUrl, setPreviewUrl] = useState(null);
 
       {/* TEXTAREA */}
 
-      <textarea
+     <textarea
+  rows={expanded ? 4 : 1}
   value={newPost}
   onChange={(e) => setNewPost(e.target.value)}
-  className={`w-full p-4 rounded-2xl border ${backgroundStyle}`}
-  style={{ color: textColor }}
+  onFocus={() => setExpanded(true)}
+  placeholder={`Upload Video/Picture, ${currentUser?.name || "User"}?`}
+  style={{
+    color: textColor,
+  }}
+  className={`
+    w-full
+    p-4
+    rounded-2xl
+    border
+    resize-none
+    transition-all
+    duration-200
+    focus:outline-none
+    focus:ring-2
+    focus:ring-blue-400
+    ${expanded ? "h-28" : "h-12"}
+    ${backgroundStyle}
+    ${fontStyle}
+  `}
 />
-        }
-        placeholder={`Upload Video/Picture, ${
-          currentUser?.name ||
-          "User"
-        }?`}
-        style={{
-          color: textColor,
-        }}
-        className={`
-          w-full
-          p-4
-          rounded-2xl
-          border
-          resize-none
-          transition-all
-          duration-200
-          focus:outline-none
-          focus:ring-2
-          focus:ring-blue-400
-          ${expanded ? "h-28" : "h-12"}
-          ${backgroundStyle}
-          ${fontStyle}
-        `}
-      />
 
       {/* EXPANDED */}
 
@@ -580,16 +572,20 @@ const [previewUrl, setPreviewUrl] = useState(null);
             />
 
             <button
-              type="button"
-              onClick={() =>
-                setBackgroundStyle(
-                  "bg-gradient-to-r from-pink-500 to-purple-500"
-                )
-              }
-              className="px-3 py-1 rounded bg-purple-500 text-white"
-            >
-              Gradient
-            </button>
+  type="button"
+  onClick={() => setBackgroundStyle("white")}
+  className="px-3 py-1 rounded bg-gray-200"
+>
+  Default
+</button>
+
+<button
+  type="button"
+  onClick={() => setBackgroundStyle("gradient")}
+  className="px-3 py-1 rounded bg-purple-500 text-white"
+>
+  Gradient
+</button>
 
             <button
               type="button"
