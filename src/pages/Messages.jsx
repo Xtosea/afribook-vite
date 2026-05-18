@@ -192,7 +192,6 @@ const Messages = () => {
   };
 
   return (
-    return (
   <div className="h-screen bg-gray-100 overflow-hidden">
     <div className="h-full grid grid-cols-1 md:grid-cols-[320px_1fr]">
 
