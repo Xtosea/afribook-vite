@@ -174,7 +174,8 @@ const PostCard = ({ post, currentUserId }) => {
   </div>
 </div>
 
-      {/* HEADER */}
+      
+{/* HEADER */}
 <div className="flex items-center gap-3">
   ...
 </div>
@@ -202,6 +203,7 @@ const PostCard = ({ post, currentUserId }) => {
 {media.length > 0 && (
   ...
 )}
+
 
       {/* MEDIA DISPLAY */}
       {media.length > 0 && (
