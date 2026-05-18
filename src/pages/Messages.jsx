@@ -39,7 +39,7 @@ const Messages = () => {
           fontWeight: "bold",
         }}
       >
-        Messages
+        Messag
       </div>
 
       {/* MESSAGES */}
