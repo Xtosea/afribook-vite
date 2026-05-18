@@ -289,7 +289,9 @@ setMediaFiles([]);
 } catch (err) {
 
 console.error(err);  
-alert("Post failed");
+alert(
+  err.message || "Post failed"
+);
 
 }
 
