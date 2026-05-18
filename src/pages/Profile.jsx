@@ -174,33 +174,33 @@ const Profile = () => {
 
     // Send ONLY URLs + text fields to backend
     const response = await fetch(
-  `${API_BASE}/api/users/${currentUserId}`,`
-      {
-        method: "PUT",
+  `${API_BASE}/api/users/${currentUserId}`,
+  {
+    method: "PUT",
 
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
 
-        body: JSON.stringify({
-          name: formData.name,
-          bio: formData.bio,
-          intro: formData.intro,
-          dob: formData.dob,
-          phone: formData.phone,
-          education: formData.education,
-          origin: formData.origin,
-          maritalStatus: formData.maritalStatus,
-          spouse: formData.spouse,
-          gender: formData.gender,
-          email: formData.email,
-          hubby: formData.hubby,
-          profilePic: profilePicUrl,
-          coverPhoto: coverPhotoUrl,
-        }),
-      }
-    );
+    body: JSON.stringify({
+      name: formData.name,
+      bio: formData.bio,
+      intro: formData.intro,
+      dob: formData.dob,
+      phone: formData.phone,
+      education: formData.education,
+      origin: formData.origin,
+      maritalStatus: formData.maritalStatus,
+      spouse: formData.spouse,
+      gender: formData.gender,
+      email: formData.email,
+      hubby: formData.hubby,
+      profilePic: profilePicUrl,
+      coverPhoto: coverPhotoUrl,
+    }),
+  }
+);
 
     const result = await response.json();
 
