@@ -162,9 +162,11 @@ const [locationSuggestions, setLocationSuggestions] = useState([]);
       setFeeling("");
 
       setTagInput("");
-      setTaggedFriends([]);
+setTaggedFriends([]);
 
-      setExpanded(false);
+setLocationSuggestions([]);
+
+setExpanded(false);
 
     } catch (err) {
 
@@ -387,14 +389,19 @@ const [locationSuggestions, setLocationSuggestions] = useState([]);
           <button
   type="button"
   onClick={() => {
-    setExpanded(false);
-    setNewPost("");
-    setMediaFiles([]);
-    setLocation("");
-    setFeeling("");
-    setTagInput("");
-    setTaggedFriends([]);
-  }}
+  setExpanded(false);
+
+  setNewPost("");
+  setMediaFiles([]);
+
+  setLocation("");
+  setLocationSuggestions([]);
+
+  setFeeling("");
+
+  setTagInput("");
+  setTaggedFriends([]);
+}}
   className="px-6 py-2 rounded-full bg-red-500 hover:bg-red-600 text-white font-medium transition"
 >
   Cancel
