@@ -27,6 +27,8 @@ const Messages = () => {
 
   const [showCall, setShowCall] = useState(false);
 
+  const [showSidebar, setShowSidebar] = useState(false);
+
   // AUTO SCROLL
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({
@@ -93,6 +95,8 @@ const Messages = () => {
       const data = await res.json();
 
       setMessages(data);
+
+      setShowSidebar(false);
     } catch (err) {
       console.log(err);
     }
@@ -188,107 +192,119 @@ const Messages = () => {
   };
 
   return (
-    <div className="h-screen flex bg-gray-100 overflow-hidden">
+    <div className="h-screen bg-gray-100 flex overflow-hidden relative">
+      {/* MOBILE OVERLAY */}
+      {showSidebar && (
+        <div
+          className="fixed inset-0 bg-black/40 z-30 md:hidden"
+          onClick={() =>
+            setShowSidebar(false)
+          }
+        />
+      )}
+
       {/* SIDEBAR */}
-<div
-  className={`
-    w-full md:w-[320px] lg:w-[350px]
-    bg-white border-r
-    flex flex-col
-    shrink-0
-    h-full
-    overflow-hidden
-  `}
->
-  {/* HEADER */}
-  <div className="p-4 border-b bg-white sticky top-0 z-10">
-    <div className="flex items-center justify-between">
-      <h1 className="text-2xl font-bold text-blue-600">
-        Messages
-      </h1>
-
-      <button className="bg-blue-100 text-blue-600 px-3 py-2 rounded-full text-sm font-medium hover:bg-blue-200 transition">
-        ✨
-      </button>
-    </div>
-
-    {/* SEARCH */}
-    <div className="mt-4">
-      <input
-        type="text"
-        placeholder="Search friends..."
-        className="w-full bg-gray-100 border border-gray-200 rounded-full px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
-      />
-    </div>
-  </div>
-
-  {/* USERS */}
-  <div className="flex-1 overflow-y-auto">
-    {friends.map((user) => (
       <div
-        key={user._id}
-        onClick={() => {
-          setSelectedUser(user);
-          loadMessages(user._id);
-        }}
         className={`
-          flex items-center gap-3
-          px-4 py-4
-          cursor-pointer
-          transition-all duration-200
-          border-b border-gray-100
-          hover:bg-gray-50
+          fixed md:relative z-40
+          top-0 left-0 h-full
+          w-[320px]
+          bg-white border-r
+          flex flex-col
+          transition-transform duration-300
           ${
-            selectedUser?._id === user._id
-              ? "bg-blue-50"
-              : ""
+            showSidebar
+              ? "translate-x-0"
+              : "-translate-x-full md:translate-x-0"
           }
         `}
       >
-        {/* PROFILE */}
-        <div className="relative shrink-0">
-          <img
-            src={
-              user.profilePic ||
-              defaultProfile
-            }
-            alt=""
-            className="w-14 h-14 rounded-full object-cover border"
-          />
-
-          {/* ONLINE DOT */}
-          <span className="absolute bottom-1 right-1 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
-        </div>
-
-        {/* USER INFO */}
-        <div className="flex-1 min-w-0">
+        {/* HEADER */}
+        <div className="p-4 border-b bg-white shadow-sm">
           <div className="flex items-center justify-between">
-            <h2 className="font-semibold truncate text-gray-800">
-              {user.name}
-            </h2>
+            <h1 className="text-2xl font-bold text-blue-600">
+              Messages
+            </h1>
 
-            <span className="text-xs text-gray-400">
-              2m
-            </span>
+            <button
+              onClick={() =>
+                setShowSidebar(false)
+              }
+              className="md:hidden text-2xl"
+            >
+              ✕
+            </button>
           </div>
 
-          <p className="text-sm text-gray-500 truncate">
-            Tap to chat
-          </p>
+          {/* SEARCH */}
+          <div className="mt-4">
+            <input
+              type="text"
+              placeholder="Search..."
+              className="w-full bg-gray-100 rounded-full px-4 py-3 outline-none border border-gray-200 focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+
+        {/* USERS */}
+        <div className="flex-1 overflow-y-auto">
+          {friends.map((user) => (
+            <div
+              key={user._id}
+              onClick={() => {
+                setSelectedUser(user);
+                loadMessages(user._id);
+              }}
+              className={`flex items-center gap-3 p-4 border-b cursor-pointer transition hover:bg-gray-50 ${
+                selectedUser?._id === user._id
+                  ? "bg-blue-50"
+                  : ""
+              }`}
+            >
+              <div className="relative">
+                <img
+                  src={
+                    user.profilePic ||
+                    defaultProfile
+                  }
+                  alt=""
+                  className="w-14 h-14 rounded-full object-cover"
+                />
+
+                <span className="absolute bottom-1 right-1 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
+              </div>
+
+              <div className="flex-1 min-w-0">
+                <h2 className="font-semibold truncate">
+                  {user.name}
+                </h2>
+
+                <p className="text-sm text-gray-500 truncate">
+                  Start chatting...
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
-    ))}
-  </div>
-</div>
 
-      
       {/* CHAT AREA */}
-<div className="flex-1 flex flex-col w-full min-w-0">
+      <div className="flex-1 flex flex-col min-w-0">
         {selectedUser ? (
           <>
             {/* TOP BAR */}
-            <div className="bg-white border-b p-4 flex items-center justify-between shadow-sm">
+            <div className="bg-white border-b px-4 py-3 flex items-center justify-between shadow-sm">
               <div className="flex items-center gap-3">
+                {/* MOBILE MENU */}
+                <button
+                  onClick={() =>
+                    setShowSidebar(true)
+                  }
+                  className="md:hidden text-2xl"
+                >
+                  ☰
+                </button>
+
                 <img
                   src={
                     selectedUser.profilePic ||
@@ -309,212 +325,87 @@ const Messages = () => {
                 </div>
               </div>
 
-              {/* VIDEO CALL BUTTON */}
+              {/* VIDEO CALL */}
               <button
                 onClick={() =>
                   setShowCall(true)
                 }
-                className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-full"
+                className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-full transition"
               >
                 📹
               </button>
             </div>
 
             {/* MESSAGES */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-gray-50 to-gray-100">
-              {messages.map((msg, index) => {
-                const isMe =
-                  msg.sender === currentUser ||
-                  msg.sender?._id ===
-                    currentUser;
+            <div className="flex-1 overflow-y-auto px-3 py-5 bg-gradient-to-b from-gray-100 via-white to-gray-100">
+              <div className="max-w-4xl mx-auto space-y-4">
+                {messages.map((msg, index) => {
+                  const isMe =
+                    msg.sender === currentUser ||
+                    msg.sender?._id ===
+                      currentUser;
 
-                return (
-                  <div
-                    key={index}
-                    className={`flex ${
-                      isMe
-                        ? "justify-end"
-                        : "justify-start"
-                    }`}
-                  >
+                  return (
                     <div
-                      className={`max-w-[75%] px-4 py-3 rounded-2xl shadow-sm ${
+                      key={index}
+                      className={`flex ${
                         isMe
-                          ? "bg-blue-600 text-white rounded-br-sm"
-                          : "bg-white text-gray-800 rounded-bl-sm"
+                          ? "justify-end"
+                          : "justify-start"
                       }`}
                     >
-                      {/* IMAGE */}
-                      {msg.mediaType ===
-                        "image" && (
-                        <img
-                          src={msg.media}
-                          alt=""
-                          className="rounded-xl mb-2 max-w-full"
-                        />
-                      )}
-
-                      {/* VIDEO */}
-                      {msg.mediaType ===
-                        "video" && (
-                        <video
-                          controls
-                          className="rounded-xl mb-2 max-w-full"
-                        >
-                          <source
-                            src={msg.media}
-                          />
-                        </video>
-                      )}
-
-                      {/* AUDIO */}
-                      {msg.mediaType ===
-                        "audio" && (
-                        <audio
-                          controls
-                          className="mt-2"
-                        >
-                          <source
-                            src={msg.media}
-                          />
-                        </audio>
-                      )}
-
-                      {/* TEXT */}
-                      {msg.text && (
-                        <p>{msg.text}</p>
-                      )}
-
-                      {/* TIME */}
-                      <p
-                        className={`text-[11px] mt-1 ${
+                      <div
+                        className={`max-w-[85%] md:max-w-[70%] px-4 py-3 rounded-3xl shadow break-words ${
                           isMe
-                            ? "text-blue-100"
-                            : "text-gray-400"
+                            ? "bg-blue-600 text-white rounded-br-md"
+                            : "bg-white text-gray-800 rounded-bl-md"
                         }`}
                       >
-                        {new Date(
-                          msg.createdAt
-                        ).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </p>
-                    </div>
-                  </div>
-                );
-              })}
+                        {/* IMAGE */}
+                        {msg.mediaType ===
+                          "image" && (
+                          <img
+                            src={msg.media}
+                            alt=""
+                            className="rounded-2xl mb-2 max-w-full"
+                          />
+                        )}
 
-              <div ref={messagesEndRef}></div>
-            </div>
+                        {/* VIDEO */}
+                        {msg.mediaType ===
+                          "video" && (
+                          <video
+                            controls
+                            className="rounded-2xl mb-2 max-w-full"
+                          >
+                            <source
+                              src={msg.media}
+                            />
+                          </video>
+                        )}
 
-            {/* INPUT AREA */}
-            <div className="bg-white border-t p-4 flex items-center gap-3">
-              {/* FILE PICKER */}
-              <label className="cursor-pointer bg-gray-200 hover:bg-gray-300 px-4 py-3 rounded-full transition">
-                📎
+                        {/* AUDIO */}
+                        {msg.mediaType ===
+                          "audio" && (
+                          <audio
+                            controls
+                            className="mt-2 w-full"
+                          >
+                            <source
+                              src={msg.media}
+                            />
+                          </audio>
+                        )}
 
-                <input
-                  type="file"
-                  accept="image/*,video/*"
-                  hidden
-                  onChange={(e) =>
-                    setMedia(
-                      e.target.files[0]
-                    )
-                  }
-                />
-              </label>
+                        {/* TEXT */}
+                        {msg.text && (
+                          <p className="leading-relaxed">
+                            {msg.text}
+                          </p>
+                        )}
 
-              {/* TEXT INPUT */}
-              <input
-                type="text"
-                placeholder="Type a message..."
-                value={text}
-                onChange={(e) =>
-                  setText(e.target.value)
-                }
-                onKeyDown={(e) =>
-                  e.key === "Enter" &&
-                  sendMessage()
-                }
-                className="flex-1 border rounded-full px-5 py-3 outline-none focus:ring-2 focus:ring-blue-500"
-              />
-
-              {/* VOICE NOTE */}
-              <VoiceRecorder
-                onSend={async (audioUrl) => {
-                  const res =
-                    await fetchWithToken(
-                      `${API_BASE}/messages`,
-                      {
-                        method: "POST",
-                        headers: {
-                          "Content-Type":
-                            "application/json",
-                        },
-                        body: JSON.stringify({
-                          receiver:
-                            selectedUser._id,
-                          media: audioUrl,
-                          mediaType:
-                            "audio",
-                        }),
-                      }
-                    );
-
-                  const newMessage =
-                    await res.json();
-
-                  setMessages((prev) => [
-                    ...prev,
-                    newMessage,
-                  ]);
-
-                  socketRef.current.emit(
-                    "send-message",
-                    newMessage
-                  );
-                }}
-              />
-
-              {/* SEND BUTTON */}
-              <button
-                onClick={sendMessage}
-                disabled={uploading}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full font-semibold transition"
-              >
-                {uploading
-                  ? "Uploading..."
-                  : "Send"}
-              </button>
-            </div>
-          </>
-        ) : (
-          <div className="flex-1 flex items-center justify-center bg-gray-50">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold text-gray-700">
-                Welcome to Messages
-              </h2>
-
-              <p className="text-gray-500 mt-2">
-                Select a user to start
-                chatting
-              </p>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* VIDEO CALL */}
-      {showCall && (
-        <VideoCall
-          currentUser={currentUser}
-          selectedUser={selectedUser}
-        />
-      )}
-    </div>
-  );
-};
-
-export default Messages;
+                        {/* TIME */}
+                        <p
+                          className={`text-[11px] mt-2 ${
+                            isMe
+                              ? "text-blue-100"
