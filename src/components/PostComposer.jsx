@@ -80,7 +80,7 @@ const PostComposer = ({
 
   const [fontStyle, setFontStyle] =
     useState("font-sans");
-
+const [backgroundStyle, setBackgroundStyle] = useState("");
   
 
 
