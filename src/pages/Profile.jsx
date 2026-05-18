@@ -11,16 +11,30 @@ import { fetchWithToken, API_BASE } from "../api/api";
 
 // Lazy-load components
 const PostCard = lazy(() => import("../components/PostCard"));
-const ProfileHeader = lazy(() => import("../components/profile/ProfileHeader"));
-const ProfileTabs = lazy(() => import("../components/profile/ProfileTabs"));
+const ProfileHeader = lazy(() =>
+  import("../components/profile/ProfileHeader")
+);
+const ProfileTabs = lazy(() =>
+  import("../components/profile/ProfileTabs")
+);
 const EditProfileModal = lazy(() =>
   import("../components/profile/EditProfileModal")
 );
-const AboutSection = lazy(() => import("../components/profile/AboutSection"));
-const PhotosSection = lazy(() => import("../components/profile/PhotosSection"));
-const FriendsSection = lazy(() => import("../components/profile/FriendsSection"));
-const VideosSection = lazy(() => import("../components/profile/VideosSection"));
-const ReelsSection = lazy(() => import("../components/profile/ReelsSection"));
+const AboutSection = lazy(() =>
+  import("../components/profile/AboutSection")
+);
+const PhotosSection = lazy(() =>
+  import("../components/profile/PhotosSection")
+);
+const FriendsSection = lazy(() =>
+  import("../components/profile/FriendsSection")
+);
+const VideosSection = lazy(() =>
+  import("../components/profile/VideosSection")
+);
+const ReelsSection = lazy(() =>
+  import("../components/profile/ReelsSection")
+);
 const FollowersSection = lazy(() =>
   import("../components/profile/FollowersSection")
 );
@@ -41,7 +55,7 @@ const Profile = () => {
   const currentUserId = localStorage.getItem("userId");
   const finalUserId = userId || currentUserId;
 
-  // STATES
+  // ================= STATES =================
   const [user, setUser] = useState(null);
   const [posts, setPosts] = useState([]);
   const [friends, setFriends] = useState([]);
@@ -57,25 +71,10 @@ const Profile = () => {
 
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+
   const observer = useRef();
 
-  // Infinite scroll for posts
-  const lastPostRef = useCallback(
-    (node) => {
-      if (loadingPosts) return;
-      if (observer.current) observer.current.disconnect();
-
-      observer.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && hasMore) {
-          setPage((prev) => prev + 1);
-        }
-      });
-
-      if (node) observer.current.observe(node);
-    },
-    [loadingPosts, hasMore]
-  );
-
+  // ================= FORM STATES =================
   const [formData, setFormData] = useState({
     name: "",
     bio: "",
@@ -95,9 +94,115 @@ const Profile = () => {
 
   const [previewProfilePic, setPreviewProfilePic] = useState(null);
   const [previewCoverPhoto, setPreviewCoverPhoto] = useState(null);
+
   const [saving, setSaving] = useState(false);
 
-  /* ================= FETCH PROFILE ================= */
+  // ================= INFINITE SCROLL =================
+  const lastPostRef = useCallback(
+    (node) => {
+      if (loadingPosts) return;
+
+      if (observer.current) observer.current.disconnect();
+
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasMore) {
+          setPage((prev) => prev + 1);
+        }
+      });
+
+      if (node) observer.current.observe(node);
+    },
+    [loadingPosts, hasMore]
+  );
+
+  // ================= INPUT CHANGE =================
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // ================= FILE CHANGE =================
+  const handleFileChange = (e, field) => {
+    const file = e.target.files[0];
+
+    if (!file) return;
+
+    setFormData((prev) => ({
+      ...prev,
+      [field]: file,
+    }));
+
+    const previewUrl = URL.createObjectURL(file);
+
+    if (field === "profilePic") {
+      setPreviewProfilePic(previewUrl);
+    }
+
+    if (field === "coverPhoto") {
+      setPreviewCoverPhoto(previewUrl);
+    }
+  };
+
+  // ================= SAVE PROFILE =================
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+
+      const data = new FormData();
+
+      Object.keys(formData).forEach((key) => {
+        if (formData[key]) {
+          data.append(key, formData[key]);
+        }
+      });
+
+      const response = await fetch(
+        `${API_BASE}/api/users/update-profile`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: data,
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          result.message || "Failed to update profile"
+        );
+      }
+
+      setUser(result);
+
+      // Update previews
+      if (result.profilePic) {
+        setPreviewProfilePic(result.profilePic);
+      }
+
+      if (result.coverPhoto) {
+        setPreviewCoverPhoto(result.coverPhoto);
+      }
+
+      alert("Profile updated successfully!");
+
+      setEditing(false);
+
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // ================= FETCH PROFILE =================
   useEffect(() => {
     if (!token) {
       navigate("/login");
@@ -110,10 +215,32 @@ const Profile = () => {
           `${API_BASE}/api/users/${finalUserId}`,
           token
         );
+
         setUser(userData);
+
         setPreviewProfilePic(userData.profilePic);
         setPreviewCoverPhoto(userData.coverPhoto);
+
         setFriends(userData.friends || []);
+
+        // Initialize form data
+        setFormData({
+          name: userData.name || "",
+          bio: userData.bio || "",
+          intro: userData.intro || "",
+          dob: userData.dob || "",
+          phone: userData.phone || "",
+          education: userData.education || "",
+          origin: userData.origin || "",
+          maritalStatus: userData.maritalStatus || "",
+          spouse: userData.spouse || "",
+          gender: userData.gender || "",
+          email: userData.email || "",
+          hubby: userData.hubby || "",
+          profilePic: null,
+          coverPhoto: null,
+        });
+
       } catch (err) {
         console.error(err);
       }
@@ -122,7 +249,7 @@ const Profile = () => {
     fetchProfile();
   }, [finalUserId, token, navigate]);
 
-  /* ================= FETCH POSTS ================= */
+  // ================= FETCH POSTS =================
   useEffect(() => {
     if (!token) return;
 
@@ -135,14 +262,23 @@ const Profile = () => {
           token
         );
 
-        if (data.length < POSTS_LIMIT) setHasMore(false);
+        if (data.length < POSTS_LIMIT) {
+          setHasMore(false);
+        }
+
         setPosts((prev) => [...prev, ...data]);
 
-        const vids = data.filter((p) => p.media?.some((m) => m.type === "video"));
-        const reelsData = data.filter((p) => p.isReel || p.reel);
+        const vids = data.filter((p) =>
+          p.media?.some((m) => m.type === "video")
+        );
+
+        const reelsData = data.filter(
+          (p) => p.isReel || p.reel
+        );
 
         setVideos((prev) => [...prev, ...vids]);
         setReels((prev) => [...prev, ...reelsData]);
+
       } catch (err) {
         console.error(err);
       } finally {
@@ -153,7 +289,7 @@ const Profile = () => {
     fetchPosts();
   }, [page, finalUserId, token]);
 
-  /* ================= FETCH FOLLOWERS/FOLLOWING ================= */
+  // ================= FOLLOW DATA =================
   useEffect(() => {
     const fetchFollowData = async () => {
       try {
@@ -161,16 +297,19 @@ const Profile = () => {
           `${API_BASE}/api/users/${finalUserId}`,
           token
         );
+
         setFollowers(data.followers || []);
         setFollowing(data.following || []);
+
       } catch (err) {
         console.error(err);
       }
     };
+
     fetchFollowData();
   }, [finalUserId, token]);
 
-  /* ================= FETCH MUTUAL FRIENDS ================= */
+  // ================= MUTUAL FRIENDS =================
   useEffect(() => {
     const fetchMutualFriends = async () => {
       try {
@@ -178,25 +317,35 @@ const Profile = () => {
           `${API_BASE}/api/users/${finalUserId}/mutual`,
           token
         );
+
         setMutualFriends(data || []);
+
       } catch (err) {
         console.error(err);
       }
     };
+
     fetchMutualFriends();
   }, [finalUserId, token]);
 
-  if (!user)
+  // ================= LOADING =================
+  if (!user) {
     return (
       <div className="p-6 animate-pulse">
         <div className="h-40 bg-gray-200 rounded mb-4" />
       </div>
     );
+  }
 
   return (
     <div className="container mx-auto py-6 space-y-6">
+
       {/* ================= PROFILE HEADER ================= */}
-      <Suspense fallback={<div className="h-40 bg-gray-200 animate-pulse rounded mb-4" />}>
+      <Suspense
+        fallback={
+          <div className="h-40 bg-gray-200 animate-pulse rounded mb-4" />
+        }
+      >
         <ProfileHeader
           user={user}
           isOwner={true}
@@ -208,89 +357,151 @@ const Profile = () => {
 
       {/* ================= MUTUAL FRIENDS ================= */}
       {!user.isCurrentUser && mutualFriends.length > 0 && (
-        <Suspense fallback={<div className="h-10 bg-gray-100 rounded animate-pulse mb-4" />}>
-          <MutualFriendsSection mutualFriends={mutualFriends} />
+        <Suspense
+          fallback={
+            <div className="h-10 bg-gray-100 rounded animate-pulse mb-4" />
+          }
+        >
+          <MutualFriendsSection
+            mutualFriends={mutualFriends}
+          />
         </Suspense>
       )}
 
       {/* ================= TABS ================= */}
-      <Suspense fallback={<div className="h-12 bg-gray-100 rounded animate-pulse mb-4" />}>
-        <ProfileTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Suspense
+        fallback={
+          <div className="h-12 bg-gray-100 rounded animate-pulse mb-4" />
+        }
+      >
+        <ProfileTabs
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+        />
       </Suspense>
 
       {/* ================= TAB CONTENT ================= */}
       <div className="space-y-4">
+
         {activeTab === "Posts" && (
           <>
             {posts.map((post, index) =>
               posts.length === index + 1 ? (
                 <div ref={lastPostRef} key={post._id}>
-                  <Suspense fallback={<div className="h-64 bg-gray-200 rounded mb-4 animate-pulse" />}>
-                    <PostCard post={post} currentUserId={currentUserId} />
+                  <Suspense
+                    fallback={
+                      <div className="h-64 bg-gray-200 rounded mb-4 animate-pulse" />
+                    }
+                  >
+                    <PostCard
+                      post={post}
+                      currentUserId={currentUserId}
+                    />
                   </Suspense>
                 </div>
               ) : (
                 <Suspense
                   key={post._id}
-                  fallback={<div className="h-64 bg-gray-200 rounded mb-4 animate-pulse" />}
+                  fallback={
+                    <div className="h-64 bg-gray-200 rounded mb-4 animate-pulse" />
+                  }
                 >
-                  <PostCard post={post} currentUserId={currentUserId} />
+                  <PostCard
+                    post={post}
+                    currentUserId={currentUserId}
+                  />
                 </Suspense>
               )
             )}
-            {loadingPosts && <div className="text-center py-4">Loading...</div>}
+
+            {loadingPosts && (
+              <div className="text-center py-4">
+                Loading...
+              </div>
+            )}
           </>
         )}
 
         {activeTab === "About" && (
-          <Suspense fallback={<div className="h-40 bg-gray-100 rounded animate-pulse mb-4" />}>
+          <Suspense
+            fallback={
+              <div className="h-40 bg-gray-100 rounded animate-pulse mb-4" />
+            }
+          >
             <AboutSection user={user} />
           </Suspense>
         )}
 
         {activeTab === "Photos" && (
-          <Suspense fallback={<div className="h-40 bg-gray-100 rounded animate-pulse mb-4" />}>
+          <Suspense
+            fallback={
+              <div className="h-40 bg-gray-100 rounded animate-pulse mb-4" />
+            }
+          >
             <PhotosSection posts={posts} user={user} />
           </Suspense>
         )}
 
         {activeTab === "Friends" && (
-          <Suspense fallback={<div className="h-40 bg-gray-100 rounded animate-pulse mb-4" />}>
+          <Suspense
+            fallback={
+              <div className="h-40 bg-gray-100 rounded animate-pulse mb-4" />
+            }
+          >
             <FriendsSection friends={friends} />
           </Suspense>
         )}
 
         {activeTab === "Videos" && (
-          <Suspense fallback={<div className="h-40 bg-gray-100 rounded animate-pulse mb-4" />}>
+          <Suspense
+            fallback={
+              <div className="h-40 bg-gray-100 rounded animate-pulse mb-4" />
+            }
+          >
             <VideosSection videos={videos} />
           </Suspense>
         )}
 
         {activeTab === "Reels" && (
-          <Suspense fallback={<div className="h-40 bg-gray-100 rounded animate-pulse mb-4" />}>
+          <Suspense
+            fallback={
+              <div className="h-40 bg-gray-100 rounded animate-pulse mb-4" />
+            }
+          >
             <ReelsSection reels={reels} />
           </Suspense>
         )}
 
         {activeTab === "Followers" && (
-          <Suspense fallback={<div className="h-40 bg-gray-100 rounded animate-pulse mb-4" />}>
+          <Suspense
+            fallback={
+              <div className="h-40 bg-gray-100 rounded animate-pulse mb-4" />
+            }
+          >
             <FollowersSection followers={followers} />
           </Suspense>
         )}
 
         {activeTab === "Following" && (
-          <Suspense fallback={<div className="h-40 bg-gray-100 rounded animate-pulse mb-4" />}>
+          <Suspense
+            fallback={
+              <div className="h-40 bg-gray-100 rounded animate-pulse mb-4" />
+            }
+          >
             <FollowingSection following={following} />
           </Suspense>
         )}
       </div>
 
       {/* ================= EDIT PROFILE MODAL ================= */}
-      <Suspense>
+      <Suspense fallback={null}>
         <EditProfileModal
           editing={editing}
           setEditing={setEditing}
           formData={formData}
+          handleSave={handleSave}
+          handleInputChange={handleInputChange}
+          handleFileChange={handleFileChange}
           previewProfilePic={previewProfilePic}
           previewCoverPhoto={previewCoverPhoto}
           uploading={saving}
