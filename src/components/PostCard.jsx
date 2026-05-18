@@ -175,11 +175,6 @@ const PostCard = ({ post, currentUserId }) => {
 </div>
 
       
-{/* HEADER */}
-<div className="flex items-center gap-3">
-  ...
-</div>
-
 {/* POST TEXT */}
 {post?.content && (
   <div
@@ -199,13 +194,7 @@ const PostCard = ({ post, currentUserId }) => {
   </div>
 )}
 
-{/* MEDIA DISPLAY */}
-{media.length > 0 && (
-  ...
-)}
-
-
-      {/* MEDIA DISPLAY */}
+ {/* MEDIA DISPLAY */}
       {media.length > 0 && (
         <div className={isMulti ? "grid grid-cols-2 gap-2" : ""}>
           {media.map((m, i) => {
