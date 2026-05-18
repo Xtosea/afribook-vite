@@ -8,6 +8,7 @@ import React, {
 } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { fetchWithToken, API_BASE } from "../api/api";
+import { useImageKitUpload } from "../hooks/useImageKitUpload";
 
 // Lazy-load components
 const PostCard = lazy(() => import("../components/PostCard"));
@@ -54,6 +55,8 @@ const Profile = () => {
   const token = localStorage.getItem("token");
   const currentUserId = localStorage.getItem("userId");
   const finalUserId = userId || currentUserId;
+ const { uploadImageKit } = useImageKitUpload();
+
 
   // ================= STATES =================
   const [user, setUser] = useState(null);
@@ -149,58 +152,84 @@ const Profile = () => {
 
   // ================= SAVE PROFILE =================
   const handleSave = async () => {
-    try {
-      setSaving(true);
+  try {
+    setSaving(true);
 
-      const data = new FormData();
+    let profilePicUrl = previewProfilePic;
+    let coverPhotoUrl = previewCoverPhoto;
 
-      Object.keys(formData).forEach((key) => {
-        if (formData[key]) {
-          data.append(key, formData[key]);
-        }
-      });
-
-      const response = await fetch(
-        `${API_BASE}/api/users/update-profile`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: data,
-        }
+    // Upload profile picture
+    if (formData.profilePic instanceof File) {
+      profilePicUrl = await uploadImageKit(
+        formData.profilePic
       );
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          result.message || "Failed to update profile"
-        );
-      }
-
-      setUser(result);
-
-      // Update previews
-      if (result.profilePic) {
-        setPreviewProfilePic(result.profilePic);
-      }
-
-      if (result.coverPhoto) {
-        setPreviewCoverPhoto(result.coverPhoto);
-      }
-
-      alert("Profile updated successfully!");
-
-      setEditing(false);
-
-    } catch (err) {
-      console.error(err);
-      alert(err.message);
-    } finally {
-      setSaving(false);
     }
-  };
+
+    // Upload cover photo
+    if (formData.coverPhoto instanceof File) {
+      coverPhotoUrl = await uploadImageKit(
+        formData.coverPhoto
+      );
+    }
+
+    // Send ONLY URLs + text fields to backend
+    const response = await fetch(
+      `${API_BASE}/api/users/update-profile`,
+      {
+        method: "PUT",
+
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+
+        body: JSON.stringify({
+          name: formData.name,
+          bio: formData.bio,
+          intro: formData.intro,
+          dob: formData.dob,
+          phone: formData.phone,
+          education: formData.education,
+          origin: formData.origin,
+          maritalStatus: formData.maritalStatus,
+          spouse: formData.spouse,
+          gender: formData.gender,
+          email: formData.email,
+          hubby: formData.hubby,
+          profilePic: profilePicUrl,
+          coverPhoto: coverPhotoUrl,
+        }),
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        result.message || "Failed to update profile"
+      );
+    }
+
+    setUser(result);
+
+    setPreviewProfilePic(profilePicUrl);
+    setPreviewCoverPhoto(coverPhotoUrl);
+
+    alert("Profile updated successfully!");
+
+    setEditing(false);
+
+  } catch (err) {
+    console.error(err);
+
+    alert(
+      err.message || "Failed to update profile"
+    );
+
+  } finally {
+    setSaving(false);
+  }
+};
 
   // ================= FETCH PROFILE =================
   useEffect(() => {
