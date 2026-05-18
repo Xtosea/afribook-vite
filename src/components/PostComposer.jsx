@@ -421,37 +421,38 @@ const PostComposer = ({
       {/* TEXTAREA */}
 
       <textarea
-        rows={expanded ? 4 : 1}
-        value={newPost}
-        onChange={(e) =>
-          setNewPost(e.target.value)
-        }
-        onFocus={() =>
-          setExpanded(true)
-        }
-        placeholder={`What's on your mind, ${
-          currentUser?.name ||
-          "User"
-        }?`}
-        style={{
-          color: textColor,
-          ...getBackgroundStyle(),
-        }}
-        className={`
-          w-full
-          p-4
-          rounded-2xl
-          border
-          resize-none
-          transition-all
-          duration-200
-          focus:outline-none
-          focus:ring-2
-          focus:ring-blue-400
-          ${expanded ? "h-28" : "h-12"}
-          ${fontStyle}
-        `}
-      />
+  rows={expanded ? 4 : 1}
+  value={newPost}
+  onChange={(e) =>
+    setNewPost(e.target.value)
+  }
+  onFocus={() =>
+    setExpanded(true)
+  }
+  placeholder={`What's on your mind, ${
+    currentUser?.name || "User"
+  }?`}
+  style={{
+    color: textColor,
+    ...getBackgroundStyle(),
+  }}
+  className={`
+    w-full
+    p-4
+    rounded-2xl
+    border
+    resize-none
+    transition-all
+    duration-200
+    focus:outline-none
+    focus:ring-2
+    focus:ring-blue-400
+    relative
+    z-0
+    ${expanded ? "h-28" : "h-12"}
+    ${fontStyle}
+  `}
+/>
 
       {/* EXPANDED */}
 
@@ -631,145 +632,141 @@ const PostComposer = ({
 
           {/* STYLE OPTIONS */}
 
-          <div className="space-y-3">
+<div className="space-y-4 border-t pt-4 relative z-10">
 
-            <p className="text-sm font-semibold text-gray-600">
-              Customize Post
-            </p>
+  <p className="text-sm font-semibold text-gray-600">
+    Customize Post
+  </p>
 
-            {/* TEXT COLORS */}
+  {/* TEXT COLORS */}
 
-            <div className="flex gap-2 flex-wrap">
+  <div className="flex gap-3 flex-wrap items-center">
 
-              <button
-                type="button"
-                onClick={() =>
-                  setTextColor("#000000")
-                }
-                className="w-8 h-8 rounded-full bg-black border"
-              />
+    <button
+      type="button"
+      onClick={() => setTextColor("#000000")}
+      className="w-10 h-10 rounded-full bg-black border-2 border-gray-300 cursor-pointer active:scale-95"
+    />
 
-              <button
-                type="button"
-                onClick={() =>
-                  setTextColor("#ffffff")
-                }
-                className="w-8 h-8 rounded-full bg-white border"
-              />
+    <button
+      type="button"
+      onClick={() => setTextColor("#ffffff")}
+      className="w-10 h-10 rounded-full bg-white border-2 border-gray-400 cursor-pointer active:scale-95"
+    />
 
-              <button
-                type="button"
-                onClick={() =>
-                  setTextColor("#ef4444")
-                }
-                className="w-8 h-8 rounded-full bg-red-500"
-              />
+    <button
+      type="button"
+      onClick={() => setTextColor("#ef4444")}
+      className="w-10 h-10 rounded-full bg-red-500 border-2 border-white cursor-pointer active:scale-95"
+    />
 
-              <button
-                type="button"
-                onClick={() =>
-                  setTextColor("#3b82f6")
-                }
-                className="w-8 h-8 rounded-full bg-blue-500"
-              />
+    <button
+      type="button"
+      onClick={() => setTextColor("#3b82f6")}
+      className="w-10 h-10 rounded-full bg-blue-500 border-2 border-white cursor-pointer active:scale-95"
+    />
 
-              <button
-                type="button"
-                onClick={() =>
-                  setTextColor("#22c55e")
-                }
-                className="w-8 h-8 rounded-full bg-green-500"
-              />
+    <button
+      type="button"
+      onClick={() => setTextColor("#22c55e")}
+      className="w-10 h-10 rounded-full bg-green-500 border-2 border-white cursor-pointer active:scale-95"
+    />
 
-            </div>
+    <button
+      type="button"
+      onClick={() => setTextColor("#a855f7")}
+      className="w-10 h-10 rounded-full bg-purple-500 border-2 border-white cursor-pointer active:scale-95"
+    />
 
-            {/* BACKGROUNDS */}
+  </div>
 
-            <div className="flex gap-2 flex-wrap">
+  {/* BACKGROUND OPTIONS */}
 
-              <button
-                type="button"
-                onClick={() =>
-                  setBackgroundStyle("white")
-                }
-                className="px-3 py-1 rounded bg-gray-200"
-              >
-                Default
-              </button>
+  <div className="flex gap-2 flex-wrap">
 
-              <button
-                type="button"
-                onClick={() =>
-                  setBackgroundStyle(
-                    "gradient-purple"
-                  )
-                }
-                className="px-3 py-1 rounded bg-purple-500 text-white"
-              >
-                Purple
-              </button>
+    <button
+      type="button"
+      onClick={() =>
+        setBackgroundStyle("white")
+      }
+      className="px-4 py-2 rounded-lg bg-gray-200 text-sm cursor-pointer"
+    >
+      Default
+    </button>
 
-              <button
-                type="button"
-                onClick={() =>
-                  setBackgroundStyle(
-                    "gradient-blue"
-                  )
-                }
-                className="px-3 py-1 rounded bg-blue-500 text-white"
-              >
-                Blue
-              </button>
+    <button
+      type="button"
+      onClick={() =>
+        setBackgroundStyle(
+          "gradient-purple"
+        )
+      }
+      className="px-4 py-2 rounded-lg bg-purple-500 text-white text-sm cursor-pointer"
+    >
+      Purple
+    </button>
 
-              <button
-                type="button"
-                onClick={() =>
-                  setBackgroundStyle("dark")
-                }
-                className="px-3 py-1 rounded bg-black text-white"
-              >
-                Dark
-              </button>
+    <button
+      type="button"
+      onClick={() =>
+        setBackgroundStyle(
+          "gradient-blue"
+        )
+      }
+      className="px-4 py-2 rounded-lg bg-blue-500 text-white text-sm cursor-pointer"
+    >
+      Blue
+    </button>
 
-            </div>
+    <button
+      type="button"
+      onClick={() =>
+        setBackgroundStyle("dark")
+      }
+      className="px-4 py-2 rounded-lg bg-black text-white text-sm cursor-pointer"
+    >
+      Dark
+    </button>
 
-            {/* FONTS */}
+  </div>
 
-            <div className="flex gap-2 flex-wrap">
+  {/* FONT OPTIONS */}
 
-              <button
-                type="button"
-                onClick={() =>
-                  setFontStyle("font-sans")
-                }
-                className="px-3 py-1 border rounded"
-              >
-                Normal
-              </button>
+  <div className="flex gap-2 flex-wrap">
 
-              <button
-                type="button"
-                onClick={() =>
-                  setFontStyle("font-serif")
-                }
-                className="px-3 py-1 border rounded font-serif"
-              >
-                Serif
-              </button>
+    <button
+      type="button"
+      onClick={() =>
+        setFontStyle("font-sans")
+      }
+      className="px-4 py-2 border rounded-lg cursor-pointer"
+    >
+      Normal
+    </button>
 
-              <button
-                type="button"
-                onClick={() =>
-                  setFontStyle("font-mono")
-                }
-                className="px-3 py-1 border rounded font-mono"
-              >
-                Mono
-              </button>
+    <button
+      type="button"
+      onClick={() =>
+        setFontStyle("font-serif")
+      }
+      className="px-4 py-2 border rounded-lg font-serif cursor-pointer"
+    >
+      Serif
+    </button>
 
-            </div>
+    <button
+      type="button"
+      onClick={() =>
+        setFontStyle("font-mono")
+      }
+      className="px-4 py-2 border rounded-lg font-mono cursor-pointer"
+    >
+      Mono
+    </button>
 
-          </div>
+  </div>
+
+</div>
 
           {/* ACTIONS */}
 
