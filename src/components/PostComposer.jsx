@@ -338,6 +338,35 @@ setExpanded(false);
             setMediaFiles={setMediaFiles}
           />
 
+          <div className="flex gap-2 flex-wrap">
+
+  <button
+    type="button"
+    onClick={() => setTextColor("#ff0000")}
+    className="w-8 h-8 rounded-full bg-red-500"
+  />
+
+  <button
+    type="button"
+    onClick={() => setTextColor("#0000ff")}
+    className="w-8 h-8 rounded-full bg-blue-500"
+  />
+
+  <button
+    type="button"
+    onClick={() =>
+      setBackgroundStyle(
+        "bg-gradient-to-r from-pink-500 to-purple-500"
+      )
+    }
+    className="px-3 py-1 rounded bg-purple-500 text-white"
+  >
+    Gradient
+  </button>
+
+</div>
+
+
           {/* ACTIONS */}
 
           <div className="flex justify-between items-center flex-wrap gap-2">
