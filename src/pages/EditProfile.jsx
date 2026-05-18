@@ -12,33 +12,41 @@ export default function EditProfile() {
     localStorage.getItem("profilePic") || ""
   );
 
+  const [loading, setLoading] = useState(false);
+
   const saveProfile = async () => {
     try {
+      setLoading(true);
+
       // Save to localStorage
       localStorage.setItem("name", name);
       localStorage.setItem("profilePic", profilePic);
 
-      // Optional backend update here
+      // Optional backend save
       // await fetch(...)
 
-      alert("Profile saved!");
+      alert("Profile saved successfully!");
 
-      // Go back home
+      // Redirect
       navigate("/");
+
     } catch (error) {
       console.error("Save profile error:", error);
       alert("Failed to save profile");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
       <div className="bg-white shadow-lg rounded-2xl p-6 w-full max-w-md">
+
         <h1 className="text-2xl font-bold mb-6 text-center">
           Edit Profile
         </h1>
 
-        {/* Name Input */}
+        {/* Name */}
         <div className="mb-4">
           <label className="block mb-2 font-medium">
             Name
@@ -53,7 +61,7 @@ export default function EditProfile() {
           />
         </div>
 
-        {/* Profile Picture URL */}
+        {/* Profile Picture */}
         <div className="mb-4">
           <label className="block mb-2 font-medium">
             Profile Picture URL
@@ -76,19 +84,34 @@ export default function EditProfile() {
               alt="Preview"
               className="w-24 h-24 rounded-full object-cover border"
               onError={(e) => {
-                e.target.style.display = "none";
+                e.currentTarget.src =
+                  "https://via.placeholder.com/150";
               }}
             />
           </div>
         )}
 
-        {/* Save Button */}
-        <button
-          onClick={saveProfile}
-          className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg font-semibold transition"
-        >
-          Save Profile & Go Home
-        </button>
+        {/* Buttons */}
+        <div className="flex gap-3">
+
+          <button
+            type="button"
+            onClick={saveProfile}
+            disabled={loading}
+            className="flex-1 bg-blue-500 hover:bg-blue-600 disabled:opacity-50 text-white py-3 rounded-lg font-semibold transition"
+          >
+            {loading ? "Saving..." : "Save Profile"}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className="flex-1 bg-gray-300 hover:bg-gray-400 text-black py-3 rounded-lg font-semibold transition"
+          >
+            Cancel
+          </button>
+
+        </div>
       </div>
     </div>
   );
