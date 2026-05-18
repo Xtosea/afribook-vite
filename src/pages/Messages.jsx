@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { connectSocket } from "../socket";
 import { fetchWithToken, API_BASE } from "../api/api";
+
 import VideoCall from "../components/VideoCall";
 import VoiceRecorder from "../components/VoiceRecorder";
 
@@ -15,12 +16,18 @@ const Messages = () => {
 
   const [friends, setFriends] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
-  const [messages, setMessages] = useState([]);
-  const [text, setText] = useState("");
-const [showCall, setShowCall] =
-  useState(false);
 
-  // auto scroll
+  const [messages, setMessages] = useState([]);
+
+  const [text, setText] = useState("");
+
+  const [media, setMedia] = useState(null);
+
+  const [uploading, setUploading] = useState(false);
+
+  const [showCall, setShowCall] = useState(false);
+
+  // AUTO SCROLL
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({
       behavior: "smooth",
@@ -31,9 +38,10 @@ const [showCall, setShowCall] =
     scrollToBottom();
   }, [messages]);
 
-  // socket setup
+  // SOCKET
   useEffect(() => {
     const socket = connectSocket();
+
     socketRef.current = socket;
 
     if (!socket) return;
@@ -44,7 +52,8 @@ const [showCall, setShowCall] =
       if (
         selectedUser &&
         (message.sender === selectedUser._id ||
-          message.receiver === selectedUser._id)
+          message.receiver === selectedUser._id ||
+          message.sender?._id === selectedUser._id)
       ) {
         setMessages((prev) => [...prev, message]);
       }
@@ -55,9 +64,9 @@ const [showCall, setShowCall] =
     };
   }, [selectedUser, currentUser]);
 
-  // fetch friends/users
+  // FETCH USERS
   useEffect(() => {
-    const fetchFriends = async () => {
+    const fetchUsers = async () => {
       try {
         const res = await fetchWithToken(
           `${API_BASE}/users`
@@ -71,10 +80,10 @@ const [showCall, setShowCall] =
       }
     };
 
-    fetchFriends();
+    fetchUsers();
   }, []);
 
-  // fetch messages
+  // LOAD MESSAGES
   const loadMessages = async (userId) => {
     try {
       const res = await fetchWithToken(
@@ -89,49 +98,107 @@ const [showCall, setShowCall] =
     }
   };
 
-  // send message
+  // SEND MESSAGE
   const sendMessage = async () => {
-    if (!text.trim() || !selectedUser) return;
+    if (!text.trim() && !media) return;
 
     try {
+      let uploadedMedia = "";
+      let mediaType = "";
+
+      // UPLOAD MEDIA
+      if (media) {
+        setUploading(true);
+
+        const formData = new FormData();
+
+        formData.append("file", media);
+
+        formData.append(
+          "upload_preset",
+          "YOUR_UPLOAD_PRESET"
+        );
+
+        const cloudName = "YOUR_CLOUD_NAME";
+
+        const resourceType =
+          media.type.startsWith("video")
+            ? "video"
+            : media.type.startsWith("image")
+            ? "image"
+            : "video";
+
+        const uploadRes = await fetch(
+          `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`,
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+
+        const uploadData =
+          await uploadRes.json();
+
+        uploadedMedia = uploadData.secure_url;
+
+        mediaType =
+          resourceType === "video"
+            ? "video"
+            : "image";
+      }
+
+      // SAVE MESSAGE
       const res = await fetchWithToken(
         `${API_BASE}/messages`,
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type":
+              "application/json",
           },
           body: JSON.stringify({
             receiver: selectedUser._id,
             text,
+            media: uploadedMedia,
+            mediaType,
           }),
         }
       );
 
       const newMessage = await res.json();
 
-      setMessages((prev) => [...prev, newMessage]);
+      setMessages((prev) => [
+        ...prev,
+        newMessage,
+      ]);
 
-      socketRef.current.emit("send-message", newMessage);
+      socketRef.current.emit(
+        "send-message",
+        newMessage
+      );
 
       setText("");
+      setMedia(null);
+
+      setUploading(false);
     } catch (err) {
       console.log(err);
+      setUploading(false);
     }
   };
 
   return (
-    <div className="h-screen bg-gray-100 flex overflow-hidden">
+    <div className="h-screen flex bg-gray-100 overflow-hidden">
       {/* SIDEBAR */}
       <div className="w-[320px] bg-white border-r flex flex-col">
-        {/* header */}
+        {/* HEADER */}
         <div className="p-4 border-b">
           <h1 className="text-2xl font-bold text-blue-600">
             Messages
           </h1>
         </div>
 
-        {/* users */}
+        {/* USERS */}
         <div className="flex-1 overflow-y-auto">
           {friends.map((user) => (
             <div
@@ -147,7 +214,10 @@ const [showCall, setShowCall] =
               }`}
             >
               <img
-                src={user.profilePic || defaultProfile}
+                src={
+                  user.profilePic ||
+                  defaultProfile
+                }
                 alt=""
                 className="w-12 h-12 rounded-full object-cover"
               />
@@ -170,34 +240,47 @@ const [showCall, setShowCall] =
       <div className="flex-1 flex flex-col">
         {selectedUser ? (
           <>
-            {/* top bar */}
-            <div className="bg-white border-b p-4 flex items-center gap-3 shadow-sm">
-              <img
-                src={
-                  selectedUser.profilePic ||
-                  defaultProfile
-                }
-                alt=""
-                className="w-12 h-12 rounded-full object-cover"
-              />
+            {/* TOP BAR */}
+            <div className="bg-white border-b p-4 flex items-center justify-between shadow-sm">
+              <div className="flex items-center gap-3">
+                <img
+                  src={
+                    selectedUser.profilePic ||
+                    defaultProfile
+                  }
+                  alt=""
+                  className="w-12 h-12 rounded-full object-cover"
+                />
 
-              <div>
-                <h2 className="font-bold text-lg">
-                  {selectedUser.name}
-                </h2>
+                <div>
+                  <h2 className="font-bold text-lg">
+                    {selectedUser.name}
+                  </h2>
 
-                <p className="text-sm text-green-500">
-                  Online
-                </p>
+                  <p className="text-sm text-green-500">
+                    Online
+                  </p>
+                </div>
               </div>
+
+              {/* VIDEO CALL BUTTON */}
+              <button
+                onClick={() =>
+                  setShowCall(true)
+                }
+                className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-full"
+              >
+                📹
+              </button>
             </div>
 
-            {/* messages */}
+            {/* MESSAGES */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-gray-50 to-gray-100">
               {messages.map((msg, index) => {
                 const isMe =
                   msg.sender === currentUser ||
-                  msg.sender?._id === currentUser;
+                  msg.sender?._id ===
+                    currentUser;
 
                 return (
                   <div
@@ -215,8 +298,48 @@ const [showCall, setShowCall] =
                           : "bg-white text-gray-800 rounded-bl-sm"
                       }`}
                     >
-                      <p>{msg.text}</p>
+                      {/* IMAGE */}
+                      {msg.mediaType ===
+                        "image" && (
+                        <img
+                          src={msg.media}
+                          alt=""
+                          className="rounded-xl mb-2 max-w-full"
+                        />
+                      )}
 
+                      {/* VIDEO */}
+                      {msg.mediaType ===
+                        "video" && (
+                        <video
+                          controls
+                          className="rounded-xl mb-2 max-w-full"
+                        >
+                          <source
+                            src={msg.media}
+                          />
+                        </video>
+                      )}
+
+                      {/* AUDIO */}
+                      {msg.mediaType ===
+                        "audio" && (
+                        <audio
+                          controls
+                          className="mt-2"
+                        >
+                          <source
+                            src={msg.media}
+                          />
+                        </audio>
+                      )}
+
+                      {/* TEXT */}
+                      {msg.text && (
+                        <p>{msg.text}</p>
+                      )}
+
+                      {/* TIME */}
                       <p
                         className={`text-[11px] mt-1 ${
                           isMe
@@ -239,8 +362,25 @@ const [showCall, setShowCall] =
               <div ref={messagesEndRef}></div>
             </div>
 
-            {/* input */}
+            {/* INPUT AREA */}
             <div className="bg-white border-t p-4 flex items-center gap-3">
+              {/* FILE PICKER */}
+              <label className="cursor-pointer bg-gray-200 hover:bg-gray-300 px-4 py-3 rounded-full transition">
+                📎
+
+                <input
+                  type="file"
+                  accept="image/*,video/*"
+                  hidden
+                  onChange={(e) =>
+                    setMedia(
+                      e.target.files[0]
+                    )
+                  }
+                />
+              </label>
+
+              {/* TEXT INPUT */}
               <input
                 type="text"
                 placeholder="Type a message..."
@@ -249,16 +389,58 @@ const [showCall, setShowCall] =
                   setText(e.target.value)
                 }
                 onKeyDown={(e) =>
-                  e.key === "Enter" && sendMessage()
+                  e.key === "Enter" &&
+                  sendMessage()
                 }
                 className="flex-1 border rounded-full px-5 py-3 outline-none focus:ring-2 focus:ring-blue-500"
               />
 
+              {/* VOICE NOTE */}
+              <VoiceRecorder
+                onSend={async (audioUrl) => {
+                  const res =
+                    await fetchWithToken(
+                      `${API_BASE}/messages`,
+                      {
+                        method: "POST",
+                        headers: {
+                          "Content-Type":
+                            "application/json",
+                        },
+                        body: JSON.stringify({
+                          receiver:
+                            selectedUser._id,
+                          media: audioUrl,
+                          mediaType:
+                            "audio",
+                        }),
+                      }
+                    );
+
+                  const newMessage =
+                    await res.json();
+
+                  setMessages((prev) => [
+                    ...prev,
+                    newMessage,
+                  ]);
+
+                  socketRef.current.emit(
+                    "send-message",
+                    newMessage
+                  );
+                }}
+              />
+
+              {/* SEND BUTTON */}
               <button
                 onClick={sendMessage}
+                disabled={uploading}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full font-semibold transition"
               >
-                Send
+                {uploading
+                  ? "Uploading..."
+                  : "Send"}
               </button>
             </div>
           </>
@@ -270,12 +452,21 @@ const [showCall, setShowCall] =
               </h2>
 
               <p className="text-gray-500 mt-2">
-                Select a user to start chatting
+                Select a user to start
+                chatting
               </p>
             </div>
           </div>
         )}
       </div>
+
+      {/* VIDEO CALL */}
+      {showCall && (
+        <VideoCall
+          currentUser={currentUser}
+          selectedUser={selectedUser}
+        />
+      )}
     </div>
   );
 };
