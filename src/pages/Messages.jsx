@@ -188,9 +188,9 @@ const Messages = () => {
   };
 
   return (
-    <div className="h-screen flex bg-gray-100 overflow-hidden">
+    <div className="h-screen flex bg-gray-100 overflow-hidden relative">
       {/* SIDEBAR */}
-      <div className="w-[320px] bg-white border-r flex flex-col">
+      <div className="hidden md:flex md:w-[320px] bg-white border-r flex-col">
         {/* HEADER */}
         <div className="p-4 border-b">
           <h1 className="text-2xl font-bold text-blue-600">
@@ -236,8 +236,9 @@ const Messages = () => {
         </div>
       </div>
 
+      
       {/* CHAT AREA */}
-      <div className="flex-1 flex flex-col">
+<div className="flex-1 flex flex-col w-full min-w-0">
         {selectedUser ? (
           <>
             {/* TOP BAR */}
