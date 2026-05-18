@@ -84,6 +84,11 @@ const PostComposer = ({
   const [fontStyle, setFontStyle] =
     useState("font-sans");
 
+  // IMPORTANT: store selected image properly
+const [selectedFile, setSelectedFile] = useState(null);
+const [previewUrl, setPreviewUrl] = useState(null);
+
+
   // ✅ CLOUDINARY
   const { uploadImage } =
     useCloudinaryUpload();
@@ -116,47 +121,34 @@ const PostComposer = ({
   // =========================
 
   const handleEnhance = async () => {
-
-    try {
-
-      if (!selectedFile) {
-
-        alert(
-          "Please select an image first"
-        );
-
-        return;
-      }
-
-      setLoading(true);
-
-      const enhancedUrl =
-        await enhanceImage(
-          selectedFile
-        );
-
-      // Replace selected image
-      setMediaFiles([
-        {
-          url: enhancedUrl,
-          type: "image",
-          enhanced: true,
-        },
-      ]);
-
-      alert("Image enhanced!");
-
-    } catch (err) {
-
-      console.error(err);
-
-      alert("Enhance failed");
-
+  try {
+    if (!selectedFile) {
+      alert("Please select an image first");
+      return;
     }
 
-    setLoading(false);
+    setLoading(true);
 
-  };
+    const enhancedUrl = await enhanceImage(selectedFile);
+
+    const enhancedFile = {
+      url: enhancedUrl,
+      type: "image",
+      enhanced: true,
+    };
+
+    setMediaFiles((prev) => [enhancedFile]);
+
+    setPreviewUrl(enhancedUrl);
+    setSelectedFile(null);
+
+  } catch (err) {
+    console.error(err);
+    alert("Enhance failed");
+  }
+
+  setLoading(false);
+};
 
   // =========================
   // SUBMIT POST
@@ -347,15 +339,13 @@ const PostComposer = ({
       {/* TEXTAREA */}
 
       <textarea
-        rows={expanded ? 4 : 1}
-        value={newPost}
-        onChange={(e) =>
-          setNewPost(e.target.value)
+  value={newPost}
+  onChange={(e) => setNewPost(e.target.value)}
+  className={`w-full p-4 rounded-2xl border ${backgroundStyle}`}
+  style={{ color: textColor }}
+/>
         }
-        onFocus={() =>
-          setExpanded(true)
-        }
-        placeholder={`What's on your mind, ${
+        placeholder={`Upload Video/Picture, ${
           currentUser?.name ||
           "User"
         }?`}
