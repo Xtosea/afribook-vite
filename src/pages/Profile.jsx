@@ -174,7 +174,7 @@ const Profile = () => {
 
     // Send ONLY URLs + text fields to backend
     const response = await fetch(
-      `${API_BASE}/api/users/update-profile`,
+      `${API_BASE}/api/users/${currentUserId}`
       {
         method: "PUT",
 
