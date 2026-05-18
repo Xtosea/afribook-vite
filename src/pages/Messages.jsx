@@ -409,3 +409,155 @@ const Messages = () => {
                           className={`text-[11px] mt-2 ${
                             isMe
                               ? "text-blue-100"
+                              : "text-gray-400"
+                          }`}
+                        >
+                          {new Date(
+                            msg.createdAt
+                          ).toLocaleTimeString(
+                            [],
+                            {
+                              hour: "2-digit",
+                              minute:
+                                "2-digit",
+                            }
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                <div ref={messagesEndRef}></div>
+              </div>
+            </div>
+
+            {/* INPUT AREA */}
+            <div className="bg-white border-t px-3 py-3">
+              <div className="flex items-center gap-2 max-w-4xl mx-auto">
+                {/* FILE PICKER */}
+                <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 px-4 py-3 rounded-full transition">
+                  📎
+
+                  <input
+                    type="file"
+                    accept="image/*,video/*"
+                    hidden
+                    onChange={(e) =>
+                      setMedia(
+                        e.target.files[0]
+                      )
+                    }
+                  />
+                </label>
+
+                {/* INPUT */}
+                <input
+                  type="text"
+                  placeholder="Type message..."
+                  value={text}
+                  onChange={(e) =>
+                    setText(
+                      e.target.value
+                    )
+                  }
+                  onKeyDown={(e) =>
+                    e.key === "Enter" &&
+                    sendMessage()
+                  }
+                  className="flex-1 bg-gray-100 border border-gray-200 rounded-full px-5 py-3 outline-none focus:ring-2 focus:ring-blue-500"
+                />
+
+                {/* VOICE */}
+                <VoiceRecorder
+                  onSend={async (
+                    audioUrl
+                  ) => {
+                    const res =
+                      await fetchWithToken(
+                        `${API_BASE}/messages`,
+                        {
+                          method: "POST",
+                          headers: {
+                            "Content-Type":
+                              "application/json",
+                          },
+                          body: JSON.stringify(
+                            {
+                              receiver:
+                                selectedUser._id,
+                              media:
+                                audioUrl,
+                              mediaType:
+                                "audio",
+                            }
+                          ),
+                        }
+                      );
+
+                    const newMessage =
+                      await res.json();
+
+                    setMessages((prev) => [
+                      ...prev,
+                      newMessage,
+                    ]);
+
+                    socketRef.current.emit(
+                      "send-message",
+                      newMessage
+                    );
+                  }}
+                />
+
+                {/* SEND */}
+                <button
+                  onClick={sendMessage}
+                  disabled={uploading}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-full font-semibold transition"
+                >
+                  {uploading
+                    ? "..."
+                    : "Send"}
+                </button>
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="flex-1 flex items-center justify-center bg-gray-50">
+            <div className="text-center px-6">
+              {/* MOBILE MENU */}
+              <button
+                onClick={() =>
+                  setShowSidebar(true)
+                }
+                className="md:hidden mb-5 bg-blue-600 text-white px-5 py-3 rounded-full"
+              >
+                Open Chats
+              </button>
+
+              <h2 className="text-3xl font-bold text-gray-700">
+                Welcome to Messages
+              </h2>
+
+              <p className="text-gray-500 mt-3">
+                Select a user to start
+                chatting
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* VIDEO CALL */}
+      {showCall && (
+        <VideoCall
+          currentUser={currentUser}
+          selectedUser={selectedUser}
+        />
+      )}
+    </div>
+  );
+};
+
+export default Messages;
