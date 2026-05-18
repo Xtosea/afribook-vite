@@ -136,7 +136,8 @@ const Messages = () => {
   };
 
   return (
-    <div className="h-screen w-full bg-gray-100 overflow-hidden">
+    return (
+  <div className="fixed inset-0 bg-gray-100 overflow-hidden flex">
 
       {/* GRID LAYOUT (THIS FIXES EVERYTHING) */}
       <div className="h-full grid grid-cols-[320px_1fr]">
