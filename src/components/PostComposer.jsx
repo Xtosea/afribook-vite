@@ -32,6 +32,7 @@ const PostComposer = ({
 
   const [tagInput, setTagInput] = useState("");
   const [taggedFriends, setTaggedFriends] = useState([]);
+const [locationSuggestions, setLocationSuggestions] = useState([]);
 
   // ✅ CLOUDINARY
   const { uploadImage } = useCloudinaryUpload();
@@ -240,33 +241,78 @@ const PostComposer = ({
 
           {/* LOCATION */}
 
-          {showLocation && (
+{showLocation && (
 
-            <input
-              value={location}
-              onChange={(e) =>
-                setLocation(e.target.value)
-              }
-              placeholder="Add location..."
-              className="w-full border p-2 rounded-lg"
-            />
+  <div className="relative">
 
-          )}
+    <input
+      value={location}
+      onChange={async (e) => {
 
-          {/* FEELING */}
+        const value = e.target.value;
 
-          {showFeeling && (
+        setLocation(value);
 
-            <input
-              value={feeling}
-              onChange={(e) =>
-                setFeeling(e.target.value)
-              }
-              placeholder="How are you feeling?"
-              className="w-full border p-2 rounded-lg"
-            />
+        if (value.length < 2) {
+          setLocationSuggestions([]);
+          return;
+        }
 
-          )}
+        try {
+
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/search?format=json&q=${value}`
+          );
+
+          const data = await res.json();
+
+          setLocationSuggestions(
+            data.slice(0, 5)
+          );
+
+        } catch (err) {
+
+          console.error(err);
+
+        }
+
+      }}
+      placeholder="Add location..."
+      className="w-full border p-2 rounded-lg"
+    />
+
+    {/* SUGGESTIONS */}
+
+    {locationSuggestions.length > 0 && (
+
+      <div className="absolute z-50 w-full bg-white border rounded-xl shadow-lg mt-1 max-h-60 overflow-y-auto">
+
+        {locationSuggestions.map((item) => (
+
+          <button
+            key={item.place_id}
+            type="button"
+            onClick={() => {
+
+              setLocation(item.display_name);
+
+              setLocationSuggestions([]);
+
+            }}
+            className="w-full text-left px-4 py-3 hover:bg-gray-100 text-sm"
+          >
+            📍 {item.display_name}
+          </button>
+
+        ))}
+
+      </div>
+
+    )}
+
+  </div>
+
+)}
 
           {/* TAG */}
 
