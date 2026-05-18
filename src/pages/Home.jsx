@@ -251,7 +251,7 @@ for (let file of mediaFiles) {
   } else {  
 
     // VIDEO → R2  
-    await validateVideoDuration(file, 60);  
+    await validateVideoDuration(file, 180); 
 
      url = await uploadVideo(file);  
 
