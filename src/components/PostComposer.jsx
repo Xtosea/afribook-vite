@@ -640,46 +640,48 @@ const PostComposer = ({
 
   {/* TEXT COLORS */}
 
-  <div className="flex gap-3 flex-wrap items-center">
+<div className="flex gap-3 flex-wrap relative z-50">
 
-    <button
-      type="button"
-      onClick={() => setTextColor("#000000")}
-      className="w-10 h-10 rounded-full bg-black border-2 border-gray-300 cursor-pointer active:scale-95"
-    />
+  <button
+    type="button"
+    onClick={() => setTextColor("#000000")}
+    className="w-10 h-10 rounded-full border-2 border-gray-300 bg-black cursor-pointer"
+  />
 
-    <button
-      type="button"
-      onClick={() => setTextColor("#ffffff")}
-      className="w-10 h-10 rounded-full bg-white border-2 border-gray-400 cursor-pointer active:scale-95"
-    />
+  <button
+    type="button"
+    onClick={() => setTextColor("#ffffff")}
+    className="w-10 h-10 rounded-full border-2 border-gray-300 bg-white cursor-pointer"
+  />
 
-    <button
-      type="button"
-      onClick={() => setTextColor("#ef4444")}
-      className="w-10 h-10 rounded-full bg-red-500 border-2 border-white cursor-pointer active:scale-95"
-    />
+  <button
+    type="button"
+    onClick={() => {
+      console.log("RED CLICKED");
+      setTextColor("#ef4444");
+    }}
+    className="w-10 h-10 rounded-full border-2 border-gray-300 bg-red-500 cursor-pointer relative z-50"
+  />
 
-    <button
-      type="button"
-      onClick={() => setTextColor("#3b82f6")}
-      className="w-10 h-10 rounded-full bg-blue-500 border-2 border-white cursor-pointer active:scale-95"
-    />
+  <button
+    type="button"
+    onClick={() => {
+      console.log("BLUE CLICKED");
+      setTextColor("#3b82f6");
+    }}
+    className="w-10 h-10 rounded-full border-2 border-gray-300 bg-blue-500 cursor-pointer relative z-50"
+  />
 
-    <button
-      type="button"
-      onClick={() => setTextColor("#22c55e")}
-      className="w-10 h-10 rounded-full bg-green-500 border-2 border-white cursor-pointer active:scale-95"
-    />
+  <button
+    type="button"
+    onClick={() => {
+      console.log("GREEN CLICKED");
+      setTextColor("#22c55e");
+    }}
+    className="w-10 h-10 rounded-full border-2 border-gray-300 bg-green-500 cursor-pointer relative z-50"
+  />
 
-    <button
-      type="button"
-      onClick={() => setTextColor("#a855f7")}
-      className="w-10 h-10 rounded-full bg-purple-500 border-2 border-white cursor-pointer active:scale-95"
-    />
-
-  </div>
-
+</div>
   {/* BACKGROUND OPTIONS */}
 
   <div className="flex gap-2 flex-wrap">
