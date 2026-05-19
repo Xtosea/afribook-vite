@@ -322,6 +322,9 @@ return (
 
     <StoryBar user={currentUser} stories={stories} />  
 
+
+<SuggestedFriends limit={10} />
+
 {/* Adsterra 1*/}  
 <Adsterra containerId="container-ad-top" />
 
@@ -333,6 +336,9 @@ return (
     setPosts((prev) => [post, ...prev]);
   }}
 />
+
+<SuggestedFriends limit={5} />
+
     {/* POSTS */}
 <div ref={feedRef} className="space-y-4">
   {loadingPosts ? (
@@ -350,7 +356,13 @@ return (
             currentUserId={currentUserId}
             setVideoRefs={setVideoRefs}
           />
+
+        
         </Suspense>
+
+      {(index + 1) === 3 && (
+  <SuggestedFriends limit={15} />
+)}
 
         {/* ADSTERRA 2 */}
         {(index + 1) === 4 && (
