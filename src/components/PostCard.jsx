@@ -332,6 +332,7 @@ return (
     })}
   </div>
 )}
+            
             ) : (
               <img
                 key={i}
