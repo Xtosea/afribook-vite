@@ -239,7 +239,7 @@ const Messages = () => {
   };
 
   return (
-    <div className="flex h-200 bg-gray-100 overflow-hidden">
+    <div className="flex h-150 bg-gray-100 overflow-hidden">
       {/* MOBILE OVERLAY */}
       {showSidebar && (
         <div
