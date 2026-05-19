@@ -77,8 +77,7 @@ const Messages = () => {
     const fetchUsers = async () => {
       try {
         const res = await fetchWithToken(
-          `${API_BASE}/users`
-        );
+         `${API_BASE}/api/messages/${userId}`
 
         const data = await res.json();
 
@@ -95,7 +94,7 @@ const Messages = () => {
   const loadMessages = async (userId) => {
     try {
       const res = await fetchWithToken(
-        `${API_BASE}/messages/${userId}`
+        `${API_BASE}/api/messages/${userId}`
       );
 
       const data = await res.json();
@@ -164,7 +163,7 @@ const Messages = () => {
 
       // SAVE MESSAGE
       const res = await fetchWithToken(
-        `${API_BASE}/messages`,
+        `${API_BASE}/api/messages`,
         {
           method: "POST",
           headers: {
