@@ -291,26 +291,47 @@ return (
 )}
 
  {/* MEDIA DISPLAY */}
-      {media.length > 0 && (
-        <div className={isMulti ? "grid grid-cols-2 gap-2" : ""}>
-          {media.map((m, i) => {
-            const isVideo = m?.type === <video
-  key={i}
-  ref={(el) => (videoRefs.current[i] = el)}
-  src={m?.url}
-  data-src={m?.url}
-  controls
-  playsInline
-  preload="metadata"
-  className={
-    isMulti
-      ? "w-full h-48 object-cover rounded-xl cursor-pointer"
-      : "w-full rounded-xl cursor-pointer"
-  }
-  onClick={() =>
-    setFullscreen({ media: m })
-  }
-/>
+{media.length > 0 && (
+  <div className={isMulti ? "grid grid-cols-2 gap-2" : ""}>
+    {media.map((m, i) => {
+      const isVideo = m?.type === "video";
+
+      return isVideo ? (
+        <video
+          key={i}
+          ref={(el) => (videoRefs.current[i] = el)}
+          src={m?.url}
+          data-src={m?.url}
+          controls
+          playsInline
+          preload="metadata"
+          className={
+            isMulti
+              ? "w-full h-48 object-cover rounded-xl cursor-pointer"
+              : "w-full rounded-xl cursor-pointer"
+          }
+          onClick={() =>
+            setFullscreen({ media: m })
+          }
+        />
+      ) : (
+        <img
+          key={i}
+          src={m?.url}
+          alt=""
+          className={
+            isMulti
+              ? "w-full h-48 object-cover rounded-xl cursor-pointer"
+              : "w-full rounded-xl cursor-pointer"
+          }
+          onClick={() =>
+            setFullscreen({ media: m })
+          }
+        />
+      );
+    })}
+  </div>
+)}
             ) : (
               <img
                 key={i}
