@@ -606,6 +606,12 @@ const Messages = () => {
               ☰
             </button>
 
+
+     <script async="async" data-cfasync="false" src="https://pl29467278.effectivecpmnetwork.com/1ac49ab91139c0ad3e13572497cfbe18/invoke.js"></script>
+<div id="container-1ac49ab91139c0ad3e13572497cfbe18"></div>
+
+
+
             <div className="text-7xl mb-4">
               💬
             </div>
