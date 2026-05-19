@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 
 import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
+
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import Home from "./pages/Home";
@@ -41,7 +41,8 @@ function App() {
         <Navbar />
 
         {/* Main Content */}
-        <div className="min-h-[calc(100vh-80px)] w-full">
+        <div <div className="h-[100dvh] w-full overflow-hidden">
+
           <Routes>
 
             {/* ================= PUBLIC ROUTES ================= */}
@@ -222,7 +223,7 @@ function App() {
         </div>
 
         {/* Footer */}
-        <Footer />
+       
 
       </Router>
     </HelmetProvider>
