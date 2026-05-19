@@ -1,4 +1,3 @@
-JSX
 import React, {
   useEffect,
   useState,
