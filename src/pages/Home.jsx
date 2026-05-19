@@ -325,8 +325,7 @@ return (
 
 
 
-{/* Adsterra 1*/}  
-<Adsterra containerId="container-ad-top" />
+
 
     {/* CREATE POST */}  
    <PostComposer
