@@ -238,6 +238,32 @@ const Messages = () => {
     }
   };
 
+
+
+/* PUT IT HERE 
+Adsterra*/
+useEffect(() => {
+  const script = document.createElement("script");
+
+  script.src =
+    "https://pl29467278.effectivecpmnetwork.com/1ac49ab91139c0ad3e13572497cfbe18/invoke.js";
+
+  script.async = true;
+
+  script.setAttribute(
+    "data-cfasync",
+    "false"
+  );
+
+  document.body.appendChild(script);
+
+  return () => {
+    document.body.removeChild(script);
+  };
+}, []);
+
+
+
   return (
     <div className="flex h-100 bg-gray-100 overflow-hidden">
       {/* MOBILE OVERLAY */}
@@ -607,14 +633,15 @@ const Messages = () => {
             </button>
 
 
-     <script async="async" data-cfasync="false" src="https://pl29467278.effectivecpmnetwork.com/1ac49ab91139c0ad3e13572497cfbe18/invoke.js"></script>
-<div id="container-1ac49ab91139c0ad3e13572497cfbe18"></div>
-
-
-
             <div className="text-7xl mb-4">
               💬
             </div>
+
+  <div
+  id="container-1ac49ab91139c0ad3e13572497cfbe18"
+  className="my-4"
+></div>
+
 
             <div className="text-center px-4">
               <h2 className="text-3xl font-bold text-gray-700">
