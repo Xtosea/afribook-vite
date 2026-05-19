@@ -206,7 +206,7 @@ useEffect(() => {
 }, [media]);
 
 
-      }, [media]);
+      
 
 return (
   <div className="bg-white rounded-xl shadow p-3 space-y-3">
