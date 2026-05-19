@@ -333,18 +333,7 @@ return (
   </div>
 )}
             
-            ) : (
-              <img
-                key={i}
-                src={m?.url}
-                alt=""
-                className={isMulti ? "w-full h-48 object-cover rounded-xl cursor-pointer" : "w-full rounded-xl cursor-pointer"}
-                onClick={() => setFullscreen({ media: m })}
-              />
-            );
-          })}
-        </div>
-      )}
+           
 
       {/* FULLSCREEN VIEW */}
       {fullscreen && (
