@@ -13,6 +13,7 @@ const Messages = () => {
   const messagesEndRef = useRef(null);
 
   const currentUser = localStorage.getItem("userId");
+  const token = localStorage.getItem("token");
 
   const [friends, setFriends] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -20,7 +21,6 @@ const Messages = () => {
   const [messages, setMessages] = useState([]);
 
   const [text, setText] = useState("");
-
   const [media, setMedia] = useState(null);
 
   const [uploading, setUploading] = useState(false);
@@ -73,40 +73,37 @@ const Messages = () => {
   }, [selectedUser, currentUser]);
 
   // FETCH USERS
-useEffect(() => {
-  const fetchUsers = async () => {
-    try {
-      const data = await fetchWithToken(
-  `${API_BASE}/api/users`,
-  localStorage.getItem("token")
-);
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const data = await fetchWithToken(
+          `${API_BASE}/api/users`,
+          token
+        );
 
-setFriends(data);
+        setFriends(data);
 
-    } catch (err) {
-      console.log(err);
-    }
-  };
+      } catch (err) {
+        console.log(err);
+      }
+    };
 
-  fetchUsers();
-}, []);
+    fetchUsers();
+  }, [token]);
 
   // LOAD MESSAGES
   const loadMessages = async (userId) => {
     try {
       const data = await fetchWithToken(
-  `${API_BASE}/api/messages/${userId}`,
-  localStorage.getItem("token")
-);
-
-setMessages(data);
-
-      const data = await res.json();
+        `${API_BASE}/api/messages/${userId}`,
+        token
+      );
 
       setMessages(data);
 
       // close sidebar on mobile
       setShowSidebar(false);
+
     } catch (err) {
       console.log(err);
     }
@@ -139,9 +136,7 @@ setMessages(data);
         const resourceType =
           media.type.startsWith("video")
             ? "video"
-            : media.type.startsWith(
-                "image"
-              )
+            : media.type.startsWith("image")
             ? "image"
             : "video";
 
@@ -166,26 +161,21 @@ setMessages(data);
       }
 
       // SAVE MESSAGE
-      const newMessage = await fetchWithToken(
-  `${API_BASE}/api/messages`,
-  localStorage.getItem("token"),
-  {
-    method: "POST",
-          headers: {
-            "Content-Type":
-              "application/json",
-          },
-          body: JSON.stringify({
-            receiver:
-              selectedUser._id,
-            text,
-            media: uploadedMedia,
-            mediaType,
-          }),
-        }
-      );
-
-      const newMessage = await res.json();
+      const newMessage =
+        await fetchWithToken(
+          `${API_BASE}/api/messages`,
+          token,
+          {
+            method: "POST",
+            body: JSON.stringify({
+              receiver:
+                selectedUser._id,
+              text,
+              media: uploadedMedia,
+              mediaType,
+            }),
+          }
+        );
 
       setMessages((prev) => [
         ...prev,
@@ -201,6 +191,7 @@ setMessages(data);
       setMedia(null);
 
       setUploading(false);
+
     } catch (err) {
       console.log(err);
       setUploading(false);
@@ -462,42 +453,41 @@ setMessages(data);
                 onSend={async (
                   audioUrl
                 ) => {
-                  const res =
-                    await fetchWithToken(
-                      `${API_BASE}/messages`,
-                      {
-                        method: "POST",
-                        headers: {
-                          "Content-Type":
-                            "application/json",
-                        },
-                        body: JSON.stringify(
-                          {
-                            receiver:
-                              selectedUser._id,
-                            media:
-                              audioUrl,
-                            mediaType:
-                              "audio",
-                          }
-                        ),
-                      }
+                  try {
+                    const newMessage =
+                      await fetchWithToken(
+                        `${API_BASE}/api/messages`,
+                        token,
+                        {
+                          method: "POST",
+                          body: JSON.stringify(
+                            {
+                              receiver:
+                                selectedUser._id,
+                              media:
+                                audioUrl,
+                              mediaType:
+                                "audio",
+                            }
+                          ),
+                        }
+                      );
+
+                    setMessages(
+                      (prev) => [
+                        ...prev,
+                        newMessage,
+                      ]
                     );
 
-                  const newMessage =
-                    await res.json();
+                    socketRef.current.emit(
+                      "send-message",
+                      newMessage
+                    );
 
-                  setMessages(
-                    (prev) => [
-                      ...prev,
-                      newMessage,
-                    ]
-                  );
-
-                  socketRef.current.emit(
-                    "send-message",
-                    newMessage
-                  );
+                  } catch (err) {
+                    console.log(err);
+                  }
                 }}
               />
 
