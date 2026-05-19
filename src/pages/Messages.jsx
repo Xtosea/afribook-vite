@@ -1,6 +1,16 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, {
+  useEffect,
+  useState,
+  useRef,
+} from "react";
+
+import { motion } from "framer-motion";
+
 import { connectSocket } from "../socket";
-import { fetchWithToken, API_BASE } from "../api/api";
+import {
+  fetchWithToken,
+  API_BASE,
+} from "../api/api";
 
 import VideoCall from "../components/VideoCall";
 import VoiceRecorder from "../components/VoiceRecorder";
@@ -12,20 +22,34 @@ const Messages = () => {
   const socketRef = useRef(null);
   const messagesEndRef = useRef(null);
 
-  const currentUser = localStorage.getItem("userId");
-  const token = localStorage.getItem("token");
+  const currentUser =
+    localStorage.getItem("userId");
 
-  const [friends, setFriends] = useState([]);
-  const [selectedUser, setSelectedUser] = useState(null);
+  const token =
+    localStorage.getItem("token");
 
-  const [messages, setMessages] = useState([]);
+  const [friends, setFriends] =
+    useState([]);
+
+  const [selectedUser, setSelectedUser] =
+    useState(null);
+
+  const [messages, setMessages] =
+    useState([]);
 
   const [text, setText] = useState("");
-  const [media, setMedia] = useState(null);
 
-  const [uploading, setUploading] = useState(false);
+  const [media, setMedia] =
+    useState(null);
 
-  const [showCall, setShowCall] = useState(false);
+  const [uploading, setUploading] =
+    useState(false);
+
+  const [showCall, setShowCall] =
+    useState(false);
+
+  const [showVoiceCall, setShowVoiceCall] =
+    useState(false);
 
   const [showSidebar, setShowSidebar] =
     useState(false);
@@ -51,21 +75,25 @@ const Messages = () => {
 
     socket.emit("join", currentUser);
 
-    socket.on("receive-message", (message) => {
-      if (
-        selectedUser &&
-        (message.sender === selectedUser._id ||
-          message.receiver ===
+    socket.on(
+      "receive-message",
+      (message) => {
+        if (
+          selectedUser &&
+          (message.sender ===
             selectedUser._id ||
-          message.sender?._id ===
-            selectedUser._id)
-      ) {
-        setMessages((prev) => [
-          ...prev,
-          message,
-        ]);
+            message.receiver ===
+              selectedUser._id ||
+            message.sender?._id ===
+              selectedUser._id)
+        ) {
+          setMessages((prev) => [
+            ...prev,
+            message,
+          ]);
+        }
       }
-    });
+    );
 
     return () => {
       socket.off("receive-message");
@@ -76,34 +104,35 @@ const Messages = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const data = await fetchWithToken(
-          `${API_BASE}/api/users`,
-          token
-        );
+        const data =
+          await fetchWithToken(
+            `${API_BASE}/api/users`,
+            token
+          );
 
         setFriends(data);
-
       } catch (err) {
         console.log(err);
       }
     };
 
     fetchUsers();
-  }, [token]);
+  }, []);
 
   // LOAD MESSAGES
-  const loadMessages = async (userId) => {
+  const loadMessages = async (
+    userId
+  ) => {
     try {
-      const data = await fetchWithToken(
-        `${API_BASE}/api/messages/${userId}`,
-        token
-      );
+      const data =
+        await fetchWithToken(
+          `${API_BASE}/api/messages/${userId}`,
+          token
+        );
 
       setMessages(data);
 
-      // close sidebar on mobile
       setShowSidebar(false);
-
     } catch (err) {
       console.log(err);
     }
@@ -111,17 +140,19 @@ const Messages = () => {
 
   // SEND MESSAGE
   const sendMessage = async () => {
-    if (!text.trim() && !media) return;
+    if (!text.trim() && !media)
+      return;
 
     try {
       let uploadedMedia = "";
       let mediaType = "";
 
-      // UPLOAD MEDIA
+      // MEDIA UPLOAD
       if (media) {
         setUploading(true);
 
-        const formData = new FormData();
+        const formData =
+          new FormData();
 
         formData.append("file", media);
 
@@ -134,9 +165,13 @@ const Messages = () => {
           "YOUR_CLOUD_NAME";
 
         const resourceType =
-          media.type.startsWith("video")
+          media.type.startsWith(
+            "video"
+          )
             ? "video"
-            : media.type.startsWith("image")
+            : media.type.startsWith(
+                "image"
+              )
             ? "image"
             : "video";
 
@@ -160,7 +195,6 @@ const Messages = () => {
             : "image";
       }
 
-      // SAVE MESSAGE
       const newMessage =
         await fetchWithToken(
           `${API_BASE}/api/messages`,
@@ -189,9 +223,7 @@ const Messages = () => {
 
       setText("");
       setMedia(null);
-
       setUploading(false);
-
     } catch (err) {
       console.log(err);
       setUploading(false);
@@ -199,7 +231,7 @@ const Messages = () => {
   };
 
   return (
-    <div className="h-screen flex bg-gray-100 overflow-hidden relative">
+    <div className="h-screen flex bg-gradient-to-b from-gray-100 to-gray-200 overflow-hidden relative">
       {/* MOBILE OVERLAY */}
       {showSidebar && (
         <div
@@ -212,19 +244,18 @@ const Messages = () => {
 
       {/* SIDEBAR */}
       <div
-        className={`fixed md:relative z-40 md:z-0 top-0 left-0 h-full w-[300px] bg-white border-r flex flex-col transform transition-transform duration-300 ${
+        className={`fixed md:relative z-40 md:z-0 top-0 left-0 h-full w-[320px] bg-white border-r shadow-2xl flex flex-col transform transition-transform duration-300 ${
           showSidebar
             ? "translate-x-0"
             : "-translate-x-full md:translate-x-0"
         }`}
       >
         {/* HEADER */}
-        <div className="p-4 border-b flex items-center justify-between">
+        <div className="p-4 border-b flex items-center justify-between bg-white sticky top-0 z-10">
           <h1 className="text-2xl font-bold text-blue-600">
             Messages
           </h1>
 
-          {/* CLOSE BUTTON MOBILE */}
           <button
             onClick={() =>
               setShowSidebar(false)
@@ -238,30 +269,35 @@ const Messages = () => {
         {/* USERS */}
         <div className="flex-1 overflow-y-auto">
           {friends.map((user) => (
-            <div
+            <motion.div
+              whileHover={{ scale: 1.01 }}
               key={user._id}
               onClick={() => {
                 setSelectedUser(user);
                 loadMessages(user._id);
               }}
-              className={`flex items-center gap-3 p-4 cursor-pointer transition hover:bg-gray-100 ${
+              className={`flex items-center gap-3 p-4 cursor-pointer transition border-b hover:bg-gray-100 ${
                 selectedUser?._id ===
                 user._id
                   ? "bg-blue-50"
                   : ""
               }`}
             >
-              <img
-                src={
-                  user.profilePic ||
-                  defaultProfile
-                }
-                alt=""
-                className="w-12 h-12 rounded-full object-cover"
-              />
+              <div className="relative">
+                <img
+                  src={
+                    user.profilePic ||
+                    defaultProfile
+                  }
+                  alt=""
+                  className="w-14 h-14 rounded-full object-cover"
+                />
+
+                <div className="absolute bottom-1 right-1 w-3 h-3 rounded-full bg-green-500 border-2 border-white animate-pulse" />
+              </div>
 
               <div>
-                <h2 className="font-semibold">
+                <h2 className="font-semibold text-gray-800">
                   {user.name}
                 </h2>
 
@@ -269,7 +305,7 @@ const Messages = () => {
                   Tap to chat
                 </p>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>
@@ -279,9 +315,8 @@ const Messages = () => {
         {selectedUser ? (
           <>
             {/* TOP BAR */}
-            <div className="bg-white border-b p-4 flex items-center justify-between shadow-sm">
+            <div className="bg-white border-b p-4 flex items-center justify-between shadow-sm sticky top-0 z-10">
               <div className="flex items-center gap-3">
-                {/* MENU BUTTON */}
                 <button
                   onClick={() =>
                     setShowSidebar(true)
@@ -301,25 +336,42 @@ const Messages = () => {
                 />
 
                 <div>
-                  <h2 className="font-bold text-lg">
+                  <h2 className="font-bold text-lg text-gray-800">
                     {selectedUser.name}
                   </h2>
 
-                  <p className="text-sm text-green-500">
-                    Online
-                  </p>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+
+                    <p className="text-sm text-green-500">
+                      Online
+                    </p>
+                  </div>
                 </div>
               </div>
 
-              {/* VIDEO CALL BUTTON */}
-              <button
-                onClick={() =>
-                  setShowCall(true)
-                }
-                className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-full"
-              >
-                📹
-              </button>
+              {/* CALL BUTTONS */}
+              <div className="flex items-center gap-3">
+                {/* VOICE CALL */}
+                <button
+                  onClick={() =>
+                    setShowVoiceCall(true)
+                  }
+                  className="bg-blue-500 hover:bg-blue-600 text-white w-11 h-11 rounded-full flex items-center justify-center shadow-lg transition"
+                >
+                  📞
+                </button>
+
+                {/* VIDEO CALL */}
+                <button
+                  onClick={() =>
+                    setShowCall(true)
+                  }
+                  className="bg-green-500 hover:bg-green-600 text-white w-11 h-11 rounded-full flex items-center justify-center shadow-lg transition"
+                >
+                  📹
+                </button>
+              </div>
             </div>
 
             {/* MESSAGES */}
@@ -332,8 +384,19 @@ const Messages = () => {
                     currentUser;
 
                 return (
-                  <div
+                  <motion.div
                     key={index}
+                    initial={{
+                      opacity: 0,
+                      y: 10,
+                    }}
+                    animate={{
+                      opacity: 1,
+                      y: 0,
+                    }}
+                    transition={{
+                      duration: 0.2,
+                    }}
                     className={`flex ${
                       isMe
                         ? "justify-end"
@@ -341,10 +404,10 @@ const Messages = () => {
                     }`}
                   >
                     <div
-                      className={`max-w-[80%] px-4 py-3 rounded-2xl shadow-sm ${
+                      className={`max-w-[80%] px-4 py-3 rounded-3xl shadow-md backdrop-blur-sm ${
                         isMe
-                          ? "bg-blue-600 text-white rounded-br-sm"
-                          : "bg-white text-gray-800 rounded-bl-sm"
+                          ? "bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-br-md"
+                          : "bg-white text-gray-800 rounded-bl-md"
                       }`}
                     >
                       {/* IMAGE */}
@@ -353,7 +416,7 @@ const Messages = () => {
                         <img
                           src={msg.media}
                           alt=""
-                          className="rounded-xl mb-2 max-w-full"
+                          className="rounded-2xl mb-2 max-w-full"
                         />
                       )}
 
@@ -362,7 +425,7 @@ const Messages = () => {
                         "video" && (
                         <video
                           controls
-                          className="rounded-xl mb-2 max-w-full"
+                          className="rounded-2xl mb-2 max-w-full"
                         >
                           <source
                             src={msg.media}
@@ -385,7 +448,9 @@ const Messages = () => {
 
                       {/* TEXT */}
                       {msg.text && (
-                        <p>{msg.text}</p>
+                        <p className="break-words">
+                          {msg.text}
+                        </p>
                       )}
 
                       {/* TIME */}
@@ -408,7 +473,7 @@ const Messages = () => {
                         )}
                       </p>
                     </div>
-                  </div>
+                  </motion.div>
                 );
               })}
 
@@ -416,9 +481,9 @@ const Messages = () => {
             </div>
 
             {/* INPUT AREA */}
-            <div className="bg-white border-t p-3 flex items-center gap-2">
+            <div className="bg-white/90 backdrop-blur-md border-t p-3 flex items-center gap-2 sticky bottom-0">
               {/* FILE PICKER */}
-              <label className="cursor-pointer bg-gray-200 hover:bg-gray-300 px-4 py-3 rounded-full transition">
+              <label className="cursor-pointer bg-gray-200 hover:bg-gray-300 w-12 h-12 rounded-full flex items-center justify-center text-xl transition shadow-md">
                 📎
 
                 <input
@@ -445,7 +510,7 @@ const Messages = () => {
                   e.key === "Enter" &&
                   sendMessage()
                 }
-                className="flex-1 border rounded-full px-5 py-3 outline-none focus:ring-2 focus:ring-blue-500"
+                className="flex-1 bg-gray-100 rounded-full px-5 py-3 outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 shadow-inner"
               />
 
               {/* VOICE NOTE */}
@@ -484,7 +549,6 @@ const Messages = () => {
                       "send-message",
                       newMessage
                     );
-
                   } catch (err) {
                     console.log(err);
                   }
@@ -495,17 +559,20 @@ const Messages = () => {
               <button
                 onClick={sendMessage}
                 disabled={uploading}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-full font-semibold transition"
+                className="bg-gradient-to-r from-blue-500 to-blue-700 hover:scale-105 active:scale-95 text-white px-6 py-3 rounded-full font-semibold shadow-lg transition duration-200 flex items-center justify-center min-w-[90px]"
               >
-                {uploading
-                  ? "..."
-                  : "Send"}
+                {uploading ? (
+                  <span className="animate-pulse">
+                    Uploading...
+                  </span>
+                ) : (
+                  "Send"
+                )}
               </button>
             </div>
           </>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center bg-gray-50">
-            {/* MOBILE MENU BUTTON */}
+          <div className="flex-1 flex flex-col items-center justify-center bg-gray-50 relative">
             <button
               onClick={() =>
                 setShowSidebar(true)
@@ -515,14 +582,17 @@ const Messages = () => {
               ☰
             </button>
 
+            <div className="text-7xl mb-4">
+              💬
+            </div>
+
             <div className="text-center px-4">
-              <h2 className="text-2xl font-bold text-gray-700">
+              <h2 className="text-3xl font-bold text-gray-700">
                 Welcome to Messages
               </h2>
 
-              <p className="text-gray-500 mt-2">
-                Select a user to start
-                chatting
+              <p className="text-gray-500 mt-2 text-lg">
+                Select a user to start chatting
               </p>
             </div>
           </div>
@@ -534,7 +604,57 @@ const Messages = () => {
         <VideoCall
           currentUser={currentUser}
           selectedUser={selectedUser}
+          onClose={() =>
+            setShowCall(false)
+          }
         />
+      )}
+
+      {/* VOICE CALL MODAL */}
+      {showVoiceCall && (
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+          <div className="bg-gray-900 text-white rounded-3xl p-8 w-full max-w-sm text-center shadow-2xl">
+            <img
+              src={
+                selectedUser?.profilePic ||
+                defaultProfile
+              }
+              alt=""
+              className="w-28 h-28 rounded-full mx-auto object-cover border-4 border-white"
+            />
+
+            <h2 className="text-2xl font-bold mt-5">
+              {selectedUser?.name}
+            </h2>
+
+            <p className="text-gray-300 mt-2 animate-pulse">
+              Calling...
+            </p>
+
+            {/* CALL CONTROLS */}
+            <div className="flex justify-center gap-5 mt-10">
+              {/* SPEAKER */}
+              <button className="bg-gray-700 hover:bg-gray-600 w-14 h-14 rounded-full text-2xl flex items-center justify-center transition">
+                🔊
+              </button>
+
+              {/* MUTE */}
+              <button className="bg-gray-700 hover:bg-gray-600 w-14 h-14 rounded-full text-2xl flex items-center justify-center transition">
+                🎤
+              </button>
+
+              {/* END */}
+              <button
+                onClick={() =>
+                  setShowVoiceCall(false)
+                }
+                className="bg-red-600 hover:bg-red-700 w-14 h-14 rounded-full text-2xl flex items-center justify-center transition"
+              >
+                ❌
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
