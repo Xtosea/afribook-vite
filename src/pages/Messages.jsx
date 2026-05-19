@@ -482,7 +482,7 @@ const Messages = () => {
 
             {/* INPUT AREA */}
             <div className="bg-white/95 backdrop-blur-md border-t px-2 pt-1 pb-[calc(4px+env(safe-area-inset-bottom))] sticky bottom-0 z-20">
-              <
+              
 <div className="flex items-center gap-1.5 w-full">
                 {/* FILE PICKER */}
                 <label className="flex-shrink-0 cursor-pointer bg-gray-200 hover:bg-gray-300 w-10 h-10 rounded-full flex items-center justify-center text-lg transition shadow-md">
