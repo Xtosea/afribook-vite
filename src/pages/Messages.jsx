@@ -311,12 +311,12 @@ const Messages = () => {
       </div>
 
       {/* CHAT AREA */}
-      <div className="flex-1 flex flex-col w-full">
+      <div className="flex-1 flex flex-col w-full min-w-0">
         {selectedUser ? (
           <>
             {/* TOP BAR */}
             <div className="bg-white border-b p-4 flex items-center justify-between shadow-sm sticky top-0 z-10">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 min-w-0">
                 <button
                   onClick={() =>
                     setShowSidebar(true)
@@ -335,8 +335,8 @@ const Messages = () => {
                   className="w-12 h-12 rounded-full object-cover"
                 />
 
-                <div>
-                  <h2 className="font-bold text-lg text-gray-800">
+                <div className="min-w-0">
+                  <h2 className="font-bold text-lg text-gray-800 truncate">
                     {selectedUser.name}
                   </h2>
 
@@ -351,13 +351,13 @@ const Messages = () => {
               </div>
 
               {/* CALL BUTTONS */}
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 {/* VOICE CALL */}
                 <button
                   onClick={() =>
                     setShowVoiceCall(true)
                   }
-                  className="bg-blue-500 hover:bg-blue-600 text-white w-11 h-11 rounded-full flex items-center justify-center shadow-lg transition"
+                  className="bg-blue-500 hover:bg-blue-600 text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition flex-shrink-0"
                 >
                   📞
                 </button>
@@ -367,7 +367,7 @@ const Messages = () => {
                   onClick={() =>
                     setShowCall(true)
                   }
-                  className="bg-green-500 hover:bg-green-600 text-white w-11 h-11 rounded-full flex items-center justify-center shadow-lg transition"
+                  className="bg-green-500 hover:bg-green-600 text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition flex-shrink-0"
                 >
                   📹
                 </button>
@@ -404,7 +404,7 @@ const Messages = () => {
                     }`}
                   >
                     <div
-                      className={`max-w-[80%] px-4 py-3 rounded-3xl shadow-md backdrop-blur-sm ${
+                      className={`max-w-[85%] px-4 py-3 rounded-3xl shadow-md backdrop-blur-sm break-words ${
                         isMe
                           ? "bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-br-md"
                           : "bg-white text-gray-800 rounded-bl-md"
@@ -481,94 +481,103 @@ const Messages = () => {
             </div>
 
             {/* INPUT AREA */}
-            <div className="bg-white/90 backdrop-blur-md border-t p-3 flex items-center gap-2 sticky bottom-0">
-              {/* FILE PICKER */}
-              <label className="cursor-pointer bg-gray-200 hover:bg-gray-300 w-12 h-12 rounded-full flex items-center justify-center text-xl transition shadow-md">
-                📎
+            <div className="bg-white/95 backdrop-blur-md border-t px-2 py-2 sticky bottom-0">
+              <div className="flex items-center gap-2 w-full">
+                {/* FILE PICKER */}
+                <label className="flex-shrink-0 cursor-pointer bg-gray-200 hover:bg-gray-300 w-10 h-10 rounded-full flex items-center justify-center text-lg transition shadow-md">
+                  📎
 
-                <input
-                  type="file"
-                  accept="image/*,video/*"
-                  hidden
-                  onChange={(e) =>
-                    setMedia(
-                      e.target.files[0]
-                    )
-                  }
-                />
-              </label>
+                  <input
+                    type="file"
+                    accept="image/*,video/*"
+                    hidden
+                    onChange={(e) =>
+                      setMedia(
+                        e.target.files[0]
+                      )
+                    }
+                  />
+                </label>
 
-              {/* TEXT INPUT */}
-              <input
-                type="text"
-                placeholder="Type a message..."
-                value={text}
-                onChange={(e) =>
-                  setText(e.target.value)
-                }
-                onKeyDown={(e) =>
-                  e.key === "Enter" &&
-                  sendMessage()
-                }
-                className="flex-1 bg-gray-100 rounded-full px-5 py-3 outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 shadow-inner"
-              />
+                {/* TEXT INPUT */}
+                <div className="flex-1 min-w-0">
+                  <input
+                    type="text"
+                    placeholder="Type a message..."
+                    value={text}
+                    onChange={(e) =>
+                      setText(e.target.value)
+                    }
+                    onKeyDown={(e) =>
+                      e.key === "Enter" &&
+                      sendMessage()
+                    }
+                    className="w-full bg-gray-100 rounded-full px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 shadow-inner text-sm"
+                  />
+                </div>
 
-              {/* VOICE NOTE */}
-              <VoiceRecorder
-                onSend={async (
-                  audioUrl
-                ) => {
-                  try {
-                    const newMessage =
-                      await fetchWithToken(
-                        `${API_BASE}/api/messages`,
-                        token,
-                        {
-                          method: "POST",
-                          body: JSON.stringify(
+                {/* VOICE NOTE */}
+                <div className="flex-shrink-0">
+                  <VoiceRecorder
+                    onSend={async (
+                      audioUrl
+                    ) => {
+                      try {
+                        const newMessage =
+                          await fetchWithToken(
+                            `${API_BASE}/api/messages`,
+                            token,
                             {
-                              receiver:
-                                selectedUser._id,
-                              media:
-                                audioUrl,
-                              mediaType:
-                                "audio",
+                              method: "POST",
+                              body: JSON.stringify(
+                                {
+                                  receiver:
+                                    selectedUser._id,
+                                  media:
+                                    audioUrl,
+                                  mediaType:
+                                    "audio",
+                                }
+                              ),
                             }
-                          ),
-                        }
-                      );
+                          );
 
-                    setMessages(
-                      (prev) => [
-                        ...prev,
-                        newMessage,
-                      ]
-                    );
+                        setMessages(
+                          (prev) => [
+                            ...prev,
+                            newMessage,
+                          ]
+                        );
 
-                    socketRef.current.emit(
-                      "send-message",
-                      newMessage
-                    );
-                  } catch (err) {
-                    console.log(err);
-                  }
-                }}
-              />
+                        socketRef.current.emit(
+                          "send-message",
+                          newMessage
+                        );
+                      } catch (err) {
+                        console.log(err);
+                      }
+                    }}
+                  />
+                </div>
 
-              {/* SEND BUTTON */}
-              <button
-                onClick={sendMessage}
-                disabled={uploading}
-                className="bg-gradient-to-r from-blue-500 to-blue-700 hover:scale-105 active:scale-95 text-white px-6 py-3 rounded-full font-semibold shadow-lg transition duration-200 flex items-center justify-center min-w-[90px]"
-              >
-                {uploading ? (
-                  <span className="animate-pulse">
-                    Uploading...
-                  </span>
-                ) : (
-                  "Send"
-                )}
-              </button>
+                {/* SEND BUTTON */}
+                <button
+                  onClick={sendMessage}
+                  disabled={uploading}
+                  className="flex-shrink-0 bg-gradient-to-r from-blue-500 to-blue-700 hover:scale-105 active:scale-95 text-white px-4 py-2.5 rounded-full font-semibold shadow-lg transition duration-200 text-sm whitespace-nowrap"
+                >
+                  {uploading
+                    ? "..."
+                    : "Send"}
+                </button>
+              </div>
+
+              {/* SELECTED FILE */}
+              {media && (
+                <div className="mt-2 text-xs text-gray-600 truncate px-2">
+                  📎 {media.name}
+                </div>
+              )}
             </div>
           </>
         ) : (
