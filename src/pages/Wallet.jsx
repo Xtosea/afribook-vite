@@ -47,27 +47,64 @@ const Wallet = () => {
   if (!wallet) return <div>Loading...</div>;
 
   return (
-    <div className="p-4 text-white">
+    <div className="bg-gray-900 p-4 rounded mb-4 space-y-2">
 
-      <h1 className="text-2xl font-bold mb-4">
-        Wallet
-      </h1>
+  <p>
+    Total Points: {wallet.points}
+  </p>
 
-      <div className="bg-gray-900 p-4 rounded mb-4">
-        <p>Points: {wallet.points}</p>
-        <p>Balance: ₦{wallet.balance}</p>
-        <p>Total Earned: ₦{wallet.lifetimeEarned}</p>
-      </div>
+  <p>
+    Balance: ₦{wallet.balance}
+  </p>
 
-      <button
-        onClick={convert}
-        disabled={loading}
-        className="bg-green-500 px-4 py-2 rounded"
-      >
-        Convert Points
-      </button>
+  <p>
+    Lifetime Earned:
+    ₦{wallet.lifetimeEarned}
+  </p>
 
-    </div>
+  <hr />
+
+  <p>
+    Story Likes:
+    {wallet.storyLikes}
+  </p>
+
+  <p>
+    Story Views:
+    {wallet.storyViews}
+  </p>
+
+  <p>
+    Reel Likes:
+    {wallet.reelLikes}
+  </p>
+
+  <p>
+    Reel Views:
+    {wallet.reelViews}
+  </p>
+
+  <p>
+    Video Likes:
+    {wallet.videoLikes}
+  </p>
+
+  <p>
+    Video Views:
+    {wallet.videoViews}
+  </p>
+
+  <p>
+    Referral Points:
+    {wallet.referralPoints}
+  </p>
+
+  <p>
+    Leaderboard Points:
+    {wallet.leaderboardPoints}
+  </p>
+
+</div>
   );
 };
 
