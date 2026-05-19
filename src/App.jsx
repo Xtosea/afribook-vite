@@ -41,7 +41,7 @@ function App() {
         <Navbar />
 
         {/* Main Content */}
-        <div className="h-[100dvh] w-full overflow-hidden">
+        <div className="min-h-[calc(100vh-80px)] w-full">
 
           <Routes>
 
