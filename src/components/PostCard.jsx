@@ -131,10 +131,28 @@ const PostCard = ({ post, currentUserId }) => {
         entries.forEach(entry => {
           const video = entry.target;
           if (entry.isIntersecting) {
-            video.play().catch(() => {});
-          } else {
-            video.pause();
-          }
+
+  video.muted = false;
+
+  const playPromise =
+    video.play();
+
+  if (playPromise !== undefined) {
+    playPromise.catch(() => {
+
+      // Browser blocked autoplay with sound
+      video.muted = true;
+
+      video.play().catch(() => {});
+
+    });
+  }
+
+} else {
+
+  video.pause();
+
+}
         });
       },
       { threshold: 0.5 } // video plays when 50% visible
@@ -201,14 +219,22 @@ const PostCard = ({ post, currentUserId }) => {
             const isVideo = m?.type === "video";
             return isVideo ? (
               <video
-                key={i}
-                ref={el => (videoRefs.current[i] = el)}
-                src={m?.url}
-                controls
-                muted
-                className={isMulti ? "w-full h-48 object-cover rounded-xl cursor-pointer" : "w-full rounded-xl cursor-pointer"}
-                onClick={() => setFullscreen({ media: m })}
-              />
+  key={i}
+  ref={el => (videoRefs.current[i] = el)}
+  src={m?.url}
+  controls
+  playsInline
+  autoPlay
+  loop
+  className={
+    isMulti
+      ? "w-full h-48 object-cover rounded-xl cursor-pointer"
+      : "w-full rounded-xl cursor-pointer"
+  }
+  onClick={() =>
+    setFullscreen({ media: m })
+  }
+/>
             ) : (
               <img
                 key={i}
