@@ -481,7 +481,7 @@ const Messages = () => {
             </div>
 
             {/* INPUT AREA */}
-            <div className="bg-white/95 backdrop-blur-md border-t px-2 py-2 sticky bottom-0">
+            <div className="bg-white/95 backdrop-blur-md border-t px-2 pt-2 pb-[calc(8px+env(safe-area-inset-bottom))] sticky bottom-0 z-20">
               <div className="flex items-center gap-2 w-full">
                 {/* FILE PICKER */}
                 <label className="flex-shrink-0 cursor-pointer bg-gray-200 hover:bg-gray-300 w-10 h-10 rounded-full flex items-center justify-center text-lg transition shadow-md">
