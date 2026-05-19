@@ -231,7 +231,7 @@ const Messages = () => {
   };
 
   return (
-    <div className="h-100 flex bg-gradient-to-b from-gray-100 to-gray-200 overflow-hidden relative">
+    <div className="h-full flex bg-gradient-to-b from-gray-100 to-gray-200 overflow-hidden relative">
       {/* MOBILE OVERLAY */}
       {showSidebar && (
         <div
