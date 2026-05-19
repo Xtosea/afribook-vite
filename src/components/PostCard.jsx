@@ -132,48 +132,61 @@ useEffect(() => {
       entries.forEach((entry) => {
         const video = entry.target;
 
-        // VIDEO IS VISIBLE
-        if (entry.isIntersecting && entry.intersectionRatio >= 0.6) {
+        // VIDEO VISIBLE
+        if (
+          entry.isIntersecting &&
+          entry.intersectionRatio >= 0.7
+        ) {
 
-          // pause every other video first
+          // STOP OTHER VIDEOS
           videoRefs.current.forEach((v) => {
             if (v && v !== video) {
               v.pause();
               v.currentTime = v.currentTime;
+              v.muted = true;
             }
           });
 
-          // PLAY CURRENT VIDEO
-          video.muted = true;
+          // PLAY CURRENT VIDEO WITH SOUND
+          video.muted = false;
 
           const playPromise = video.play();
 
           if (playPromise !== undefined) {
-            playPromise.catch(() => {});
+            playPromise.catch(() => {
+
+              // Browser may require interaction
+              video.muted = true;
+
+              video.play().catch(() => {});
+            });
           }
 
         } else {
 
-          // FULL PAUSE
+          // FULL STOP WHEN OUT OF SCREEN
           video.pause();
 
           // REMOVE AUDIO SESSION
           video.muted = true;
 
+          // FORCE RELEASE AUDIO ON MOBILE
+          video.currentTime =
+            video.currentTime;
         }
       });
     },
     {
-      threshold: [0, 0.6, 1],
+      threshold: [0, 0.7, 1],
     }
   );
 
-  // OBSERVE VIDEOS
+  // OBSERVE
   videoRefs.current.forEach((video) => {
     if (video) observer.observe(video);
   });
 
-  // PAGE HIDDEN
+  // APP BACKGROUND / TAB HIDDEN
   const handleVisibility = () => {
     if (document.hidden) {
       videoRefs.current.forEach((video) => {
@@ -185,18 +198,33 @@ useEffect(() => {
     }
   };
 
+  // SCREEN LOCK / APP MINIMIZE
+  window.addEventListener(
+    "blur",
+    handleVisibility
+  );
+
   document.addEventListener(
     "visibilitychange",
     handleVisibility
   );
 
   return () => {
+
     videoRefs.current.forEach((video) => {
       if (video) {
         observer.unobserve(video);
+
         video.pause();
+
+        video.muted = true;
       }
     });
+
+    window.removeEventListener(
+      "blur",
+      handleVisibility
+    );
 
     document.removeEventListener(
       "visibilitychange",
@@ -204,8 +232,6 @@ useEffect(() => {
     );
   };
 }, [media]);
-
-
       
 
 return (
