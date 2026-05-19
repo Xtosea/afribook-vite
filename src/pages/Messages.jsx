@@ -501,113 +501,93 @@ const Messages = () => {
             </div>
 
             {/* INPUT AREA */}
-            <div className="sticky bottom-0 z-30 bg-white border-t px-2 py-2 backdrop-blur-md">
-              <div className="flex items-center gap-2">
-                {/* FILE */}
-                <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 w-11 h-11 rounded-full flex items-center justify-center text-xl flex-shrink-0">
-                  📎
+<div className="sticky bottom-[70px] md:bottom-0 z-30 bg-white border-t px-2 py-2 backdrop-blur-md shadow-lg">
+  <div className="flex items-center gap-2">
 
-                  <input
-                    type="file"
-                    accept="image/*,video/*"
-                    hidden
-                    onChange={(e) =>
-                      setMedia(
-                        e.target
-                          .files[0]
-                      )
-                    }
-                  />
-                </label>
+    {/* SEND BUTTON */}
+    <button
+      onClick={sendMessage}
+      disabled={uploading}
+      className="flex-shrink-0 bg-gradient-to-r from-blue-500 to-blue-700 hover:scale-105 active:scale-95 text-white px-4 py-3 rounded-full font-semibold shadow-lg transition"
+    >
+      {uploading ? "..." : "➤"}
+    </button>
 
-                {/* TEXT */}
-                <input
-                  type="text"
-                  placeholder="Type a message..."
-                  value={text}
-                  onChange={(e) =>
-                    setText(
-                      e.target.value
-                    )
-                  }
-                  onKeyDown={(e) =>
-                    e.key ===
-                      "Enter" &&
-                    sendMessage()
-                  }
-                  className="flex-1 bg-gray-100 rounded-full px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                />
+    {/* VOICE NOTE */}
+    <div className="flex-shrink-0">
+      <VoiceRecorder
+        onSend={async (audioUrl) => {
+          try {
+            const newMessage =
+              await fetchWithToken(
+                `${API_BASE}/api/messages`,
+                token,
+                {
+                  method: "POST",
+                  body: JSON.stringify({
+                    receiver:
+                      selectedUser._id,
+                    media: audioUrl,
+                    mediaType: "audio",
+                  }),
+                }
+              );
 
-                {/* VOICE */}
-                <div className="flex-shrink-0">
-                  <VoiceRecorder
-                    onSend={async (
-                      audioUrl
-                    ) => {
-                      try {
-                        const newMessage =
-                          await fetchWithToken(
-                            `${API_BASE}/api/messages`,
-                            token,
-                            {
-                              method:
-                                "POST",
-                              body: JSON.stringify(
-                                {
-                                  receiver:
-                                    selectedUser._id,
-                                  media:
-                                    audioUrl,
-                                  mediaType:
-                                    "audio",
-                                }
-                              ),
-                            }
-                          );
+            setMessages((prev) => [
+              ...prev,
+              newMessage,
+            ]);
 
-                        setMessages(
-                          (prev) => [
-                            ...prev,
-                            newMessage,
-                          ]
-                        );
+            socketRef.current.emit(
+              "send-message",
+              newMessage
+            );
+          } catch (err) {
+            console.log(err);
+          }
+        }}
+      />
+    </div>
 
-                        socketRef.current.emit(
-                          "send-message",
-                          newMessage
-                        );
-                      } catch (err) {
-                        console.log(
-                          err
-                        );
-                      }
-                    }}
-                  />
-                </div>
+    {/* TEXT INPUT */}
+    <input
+      type="text"
+      placeholder="Type a message..."
+      value={text}
+      onChange={(e) =>
+        setText(e.target.value)
+      }
+      onKeyDown={(e) =>
+        e.key === "Enter" &&
+        sendMessage()
+      }
+      className="flex-1 bg-gray-100 rounded-full px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+    />
 
-                {/* SEND */}
-                <button
-                  onClick={
-                    sendMessage
-                  }
-                  disabled={
-                    uploading
-                  }
-                  className="bg-gradient-to-r from-blue-500 to-blue-700 hover:scale-105 active:scale-95 text-white px-5 py-3 rounded-full font-semibold shadow-lg transition"
-                >
-                  {uploading
-                    ? "..."
-                    : "Send"}
-                </button>
-              </div>
+    {/* FILE PICKER */}
+    <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 w-11 h-11 rounded-full flex items-center justify-center text-xl flex-shrink-0">
+      📎
 
-              {/* FILE NAME */}
-              {media && (
-                <div className="mt-2 text-xs text-gray-500 truncate px-2">
-                  📎 {media.name}
-                </div>
-              )}
-            </div>
+      <input
+        type="file"
+        accept="image/*,video/*"
+        hidden
+        onChange={(e) =>
+          setMedia(
+            e.target.files[0]
+          )
+        }
+      />
+    </label>
+  </div>
+
+  {/* FILE NAME */}
+  {media && (
+    <div className="mt-2 text-xs text-gray-500 truncate px-2">
+      📎 {media.name}
+    </div>
+  )}
+</div>>
           </>
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center bg-gray-50 relative">
