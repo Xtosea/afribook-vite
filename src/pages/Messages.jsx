@@ -76,13 +76,12 @@ const Messages = () => {
 useEffect(() => {
   const fetchUsers = async () => {
     try {
-      const res = await fetchWithToken(
-        `${API_BASE}/api/users`
-      );
+      const data = await fetchWithToken(
+  `${API_BASE}/api/users`,
+  localStorage.getItem("token")
+);
 
-      const data = await res.json();
-
-      setFriends(data);
+setFriends(data);
 
     } catch (err) {
       console.log(err);
@@ -95,9 +94,12 @@ useEffect(() => {
   // LOAD MESSAGES
   const loadMessages = async (userId) => {
     try {
-      const res = await fetchWithToken(
-        `${API_BASE}/api/messages/${userId}`
-      );
+      const data = await fetchWithToken(
+  `${API_BASE}/api/messages/${userId}`,
+  localStorage.getItem("token")
+);
+
+setMessages(data);
 
       const data = await res.json();
 
@@ -164,10 +166,11 @@ useEffect(() => {
       }
 
       // SAVE MESSAGE
-      const res = await fetchWithToken(
-        `${API_BASE}/api/messages`,
-        {
-          method: "POST",
+      const newMessage = await fetchWithToken(
+  `${API_BASE}/api/messages`,
+  localStorage.getItem("token"),
+  {
+    method: "POST",
           headers: {
             "Content-Type":
               "application/json",
