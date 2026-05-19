@@ -124,49 +124,92 @@ const PostCard = ({ post, currentUserId }) => {
   }, [navigate, post]);
 
   /* ================= VIDEO AUTOPLAY ================= */
-  useEffect(() => {
-    if (!videoRefs.current.length) return;
-    const observer = new IntersectionObserver(
-      entries => {
-        entries.forEach(entry => {
-          const video = entry.target;
-          if (entry.isIntersecting) {
+useEffect(() => {
+  if (!videoRefs.current.length) return;
 
-  video.muted = false;
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        const video = entry.target;
 
-  const playPromise =
-    video.play();
+        // VIDEO IS VISIBLE
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.6) {
 
-  if (playPromise !== undefined) {
-    playPromise.catch(() => {
+          // pause every other video first
+          videoRefs.current.forEach((v) => {
+            if (v && v !== video) {
+              v.pause();
+              v.currentTime = v.currentTime;
+            }
+          });
 
-      // Browser blocked autoplay with sound
-      video.muted = true;
+          // PLAY CURRENT VIDEO
+          video.muted = true;
 
-      video.play().catch(() => {});
+          const playPromise = video.play();
 
+          if (playPromise !== undefined) {
+            playPromise.catch(() => {});
+          }
+
+        } else {
+
+          // FULL PAUSE
+          video.pause();
+
+          // REMOVE AUDIO SESSION
+          video.muted = true;
+
+        }
+      });
+    },
+    {
+      threshold: [0, 0.6, 1],
+    }
+  );
+
+  // OBSERVE VIDEOS
+  videoRefs.current.forEach((video) => {
+    if (video) observer.observe(video);
+  });
+
+  // PAGE HIDDEN
+  const handleVisibility = () => {
+    if (document.hidden) {
+      videoRefs.current.forEach((video) => {
+        if (video) {
+          video.pause();
+          video.muted = true;
+        }
+      });
+    }
+  };
+
+  document.addEventListener(
+    "visibilitychange",
+    handleVisibility
+  );
+
+  return () => {
+    videoRefs.current.forEach((video) => {
+      if (video) {
+        observer.unobserve(video);
+        video.pause();
+      }
     });
-  }
 
-} else {
-
-  video.pause();
-
-}
-        });
-      },
-      { threshold: 0.5 } // video plays when 50% visible
+    document.removeEventListener(
+      "visibilitychange",
+      handleVisibility
     );
+  };
+}, [media]);
 
-    videoRefs.current.forEach(video => video && observer.observe(video));
 
-    return () => {
-      videoRefs.current.forEach(video => video && observer.unobserve(video));
-    };
-  }, [videoRefs, media]);
+      }, [media]);
 
-  return (
-    <div className="bg-white rounded-xl shadow p-3 space-y-3">
+return (
+  <div className="bg-white rounded-xl shadow p-3 space-y-3">
 
       {/* HEADER */}
 <div className="flex items-center gap-3">
@@ -218,14 +261,15 @@ const PostCard = ({ post, currentUserId }) => {
           {media.map((m, i) => {
             const isVideo = m?.type === "video";
             return isVideo ? (
-              <video
+              
+<video
   key={i}
-  ref={el => (videoRefs.current[i] = el)}
+  ref={(el) => (videoRefs.current[i] = el)}
   src={m?.url}
   controls
   playsInline
-  autoPlay
-  loop
+  muted
+  preload="metadata"
   className={
     isMulti
       ? "w-full h-48 object-cover rounded-xl cursor-pointer"
