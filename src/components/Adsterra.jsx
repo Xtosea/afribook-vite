@@ -1,27 +1,59 @@
 import { useEffect } from "react";
 
-export default function BannerAd({ containerId }) {
+export default function Adsterra({
+  containerId,
+}) {
+
   useEffect(() => {
-    const existingScript = document.querySelector(
-      `script[src="https://pl29467278.effectivecpmnetwork.com/1ac49ab91139c0ad3e13572497cfbe18/invoke.js"]`
+
+    // CLEAR OLD CONTENT
+    const container =
+      document.getElementById(
+        containerId
+      );
+
+    if (container) {
+      container.innerHTML = "";
+    }
+
+    // CREATE SCRIPT EVERY TIME
+    const script =
+      document.createElement(
+        "script"
+      );
+
+    script.async = true;
+
+    script.setAttribute(
+      "data-cfasync",
+      "false"
     );
 
-    // Prevent loading script multiple times
-    if (!existingScript) {
-      const script = document.createElement("script");
+    script.src =
+      "https://pl29467278.effectivecpmnetwork.com/1ac49ab91139c0ad3e13572497cfbe18/invoke.js";
 
-      script.async = true;
-      script.setAttribute("data-cfasync", "false");
+    // APPEND SCRIPT INSIDE CONTAINER
+    container?.appendChild(script);
 
-      script.src =
-        "https://pl29467278.effectivecpmnetwork.com/1ac49ab91139c0ad3e13572497cfbe18/invoke.js";
+    return () => {
+      if (container) {
+        container.innerHTML = "";
+      }
+    };
 
-      document.body.appendChild(script);
-    }
-  }, []);
+  }, [containerId]);
 
   return (
-    <div className="bg-white rounded-2xl shadow p-2 overflow-hidden">
+    <div
+      className="
+        bg-white
+        rounded-2xl
+        shadow
+        p-2
+        overflow-hidden
+        min-h-[100px]
+      "
+    >
       <p className="text-xs text-gray-400 mb-2">
         Sponsored
       </p>
