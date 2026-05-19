@@ -5,7 +5,9 @@ import { useNavigate } from "react-router-dom";
 const defaultProfile =
   "https://afribook-backend.onrender.com/uploads/profiles/default-profile.png";
 
-const SuggestedFriends = () => {
+const SuggestedFriends = ({
+  limit = 10,
+}) => {
   const navigate = useNavigate();
 
   const [users, setUsers] = useState([]);
@@ -54,11 +56,16 @@ const SuggestedFriends = () => {
           return;
         }
 
-        setUsers(
+        // RANDOMIZE USERS
+        const shuffledUsers =
           Array.isArray(data)
-            ? data
-            : []
-        );
+            ? [...data].sort(
+                () =>
+                  0.5 - Math.random()
+              )
+            : [];
+
+        setUsers(shuffledUsers);
 
       } catch (err) {
 
@@ -174,11 +181,11 @@ const SuggestedFriends = () => {
       {/* LOADING */}
       {loading ? (
 
-        <div className="space-y-3">
+        <div className="flex gap-4 overflow-hidden">
 
-          <div className="h-20 bg-gray-200 rounded-xl animate-pulse"></div>
+          <div className="min-w-[220px] h-48 bg-gray-200 rounded-2xl animate-pulse"></div>
 
-          <div className="h-20 bg-gray-200 rounded-xl animate-pulse"></div>
+          <div className="min-w-[220px] h-48 bg-gray-200 rounded-2xl animate-pulse"></div>
 
         </div>
 
@@ -187,113 +194,117 @@ const SuggestedFriends = () => {
           {/* EMPTY */}
           {users.length === 0 ? (
 
-  <p className="text-gray-500 text-sm">
-    No suggestions right now
-  </p>
+            <p className="text-gray-500 text-sm">
+              No suggestions right now
+            </p>
 
-) : (
+          ) : (
 
-  <div
-    className="
-      flex
-      gap-4
-      overflow-x-auto
-      scrollbar-hide
-      pb-2
-    "
-  >
-    {users.slice(0, 20).map((user) => (
+            <div
+              className="
+                flex
+                gap-4
+                overflow-x-auto
+                scrollbar-hide
+                pb-2
+              "
+            >
+              {users
+                .slice(0, limit)
+                .map((user) => (
 
-      <div
-        key={user._id}
-        className="
-          min-w-[220px]
-          bg-gray-50
-          rounded-2xl
-          p-3
-          flex-shrink-0
-          border
-        "
-      >
+                  <div
+                    key={user._id}
+                    className="
+                      min-w-[220px]
+                      bg-gray-50
+                      rounded-2xl
+                      p-3
+                      flex-shrink-0
+                      border
+                    "
+                  >
 
-        {/* USER INFO */}
-        <div
-          className="
-            flex
-            flex-col
-            items-center
-            text-center
-            cursor-pointer
-          "
-          onClick={() =>
-            navigate(`/profile/${user._id}`)
-          }
-        >
+                    {/* USER INFO */}
+                    <div
+                      className="
+                        flex
+                        flex-col
+                        items-center
+                        text-center
+                        cursor-pointer
+                      "
+                      onClick={() =>
+                        navigate(
+                          `/profile/${user._id}`
+                        )
+                      }
+                    >
 
-          <img
-            src={
-              user.profilePic ||
-              defaultProfile
-            }
-            onError={(e) => {
-              e.target.src =
-                defaultProfile;
-            }}
-            alt={user.name}
-            className="
-              w-16
-              h-16
-              rounded-full
-              object-cover
-              mb-2
-            "
-          />
+                      <img
+                        src={
+                          user.profilePic ||
+                          defaultProfile
+                        }
+                        onError={(e) => {
+                          e.target.src =
+                            defaultProfile;
+                        }}
+                        alt={user.name}
+                        className="
+                          w-16
+                          h-16
+                          rounded-full
+                          object-cover
+                          mb-2
+                        "
+                      />
 
-          <h3 className="font-semibold text-sm">
-            {user.name}
-          </h3>
+                      <h3 className="font-semibold text-sm">
+                        {user.name}
+                      </h3>
 
-          <p className="text-xs text-gray-500 mb-3">
-            Registered user
-          </p>
+                      <p className="text-xs text-gray-500 mb-3">
+                        Registered user
+                      </p>
 
-        </div>
+                    </div>
 
-        {/* ADD BUTTON */}
-        <button
-          onClick={() =>
-            handleAddFriend(user._id)
-          }
-          disabled={sending[user._id]}
-          className="
-            w-full
-            bg-blue-600
-            hover:bg-blue-700
-            text-white
-            py-2
-            rounded-xl
-            text-sm
-            font-medium
-          "
-        >
-          {sending[user._id]
-            ? "Sending..."
-            : "Add Friend"}
-        </button>
+                    {/* ADD BUTTON */}
+                    <button
+                      onClick={() =>
+                        handleAddFriend(
+                          user._id
+                        )
+                      }
+                      disabled={
+                        sending[user._id]
+                      }
+                      className="
+                        w-full
+                        bg-blue-600
+                        hover:bg-blue-700
+                        text-white
+                        py-2
+                        rounded-xl
+                        text-sm
+                        font-medium
+                      "
+                    >
+                      {sending[user._id]
+                        ? "Sending..."
+                        : "Add Friend"}
+                    </button>
 
-      </div>
+                  </div>
+                ))}
+            </div>
 
-    ))}
-  </div>
-
-)}
-
+          )}
         </>
       )}
     </div>
   );
 };
-
-export default SuggestedFriends;
 
 export default SuggestedFriends;
