@@ -73,22 +73,24 @@ const Messages = () => {
   }, [selectedUser, currentUser]);
 
   // FETCH USERS
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const res = await fetchWithToken(
-         `${API_BASE}/api/messages/${userId}`
+useEffect(() => {
+  const fetchUsers = async () => {
+    try {
+      const res = await fetchWithToken(
+        `${API_BASE}/api/users`
+      );
 
-        const data = await res.json();
+      const data = await res.json();
 
-        setFriends(data);
-      } catch (err) {
-        console.log(err);
-      }
-    };
+      setFriends(data);
 
-    fetchUsers();
-  }, []);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  fetchUsers();
+}, []);
 
   // LOAD MESSAGES
   const loadMessages = async (userId) => {
