@@ -165,14 +165,23 @@ useEffect(() => {
         } else {
 
           // FULL STOP WHEN OUT OF SCREEN
-          video.pause();
+video.pause();
 
-          // REMOVE AUDIO SESSION
-          video.muted = true;
+video.muted = true;
 
-          // FORCE RELEASE AUDIO ON MOBILE
-          video.currentTime =
-            video.currentTime;
+// RELEASE AUDIO SESSION ON ANDROID
+const originalSrc =
+  video.dataset.src;
+
+video.removeAttribute("src");
+
+video.load();
+
+setTimeout(() => {
+  if (originalSrc) {
+    video.src = originalSrc;
+  }
+}, 100);
         }
       });
     },
@@ -285,16 +294,13 @@ return (
       {media.length > 0 && (
         <div className={isMulti ? "grid grid-cols-2 gap-2" : ""}>
           {media.map((m, i) => {
-            const isVideo = m?.type === "video";
-            return isVideo ? (
-              
-<video
+            const isVideo = m?.type === <video
   key={i}
   ref={(el) => (videoRefs.current[i] = el)}
   src={m?.url}
+  data-src={m?.url}
   controls
   playsInline
-  muted
   preload="metadata"
   className={
     isMulti
