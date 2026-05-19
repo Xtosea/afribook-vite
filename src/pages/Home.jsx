@@ -323,7 +323,7 @@ return (
     <StoryBar user={currentUser} stories={stories} />  
 
 
-<SuggestedFriends limit={10} />
+
 
 {/* Adsterra 1*/}  
 <Adsterra containerId="container-ad-top" />
@@ -337,7 +337,7 @@ return (
   }}
 />
 
-<SuggestedFriends limit={5} />
+<SuggestedFriends limit={20} />
 
     {/* POSTS */}
 <div ref={feedRef} className="space-y-4">
