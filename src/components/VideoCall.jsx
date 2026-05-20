@@ -8,7 +8,7 @@ import Peer from "simple-peer";
 
 import { connectSocket } from "../socket";
 
-const VideoCall = ({
+const VoiceCall = ({
   currentUser,
   selectedUser,
   onClose,
@@ -31,17 +31,13 @@ const VideoCall = ({
   const [micOn, setMicOn] =
     useState(true);
 
-  const [cameraOn, setCameraOn] =
-    useState(true);
-
-  const myVideo = useRef();
-
-  const userVideo = useRef();
+  const remoteAudio =
+    useRef();
 
   const connectionRef =
     useRef();
 
-  // ================= GET CAMERA + MIC =================
+  // ================= GET AUDIO =================
 
   useEffect(() => {
 
@@ -53,8 +49,8 @@ const VideoCall = ({
           const currentStream =
             await navigator.mediaDevices.getUserMedia(
               {
-                video: true,
                 audio: true,
+                video: false,
               }
             );
 
@@ -62,19 +58,12 @@ const VideoCall = ({
             currentStream
           );
 
-          if (
-            myVideo.current
-          ) {
-            myVideo.current.srcObject =
-              currentStream;
-          }
-
         } catch (err) {
 
           console.log(err);
 
           alert(
-            "Camera or microphone permission denied"
+            "Microphone permission denied"
           );
         }
       };
@@ -87,13 +76,19 @@ const VideoCall = ({
       "incoming-call",
       (data) => {
 
-        setReceivingCall(
-          true
-        );
+        if (
+          data.callType ===
+          "voice"
+        ) {
 
-        setCallerSignal(
-          data.signal
-        );
+          setReceivingCall(
+            true
+          );
+
+          setCallerSignal(
+            data.signal
+          );
+        }
       }
     );
 
@@ -162,10 +157,15 @@ const VideoCall = ({
               currentUser,
 
             signal,
+
+            callType:
+              "voice",
           }
         );
       }
     );
+
+    // ================= REMOTE AUDIO =================
 
     peer.on(
       "stream",
@@ -174,9 +174,10 @@ const VideoCall = ({
       ) => {
 
         if (
-          userVideo.current
+          remoteAudio.current
         ) {
-          userVideo.current.srcObject =
+
+          remoteAudio.current.srcObject =
             remoteStream;
         }
       }
@@ -238,9 +239,10 @@ const VideoCall = ({
       ) => {
 
         if (
-          userVideo.current
+          remoteAudio.current
         ) {
-          userVideo.current.srcObject =
+
+          remoteAudio.current.srcObject =
             remoteStream;
         }
       }
@@ -294,93 +296,56 @@ const VideoCall = ({
     );
   };
 
-  // ================= TOGGLE CAMERA =================
-
-  const toggleCamera =
-    () => {
-
-      stream
-        ?.getVideoTracks()
-        .forEach(
-          (track) => {
-
-            track.enabled =
-              !track.enabled;
-          }
-        );
-
-      setCameraOn(
-        !cameraOn
-      );
-    };
-
   return (
-    <div className="fixed inset-0 bg-black z-50 flex flex-col">
+    <div className="fixed inset-0 bg-gradient-to-b from-gray-950 to-black z-50 flex flex-col items-center justify-center text-white">
 
-      {/* ================= TOP ================= */}
+      {/* ================= AUDIO ELEMENT ================= */}
 
-      <div className="flex justify-between items-center p-4 text-white border-b border-gray-800">
+      <audio
+        ref={remoteAudio}
+        autoPlay
+      />
 
-        <div>
+      {/* ================= USER INFO ================= */}
 
-          <h2 className="text-xl font-bold">
-            Video Call
-          </h2>
+      <div className="flex flex-col items-center">
 
-          <p className="text-sm text-gray-400">
-            {
-              selectedUser?.name
-            }
-          </p>
-
-        </div>
-
-        <button
-          onClick={
-            endCall
+        <img
+          src={
+            selectedUser?.profilePic ||
+            "https://via.placeholder.com/150"
           }
-          className="bg-red-500 px-4 py-2 rounded-full"
-        >
-          End
-        </button>
-      </div>
-
-      {/* ================= VIDEOS ================= */}
-
-      <div className="flex-1 grid md:grid-cols-2 gap-4 p-4">
-
-        {/* MY VIDEO */}
-
-        <video
-          playsInline
-          muted
-          ref={myVideo}
-          autoPlay
-          className="w-full h-full object-cover rounded-2xl bg-gray-900"
+          alt=""
+          className="w-36 h-36 rounded-full object-cover border-4 border-gray-700 shadow-2xl"
         />
 
-        {/* USER VIDEO */}
+        <h2 className="text-3xl font-bold mt-6">
+          {
+            selectedUser?.name
+          }
+        </h2>
 
-        <video
-          playsInline
-          ref={userVideo}
-          autoPlay
-          className="w-full h-full object-cover rounded-2xl bg-gray-900"
-        />
+        <p className="text-gray-400 mt-2">
+          {callAccepted
+            ? "Voice call connected"
+            : receivingCall
+            ? "Incoming voice call..."
+            : "Calling..."}
+        </p>
       </div>
 
       {/* ================= CONTROLS ================= */}
 
-      <div className="p-6 flex flex-wrap justify-center gap-4">
+      <div className="flex gap-5 mt-16 flex-wrap justify-center">
 
         {!callAccepted && (
           <button
             onClick={
               callUser
             }
-            className="bg-green-500 px-6 py-3 rounded-full text-white font-bold"
+            className="bg-green-500 px-8 py-4 rounded-full text-white font-bold text-lg shadow-lg"
           >
-            Start Call
+            Start Voice Call
           </button>
         )}
 
@@ -391,9 +356,9 @@ const VideoCall = ({
               onClick={
                 answerCall
               }
-              className="bg-blue-500 px-6 py-3 rounded-full text-white font-bold"
+              className="bg-blue-500 px-8 py-4 rounded-full text-white font-bold text-lg shadow-lg"
             >
-              Answer Call
+              Answer
             </button>
           )}
 
@@ -403,7 +368,7 @@ const VideoCall = ({
           onClick={
             toggleMic
           }
-          className={`px-5 py-3 rounded-full text-white font-bold ${
+          className={`w-16 h-16 rounded-full text-2xl flex items-center justify-center shadow-lg ${
             micOn
               ? "bg-gray-700"
               : "bg-red-500"
@@ -414,32 +379,15 @@ const VideoCall = ({
             : "🔇"}
         </button>
 
-        {/* CAMERA */}
-
-        <button
-          onClick={
-            toggleCamera
-          }
-          className={`px-5 py-3 rounded-full text-white font-bold ${
-            cameraOn
-              ? "bg-gray-700"
-              : "bg-red-500"
-          }`}
-        >
-          {cameraOn
-            ? "📷"
-            : "🚫"}
-        </button>
-
-        {/* END CALL */}
+        {/* END */}
 
         <button
           onClick={
             endCall
           }
-          className="bg-red-600 px-6 py-3 rounded-full text-white font-bold"
+          className="w-16 h-16 rounded-full bg-red-600 text-2xl flex items-center justify-center shadow-lg"
         >
-          End Call
+          📞
         </button>
 
       </div>
@@ -447,4 +395,4 @@ const VideoCall = ({
   );
 };
 
-export default VideoCall;
+export default VoiceCall;
