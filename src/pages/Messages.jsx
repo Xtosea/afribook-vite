@@ -24,6 +24,7 @@ const defaultProfile =
 
 const Messages = () => {
   const socketRef = useRef(null);
+
   const messagesEndRef = useRef(null);
 
   const currentUser =
@@ -31,8 +32,8 @@ const Messages = () => {
 
   const token =
     localStorage.getItem("token");
-   
-   const { id } = useParams();
+
+  const { id } = useParams();
 
   const [friends, setFriends] =
     useState([]);
@@ -110,105 +111,89 @@ const Messages = () => {
   }, [selectedUser, currentUser]);
 
   // LOAD MESSAGES
-const loadMessages = async (
-  userId
-) => {
-
-  try {
-
-    const data =
-      await fetchWithToken(
-        `${API_BASE}/api/messages/${userId}`,
-        token
-      );
-
-    setMessages(data);
-
-    setShowSidebar(false);
-
-  } catch (err) {
-
-    console.log(err);
-  }
-};
-
-  // FETCH USERS
-useEffect(() => {
-
-  const fetchUsers = async () => {
-
+  const loadMessages = async (
+    userId
+  ) => {
     try {
-
       const data =
         await fetchWithToken(
-          `${API_BASE}/api/users`,
+          `${API_BASE}/api/messages/${userId}`,
           token
         );
 
-      setFriends(data);
+      setMessages(data || []);
 
-      // OPEN CHAT FROM URL
-      if (id) {
-
-        // CHECK IF USER EXISTS IN USERS LIST
-        let foundUser = data.find(
-          (u) => u._id === id
-        );
-
-        // IF NOT FOUND, FETCH USER DIRECTLY
-        if (!foundUser) {
-
-          try {
-
-            foundUser =
-              await fetchWithToken(
-                `${API_BASE}/api/users/${id}`,
-                token
-              );
-
-          } catch (err) {
-
-            console.log(
-              "User fetch failed",
-              err
-            );
-          }
-        }
-
-        // SET SELECTED USER
-        if (foundUser) {
-
-          setSelectedUser(
-            foundUser
-          );
-
-          loadMessages(
-            foundUser._id
-          );
-        }
-      }
-
+      setShowSidebar(false);
     } catch (err) {
-
       console.log(err);
     }
   };
 
-  fetchUsers();
+  // FETCH USERS
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const data =
+          await fetchWithToken(
+            `${API_BASE}/api/users`,
+            token
+          );
 
-}, [id]);
+        setFriends(data || []);
 
+        // OPEN CHAT FROM URL
+        if (id) {
+          let foundUser = data.find(
+            (u) => u._id === id
+          );
+
+          // FETCH USER DIRECTLY
+          if (!foundUser) {
+            try {
+              foundUser =
+                await fetchWithToken(
+                  `${API_BASE}/api/users/${id}`,
+                  token
+                );
+            } catch (err) {
+              console.log(
+                "User fetch failed",
+                err
+              );
+            }
+          }
+
+          if (foundUser) {
+            setSelectedUser(
+              foundUser
+            );
+
+            loadMessages(
+              foundUser._id
+            );
+          }
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    fetchUsers();
+  }, [id]);
 
   // SEND MESSAGE
   const sendMessage = async () => {
-    if (!text.trim() && !media)
+    if (
+      !text.trim() &&
+      !media
+    )
       return;
 
     try {
       let uploadedMedia = "";
       let mediaType = "";
 
-      // MEDIA UPLOAD
+      // UPLOAD MEDIA
       if (media) {
         setUploading(true);
 
@@ -237,7 +222,7 @@ useEffect(() => {
                 "image"
               )
             ? "image"
-            : "video";
+            : "auto";
 
         const uploadRes =
           await fetch(
@@ -255,8 +240,14 @@ useEffect(() => {
           uploadData.secure_url;
 
         mediaType =
-          resourceType === "video"
+          media.type.startsWith(
+            "video"
+          )
             ? "video"
+            : media.type.startsWith(
+                "audio"
+              )
+            ? "audio"
             : "image";
       }
 
@@ -281,7 +272,7 @@ useEffect(() => {
         newMessage,
       ]);
 
-      socketRef.current.emit(
+      socketRef.current?.emit(
         "send-message",
         newMessage
       );
@@ -291,38 +282,42 @@ useEffect(() => {
       setUploading(false);
     } catch (err) {
       console.log(err);
+
       setUploading(false);
     }
   };
 
+  // ADSTERRA
+  useEffect(() => {
+    const script =
+      document.createElement(
+        "script"
+      );
 
+    script.src =
+      "https://pl29467278.effectivecpmnetwork.com/1ac49ab91139c0ad3e13572497cfbe18/invoke.js";
 
-/* PUT IT HERE 
-Adsterra*/
-useEffect(() => {
-  const script = document.createElement("script");
+    script.async = true;
 
-  script.src =
-    "https://pl29467278.effectivecpmnetwork.com/1ac49ab91139c0ad3e13572497cfbe18/invoke.js";
+    script.setAttribute(
+      "data-cfasync",
+      "false"
+    );
 
-  script.async = true;
+    document.body.appendChild(
+      script
+    );
 
-  script.setAttribute(
-    "data-cfasync",
-    "false"
-  );
-
-  document.body.appendChild(script);
-
-  return () => {
-    document.body.removeChild(script);
-  };
-}, []);
-
-
+    return () => {
+      document.body.removeChild(
+        script
+      );
+    };
+  }, []);
 
   return (
-    <div className="flex h-100 bg-gray-100 overflow-hidden">
+    <div className="flex h-screen bg-gray-100 overflow-hidden">
+
       {/* MOBILE OVERLAY */}
       {showSidebar && (
         <div
@@ -341,6 +336,7 @@ useEffect(() => {
             : "-translate-x-full md:translate-x-0"
         }`}
       >
+
         {/* HEADER */}
         <div className="p-4 border-b flex items-center justify-between bg-white sticky top-0 z-10">
           <h1 className="text-2xl font-bold text-blue-600">
@@ -367,6 +363,7 @@ useEffect(() => {
               key={user._id}
               onClick={() => {
                 setSelectedUser(user);
+
                 loadMessages(
                   user._id
                 );
@@ -407,11 +404,14 @@ useEffect(() => {
 
       {/* CHAT AREA */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
+
         {selectedUser ? (
           <>
-            {/* TOP HEADER */}
-            <div className="sticky top-0 z-30 bg-white border-b shadow-sm px-4 py-3 flex items-center justify-between flex-shrink-0">
-              <div className="flex items-center gap-3 min-w-0">
+            {/* HEADER */}
+            <div className="sticky top-0 z-30 bg-white border-b shadow-sm px-4 py-3 flex items-center justify-between">
+
+              <div className="flex items-center gap-3">
+
                 <button
                   onClick={() =>
                     setShowSidebar(true)
@@ -430,23 +430,20 @@ useEffect(() => {
                   className="w-12 h-12 rounded-full object-cover"
                 />
 
-                <div className="min-w-0">
-                  <h2 className="font-bold text-lg truncate text-gray-800">
+                <div>
+                  <h2 className="font-bold text-lg text-gray-800">
                     {selectedUser.name}
                   </h2>
 
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-
-                    <p className="text-sm text-green-500">
-                      Online
-                    </p>
-                  </div>
+                  <p className="text-sm text-green-500">
+                    Online
+                  </p>
                 </div>
               </div>
 
               {/* CALL BUTTONS */}
               <div className="flex items-center gap-2">
+
                 {/* VOICE */}
                 <button
                   onClick={() =>
@@ -454,7 +451,7 @@ useEffect(() => {
                       true
                     )
                   }
-                  className="bg-blue-500 hover:bg-blue-600 text-white w-11 h-11 rounded-full flex items-center justify-center shadow-lg transition"
+                  className="bg-blue-500 hover:bg-blue-600 text-white w-11 h-11 rounded-full flex items-center justify-center shadow-lg"
                 >
                   📞
                 </button>
@@ -464,7 +461,7 @@ useEffect(() => {
                   onClick={() =>
                     setShowCall(true)
                   }
-                  className="bg-green-500 hover:bg-green-600 text-white w-11 h-11 rounded-full flex items-center justify-center shadow-lg transition"
+                  className="bg-green-500 hover:bg-green-600 text-white w-11 h-11 rounded-full flex items-center justify-center shadow-lg"
                 >
                   📹
                 </button>
@@ -473,6 +470,7 @@ useEffect(() => {
 
             {/* MESSAGES */}
             <div className="flex-1 overflow-y-auto px-3 py-4 bg-gradient-to-b from-gray-50 to-gray-100 space-y-4">
+
               {messages.map(
                 (msg, index) => {
                   const isMe =
@@ -505,6 +503,7 @@ useEffect(() => {
                             : "bg-white text-gray-800 rounded-bl-md"
                         }`}
                       >
+
                         {/* IMAGE */}
                         {msg.mediaType ===
                           "image" && (
@@ -547,7 +546,7 @@ useEffect(() => {
 
                         {/* TEXT */}
                         {msg.text && (
-                          <p className="break-words">
+                          <p>
                             {msg.text}
                           </p>
                         )}
@@ -580,116 +579,145 @@ useEffect(() => {
 
               <div
                 ref={messagesEndRef}
-              ></div>
+              />
             </div>
 
+            {/* INPUT AREA */}
+            <div className="sticky bottom-0 z-30 bg-white border-t px-3 py-3 shadow-lg">
 
+              <div className="space-y-2">
 
-     {/* FIXED INPUT AREA */}
-<div className="sticky bottom-[70px] md:bottom-0 z-30 bg-white border-t px-3 py-3 backdrop-blur-md shadow-lg">
+                {/* INPUT */}
+                <div className="flex items-center bg-gray-100 rounded-3xl px-3 py-2">
 
-  <div className="space-y-2">
-
-    {/* TEXT INPUT */}
-    <div className="flex items-center bg-gray-100 rounded-3xl px-3 py-2">
-
-      <input
-        type="text"
-        placeholder="Type a message..."
-        value={text}
-        onChange={(e) =>
-          setText(e.target.value)
-        }
-        onKeyDown={(e) =>
-          e.key === "Enter" &&
-          sendMessage()
-        }
-        className="flex-1 bg-transparent px-2 py-4 outline-none text-[15px]"
-      />
-    </div>
-
-    {/* BUTTON ROW */}
-    <div className="flex items-center justify-between gap-2">
-
-      {/* LEFT SIDE */}
-      <div className="flex items-center gap-2">
-
-        {/* FILE */}
-        <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 w-12 h-12 rounded-full flex items-center justify-center text-xl shadow transition">
-          📎
-
-          <input
-            type="file"
-            accept="image/*,video/*"
-            hidden
-            onChange={(e) =>
-              setMedia(
-                e.target.files[0]
-              )
-            }
-          />
-        </label>
-
-        {/* VOICE NOTE */}
-        <div className="bg-gray-100 rounded-full p-1 shadow">
-          <VoiceRecorder
-            onSend={async (audioUrl) => {
-              try {
-                const newMessage =
-                  await fetchWithToken(
-                    `${API_BASE}/api/messages`,
-                    token,
-                    {
-                      method: "POST",
-                      body: JSON.stringify({
-                        receiver:
-                          selectedUser._id,
-                        media: audioUrl,
-                        mediaType: "audio",
-                      }),
+                  <input
+                    type="text"
+                    placeholder="Type a message..."
+                    value={text}
+                    onChange={(e) =>
+                      setText(
+                        e.target.value
+                      )
                     }
-                  );
+                    onKeyDown={(e) =>
+                      e.key ===
+                        "Enter" &&
+                      sendMessage()
+                    }
+                    className="flex-1 bg-transparent px-2 py-4 outline-none text-[15px]"
+                  />
+                </div>
 
-                setMessages((prev) => [
-                  ...prev,
-                  newMessage,
-                ]);
+                {/* BUTTONS */}
+                <div className="flex items-center justify-between gap-2">
 
-                socketRef.current.emit(
-                  "send-message",
-                  newMessage
-                );
-              } catch (err) {
-                console.log(err);
-              }
-            }}
-          />
-        </div>
-      </div>
+                  <div className="flex items-center gap-2">
 
-      {/* SEND BUTTON */}
-      <button
-        onClick={sendMessage}
-        disabled={uploading}
-        className="bg-gradient-to-r from-blue-500 to-blue-700 hover:scale-105 active:scale-95 text-white px-6 py-3 rounded-full font-semibold shadow-lg transition"
-      >
-        {uploading ? "..." : "Send"}
-      </button>
-    </div>
+                    {/* FILE */}
+                    <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 w-12 h-12 rounded-full flex items-center justify-center text-xl shadow">
 
-    {/* FILE NAME */}
-    {media && (
-      <div className="text-xs text-gray-500 truncate px-2">
-        📎 {media.name}
-      </div>
-    )}
-  </div>
-</div>
+                      📎
+
+                      <input
+                        type="file"
+                        accept="image/*,video/*"
+                        hidden
+                        onChange={(e) =>
+                          setMedia(
+                            e.target
+                              .files[0]
+                          )
+                        }
+                      />
+                    </label>
+
+                    {/* VOICE NOTE */}
+                    <div className="bg-gray-100 rounded-full p-1 shadow">
+
+                      <VoiceRecorder
+                        receiverId={
+                          selectedUser._id
+                        }
+                        token={token}
+                        onSend={async (
+                          audioUrl
+                        ) => {
+                          try {
+                            const newMessage =
+                              await fetchWithToken(
+                                `${API_BASE}/api/messages`,
+                                token,
+                                {
+                                  method:
+                                    "POST",
+
+                                  body:
+                                    JSON.stringify(
+                                      {
+                                        receiver:
+                                          selectedUser._id,
+
+                                        media:
+                                          audioUrl,
+
+                                        mediaType:
+                                          "audio",
+                                      }
+                                    ),
+                                }
+                              );
+
+                            setMessages(
+                              (
+                                prev
+                              ) => [
+                                ...prev,
+                                newMessage,
+                              ]
+                            );
+
+                            socketRef.current?.emit(
+                              "send-message",
+                              newMessage
+                            );
+                          } catch (err) {
+                            console.log(
+                              err
+                            );
+                          }
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* SEND */}
+                  <button
+                    onClick={
+                      sendMessage
+                    }
+                    disabled={
+                      uploading
+                    }
+                    className="bg-gradient-to-r from-blue-500 to-blue-700 text-white px-6 py-3 rounded-full font-semibold shadow-lg"
+                  >
+                    {uploading
+                      ? "..."
+                      : "Send"}
+                  </button>
+                </div>
+
+                {/* FILE NAME */}
+                {media && (
+                  <div className="text-xs text-gray-500 truncate px-2">
+                    📎 {media.name}
+                  </div>
+                )}
+              </div>
+            </div>
           </>
-
-
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center bg-gray-50 relative">
+
             <button
               onClick={() =>
                 setShowSidebar(true)
@@ -699,16 +727,14 @@ useEffect(() => {
               ☰
             </button>
 
-
             <div className="text-7xl mb-4">
               💬
             </div>
 
-  <div
-  id="container-1ac49ab91139c0ad3e13572497cfbe18"
-  className="my-4"
-></div>
-
+            <div
+              id="container-1ac49ab91139c0ad3e13572497cfbe18"
+              className="my-4"
+            />
 
             <div className="text-center px-4">
               <h2 className="text-3xl font-bold text-gray-700">
@@ -717,7 +743,7 @@ useEffect(() => {
               </h2>
 
               <p className="text-gray-500 mt-2 text-lg">
-                Select a user from left top menu to
+                Select a user to
                 start chatting
               </p>
             </div>
@@ -725,69 +751,39 @@ useEffect(() => {
         )}
       </div>
 
-
-
       {/* VIDEO CALL */}
-      {showCall && (
-        <VideoCall
-          currentUser={currentUser}
-          selectedUser={
-            selectedUser
-          }
-          onClose={() =>
-            setShowCall(false)
-          }
-        />
-      )}
+      {showCall &&
+        selectedUser && (
+          <VideoCall
+            currentUser={
+              currentUser
+            }
+            selectedUser={
+              selectedUser
+            }
+            onClose={() =>
+              setShowCall(false)
+            }
+          />
+        )}
 
       {/* VOICE CALL */}
-      {showVoiceCall && (
-        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-          <div className="bg-gray-900 text-white rounded-3xl p-8 w-full max-w-sm text-center shadow-2xl">
-            <img
-              src={
-                selectedUser?.profilePic ||
-                defaultProfile
-              }
-              alt=""
-              className="w-28 h-28 rounded-full mx-auto object-cover border-4 border-white"
-            />
-
-            <h2 className="text-2xl font-bold mt-5">
-              {selectedUser?.name}
-            </h2>
-
-            <p className="text-gray-300 mt-2 animate-pulse">
-              Calling...
-            </p>
-
-            {/* CONTROLS */}
-            <div className="flex justify-center gap-5 mt-10">
-              {/* SPEAKER */}
-              <button className="bg-gray-700 hover:bg-gray-600 w-14 h-14 rounded-full text-2xl flex items-center justify-center transition">
-                🔊
-              </button>
-
-              {/* MUTE */}
-              <button className="bg-gray-700 hover:bg-gray-600 w-14 h-14 rounded-full text-2xl flex items-center justify-center transition">
-                🎤
-              </button>
-
-              {/* END */}
-              <button
-                onClick={() =>
-                  setShowVoiceCall(
-                    false
-                  )
-                }
-                className="bg-red-600 hover:bg-red-700 w-14 h-14 rounded-full text-2xl flex items-center justify-center transition"
-              >
-                ❌
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {showVoiceCall &&
+        selectedUser && (
+          <VoiceCall
+            currentUser={
+              currentUser
+            }
+            selectedUser={
+              selectedUser
+            }
+            onClose={() =>
+              setShowVoiceCall(
+                false
+              )
+            }
+          />
+        )}
     </div>
   );
 };
