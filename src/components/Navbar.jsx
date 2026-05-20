@@ -245,6 +245,19 @@ const Navbar = () => {
                   Reels
                 </Link>
 
+
+              Link
+                  to="/leaderboard"
+                  className={`flex items-center gap-1 ${
+                    isActive("/reels")
+                      ? "text-blue-600"
+                      : "hover:text-blue-500"
+                  }`}
+                >
+                  <Video size={20} />
+                  Leaderboard 
+                </Link>
+
                 <Link
                   to="/messages"
                   className={`flex items-center gap-1 ${
@@ -470,7 +483,16 @@ const Navbar = () => {
               setMobileMenuOpen(false)
             }
           >
-            Messages
+
+          <Link
+            to="/leaderboard"
+            className="block"
+            onClick={() =>
+              setMobileMenuOpen(false)
+            }
+          >
+
+            Leaderboard 
           </Link>
 
           <Link
