@@ -316,7 +316,7 @@ const Messages = () => {
   }, []);
  
  return(
-  <div className="flex-1 flex flex-col min-h-10 overflow-hidden">
+  <div className="flex-1 flex flex-col h-full overflow-hidden">
 
       {/* MOBILE OVERLAY */}
       {showSidebar && (
