@@ -1,65 +1,117 @@
-import React, { useRef, useState } from "react";
+// components/VoiceRecorder.jsx
 
-const VoiceRecorder = ({ onSend }) => {
+import React, {
+  useRef,
+  useState,
+} from "react";
+
+const VoiceRecorder = ({
+  onSend,
+}) => {
+
+  const mediaRecorderRef =
+    useRef(null);
+
+  const chunksRef =
+    useRef([]);
+
   const [recording, setRecording] =
     useState(false);
 
-  const mediaRecorderRef = useRef(null);
+  const startRecording =
+    async () => {
 
-  const chunksRef = useRef([]);
+      try {
 
-  const startRecording = async () => {
-    const stream =
-      await navigator.mediaDevices.getUserMedia({
-        audio: true,
-      });
+        const stream =
+          await navigator.mediaDevices.getUserMedia(
+            {
+              audio: true,
+            }
+          );
 
-    const mediaRecorder =
-      new MediaRecorder(stream);
+        const mediaRecorder =
+          new MediaRecorder(
+            stream
+          );
 
-    mediaRecorderRef.current = mediaRecorder;
+        mediaRecorderRef.current =
+          mediaRecorder;
 
-    mediaRecorder.ondataavailable = (e) => {
-      chunksRef.current.push(e.data);
+        chunksRef.current = [];
+
+        mediaRecorder.ondataavailable =
+          (e) => {
+            chunksRef.current.push(
+              e.data
+            );
+          };
+
+        mediaRecorder.onstop =
+          async () => {
+
+            const blob =
+              new Blob(
+                chunksRef.current,
+                {
+                  type: "audio/webm",
+                }
+              );
+
+            const file =
+              new File(
+                [blob],
+                "voice.webm",
+                {
+                  type: "audio/webm",
+                }
+              );
+
+            const formData =
+              new FormData();
+
+            formData.append(
+              "file",
+              file
+            );
+
+            formData.append(
+              "upload_preset",
+              "YOUR_UPLOAD_PRESET"
+            );
+
+            const cloudName =
+              "YOUR_CLOUD_NAME";
+
+            const res =
+              await fetch(
+                `https://api.cloudinary.com/v1_1/${cloudName}/video/upload`,
+                {
+                  method: "POST",
+                  body: formData,
+                }
+              );
+
+            const data =
+              await res.json();
+
+            onSend(
+              data.secure_url
+            );
+          };
+
+        mediaRecorder.start();
+
+        setRecording(true);
+
+      } catch (err) {
+
+        console.log(err);
+      }
     };
-
-    mediaRecorder.onstop = async () => {
-      const blob = new Blob(chunksRef.current, {
-        type: "audio/webm",
-      });
-
-      chunksRef.current = [];
-
-      const formData = new FormData();
-
-      formData.append("file", blob);
-
-      formData.append(
-        "upload_preset",
-        "YOUR_UPLOAD_PRESET"
-      );
-
-      const cloudName = "YOUR_CLOUD_NAME";
-
-      const res = await fetch(
-        `https://api.cloudinary.com/v1_1/${cloudName}/video/upload`,
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-
-      const data = await res.json();
-
-      onSend(data.secure_url);
-    };
-
-    mediaRecorder.start();
-
-    setRecording(true);
-  };
 
   const stopRecording = () => {
+
     mediaRecorderRef.current.stop();
 
     setRecording(false);
@@ -72,13 +124,15 @@ const VoiceRecorder = ({ onSend }) => {
           ? stopRecording
           : startRecording
       }
-      className={`px-5 py-3 rounded-full text-white font-bold ${
+      className={`w-12 h-12 rounded-full text-white shadow-lg ${
         recording
           ? "bg-red-500"
-          : "bg-purple-500"
+          : "bg-green-500"
       }`}
     >
-      {recording ? "Stop" : "Voice"}
+      {recording
+        ? "⏹"
+        : "🎤"}
     </button>
   );
 };
