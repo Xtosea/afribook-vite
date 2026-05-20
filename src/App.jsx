@@ -141,13 +141,13 @@ function App() {
             />
 
             <Route
-              path="/path="/messages/:id"
-              element={
-                <ProtectedRoute>
-                  <Messages />
-                </ProtectedRoute>
-              }
-            />
+  path="/messages/:id"
+  element={
+    <ProtectedRoute>
+      <Messages />
+    </ProtectedRoute>
+  }
+/>
 
             <Route
               path="/chat"
