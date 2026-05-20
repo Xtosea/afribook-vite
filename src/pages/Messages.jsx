@@ -133,8 +133,11 @@ const loadMessages = async (
 
   // FETCH USERS
 useEffect(() => {
+
   const fetchUsers = async () => {
+
     try {
+
       const data =
         await fetchWithToken(
           `${API_BASE}/api/users`,
@@ -143,24 +146,55 @@ useEffect(() => {
 
       setFriends(data);
 
-      // AUTO OPEN CHAT FROM URL
+      // OPEN CHAT FROM URL
       if (id) {
-        const foundUser = data.find(
+
+        // CHECK IF USER EXISTS IN USERS LIST
+        let foundUser = data.find(
           (u) => u._id === id
         );
 
-        if (foundUser) {
-          setSelectedUser(foundUser);
+        // IF NOT FOUND, FETCH USER DIRECTLY
+        if (!foundUser) {
 
-          loadMessages(foundUser._id);
+          try {
+
+            foundUser =
+              await fetchWithToken(
+                `${API_BASE}/api/users/${id}`,
+                token
+              );
+
+          } catch (err) {
+
+            console.log(
+              "User fetch failed",
+              err
+            );
+          }
+        }
+
+        // SET SELECTED USER
+        if (foundUser) {
+
+          setSelectedUser(
+            foundUser
+          );
+
+          loadMessages(
+            foundUser._id
+          );
         }
       }
+
     } catch (err) {
+
       console.log(err);
     }
   };
 
   fetchUsers();
+
 }, [id]);
 
 
