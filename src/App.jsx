@@ -29,6 +29,8 @@ import FriendRequests from "./pages/friends/FriendRequests";
 import FriendsList from "./pages/friends/FriendsList";
 import FriendSuggestions from "./pages/friends/FriendSuggestions";
 import Wallet from "./pages/Wallet";
+import Leaderboard from "./pages/Leaderboard";
+
 
 function App() {
   console.log("API:", import.meta.env.VITE_API_BASE);
@@ -218,6 +220,12 @@ function App() {
                 </ProtectedRoute>
               }
             />
+
+
+           <Route
+  path="/leaderboard"
+  element={<Leaderboard />}
+/>
 
           </Routes>
         </div>
