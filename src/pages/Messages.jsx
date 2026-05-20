@@ -583,136 +583,133 @@ const Messages = () => {
             </div>
 
             {/* INPUT AREA */}
-            <div className="sticky bottom-0 z-30 bg-white border-t px-3 py-3 shadow-lg">
+<div className="sticky bottom-[75px] md:bottom-0 z-30 bg-white border-t px-3 py-3 shadow-lg">
 
-              <div className="space-y-2">
+  <div className="space-y-3 pb-2">
 
-                {/* INPUT */}
-                <div className="flex items-center bg-gray-100 rounded-3xl px-3 py-2">
+    {/* INPUT */}
+    <div className="flex items-center bg-gray-100 rounded-3xl px-3 py-2 mb-2">
 
-                  <input
-                    type="text"
-                    placeholder="Type a message..."
-                    value={text}
-                    onChange={(e) =>
-                      setText(
-                        e.target.value
-                      )
+      <input
+        type="text"
+        placeholder="Type a message..."
+        value={text}
+        onChange={(e) =>
+          setText(
+            e.target.value
+          )
+        }
+        onKeyDown={(e) =>
+          e.key ===
+            "Enter" &&
+          sendMessage()
+        }
+        className="flex-1 bg-transparent px-2 py-4 outline-none text-[15px]"
+      />
+    </div>
+
+    {/* BUTTONS */}
+    <div className="flex items-center justify-between gap-2 pb-2">
+
+      {/* LEFT */}
+      <div className="flex items-center gap-2">
+
+        {/* FILE */}
+        <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 w-12 h-12 rounded-full flex items-center justify-center text-xl shadow transition">
+
+          📎
+
+          <input
+            type="file"
+            accept="image/*,video/*"
+            hidden
+            onChange={(e) =>
+              setMedia(
+                e.target.files[0]
+              )
+            }
+          />
+        </label>
+
+        {/* VOICE NOTE */}
+        <div className="bg-gray-100 rounded-full p-1 shadow">
+
+          <VoiceRecorder
+            receiverId={
+              selectedUser._id
+            }
+            token={token}
+            onSend={async (
+              audioUrl
+            ) => {
+              try {
+
+                const newMessage =
+                  await fetchWithToken(
+                    `${API_BASE}/api/messages`,
+                    token,
+                    {
+                      method: "POST",
+
+                      body:
+                        JSON.stringify({
+                          receiver:
+                            selectedUser._id,
+
+                          media:
+                            audioUrl,
+
+                          mediaType:
+                            "audio",
+                        }),
                     }
-                    onKeyDown={(e) =>
-                      e.key ===
-                        "Enter" &&
-                      sendMessage()
-                    }
-                    className="flex-1 bg-transparent px-2 py-4 outline-none text-[15px]"
-                  />
-                </div>
+                  );
 
-                {/* BUTTONS */}
-                <div className="flex items-center justify-between gap-2">
+                setMessages(
+                  (prev) => [
+                    ...prev,
+                    newMessage,
+                  ]
+                );
 
-                  <div className="flex items-center gap-2">
+                socketRef.current?.emit(
+                  "send-message",
+                  newMessage
+                );
 
-                    {/* FILE */}
-                    <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 w-12 h-12 rounded-full flex items-center justify-center text-xl shadow">
+              } catch (err) {
 
-                      📎
+                console.log(err);
+              }
+            }}
+          />
+        </div>
+      </div>
 
-                      <input
-                        type="file"
-                        accept="image/*,video/*"
-                        hidden
-                        onChange={(e) =>
-                          setMedia(
-                            e.target
-                              .files[0]
-                          )
-                        }
-                      />
-                    </label>
+      {/* SEND */}
+      <button
+        onClick={
+          sendMessage
+        }
+        disabled={
+          uploading
+        }
+        className="bg-gradient-to-r from-blue-500 to-blue-700 hover:scale-105 active:scale-95 text-white px-6 py-3 rounded-full font-semibold shadow-lg transition"
+      >
+        {uploading
+          ? "..."
+          : "Send"}
+      </button>
+    </div>
 
-                    {/* VOICE NOTE */}
-                    <div className="bg-gray-100 rounded-full p-1 shadow">
-
-                      <VoiceRecorder
-                        receiverId={
-                          selectedUser._id
-                        }
-                        token={token}
-                        onSend={async (
-                          audioUrl
-                        ) => {
-                          try {
-                            const newMessage =
-                              await fetchWithToken(
-                                `${API_BASE}/api/messages`,
-                                token,
-                                {
-                                  method:
-                                    "POST",
-
-                                  body:
-                                    JSON.stringify(
-                                      {
-                                        receiver:
-                                          selectedUser._id,
-
-                                        media:
-                                          audioUrl,
-
-                                        mediaType:
-                                          "audio",
-                                      }
-                                    ),
-                                }
-                              );
-
-                            setMessages(
-                              (
-                                prev
-                              ) => [
-                                ...prev,
-                                newMessage,
-                              ]
-                            );
-
-                            socketRef.current?.emit(
-                              "send-message",
-                              newMessage
-                            );
-                          } catch (err) {
-                            console.log(
-                              err
-                            );
-                          }
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* SEND */}
-                  <button
-                    onClick={
-                      sendMessage
-                    }
-                    disabled={
-                      uploading
-                    }
-                    className="bg-gradient-to-r from-blue-500 to-blue-700 text-white px-6 py-3 rounded-full font-semibold shadow-lg"
-                  >
-                    {uploading
-                      ? "..."
-                      : "Send"}
-                  </button>
-                </div>
-
-                {/* FILE NAME */}
-                {media && (
-                  <div className="text-xs text-gray-500 truncate px-2">
-                    📎 {media.name}
-                  </div>
-                )}
-              </div>
+    {/* FILE NAME */}
+    {media && (
+      <div className="text-xs text-gray-500 truncate px-2">
+        📎 {media.name}
+      </div>
+    )}
+  </div>
+</div>
             </div>
           </>
         ) : (
