@@ -25,6 +25,8 @@ const PostCard = ({ post, currentUserId }) => {
   const [showComments, setShowComments] = useState(false);
   const [liking, setLiking] = useState(false);
 
+const token = localStorage.getItem("token");
+
   const likedByUser = likes.includes(currentUserId);
 
   /* ================= LIKE ================= */
