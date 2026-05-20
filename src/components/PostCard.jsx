@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_BASE, fetchWithToken } from "../api/api";
+import PostMenu from "./PostMenu";
 
 const defaultCover =
   "https://afribook-backend.onrender.com/uploads/profiles/default-cover.png";
@@ -269,6 +270,20 @@ return (
     </p>
   </div>
 </div>
+
+<PostMenu
+  post={post}
+  token={token}
+  currentUser={currentUser}
+  onDeleted={(id) =>
+    setPosts((prev) =>
+      prev.filter(
+        (p) => p._id !== id
+      )
+    )
+  }
+/>
+
 
       
 {/* POST TEXT */}
