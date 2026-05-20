@@ -483,6 +483,8 @@ const Navbar = () => {
     setMobileMenuOpen(false)
   }
 >
+  Messages
+</Link>
 
 <Link
   to="/leaderboard"
@@ -491,9 +493,22 @@ const Navbar = () => {
     setMobileMenuOpen(false)
   }
 >
-
-  Leaderboard 
+  Leaderboard
 </Link>
+
+
+         <Link
+  to="/leaderboard"
+  className={`flex flex-col items-center text-xs ${
+    isActive("/leaderboard")
+      ? "text-blue-600"
+      : "text-gray-500"
+  }`}
+>
+  <Users size={22} />
+  <span>Top</span>
+</Link>
+         
 
           <Link
             to="/profile"
