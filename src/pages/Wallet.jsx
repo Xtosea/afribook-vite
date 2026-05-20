@@ -64,7 +64,7 @@ const WalletPage = () => {
         );
       }
 
-      setWallet(data);
+      setWallet(data || {});
 
     } catch (err) {
 
@@ -112,6 +112,7 @@ const WalletPage = () => {
         await res.json();
 
       if (!res.ok) {
+
         alert(
           data.error ||
           "Conversion failed"
@@ -169,6 +170,19 @@ const WalletPage = () => {
     );
   }
 
+  /* ================= NULL SAFETY ================= */
+
+  if (!wallet) {
+
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+
+        Wallet not found
+
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-black text-white pb-24">
 
@@ -181,6 +195,7 @@ const WalletPage = () => {
           <Wallet size={28} />
 
           Wallet
+
         </h1>
 
         <button
@@ -189,6 +204,7 @@ const WalletPage = () => {
         >
           <RefreshCcw size={18} />
         </button>
+
       </div>
 
       <div className="p-4 space-y-5">
@@ -203,7 +219,7 @@ const WalletPage = () => {
 
           <h2 className="text-4xl font-bold mt-2">
             ₦
-            {wallet.balance?.toLocaleString()}
+            {wallet?.balance?.toLocaleString() || 0}
           </h2>
 
           <div className="mt-5 flex items-center justify-between">
@@ -215,7 +231,7 @@ const WalletPage = () => {
               </p>
 
               <h3 className="text-2xl font-bold">
-                {wallet.points?.toLocaleString()}
+                {wallet?.points?.toLocaleString() || 0}
               </h3>
 
             </div>
@@ -228,10 +244,10 @@ const WalletPage = () => {
             onClick={convertPoints}
             disabled={
               converting ||
-              wallet.points < 10000
+              wallet?.points < 10000
             }
             className={`mt-6 w-full py-3 rounded-2xl font-bold transition ${
-              wallet.points >= 10000
+              wallet?.points >= 10000
                 ? "bg-black text-white"
                 : "bg-gray-400 text-gray-700"
             }`}
@@ -239,7 +255,7 @@ const WalletPage = () => {
 
             {converting
               ? "Converting..."
-              : wallet.points >= 10000
+              : wallet?.points >= 10000
               ? "Convert Points"
               : "Need 10,000 Points"}
 
@@ -252,49 +268,49 @@ const WalletPage = () => {
 
           <StatCard
             title="Story Likes"
-            value={wallet.storyLikes}
+            value={wallet?.storyLikes}
             icon={<Heart />}
           />
 
           <StatCard
             title="Story Views"
-            value={wallet.storyViews}
+            value={wallet?.storyViews}
             icon={<Eye />}
           />
 
           <StatCard
             title="Reel Likes"
-            value={wallet.reelLikes}
+            value={wallet?.reelLikes}
             icon={<Heart />}
           />
 
           <StatCard
             title="Reel Views"
-            value={wallet.reelViews}
+            value={wallet?.reelViews}
             icon={<PlayCircle />}
           />
 
           <StatCard
             title="Video Likes"
-            value={wallet.videoLikes}
+            value={wallet?.videoLikes}
             icon={<Heart />}
           />
 
           <StatCard
             title="Video Views"
-            value={wallet.videoViews}
+            value={wallet?.videoViews}
             icon={<PlayCircle />}
           />
 
           <StatCard
             title="Referrals"
-            value={wallet.referralPoints}
+            value={wallet?.referralPoints}
             icon={<Users />}
           />
 
           <StatCard
             title="Leaderboard"
-            value={wallet.leaderboardPoints}
+            value={wallet?.leaderboardPoints}
             icon={<Trophy />}
           />
 
@@ -312,7 +328,7 @@ const WalletPage = () => {
 
             <span className="font-bold text-green-400">
               ₦
-              {wallet.lifetimeEarned?.toLocaleString()}
+              {wallet?.lifetimeEarned?.toLocaleString() || 0}
             </span>
 
           </div>
@@ -325,7 +341,7 @@ const WalletPage = () => {
 
             <span className="font-bold text-yellow-400">
               ₦
-              {wallet.pending?.toLocaleString()}
+              {wallet?.pending?.toLocaleString() || 0}
             </span>
 
           </div>
