@@ -108,6 +108,29 @@ const Messages = () => {
     };
   }, [selectedUser, currentUser]);
 
+  // LOAD MESSAGES
+const loadMessages = async (
+  userId
+) => {
+
+  try {
+
+    const data =
+      await fetchWithToken(
+        `${API_BASE}/api/messages/${userId}`,
+        token
+      );
+
+    setMessages(data);
+
+    setShowSidebar(false);
+
+  } catch (err) {
+
+    console.log(err);
+  }
+};
+
   // FETCH USERS
 useEffect(() => {
   const fetchUsers = async () => {
@@ -264,7 +287,7 @@ useEffect(() => {
 
 
   return (
-    <div className="flex h-100 bg-gray-100 overflow-hidden">
+    <div className="flex h-80 bg-gray-100 overflow-hidden">
       {/* MOBILE OVERLAY */}
       {showSidebar && (
         <div
