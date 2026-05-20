@@ -17,6 +17,7 @@ import {
 
 import VideoCall from "../components/VideoCall";
 import VoiceRecorder from "../components/VoiceRecorder";
+import VoiceCall from "../components/VoiceCall";
 
 const defaultProfile =
   "https://afribook-backend.onrender.com/uploads/profiles/default-profile.png";
