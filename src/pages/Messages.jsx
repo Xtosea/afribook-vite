@@ -35,6 +35,8 @@ const Messages = () => {
 
   const token =
     localStorage.getItem("token");
+ 
+   console.log("TOKEN:", token);
 
   const { id } = useParams();
 
@@ -265,13 +267,12 @@ const Messages = () => {
   {
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({
       receiver: selectedUser._id,
-      text,
-      media: uploadedMedia,
-      mediaType,
+      media: audioUrl,
+      mediaType: "audio",
     }),
   }
 );
