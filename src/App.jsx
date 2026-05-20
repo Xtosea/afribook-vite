@@ -141,7 +141,7 @@ function App() {
             />
 
             <Route
-  path="/messages/:id"
+  path="/messages"
   element={
     <ProtectedRoute>
       <Messages />
