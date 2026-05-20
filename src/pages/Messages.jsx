@@ -27,7 +27,10 @@ const Messages = () => {
 
   const messagesEndRef = useRef(null);
 
-  const currentUser =
+  const isMe =
+  msg.sender === currentUser ||
+  msg.sender?._id === currentUser ||
+  msg.sender?.toString?.() ===      currentUser;
     localStorage.getItem("userId");
 
   const token =
@@ -75,59 +78,64 @@ const Messages = () => {
     scrollToBottom();
   }, [messages]);
 
-  // SOCKET
   useEffect(() => {
-    const socket = connectSocket();
+  const socket = connectSocket();
+  socketRef.current = socket;
 
-    socketRef.current = socket;
+  if (!socket) return;
 
-    if (!socket) return;
+  socket.emit("join", currentUser);
 
-    socket.emit("join", currentUser);
+  const handleReceiveMessage = (message) => {
+    // only show messages for current chat
+    const isRelevant =
+      selectedUser &&
+      (
+        message.sender === selectedUser._id ||
+        message.receiver === selectedUser._id ||
+        message.sender?._id === selectedUser._id
+      );
 
-    socket.on(
-      "receive-message",
-      (message) => {
-        if (
-          selectedUser &&
-          (message.sender ===
-            selectedUser._id ||
-            message.receiver ===
-              selectedUser._id ||
-            message.sender?._id ===
-              selectedUser._id)
-        ) {
-          setMessages((prev) => [
-            ...prev,
-            message,
-          ]);
-        }
-      }
-    );
+    if (!isRelevant) return;
 
-    return () => {
-      socket.off("receive-message");
-    };
-  }, [selectedUser, currentUser]);
+    // prevent duplicates
+    setMessages((prev) => {
+      const exists = prev.some(
+        (m) => m._id === message._id
+      );
+
+      if (exists) return prev;
+
+      return [...prev, message];
+    });
+  };
+
+  socket.on("receive-message", handleReceiveMessage);
+
+  return () => {
+    socket.off("receive-message", handleReceiveMessage);
+  };
+}, [currentUser, selectedUser?._id]);
+
 
   // LOAD MESSAGES
-  const loadMessages = async (
-    userId
-  ) => {
-    try {
-      const data =
-        await fetchWithToken(
-          `${API_BASE}/api/messages/${userId}`,
-          token
-        );
+  const loadMessages = async (userId) => {
+  try {
+    setMessages([]); // optional: clear old chat instantly
 
-      setMessages(data || []);
+    const data = await fetchWithToken(
+      `${API_BASE}/api/messages/${userId}`,
+      token
+    );
 
-      setShowSidebar(false);
-    } catch (err) {
-      console.log(err);
-    }
-  };
+    setMessages(data || []);
+    setShowSidebar(false);
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+
 
   // FETCH USERS
   useEffect(() => {
@@ -251,21 +259,22 @@ const Messages = () => {
             : "image";
       }
 
-      const newMessage =
-        await fetchWithToken(
-          `${API_BASE}/api/messages`,
-          token,
-          {
-            method: "POST",
-            body: JSON.stringify({
-              receiver:
-                selectedUser._id,
-              text,
-              media: uploadedMedia,
-              mediaType,
-            }),
-          }
-        );
+      const newMessage = await fetchWithToken(
+  `${API_BASE}/api/messages`,
+  token,
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      receiver: selectedUser._id,
+      text,
+      media: uploadedMedia,
+      mediaType,
+    }),
+  }
+);
 
       setMessages((prev) => [
         ...prev,
@@ -446,11 +455,18 @@ const Messages = () => {
 
                 {/* VOICE */}
                 <button
-                  onClick={() =>
-                    setShowVoiceCall(
-                      true
-                    )
-                  }
+                  onClick={() => {
+  socketRef.current?.emit("voice-call-user", {
+    to: selectedUser._id,
+    caller: {
+      _id: currentUser,
+      name: "User",
+    },
+  });
+
+  setShowVoiceCall(true);
+}}
+
                   className="bg-blue-500 hover:bg-blue-600 text-white w-11 h-11 rounded-full flex items-center justify-center shadow-lg"
                 >
                   📞
@@ -458,9 +474,18 @@ const Messages = () => {
 
                 {/* VIDEO */}
                 <button
-                  onClick={() =>
-                    setShowCall(true)
-                  }
+                  onClick={() => {
+  socketRef.current?.emit("video-call-user", {
+    to: selectedUser._id,
+    caller: {
+      _id: currentUser,
+      name: "User",
+    },
+  });
+
+  setShowCall(true);
+}}
+
                   className="bg-green-500 hover:bg-green-600 text-white w-11 h-11 rounded-full flex items-center justify-center shadow-lg"
                 >
                   📹
