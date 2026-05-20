@@ -469,7 +469,8 @@ const Messages = () => {
             </div>
 
             {/* MESSAGES */}
-            <div className="flex-1 overflow-y-auto px-3 py-4 bg-gradient-to-b from-gray-50 to-gray-100 space-y-4">
+            {/* MESSAGES */}
+<div className="flex-1 overflow-y-auto px-3 py-4 pb-40 md:pb-28 bg-gradient-to-b from-gray-50 to-gray-100 space-y-4">
 
               {messages.map(
                 (msg, index) => {
