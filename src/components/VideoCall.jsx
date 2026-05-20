@@ -41,7 +41,8 @@ const VideoCall = ({
   const connectionRef =
     useRef();
 
-  // GET CAMERA + MIC
+  // ================= GET CAMERA + MIC =================
+
   useEffect(() => {
 
     const startMedia =
@@ -80,6 +81,8 @@ const VideoCall = ({
 
     startMedia();
 
+    // ================= INCOMING CALL =================
+
     socket.on(
       "incoming-call",
       (data) => {
@@ -94,10 +97,32 @@ const VideoCall = ({
       }
     );
 
+    // ================= CALL ENDED =================
+
+    socket.on(
+      "call-ended",
+      () => {
+
+        connectionRef.current?.destroy();
+
+        stream
+          ?.getTracks()
+          .forEach((track) =>
+            track.stop()
+          );
+
+        onClose();
+      }
+    );
+
     return () => {
 
       socket.off(
         "incoming-call"
+      );
+
+      socket.off(
+        "call-ended"
       );
 
       if (stream) {
@@ -110,9 +135,10 @@ const VideoCall = ({
       }
     };
 
-  }, []);
+  }, [stream]);
 
-  // CALL USER
+  // ================= CALL USER =================
+
   const callUser = () => {
 
     const peer =
@@ -131,8 +157,10 @@ const VideoCall = ({
           {
             to:
               selectedUser._id,
+
             from:
               currentUser,
+
             signal,
           }
         );
@@ -172,7 +200,8 @@ const VideoCall = ({
       peer;
   };
 
-  // ANSWER CALL
+  // ================= ANSWER CALL =================
+
   const answerCall = () => {
 
     setCallAccepted(
@@ -194,6 +223,7 @@ const VideoCall = ({
           "answer-call",
           {
             signal,
+
             to:
               selectedUser._id,
           }
@@ -224,33 +254,37 @@ const VideoCall = ({
       peer;
   };
 
-  // END CALL
+  // ================= END CALL =================
+
   const endCall = () => {
 
-    if (
-      connectionRef.current
-    ) {
-      connectionRef.current.destroy();
-    }
+    connectionRef.current?.destroy();
 
-    if (stream) {
+    stream
+      ?.getTracks()
+      .forEach((track) =>
+        track.stop()
+      );
 
-      stream
-        .getTracks()
-        .forEach((track) =>
-          track.stop()
-        );
-    }
+    socket.emit(
+      "end-call",
+      {
+        to:
+          selectedUser._id,
+      }
+    );
 
     onClose();
   };
 
-  // TOGGLE MIC
+  // ================= TOGGLE MIC =================
+
   const toggleMic = () => {
 
     stream
       ?.getAudioTracks()
       .forEach((track) => {
+
         track.enabled =
           !track.enabled;
       });
@@ -260,7 +294,8 @@ const VideoCall = ({
     );
   };
 
-  // TOGGLE CAMERA
+  // ================= TOGGLE CAMERA =================
+
   const toggleCamera =
     () => {
 
@@ -268,6 +303,7 @@ const VideoCall = ({
         ?.getVideoTracks()
         .forEach(
           (track) => {
+
             track.enabled =
               !track.enabled;
           }
@@ -281,10 +317,12 @@ const VideoCall = ({
   return (
     <div className="fixed inset-0 bg-black z-50 flex flex-col">
 
-      {/* TOP */}
+      {/* ================= TOP ================= */}
+
       <div className="flex justify-between items-center p-4 text-white border-b border-gray-800">
 
         <div>
+
           <h2 className="text-xl font-bold">
             Video Call
           </h2>
@@ -294,6 +332,7 @@ const VideoCall = ({
               selectedUser?.name
             }
           </p>
+
         </div>
 
         <button
@@ -306,10 +345,12 @@ const VideoCall = ({
         </button>
       </div>
 
-      {/* VIDEOS */}
+      {/* ================= VIDEOS ================= */}
+
       <div className="flex-1 grid md:grid-cols-2 gap-4 p-4">
 
         {/* MY VIDEO */}
+
         <video
           playsInline
           muted
@@ -319,6 +360,7 @@ const VideoCall = ({
         />
 
         {/* USER VIDEO */}
+
         <video
           playsInline
           ref={userVideo}
@@ -327,7 +369,8 @@ const VideoCall = ({
         />
       </div>
 
-      {/* CONTROLS */}
+      {/* ================= CONTROLS ================= */}
+
       <div className="p-6 flex flex-wrap justify-center gap-4">
 
         {!callAccepted && (
@@ -343,6 +386,7 @@ const VideoCall = ({
 
         {receivingCall &&
           !callAccepted && (
+
             <button
               onClick={
                 answerCall
@@ -354,6 +398,7 @@ const VideoCall = ({
           )}
 
         {/* MIC */}
+
         <button
           onClick={
             toggleMic
@@ -370,6 +415,7 @@ const VideoCall = ({
         </button>
 
         {/* CAMERA */}
+
         <button
           onClick={
             toggleCamera
@@ -384,6 +430,18 @@ const VideoCall = ({
             ? "📷"
             : "🚫"}
         </button>
+
+        {/* END CALL */}
+
+        <button
+          onClick={
+            endCall
+          }
+          className="bg-red-600 px-6 py-3 rounded-full text-white font-bold"
+        >
+          End Call
+        </button>
+
       </div>
     </div>
   );
