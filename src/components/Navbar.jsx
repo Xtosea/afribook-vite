@@ -254,8 +254,8 @@ const Navbar = () => {
                       : "hover:text-blue-500"
                   }`}
                 >
-                  <Video size={20} />
-                  Leaderboard 
+                <Users size={20} />
+                Leaderboard 
                 </Link>
 
                 <Link
