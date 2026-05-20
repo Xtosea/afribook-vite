@@ -247,16 +247,16 @@ const Navbar = () => {
 
 
               <Link
-                  to="/leaderboard"
-                  className={`flex items-center gap-1 ${
-                    isActive("/reels")
-                      ? "text-blue-600"
-                      : "hover:text-blue-500"
-                  }`}
-                >
-                <Users size={20} />
-                Leaderboard 
-                </Link>
+  to="/leaderboard"
+  className={`flex items-center gap-1 ${
+    isActive("/leaderboard")
+      ? "text-blue-600"
+      : "hover:text-blue-500"
+  }`}
+>
+  <Users size={20} />
+  Leaderboard
+</Link>
 
                 <Link
                   to="/messages"
@@ -477,23 +477,23 @@ const Navbar = () => {
           </Link>
 
           <Link
-            to="/messages"
-            className="block"
-            onClick={() =>
-              setMobileMenuOpen(false)
-            }
-          >
+  to="/messages"
+  className="block"
+  onClick={() =>
+    setMobileMenuOpen(false)
+  }
+>
 
-          <Link
-            to="/leaderboard"
-            className="block"
-            onClick={() =>
-              setMobileMenuOpen(false)
-            }
-          >
+<Link
+  to="/leaderboard"
+  className="block"
+  onClick={() =>
+    setMobileMenuOpen(false)
+  }
+>
 
-            Leaderboard 
-          </Link>
+  Leaderboard 
+</Link>
 
           <Link
             to="/profile"
