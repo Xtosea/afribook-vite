@@ -5,15 +5,20 @@ import React, {
 } from "react";
 
 import Peer from "simple-peer";
+
 import { connectSocket } from "../socket";
 
 const VideoCall = ({
   currentUser,
   selectedUser,
+  onClose,
 }) => {
+
   const socket = connectSocket();
 
-  const [stream, setStream] = useState(null);
+  const [stream, setStream] =
+    useState(null);
+
   const [receivingCall, setReceivingCall] =
     useState(false);
 
@@ -23,98 +28,278 @@ const VideoCall = ({
   const [callAccepted, setCallAccepted] =
     useState(false);
 
+  const [micOn, setMicOn] =
+    useState(true);
+
+  const [cameraOn, setCameraOn] =
+    useState(true);
+
   const myVideo = useRef();
+
   const userVideo = useRef();
 
-  const connectionRef = useRef();
+  const connectionRef =
+    useRef();
 
-  // GET CAMERA
+  // GET CAMERA + MIC
   useEffect(() => {
-    navigator.mediaDevices
-      .getUserMedia({
-        video: true,
-        audio: true,
-      })
-      .then((stream) => {
-        setStream(stream);
 
-        if (myVideo.current) {
-          myVideo.current.srcObject = stream;
+    const startMedia =
+      async () => {
+
+        try {
+
+          const currentStream =
+            await navigator.mediaDevices.getUserMedia(
+              {
+                video: true,
+                audio: true,
+              }
+            );
+
+          setStream(
+            currentStream
+          );
+
+          if (
+            myVideo.current
+          ) {
+            myVideo.current.srcObject =
+              currentStream;
+          }
+
+        } catch (err) {
+
+          console.log(err);
+
+          alert(
+            "Camera or microphone permission denied"
+          );
         }
-      });
+      };
 
-    socket.on("incoming-call", (data) => {
-      setReceivingCall(true);
-      setCallerSignal(data.signal);
-    });
+    startMedia();
+
+    socket.on(
+      "incoming-call",
+      (data) => {
+
+        setReceivingCall(
+          true
+        );
+
+        setCallerSignal(
+          data.signal
+        );
+      }
+    );
+
+    return () => {
+
+      socket.off(
+        "incoming-call"
+      );
+
+      if (stream) {
+
+        stream
+          .getTracks()
+          .forEach((track) =>
+            track.stop()
+          );
+      }
+    };
+
   }, []);
 
   // CALL USER
   const callUser = () => {
-    const peer = new Peer({
-      initiator: true,
-      trickle: false,
-      stream,
-    });
 
-    peer.on("signal", (signal) => {
-      socket.emit("call-user", {
-        to: selectedUser._id,
-        from: currentUser,
-        signal,
+    const peer =
+      new Peer({
+        initiator: true,
+        trickle: false,
+        stream,
       });
-    });
 
-    peer.on("stream", (remoteStream) => {
-      userVideo.current.srcObject =
-        remoteStream;
-    });
+    peer.on(
+      "signal",
+      (signal) => {
 
-    socket.on("call-accepted", (signal) => {
-      setCallAccepted(true);
-      peer.signal(signal);
-    });
+        socket.emit(
+          "call-user",
+          {
+            to:
+              selectedUser._id,
+            from:
+              currentUser,
+            signal,
+          }
+        );
+      }
+    );
 
-    connectionRef.current = peer;
+    peer.on(
+      "stream",
+      (
+        remoteStream
+      ) => {
+
+        if (
+          userVideo.current
+        ) {
+          userVideo.current.srcObject =
+            remoteStream;
+        }
+      }
+    );
+
+    socket.on(
+      "call-accepted",
+      (signal) => {
+
+        setCallAccepted(
+          true
+        );
+
+        peer.signal(
+          signal
+        );
+      }
+    );
+
+    connectionRef.current =
+      peer;
   };
 
   // ANSWER CALL
   const answerCall = () => {
-    setCallAccepted(true);
 
-    const peer = new Peer({
-      initiator: false,
-      trickle: false,
-      stream,
-    });
+    setCallAccepted(
+      true
+    );
 
-    peer.on("signal", (signal) => {
-      socket.emit("answer-call", {
-        signal,
-        to: selectedUser._id,
+    const peer =
+      new Peer({
+        initiator: false,
+        trickle: false,
+        stream,
       });
-    });
 
-    peer.on("stream", (remoteStream) => {
-      userVideo.current.srcObject =
-        remoteStream;
-    });
+    peer.on(
+      "signal",
+      (signal) => {
 
-    peer.signal(callerSignal);
+        socket.emit(
+          "answer-call",
+          {
+            signal,
+            to:
+              selectedUser._id,
+          }
+        );
+      }
+    );
 
-    connectionRef.current = peer;
+    peer.on(
+      "stream",
+      (
+        remoteStream
+      ) => {
+
+        if (
+          userVideo.current
+        ) {
+          userVideo.current.srcObject =
+            remoteStream;
+        }
+      }
+    );
+
+    peer.signal(
+      callerSignal
+    );
+
+    connectionRef.current =
+      peer;
   };
+
+  // END CALL
+  const endCall = () => {
+
+    if (
+      connectionRef.current
+    ) {
+      connectionRef.current.destroy();
+    }
+
+    if (stream) {
+
+      stream
+        .getTracks()
+        .forEach((track) =>
+          track.stop()
+        );
+    }
+
+    onClose();
+  };
+
+  // TOGGLE MIC
+  const toggleMic = () => {
+
+    stream
+      ?.getAudioTracks()
+      .forEach((track) => {
+        track.enabled =
+          !track.enabled;
+      });
+
+    setMicOn(
+      !micOn
+    );
+  };
+
+  // TOGGLE CAMERA
+  const toggleCamera =
+    () => {
+
+      stream
+        ?.getVideoTracks()
+        .forEach(
+          (track) => {
+            track.enabled =
+              !track.enabled;
+          }
+        );
+
+      setCameraOn(
+        !cameraOn
+      );
+    };
 
   return (
     <div className="fixed inset-0 bg-black z-50 flex flex-col">
+
       {/* TOP */}
-      <div className="flex justify-between p-4 text-white">
-        <h2 className="text-xl font-bold">
-          Video Call
-        </h2>
+      <div className="flex justify-between items-center p-4 text-white border-b border-gray-800">
+
+        <div>
+          <h2 className="text-xl font-bold">
+            Video Call
+          </h2>
+
+          <p className="text-sm text-gray-400">
+            {
+              selectedUser?.name
+            }
+          </p>
+        </div>
 
         <button
-          onClick={() => window.location.reload()}
+          onClick={
+            endCall
+          }
           className="bg-red-500 px-4 py-2 rounded-full"
         >
           End
@@ -123,6 +308,8 @@ const VideoCall = ({
 
       {/* VIDEOS */}
       <div className="flex-1 grid md:grid-cols-2 gap-4 p-4">
+
+        {/* MY VIDEO */}
         <video
           playsInline
           muted
@@ -131,6 +318,7 @@ const VideoCall = ({
           className="w-full h-full object-cover rounded-2xl bg-gray-900"
         />
 
+        {/* USER VIDEO */}
         <video
           playsInline
           ref={userVideo}
@@ -140,24 +328,62 @@ const VideoCall = ({
       </div>
 
       {/* CONTROLS */}
-      <div className="p-6 flex justify-center gap-4">
+      <div className="p-6 flex flex-wrap justify-center gap-4">
+
         {!callAccepted && (
           <button
-            onClick={callUser}
+            onClick={
+              callUser
+            }
             className="bg-green-500 px-6 py-3 rounded-full text-white font-bold"
           >
             Start Call
           </button>
         )}
 
-        {receivingCall && !callAccepted && (
-          <button
-            onClick={answerCall}
-            className="bg-blue-500 px-6 py-3 rounded-full text-white font-bold"
-          >
-            Answer Call
-          </button>
-        )}
+        {receivingCall &&
+          !callAccepted && (
+            <button
+              onClick={
+                answerCall
+              }
+              className="bg-blue-500 px-6 py-3 rounded-full text-white font-bold"
+            >
+              Answer Call
+            </button>
+          )}
+
+        {/* MIC */}
+        <button
+          onClick={
+            toggleMic
+          }
+          className={`px-5 py-3 rounded-full text-white font-bold ${
+            micOn
+              ? "bg-gray-700"
+              : "bg-red-500"
+          }`}
+        >
+          {micOn
+            ? "🎤"
+            : "🔇"}
+        </button>
+
+        {/* CAMERA */}
+        <button
+          onClick={
+            toggleCamera
+          }
+          className={`px-5 py-3 rounded-full text-white font-bold ${
+            cameraOn
+              ? "bg-gray-700"
+              : "bg-red-500"
+          }`}
+        >
+          {cameraOn
+            ? "📷"
+            : "🚫"}
+        </button>
       </div>
     </div>
   );
