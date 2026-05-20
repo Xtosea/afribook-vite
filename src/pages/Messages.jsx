@@ -4,6 +4,8 @@ import React, {
   useRef,
 } from "react";
 
+import { useParams } from "react-router-dom";
+
 import { motion } from "framer-motion";
 
 import { connectSocket } from "../socket";
@@ -28,6 +30,8 @@ const Messages = () => {
 
   const token =
     localStorage.getItem("token");
+   
+   const { id } = useParams();
 
   const [friends, setFriends] =
     useState([]);
@@ -105,42 +109,37 @@ const Messages = () => {
   }, [selectedUser, currentUser]);
 
   // FETCH USERS
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const data =
-          await fetchWithToken(
-            `${API_BASE}/api/users`,
-            token
-          );
-
-        setFriends(data);
-      } catch (err) {
-        console.log(err);
-      }
-    };
-
-    fetchUsers();
-  }, []);
-
-  // LOAD MESSAGES
-  const loadMessages = async (
-    userId
-  ) => {
+useEffect(() => {
+  const fetchUsers = async () => {
     try {
       const data =
         await fetchWithToken(
-          `${API_BASE}/api/messages/${userId}`,
+          `${API_BASE}/api/users`,
           token
         );
 
-      setMessages(data);
+      setFriends(data);
 
-      setShowSidebar(false);
+      // AUTO OPEN CHAT FROM URL
+      if (id) {
+        const foundUser = data.find(
+          (u) => u._id === id
+        );
+
+        if (foundUser) {
+          setSelectedUser(foundUser);
+
+          loadMessages(foundUser._id);
+        }
+      }
     } catch (err) {
       console.log(err);
     }
   };
+
+  fetchUsers();
+}, [id]);
+l
 
   // SEND MESSAGE
   const sendMessage = async () => {
