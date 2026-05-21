@@ -74,12 +74,6 @@ const Messages = () => {
   };
 
 
-console.log({
-  receiver: selectedUser._id,
-  text,
-  media: uploadedMedia,
-  mediaType,
-});
 
 
   useEffect(() => {
