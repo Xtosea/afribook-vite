@@ -273,17 +273,31 @@ return (
   </div>
 </div>
 
+
 <PostMenu
   post={post}
   token={token}
   currentUser={currentUser}
-  onDeleted={(id) =>
+  onUpdated={(updatedPost) => {
+
+    setPosts((prev) =>
+      prev.map((p) =>
+        p._id === updatedPost._id
+          ? updatedPost
+          : p
+      )
+    );
+
+  }}
+  onDeleted={(id) => {
+
     setPosts((prev) =>
       prev.filter(
         (p) => p._id !== id
       )
-    )
-  }
+    );
+
+  }}
 />
 
 
