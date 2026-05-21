@@ -27,11 +27,8 @@ const Messages = () => {
 
   const messagesEndRef = useRef(null);
 
-  const isMe =
-  msg.sender === currentUser ||
-  msg.sender?._id === currentUser ||
-  msg.sender?.toString?.() ===      currentUser;
-    localStorage.getItem("userId");
+  const currentUser =
+  localStorage.getItem("userId");
 
   const token =
     localStorage.getItem("token");
