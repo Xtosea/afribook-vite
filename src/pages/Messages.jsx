@@ -469,7 +469,8 @@ const Messages = () => {
             </div>
 
             {/* MESSAGES */}
-            <div className="flex-1 overflow-y-auto px-3 py-4 bg-gradient-to-b from-gray-50 to-gray-100 space-y-4">
+           
+<div className="flex-1 overflow-y-auto px-3 py-4 pb-32 md:pb-4 bg-gradient-to-b from-gray-50 to-gray-100 space-y-4">
 
               {messages.map(
                 (msg, index) => {
@@ -583,7 +584,8 @@ const Messages = () => {
             </div>
 
             {/* INPUT AREA */}
-            <div className="sticky bottom-0 z-30 bg-white border-t px-3 py-3 shadow-lg">
+           
+<div className="sticky bottom-[70px] md:bottom-0 z-30 bg-white border-t px-3 py-3 shadow-lg">
 
               <div className="space-y-2">
 
