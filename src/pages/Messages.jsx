@@ -241,41 +241,34 @@ const sendMessage = async () => {
           : "image";
     }
 
-    const newMessage =
-      await fetchWithToken(
-        `${API_BASE}/api/messages`,
-        token,
-        {
-          method: "POST",
+    const res = await fetchWithToken(
+  `${API_BASE}/api/messages`,
+  token,
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      receiver: selectedUser._id,
+      text,
+      media: uploadedMedia,
+      mediaType,
+    }),
+  }
+);
 
-          headers: {
-            "Content-Type":
-              "application/json",
-          },
+// IMPORTANT: normalize response
+const messageData = res?.data || res;
 
-          body: JSON.stringify({
-            receiver:
-              selectedUser._id,
+const messageData = res?.data?.message || res?.message || res;
 
-            text,
+setMessages((prev) => [...prev, messageData]);
 
-            media:
-              uploadedMedia,
-
-            mediaType,
-          }),
-        }
-      );
-
-    setMessages((prev) => [
-      ...prev,
-      newMessage,
-    ]);
-
-    socketRef.current?.emit(
-      "send-message",
-      newMessage
-    );
+    socketRef.current?.emit("send-message", messageData);
+  sender: currentUser,
+  receiver: selectedUser._id,
+});
 
     setText("");
     setMedia(null);
