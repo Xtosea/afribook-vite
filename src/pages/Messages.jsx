@@ -1,5 +1,3 @@
-// src/pages/Messages.jsx
-
 import React, {
   useEffect,
   useState,
@@ -9,15 +7,6 @@ import React, {
 import { useParams } from "react-router-dom";
 
 import { motion } from "framer-motion";
-
-import {
-  Phone,
-  Video,
-  Send,
-  Paperclip,
-  Menu,
-  X,
-} from "lucide-react";
 
 import { connectSocket } from "../socket";
 
@@ -36,28 +25,21 @@ const defaultProfile =
 const Messages = () => {
   const socketRef = useRef(null);
 
-  const messagesEndRef =
-    useRef(null);
+  const messagesEndRef = useRef(null);
 
   const currentUser =
-    localStorage.getItem(
-      "userId"
-    );
+    localStorage.getItem("userId");
 
   const token =
-    localStorage.getItem(
-      "token"
-    );
+    localStorage.getItem("token");
 
   const { id } = useParams();
 
   const [friends, setFriends] =
     useState([]);
 
-  const [
-    selectedUser,
-    setSelectedUser,
-  ] = useState(null);
+  const [selectedUser, setSelectedUser] =
+    useState(null);
 
   const [messages, setMessages] =
     useState([]);
@@ -82,339 +64,256 @@ const Messages = () => {
   const [showSidebar, setShowSidebar] =
     useState(false);
 
-  // ================= SOCKET =================
+  // AUTO SCROLL
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({
+      behavior: "smooth",
+    });
+  };
 
   useEffect(() => {
-    const socket =
-      connectSocket();
+    scrollToBottom();
+  }, [messages]);
 
-    socketRef.current =
-      socket;
+  // SOCKET
+  useEffect(() => {
+    const socket = connectSocket();
 
-    if (
-      !socket ||
-      !currentUser
-    )
-      return;
+    socketRef.current = socket;
 
-    socket.emit(
-      "join",
-      currentUser
-    );
+    if (!socket) return;
 
-    // RECEIVE MESSAGE
-    const handleReceiveMessage =
-      (message) => {
-        if (!selectedUser)
-          return;
-
-        const senderId =
-          message.sender?._id ||
-          message.sender;
-
-        const receiverId =
-          message.receiver?._id ||
-          message.receiver;
-
-        const isRelevant =
-          senderId ===
-            selectedUser._id ||
-          receiverId ===
-            selectedUser._id;
-
-        if (!isRelevant)
-          return;
-
-        setMessages((prev) => {
-          const exists =
-            prev.some(
-              (m) =>
-                String(m._id) ===
-                String(
-                  message._id
-                )
-            );
-
-          if (exists)
-            return prev;
-
-          return [
-            ...prev,
-            message,
-          ];
-        });
-      };
+    socket.emit("join", currentUser);
 
     socket.on(
       "receive-message",
-      handleReceiveMessage
+      (message) => {
+        if (
+          selectedUser &&
+          (message.sender ===
+            selectedUser._id ||
+            message.receiver ===
+              selectedUser._id ||
+            message.sender?._id ===
+              selectedUser._id)
+        ) {
+          setMessages((prev) => [
+            ...prev,
+            message,
+          ]);
+        }
+      }
     );
 
     return () => {
-      socket.off(
-        "receive-message",
-        handleReceiveMessage
-      );
+      socket.off("receive-message");
     };
-  }, [
-    currentUser,
-    selectedUser?._id,
-  ]);
+  }, [selectedUser, currentUser]);
 
-  // ================= AUTO SCROLL =================
+  // LOAD MESSAGES
+  const loadMessages = async (
+    userId
+  ) => {
+    try {
+      const data =
+        await fetchWithToken(
+          `${API_BASE}/api/messages/${userId}`,
+          token
+        );
 
+      setMessages(data || []);
+
+      setShowSidebar(false);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  // FETCH USERS
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView(
-      {
-        behavior: "smooth",
-      }
-    );
-  }, [messages]);
-
-  // ================= LOAD MESSAGES =================
-
-  const loadMessages =
-    async (userId) => {
+    const fetchUsers = async () => {
       try {
         const data =
           await fetchWithToken(
-            `${API_BASE}/api/messages/${userId}`,
+            `${API_BASE}/api/users`,
             token
           );
 
-        console.log(
-          "MESSAGES:",
-          data
-        );
+        setFriends(data || []);
 
-        setMessages(
-          Array.isArray(data)
-            ? data
-            : data?.messages ||
-                []
-        );
+        // OPEN CHAT FROM URL
+        if (id) {
+          let foundUser = data.find(
+            (u) => u._id === id
+          );
 
-        setShowSidebar(
-          false
-        );
-      } catch (err) {
-        console.log(
-          "LOAD MESSAGE ERROR:",
-          err
-        );
-      }
-    };
-
-  // ================= FETCH USERS =================
-
-  useEffect(() => {
-    const fetchUsers =
-      async () => {
-        try {
-          const data =
-            await fetchWithToken(
-              `${API_BASE}/api/users`,
-              token
-            );
-
-          const users =
-            Array.isArray(
-              data
-            )
-              ? data
-              : data?.users ||
-                [];
-
-          setFriends(users);
-
-          // OPEN USER FROM URL
-          if (id) {
-            const foundUser =
-              users.find(
-                (u) =>
-                  u._id === id
-              );
-
-            if (
-              foundUser
-            ) {
-              setSelectedUser(
-                foundUser
-              );
-
-              loadMessages(
-                foundUser._id
+          // FETCH USER DIRECTLY
+          if (!foundUser) {
+            try {
+              foundUser =
+                await fetchWithToken(
+                  `${API_BASE}/api/users/${id}`,
+                  token
+                );
+            } catch (err) {
+              console.log(
+                "User fetch failed",
+                err
               );
             }
           }
-        } catch (err) {
-          console.log(
-            "FETCH USER ERROR:",
-            err
-          );
-        }
-      };
 
-    if (token) {
-      fetchUsers();
-    }
-  }, [id, token]);
-
-  // ================= SEND MESSAGE =================
-
-  const sendMessage =
-    async () => {
-      if (
-        !text.trim() &&
-        !media
-      )
-        return;
-
-      if (!selectedUser)
-        return;
-
-      try {
-        setUploading(
-          true
-        );
-
-        let uploadedMedia =
-          "";
-
-        let mediaType =
-          "";
-
-        // ========= UPLOAD FILE =========
-
-        if (media) {
-          const formData =
-            new FormData();
-
-          formData.append(
-            "file",
-            media
-          );
-
-          formData.append(
-            "upload_preset",
-            "YOUR_UPLOAD_PRESET"
-          );
-
-          const cloudName =
-            "YOUR_CLOUD_NAME";
-
-          const resourceType =
-            media.type.startsWith(
-              "video"
-            )
-              ? "video"
-              : media.type.startsWith(
-                  "image"
-                )
-              ? "image"
-              : "auto";
-
-          const uploadRes =
-            await fetch(
-              `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`,
-              {
-                method:
-                  "POST",
-                body: formData,
-              }
+          if (foundUser) {
+            setSelectedUser(
+              foundUser
             );
 
-          const uploadData =
-            await uploadRes.json();
-
-          uploadedMedia =
-            uploadData.secure_url;
-
-          mediaType =
-            media.type.startsWith(
-              "video"
-            )
-              ? "video"
-              : media.type.startsWith(
-                  "audio"
-                )
-              ? "audio"
-              : "image";
+            loadMessages(
+              foundUser._id
+            );
+          }
         }
+      } catch (err) {
+        console.log(err);
+      }
+    };
 
-        // ========= SAVE MESSAGE =========
+    fetchUsers();
+  }, [id]);
 
-        const res =
-          await fetchWithToken(
-            `${API_BASE}/api/messages`,
-            token,
+  // SEND MESSAGE
+  const sendMessage = async () => {
+    if (
+      !text.trim() &&
+      !media
+    )
+      return;
+
+    try {
+      let uploadedMedia = "";
+      let mediaType = "";
+
+      // UPLOAD MEDIA
+      if (media) {
+        setUploading(true);
+
+        const formData =
+          new FormData();
+
+        formData.append(
+          "file",
+          media
+        );
+
+        formData.append(
+          "upload_preset",
+          "YOUR_UPLOAD_PRESET"
+        );
+
+        const cloudName =
+          "YOUR_CLOUD_NAME";
+
+        const resourceType =
+          media.type.startsWith(
+            "video"
+          )
+            ? "video"
+            : media.type.startsWith(
+                "image"
+              )
+            ? "image"
+            : "auto";
+
+        const uploadRes =
+          await fetch(
+            `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`,
             {
-              method:
-                "POST",
-
-              headers: {
-                "Content-Type":
-                  "application/json",
-              },
-
-              body:
-                JSON.stringify(
-                  {
-                    receiver:
-                      selectedUser._id,
-
-                    text,
-
-                    media:
-                      uploadedMedia,
-
-                    mediaType,
-                  }
-                ),
+              method: "POST",
+              body: formData,
             }
           );
 
-        console.log(
-          "SEND RESPONSE:",
-          res
-        );
+        const uploadData =
+          await uploadRes.json();
 
-        const messageData =
-          res?.message ||
-          res?.data?.message ||
-          res?.data ||
-          res;
+        uploadedMedia =
+          uploadData.secure_url;
 
-        if (!messageData)
-          return;
-
-        // ADD TO UI
-        setMessages(
-          (prev) => [
-            ...prev,
-            messageData,
-          ]
-        );
-
-        // SOCKET
-        socketRef.current?.emit(
-          "send-message",
-          messageData
-        );
-
-        setText("");
-        setMedia(null);
-      } catch (err) {
-        console.log(
-          "SEND ERROR:",
-          err
-        );
-      } finally {
-        setUploading(
-          false
-        );
+        mediaType =
+          media.type.startsWith(
+            "video"
+          )
+            ? "video"
+            : media.type.startsWith(
+                "audio"
+              )
+            ? "audio"
+            : "image";
       }
+
+      const newMessage =
+        await fetchWithToken(
+          `${API_BASE}/api/messages`,
+          token,
+          {
+            method: "POST",
+            body: JSON.stringify({
+              receiver:
+                selectedUser._id,
+              text,
+              media: uploadedMedia,
+              mediaType,
+            }),
+          }
+        );
+
+      setMessages((prev) => [
+        ...prev,
+        newMessage,
+      ]);
+
+      socketRef.current?.emit(
+        "send-message",
+        newMessage
+      );
+
+      setText("");
+      setMedia(null);
+      setUploading(false);
+    } catch (err) {
+      console.log(err);
+
+      setUploading(false);
+    }
+  };
+
+  // ADSTERRA
+  useEffect(() => {
+    const script =
+      document.createElement(
+        "script"
+      );
+
+    script.src =
+      "https://pl29467278.effectivecpmnetwork.com/1ac49ab91139c0ad3e13572497cfbe18/invoke.js";
+
+    script.async = true;
+
+    script.setAttribute(
+      "data-cfasync",
+      "false"
+    );
+
+    document.body.appendChild(
+      script
+    );
+
+    return () => {
+      document.body.removeChild(
+        script
+      );
     };
+  }, []);
 
   return (
     <div className="flex h-screen bg-gray-100 overflow-hidden">
@@ -424,109 +323,103 @@ const Messages = () => {
         <div
           className="fixed inset-0 bg-black/40 z-30 md:hidden"
           onClick={() =>
-            setShowSidebar(
-              false
-            )
+            setShowSidebar(false)
           }
         />
       )}
 
-      {/* ================= SIDEBAR ================= */}
-
+      {/* SIDEBAR */}
       <div
-        className={`fixed md:relative top-0 left-0 z-40 bg-white border-r w-[280px] h-full transform transition-transform duration-300 ${
+        className={`fixed md:relative z-40 md:z-0 top-0 left-0 h-full w-[320px] bg-white border-r shadow-2xl flex flex-col transform transition-transform duration-300 ${
           showSidebar
             ? "translate-x-0"
             : "-translate-x-full md:translate-x-0"
         }`}
       >
-        <div className="p-4 border-b flex items-center justify-between">
-          <h1 className="font-bold text-2xl text-blue-600">
+
+        {/* HEADER */}
+        <div className="p-4 border-b flex items-center justify-between bg-white sticky top-0 z-10">
+          <h1 className="text-2xl font-bold text-blue-600">
             Messages
           </h1>
 
           <button
-  className="md:hidden bg-gray-100 p-2 rounded-full"
-  onClick={() =>
-    setShowSidebar(true)
-  }
->
-  <Menu size={22} />
-</button>
+            onClick={() =>
+              setShowSidebar(false)
+            }
+            className="md:hidden text-2xl"
+          >
+            ✕
+          </button>
         </div>
 
-        <div className="overflow-y-auto h-full pb-20">
-          {friends.map(
-            (user) => (
-              <div
-                key={
-                  user._id
-                }
-                onClick={() => {
-                  setSelectedUser(
-                    user
-                  );
+        {/* USERS */}
+        <div className="flex-1 overflow-y-auto">
+          {friends.map((user) => (
+            <motion.div
+              whileHover={{
+                scale: 1.01,
+              }}
+              key={user._id}
+              onClick={() => {
+                setSelectedUser(user);
 
-                  loadMessages(
-                    user._id
-                  );
-                }}
-                className={`flex items-center gap-3 p-4 cursor-pointer border-b hover:bg-gray-100 ${
-                  selectedUser?._id ===
+                loadMessages(
                   user._id
-                    ? "bg-blue-50"
-                    : ""
-                }`}
-              >
+                );
+              }}
+              className={`flex items-center gap-3 p-4 cursor-pointer transition border-b hover:bg-gray-100 ${
+                selectedUser?._id ===
+                user._id
+                  ? "bg-blue-50"
+                  : ""
+              }`}
+            >
+              <div className="relative">
                 <img
                   src={
                     user.profilePic ||
                     defaultProfile
                   }
                   alt=""
-                  className="w-12 h-12 rounded-full object-cover"
+                  className="w-14 h-14 rounded-full object-cover"
                 />
 
-                <div>
-                  <h2 className="font-semibold">
-                    {
-                      user.name
-                    }
-                  </h2>
-
-                  <p className="text-sm text-gray-500">
-                    Tap to
-                    chat
-                  </p>
-                </div>
+                <div className="absolute bottom-1 right-1 w-3 h-3 rounded-full bg-green-500 border-2 border-white animate-pulse" />
               </div>
-            )
-          )}
+
+              <div>
+                <h2 className="font-semibold text-gray-800">
+                  {user.name}
+                </h2>
+
+                <p className="text-sm text-gray-500">
+                  Tap to chat
+                </p>
+              </div>
+            </motion.div>
+          ))}
         </div>
       </div>
 
-      {/* ================= CHAT AREA ================= */}
-
-      <div className="flex-1 flex flex-col">
+      {/* CHAT AREA */}
+      <div className="flex-1 flex flex-col h-screen overflow-hidden">
 
         {selectedUser ? (
           <>
             {/* HEADER */}
-
-            <div className="bg-white border-b p-3 flex items-center justify-between sticky top-0 z-20">
+            <div className="sticky top-0 z-30 bg-white border-b shadow-sm px-4 py-3 flex items-center justify-between">
 
               <div className="flex items-center gap-3">
 
-               <button
-  onClick={() =>
-    setShowSidebar(
-      true
-    )
-  }
-  className="md:hidden absolute top-4 left-4"
->
-  <Menu />
-</button>
+                <button
+                  onClick={() =>
+                    setShowSidebar(true)
+                  }
+                  className="md:hidden text-2xl"
+                >
+                  ☰
+                </button>
 
                 <img
                   src={
@@ -538,10 +431,8 @@ const Messages = () => {
                 />
 
                 <div>
-                  <h2 className="font-bold">
-                    {
-                      selectedUser.name
-                    }
+                  <h2 className="font-bold text-lg text-gray-800">
+                    {selectedUser.name}
                   </h2>
 
                   <p className="text-sm text-green-500">
@@ -551,65 +442,46 @@ const Messages = () => {
               </div>
 
               {/* CALL BUTTONS */}
-
               <div className="flex items-center gap-2">
 
-                {/* VOICE CALL */}
-
+                {/* VOICE */}
                 <button
                   onClick={() =>
                     setShowVoiceCall(
                       true
                     )
                   }
-                  className="bg-blue-500 text-white w-11 h-11 rounded-full flex items-center justify-center"
+                  className="bg-blue-500 hover:bg-blue-600 text-white w-11 h-11 rounded-full flex items-center justify-center shadow-lg"
                 >
-                  <Phone size={20} />
+                  📞
                 </button>
 
-                {/* VIDEO CALL */}
-
+                {/* VIDEO */}
                 <button
                   onClick={() =>
-                    setShowCall(
-                      true
-                    )
+                    setShowCall(true)
                   }
-                  className="bg-green-500 text-white w-11 h-11 rounded-full flex items-center justify-center"
+                  className="bg-green-500 hover:bg-green-600 text-white w-11 h-11 rounded-full flex items-center justify-center shadow-lg"
                 >
-                  <Video size={20} />
+                  📹
                 </button>
               </div>
             </div>
 
-            {/* ================= MESSAGES ================= */}
-
-            <div className="flex-1 overflow-y-auto p-3 space-y-3 bg-gray-100">
+            {/* MESSAGES */}
+            <div className="flex-1 overflow-y-auto px-3 py-4 bg-gradient-to-b from-gray-50 to-gray-100 space-y-4">
 
               {messages.map(
-                (
-                  msg,
-                  index
-                ) => {
-                  const senderId =
-                    msg.sender
-                      ?._id ||
-                    msg.sender;
-
+                (msg, index) => {
                   const isMe =
-                    String(
-                      senderId
-                    ) ===
-                    String(
-                      currentUser
-                    );
+                    msg.sender ===
+                      currentUser ||
+                    msg.sender?._id ===
+                      currentUser;
 
                   return (
                     <motion.div
-                      key={
-                        msg._id ||
-                        index
-                      }
+                      key={index}
                       initial={{
                         opacity: 0,
                         y: 10,
@@ -625,33 +497,29 @@ const Messages = () => {
                       }`}
                     >
                       <div
-                        className={`max-w-[80%] px-4 py-3 rounded-2xl shadow ${
+                        className={`max-w-[85%] px-4 py-3 rounded-3xl shadow-md break-words ${
                           isMe
-                            ? "bg-blue-500 text-white"
-                            : "bg-white text-black"
+                            ? "bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-br-md"
+                            : "bg-white text-gray-800 rounded-bl-md"
                         }`}
                       >
 
                         {/* IMAGE */}
-
                         {msg.mediaType ===
                           "image" && (
                           <img
-                            src={
-                              msg.media
-                            }
+                            src={msg.media}
                             alt=""
-                            className="rounded-xl mb-2 max-w-full"
+                            className="rounded-2xl mb-2 max-w-full"
                           />
                         )}
 
                         {/* VIDEO */}
-
                         {msg.mediaType ===
                           "video" && (
                           <video
                             controls
-                            className="rounded-xl mb-2 max-w-full"
+                            className="rounded-2xl mb-2 max-w-full"
                           >
                             <source
                               src={
@@ -662,48 +530,46 @@ const Messages = () => {
                         )}
 
                         {/* AUDIO */}
-
                         {msg.mediaType ===
                           "audio" && (
                           <audio
                             controls
-                            className="w-full mb-2"
+                            className="w-full mt-2"
                           >
                             <source
                               src={
                                 msg.media
                               }
-                              type="audio/webm"
                             />
                           </audio>
                         )}
 
                         {/* TEXT */}
-
                         {msg.text && (
                           <p>
-                            {
-                              msg.text
-                            }
+                            {msg.text}
                           </p>
                         )}
 
                         {/* TIME */}
-
-                        <p className="text-[10px] mt-1 opacity-70">
-                          {msg.createdAt
-                            ? new Date(
-                                msg.createdAt
-                              ).toLocaleTimeString(
-                                [],
-                                {
-                                  hour:
-                                    "2-digit",
-                                  minute:
-                                    "2-digit",
-                                }
-                              )
-                            : ""}
+                        <p
+                          className={`text-[11px] mt-1 ${
+                            isMe
+                              ? "text-blue-100"
+                              : "text-gray-400"
+                          }`}
+                        >
+                          {new Date(
+                            msg.createdAt
+                          ).toLocaleTimeString(
+                            [],
+                            {
+                              hour:
+                                "2-digit",
+                              minute:
+                                "2-digit",
+                            }
+                          )}
                         </p>
                       </div>
                     </motion.div>
@@ -712,191 +578,180 @@ const Messages = () => {
               )}
 
               <div
-                ref={
-                  messagesEndRef
-                }
+                ref={messagesEndRef}
               />
             </div>
 
-            {/* ================= INPUT ================= */}
+            {/* INPUT AREA */}
+            <div className="sticky bottom-0 z-30 bg-white border-t px-3 py-3 shadow-lg">
 
-            <div className="bg-white border-t p-3">
+              <div className="space-y-2">
 
-              {/* FILE NAME */}
-
-              {media && (
-                <div className="text-xs text-gray-500 mb-2">
-                  📎{" "}
-                  {
-                    media.name
-                  }
-                </div>
-              )}
-
-              <div className="flex items-center gap-2">
-
-                {/* FILE */}
-
-                <label className="bg-gray-100 w-11 h-11 rounded-full flex items-center justify-center cursor-pointer">
-                  <Paperclip
-                    size={20}
-                  />
+                {/* INPUT */}
+                <div className="flex items-center bg-gray-100 rounded-3xl px-3 py-2">
 
                   <input
-                    type="file"
-                    hidden
-                    accept="image/*,video/*"
-                    onChange={(
-                      e
-                    ) =>
-                      setMedia(
-                        e.target
-                          .files[0]
+                    type="text"
+                    placeholder="Type a message..."
+                    value={text}
+                    onChange={(e) =>
+                      setText(
+                        e.target.value
                       )
                     }
-                  />
-                </label>
-
-                {/* VOICE NOTE */}
-
-                <VoiceRecorder
-                  onSend={async (
-                    audioUrl
-                  ) => {
-                    try {
-                      const res =
-                        await fetchWithToken(
-                          `${API_BASE}/api/messages`,
-                          token,
-                          {
-                            method:
-                              "POST",
-
-                            headers:
-                              {
-                                "Content-Type":
-                                  "application/json",
-                              },
-
-                            body:
-                              JSON.stringify(
-                                {
-                                  receiver:
-                                    selectedUser._id,
-
-                                  media:
-                                    audioUrl,
-
-                                  mediaType:
-                                    "audio",
-                                }
-                              ),
-                          }
-                        );
-
-                      const newMessage =
-                        res?.message ||
-                        res?.data
-                          ?.message ||
-                        res;
-
-                      setMessages(
-                        (
-                          prev
-                        ) => [
-                          ...prev,
-                          newMessage,
-                        ]
-                      );
-
-                      socketRef.current?.emit(
-                        "send-message",
-                        newMessage
-                      );
-                    } catch (err) {
-                      console.log(
-                        err
-                      );
+                    onKeyDown={(e) =>
+                      e.key ===
+                        "Enter" &&
+                      sendMessage()
                     }
-                  }}
-                />
-
-                {/* TEXT */}
-
-                <input
-                  type="text"
-                  value={text}
-                  placeholder="Type a message..."
-                  onChange={(
-                    e
-                  ) =>
-                    setText(
-                      e.target
-                        .value
-                    )
-                  }
-                  onKeyDown={(
-                    e
-                  ) =>
-                    e.key ===
-                      "Enter" &&
-                    sendMessage()
-                  }
-                  className="flex-1 border rounded-full px-4 py-3 outline-none"
-                />
-
-                {/* SEND */}
-
-                <button
-                  onClick={
-                    sendMessage
-                  }
-                  disabled={
-                    uploading
-                  }
-                  className="bg-blue-500 text-white w-12 h-12 rounded-full flex items-center justify-center"
-                >
-                  <Send
-                    size={20}
+                    className="flex-1 bg-transparent px-2 py-4 outline-none text-[15px]"
                   />
-                </button>
+                </div>
+
+                {/* BUTTONS */}
+                <div className="flex items-center justify-between gap-2">
+
+                  <div className="flex items-center gap-2">
+
+                    {/* FILE */}
+                    <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 w-12 h-12 rounded-full flex items-center justify-center text-xl shadow">
+
+                      📎
+
+                      <input
+                        type="file"
+                        accept="image/*,video/*"
+                        hidden
+                        onChange={(e) =>
+                          setMedia(
+                            e.target
+                              .files[0]
+                          )
+                        }
+                      />
+                    </label>
+
+                    {/* VOICE NOTE */}
+                    <div className="bg-gray-100 rounded-full p-1 shadow">
+
+                      <VoiceRecorder
+                        receiverId={
+                          selectedUser._id
+                        }
+                        token={token}
+                        onSend={async (
+                          audioUrl
+                        ) => {
+                          try {
+                            const newMessage =
+                              await fetchWithToken(
+                                `${API_BASE}/api/messages`,
+                                token,
+                                {
+                                  method:
+                                    "POST",
+
+                                  body:
+                                    JSON.stringify(
+                                      {
+                                        receiver:
+                                          selectedUser._id,
+
+                                        media:
+                                          audioUrl,
+
+                                        mediaType:
+                                          "audio",
+                                      }
+                                    ),
+                                }
+                              );
+
+                            setMessages(
+                              (
+                                prev
+                              ) => [
+                                ...prev,
+                                newMessage,
+                              ]
+                            );
+
+                            socketRef.current?.emit(
+                              "send-message",
+                              newMessage
+                            );
+                          } catch (err) {
+                            console.log(
+                              err
+                            );
+                          }
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* SEND */}
+                  <button
+                    onClick={
+                      sendMessage
+                    }
+                    disabled={
+                      uploading
+                    }
+                    className="bg-gradient-to-r from-blue-500 to-blue-700 text-white px-6 py-3 rounded-full font-semibold shadow-lg"
+                  >
+                    {uploading
+                      ? "..."
+                      : "Send"}
+                  </button>
+                </div>
+
+                {/* FILE NAME */}
+                {media && (
+                  <div className="text-xs text-gray-500 truncate px-2">
+                    📎 {media.name}
+                  </div>
+                )}
               </div>
             </div>
           </>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center">
+          <div className="flex-1 flex flex-col items-center justify-center bg-gray-50 relative">
 
             <button
               onClick={() =>
-                setShowSidebar(
-                  true
-                )
+                setShowSidebar(true)
               }
-              className="md:hidden absolute top-4 left-4"
+              className="md:hidden absolute top-4 left-4 text-3xl"
             >
-              <Menu />
+              ☰
             </button>
 
-            <div className="text-6xl">
+            <div className="text-7xl mb-4">
               💬
             </div>
 
-            <h2 className="text-2xl font-bold mt-4">
-              Welcome to
-              Messages
-            </h2>
+            <div
+              id="container-1ac49ab91139c0ad3e13572497cfbe18"
+              className="my-4"
+            />
 
-            <p className="text-gray-500 mt-2">
-              Select a user
-              to start
-              chatting
-            </p>
+            <div className="text-center px-4">
+              <h2 className="text-3xl font-bold text-gray-700">
+                Welcome to
+                Message Room
+              </h2>
+
+              <p className="text-gray-500 mt-2 text-lg">
+                Select a user to
+                start chatting
+              </p>
+            </div>
           </div>
         )}
       </div>
 
-      {/* ================= VIDEO CALL ================= */}
-
+      {/* VIDEO CALL */}
       {showCall &&
         selectedUser && (
           <VideoCall
@@ -907,15 +762,12 @@ const Messages = () => {
               selectedUser
             }
             onClose={() =>
-              setShowCall(
-                false
-              )
+              setShowCall(false)
             }
           />
         )}
 
-      {/* ================= VOICE CALL ================= */}
-
+      {/* VOICE CALL */}
       {showVoiceCall &&
         selectedUser && (
           <VoiceCall
