@@ -284,6 +284,8 @@ return (
   currentUser={{
     _id: currentUserId,
   }}
+  onDeleted={onDeleted}
+  onUpdated={onUpdated}
 />
 
 
