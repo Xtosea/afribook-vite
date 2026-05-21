@@ -483,119 +483,107 @@ const Navbar = () => {
       {/* ========================= */}
 
       {mobileMenuOpen && (
-        <div className="fixed top-[64px] left-0 right-0 bottom-0 md:hidden bg-white shadow p-4 space-y-4 z-50 overflow-y-auto">
+        <div className="fixed top-[64px] left-0 right-0 bottom-0 md:hidden bg-white shadow-lg p-5 z-50 overflow-y-auto">
 
-          <SearchBar />
+          {/* SEARCH */}
+          <div className="mb-5">
+            <SearchBar />
+          </div>
 
-          <Link
-            to="/"
-            className="block"
-            onClick={() =>
-              setMobileMenuOpen(false)
-            }
-          >
-            Home
-          </Link>
+          {/* MENU LINKS */}
+          <div className="flex flex-col gap-4 text-gray-700 font-medium">
 
-          <Link
-            to="/reels"
-            className="block"
-            onClick={() =>
-              setMobileMenuOpen(false)
-            }
-          >
-            Reels
-          </Link>
+            <Link
+              to="/"
+              className="flex items-center gap-3 hover:text-blue-600"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <Home size={20} />
+              Home
+            </Link>
 
-          <Link
-  to="/messages"
-  className="block"
-  onClick={() =>
-    setMobileMenuOpen(false)
-  }
->
-  Messages
-</Link>
+            <Link
+              to="/reels"
+              className="flex items-center gap-3 hover:text-blue-600"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <Video size={20} />
+              Reels
+            </Link>
 
-<Link
-  to="/leaderboard"
-  className="block"
-  onClick={() =>
-    setMobileMenuOpen(false)
-  }
->
-  Leaderboard
-</Link>
+            <Link
+              to="/messages"
+              className="flex items-center gap-3 hover:text-blue-600"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <MessageCircle size={20} />
+              Messages
+            </Link>
 
-             <Link
-  to="/saved"
-  className="block"
-  onClick={() =>
-    setMobileMenuOpen(false)
-  }
->
-  Saved Posts
-</Link>
+            <Link
+              to="/leaderboard"
+              className="flex items-center gap-3 hover:text-blue-600"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <Users size={20} />
+              Leaderboard
+            </Link>
 
+            <Link
+              to="/saved"
+              className="flex items-center gap-3 hover:text-blue-600"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              🔖 Saved Posts
+            </Link>
 
-<Link
-  to="/postmenu"
-  className="block"
-  onClick={() =>
-    setMobileMenuOpen(false)
-  }
->
- Post Menu
-</Link>
-         
+            <Link
+              to="/profile"
+              className="flex items-center gap-3 hover:text-blue-600"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <User size={20} />
+              Profile
+            </Link>
 
-          <Link
-            to="/profile"
-            className="block"
-            onClick={() =>
-              setMobileMenuOpen(false)
-            }
-          >
-            Profile
-          </Link>
+            <Link
+              to="/friends"
+              className="flex items-center gap-3 hover:text-blue-600"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <Users size={20} />
+              Friends
+            </Link>
 
-          <Link
-            to="/friends"
-            className="block"
-            onClick={() =>
-              setMobileMenuOpen(false)
-            }
-          >
-            Friends
-          </Link>
+            <Link
+              to="/friend-requests"
+              className="flex items-center gap-3 hover:text-blue-600"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <Users size={20} />
+              Requests
+            </Link>
 
-          <Link
-            to="/friend-requests"
-            className="block"
-            onClick={() =>
-              setMobileMenuOpen(false)
-            }
-          >
-            Requests
-          </Link>
+            <Link
+              to="/wallet"
+              className="flex items-center gap-3 hover:text-blue-600"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <Wallet size={20} />
+              Wallet
+            </Link>
 
-          <Link
-            to="/wallet"
-            className="block"
-            onClick={() =>
-              setMobileMenuOpen(false)
-            }
-          >
-            Wallet
-          </Link>
+          </div>
 
-          
-          <button
-            onClick={handleLogout}
-            className="w-full bg-red-500 text-white py-2 rounded-lg"
-          >
-            Logout
-          </button>
+          {/* LOGOUT BUTTON */}
+          <div className="mt-8">
+            <button
+              onClick={handleLogout}
+              className="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-xl font-semibold"
+            >
+              Logout
+            </button>
+          </div>
 
         </div>
       )}
