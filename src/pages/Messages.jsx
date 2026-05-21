@@ -189,110 +189,107 @@ const Messages = () => {
   }, [id]);
 
   // SEND MESSAGE
-  const sendMessage = async () => {
-    if (
-      !text.trim() &&
-      !media
-    )
-      return;
+const sendMessage = async () => {
+  if (!text.trim() && !media) return;
 
-    try {
-      let uploadedMedia = "";
-      let mediaType = "";
+  try {
+    let uploadedMedia = "";
+    let mediaType = "";
 
-      // UPLOAD MEDIA
-      if (media) {
-        setUploading(true);
+    // UPLOAD MEDIA
+    if (media) {
+      setUploading(true);
 
-        const formData =
-          new FormData();
+      const formData = new FormData();
 
-        formData.append(
-          "file",
-          media
-        );
+      formData.append("file", media);
 
-        formData.append(
-          "upload_preset",
-          "YOUR_UPLOAD_PRESET"
-        );
-
-        const cloudName =
-          "YOUR_CLOUD_NAME";
-
-        const resourceType =
-          media.type.startsWith(
-            "video"
-          )
-            ? "video"
-            : media.type.startsWith(
-                "image"
-              )
-            ? "image"
-            : "auto";
-
-        const uploadRes =
-          await fetch(
-            `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`,
-            {
-              method: "POST",
-              body: formData,
-            }
-          );
-
-        const uploadData =
-          await uploadRes.json();
-
-        uploadedMedia =
-          uploadData.secure_url;
-
-        mediaType =
-          media.type.startsWith(
-            "video"
-          )
-            ? "video"
-            : media.type.startsWith(
-                "audio"
-              )
-            ? "audio"
-            : "image";
-      }
-
-      const newMessage = await fetchWithToken(
-  `${API_BASE}/api/messages`,
-  token,
-  {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      receiver: selectedUser._id,
-      media: audioUrl,
-      mediaType: "audio",
-    }),
-  }
-);
-
-      setMessages((prev) => [
-        ...prev,
-        newMessage,
-      ]);
-
-      socketRef.current?.emit(
-        "send-message",
-        newMessage
+      formData.append(
+        "upload_preset",
+        "YOUR_UPLOAD_PRESET"
       );
 
-      setText("");
-      setMedia(null);
-      setUploading(false);
-    } catch (err) {
-      console.log(err);
+      const cloudName =
+        "YOUR_CLOUD_NAME";
 
-      setUploading(false);
+      const resourceType =
+        media.type.startsWith("video")
+          ? "video"
+          : media.type.startsWith("image")
+          ? "image"
+          : "auto";
+
+      const uploadRes = await fetch(
+        `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const uploadData =
+        await uploadRes.json();
+
+      uploadedMedia =
+        uploadData.secure_url;
+
+      mediaType =
+        media.type.startsWith("video")
+          ? "video"
+          : media.type.startsWith("audio")
+          ? "audio"
+          : "image";
     }
-  };
+
+    const newMessage =
+      await fetchWithToken(
+        `${API_BASE}/api/messages`,
+        token,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify({
+            receiver:
+              selectedUser._id,
+
+            text,
+
+            media:
+              uploadedMedia,
+
+            mediaType,
+          }),
+        }
+      );
+
+    setMessages((prev) => [
+      ...prev,
+      newMessage,
+    ]);
+
+    socketRef.current?.emit(
+      "send-message",
+      newMessage
+    );
+
+    setText("");
+    setMedia(null);
+
+  } catch (err) {
+
+    console.log(err);
+
+  } finally {
+
+    setUploading(false);
+
+  }
+};
 
   // ADSTERRA
   useEffect(() => {
@@ -491,7 +488,7 @@ const Messages = () => {
               </div>
             </div>
 
-            {/* MESSAGES */}
+            
             {/* MESSAGES */}
 <div className="flex-1 overflow-y-auto px-3 py-4 pb-40 md:pb-28 bg-gradient-to-b from-gray-50 to-gray-100 space-y-4">
 
