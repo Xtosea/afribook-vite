@@ -608,9 +608,8 @@ const Navbar = () => {
         </div>
       )}
 
-     <div className="fixed bottom-[120px] left-1/2 -translate-x-1/2 z-[9999]">
   <InstallPWAButton />
-</div>
+
 
     </>
   );
