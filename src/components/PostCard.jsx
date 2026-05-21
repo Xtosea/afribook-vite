@@ -283,7 +283,7 @@ return (
 <PostMenu
  post={post}
  token={token}
- currentUser={{_id: currentUserid,}}
+ currentUser={{_id: currentUserId,}}
  onDeleted={onDeleted}
  onUpdated={unUpdated}
 />
