@@ -218,139 +218,120 @@ const Navbar = () => {
 
           {isLoggedIn && (
             <>
-              {/* ========================= */}
-              {/* DESKTOP NAV */}
-              {/* ========================= */}
+            {/* ========================= */}
+{/* DESKTOP NAV */}
+{/* ========================= */}
 
-              <div className="hidden md:flex items-center gap-6">
+<div className="hidden md:flex items-center gap-5">
 
-                <Link
-                  to="/"
-                  className={`flex items-center gap-1 ${
-                    isActive("/")
-                      ? "text-blue-600"
-                      : "hover:text-blue-500"
-                  }`}
-                >
-                  <Home size={20} />
-                  Home
-                </Link>
+  <Link
+    to="/"
+    className={`flex items-center gap-1 ${
+      isActive("/")
+        ? "text-blue-600"
+        : "hover:text-blue-500"
+    }`}
+  >
+    <Home size={20} />
+    Home
+  </Link>
 
-                <Link
-                  to="/reels"
-                  className={`flex items-center gap-1 ${
-                    isActive("/reels")
-                      ? "text-blue-600"
-                      : "hover:text-blue-500"
-                  }`}
-                >
-                  <Video size={20} />
-                  Reels
-                </Link>
+  <Link
+    to="/reels"
+    className={`flex items-center gap-1 ${
+      isActive("/reels")
+        ? "text-blue-600"
+        : "hover:text-blue-500"
+    }`}
+  >
+    <Video size={20} />
+    Reels
+  </Link>
 
+  <Link
+    to="/leaderboard"
+    className={`flex items-center gap-1 ${
+      isActive("/leaderboard")
+        ? "text-blue-600"
+        : "hover:text-blue-500"
+    }`}
+  >
+    <Users size={20} />
+    Leaderboard
+  </Link>
 
-              <Link
-  to="/leaderboard"
-  className={`flex items-center gap-1 ${
-    isActive("/leaderboard")
-      ? "text-blue-600"
-      : "hover:text-blue-500"
-  }`}
->
-  <Users size={20} />
-  Leaderboard
-</Link>
+  <Link
+    to="/messages"
+    className={`flex items-center gap-1 ${
+      isActive("/messages")
+        ? "text-blue-600"
+        : "hover:text-blue-500"
+    }`}
+  >
+    <MessageCircle size={20} />
+    Messages
+  </Link>
 
-                <Link
-                  to="/messages"
-                  className={`flex items-center gap-1 ${
-                    isActive("/messages")
-                      ? "text-blue-600"
-                      : "hover:text-blue-500"
-                  }`}
-                >
-                  <MessageCircle size={20} />
-                  Messages
-                </Link>
+  <Link
+    to="/saved"
+    className={`flex items-center gap-1 ${
+      isActive("/saved")
+        ? "text-blue-600"
+        : "hover:text-blue-500"
+    }`}
+  >
+    🔖 Saved
+  </Link>
 
-                <Link
-                  to="/profile"
-                  className={`flex items-center gap-1 ${
-                    isActive("/profile")
-                      ? "text-blue-600"
-                      : "hover:text-blue-500"
-                  }`}
-                >
-                  <User size={20} />
-                  Profile
-                </Link>
+  <Link
+    to="/profile"
+    className={`flex items-center gap-1 ${
+      isActive("/profile")
+        ? "text-blue-600"
+        : "hover:text-blue-500"
+    }`}
+  >
+    <User size={20} />
+    Profile
+  </Link>
 
-                <Link
-                  to="/friends"
-                  className={`flex items-center gap-1 ${
-                    isActive("/friends")
-                      ? "text-blue-600"
-                      : "hover:text-blue-500"
-                  }`}
-                >
-                  <Users size={20} />
-                  Friends
-                </Link>
+  <Link
+    to="/friends"
+    className={`flex items-center gap-1 ${
+      isActive("/friends")
+        ? "text-blue-600"
+        : "hover:text-blue-500"
+    }`}
+  >
+    <Users size={20} />
+    Friends
+  </Link>
 
-                <Link
-                  to="/friend-requests"
-                  className={`flex items-center gap-1 ${
-                    isActive("/friend-requests")
-                      ? "text-blue-600"
-                      : "hover:text-blue-500"
-                  }`}
-                >
-                  <Users size={20} />
-                  Requests
-                </Link>
+  <Link
+    to="/friend-requests"
+    className={`flex items-center gap-1 ${
+      isActive("/friend-requests")
+        ? "text-blue-600"
+        : "hover:text-blue-500"
+    }`}
+  >
+    <Users size={20} />
+    Requests
+  </Link>
 
-                <Link
-                  to="/wallet"
-                  className={`flex items-center gap-1 ${
-                    isActive("/wallet")
-                      ? "text-blue-600"
-                      : "hover:text-blue-500"
-                  }`}
-                >
-                  <Wallet size={20} />
-                  Wallet
-                </Link>
+  <Link
+    to="/wallet"
+    className={`flex items-center gap-1 ${
+      isActive("/wallet")
+        ? "text-blue-600"
+        : "hover:text-blue-500"
+    }`}
+  >
+    <Wallet size={20} />
+    Wallet
+  </Link>
 
-              </div>
-
-
-   <Link
-  to="/saved"
-  className={`flex items-center gap-1 ${
-    isActive("/saved")
-      ? "text-blue-600"
-      : "hover:text-blue-500"
-  }`}
->
-  <Users size={20} />
-  Saved Posts
-</Link>
-
-
- <Link
-  to="/postmenu"
-  className={`flex items-center gap-1 ${
-    isActive("/postmenu")
-      ? "text-blue-600"
-      : "hover:text-blue-500"
-  }`}
->
-  <Users size={20} />
-  Post Menu
-</Link>
-
-
-
+</div>
               {/* ========================= */}
               {/* ONLINE USERS */}
               {/* ========================= */}
