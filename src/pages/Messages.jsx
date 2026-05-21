@@ -10,10 +10,10 @@ import { motion } from "framer-motion";
 
 import { connectSocket } from "../socket";
 
-import {
+imp MLort {
   fetchWithToken,
   API_BASE,
-} from "../api/api";
+l} from "../api/api";
 
 import VideoCall from "../components/VideoCall";
 import VoiceRecorder from "../components/VoiceRecorder";
@@ -426,7 +426,7 @@ const Messages = () => {
   }, []);
 
   return (
-    <div className="flex h-screen bg-gray-100 overflow-hidden">
+    <div className="flex h-full bg-gray-100 overflow-hidden">
 
       {/* MOBILE OVERLAY */}
       {showSidebar && (
@@ -607,12 +607,13 @@ const Messages = () => {
                       }`}
                     >
                       <div
-                        className={`max-w-[85%] px-4 py-3 rounded-3xl shadow-md break-words ${
-                          isMe
-                            ? "bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-br-md"
-                            : "bg-white text-gray-800 rounded-bl-md"
-                        }`}
-                      >
+                        <div
+  className={`max-w-[85%] overflow-hidden ml-auto mr-auto px-4 py-3 rounded-3xl shadow-md break-words ${
+    isMe
+      ? "bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-br-md ml-auto"
+      : "bg-white text-gray-800 rounded-bl-md mr-auto"
+  }`}
+>
 
                         {/* IMAGE */}
                         {msg.mediaType ===
@@ -846,8 +847,8 @@ const Messages = () => {
               </h2>
 
               <p className="text-gray-500 mt-2 text-lg">
-                Select a user to
-                start chatting
+                Click on the left top menu to select a user to chat with.
+                 
               </p>
             </div>
           </div>
