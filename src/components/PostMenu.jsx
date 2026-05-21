@@ -10,6 +10,10 @@ import {
 
 import { API_BASE } from "../api/api";
 
+import EditPostModal from "./EditPostModal";
+
+import ReportPostModal from "./ReportPostModal";
+
 const PostMenu = ({
   post,
   token,
@@ -23,6 +27,13 @@ const PostMenu = ({
 
   const isOwner =
     currentUser?._id === post.user?._id;
+
+const [showEdit, setShowEdit] =
+  useState(false);
+
+const [showReport, setShowReport] =
+  useState(false);
+
 
   // =========================
   // DELETE POST
