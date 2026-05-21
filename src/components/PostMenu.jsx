@@ -199,8 +199,11 @@ const [showReport, setShowReport] =
 
             <>
               <button
-                className="flex items-center gap-3 w-full px-4 py-3 hover:bg-gray-100"
-              >
+  onClick={() =>
+    setShowEdit(true)
+  }
+  className="flex items-center gap-3 w-full px-4 py-3 hover:bg-gray-100"
+>
                 <Pencil size={18} />
                 Edit Post
               </button>
@@ -231,6 +234,15 @@ const [showReport, setShowReport] =
             Save Post
           </button>
 
+           <button
+  onClick={() =>
+    setShowReport(true)
+  }
+  className="flex items-center gap-3 w-full px-4 py-3 hover:bg-gray-100 text-red-500"
+>
+  🚩 Report Post
+</button>
+
           <button
             onClick={handleCopyLink}
             className="flex items-center gap-3 w-full px-4 py-3 hover:bg-gray-100"
@@ -241,6 +253,31 @@ const [showReport, setShowReport] =
 
         </div>
       )}
+
+             {showEdit && (
+
+  <EditPostModal
+    post={post}
+    token={token}
+    onClose={() =>
+      setShowEdit(false)
+    }
+    onUpdated={onUpdated}
+  />
+
+)}
+
+{showReport && (
+
+  <ReportPostModal
+    post={post}
+    token={token}
+    onClose={() =>
+      setShowReport(false)
+    }
+  />
+
+)}
 
     </div>
   );
