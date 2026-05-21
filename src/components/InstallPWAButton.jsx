@@ -79,11 +79,10 @@ export default function InstallPWAButton() {
   return (
     <div className="fixed bottom-[630px]  left-1/2 -translate-x-1/2 z-[9999]">
   <button
-    onClick={handleInstall}
-    className="bg-blue-600 text-white px-3 py-3 rounded-full shadow-xl"
-  >
-    Install App
-  </button>
-</div>
+  onClick={handleInstall}
+  className="bg-blue-600 text-white px-3 py-3 rounded-full shadow-xl -ml-4"
+>
+  Install App
+</button>
   );
 }
