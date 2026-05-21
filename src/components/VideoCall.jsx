@@ -14,7 +14,9 @@ const VoiceCall = ({
   onClose,
 }) => {
 
-  const socket = connectSocket();
+  const socket = useRef(
+    connectSocket()
+  ).current;
 
   const [stream, setStream] =
     useState(null);
@@ -31,13 +33,16 @@ const VoiceCall = ({
   const [micOn, setMicOn] =
     useState(true);
 
+  const [caller, setCaller] =
+    useState(null);
+
   const remoteAudio =
-    useRef();
+    useRef(null);
 
   const connectionRef =
-    useRef();
+    useRef(null);
 
-  // ================= GET AUDIO =================
+  // ================= GET MICROPHONE =================
 
   useEffect(() => {
 
@@ -70,10 +75,13 @@ const VoiceCall = ({
 
     startMedia();
 
-    // ================= INCOMING CALL =================
+  }, []);
 
-    socket.on(
-      "incoming-call",
+  // ================= SOCKET EVENTS =================
+
+  useEffect(() => {
+
+    const handleIncomingCall =
       (data) => {
 
         if (
@@ -88,53 +96,94 @@ const VoiceCall = ({
           setCallerSignal(
             data.signal
           );
+
+          setCaller(
+            data.from
+          );
         }
-      }
+      };
+
+    const handleCallAccepted =
+      (signal) => {
+
+        setCallAccepted(
+          true
+        );
+
+        connectionRef.current?.signal(
+          signal
+        );
+      };
+
+    const handleCallEnded =
+      () => {
+
+        cleanupCall();
+      };
+
+    socket.on(
+      "incoming-call",
+      handleIncomingCall
     );
 
-    // ================= CALL ENDED =================
+    socket.on(
+      "call-accepted",
+      handleCallAccepted
+    );
 
     socket.on(
       "call-ended",
-      () => {
-
-        connectionRef.current?.destroy();
-
-        stream
-          ?.getTracks()
-          .forEach((track) =>
-            track.stop()
-          );
-
-        onClose();
-      }
+      handleCallEnded
     );
 
     return () => {
 
       socket.off(
-        "incoming-call"
+        "incoming-call",
+        handleIncomingCall
       );
 
       socket.off(
-        "call-ended"
+        "call-accepted",
+        handleCallAccepted
       );
 
-      if (stream) {
-
-        stream
-          .getTracks()
-          .forEach((track) =>
-            track.stop()
-          );
-      }
+      socket.off(
+        "call-ended",
+        handleCallEnded
+      );
     };
 
-  }, [stream]);
+  }, [socket]);
+
+  // ================= CLEANUP =================
+
+  const cleanupCall = () => {
+
+    connectionRef.current?.destroy();
+
+    if (stream) {
+
+      stream
+        .getTracks()
+        .forEach((track) =>
+          track.stop()
+        );
+    }
+
+    onClose();
+  };
 
   // ================= CALL USER =================
 
   const callUser = () => {
+
+    if (!stream) {
+      alert(
+        "Microphone not ready yet"
+      );
+      return;
+    }
 
     const peer =
       new Peer({
@@ -153,8 +202,10 @@ const VoiceCall = ({
             to:
               selectedUser._id,
 
-            from:
-              currentUser,
+            from: {
+              _id:
+                currentUser,
+            },
 
             signal,
 
@@ -164,8 +215,6 @@ const VoiceCall = ({
         );
       }
     );
-
-    // ================= REMOTE AUDIO =================
 
     peer.on(
       "stream",
@@ -183,20 +232,6 @@ const VoiceCall = ({
       }
     );
 
-    socket.on(
-      "call-accepted",
-      (signal) => {
-
-        setCallAccepted(
-          true
-        );
-
-        peer.signal(
-          signal
-        );
-      }
-    );
-
     connectionRef.current =
       peer;
   };
@@ -204,6 +239,13 @@ const VoiceCall = ({
   // ================= ANSWER CALL =================
 
   const answerCall = () => {
+
+    if (!stream) {
+      alert(
+        "Microphone not ready yet"
+      );
+      return;
+    }
 
     setCallAccepted(
       true
@@ -226,6 +268,7 @@ const VoiceCall = ({
             signal,
 
             to:
+              caller?._id ||
               selectedUser._id,
           }
         );
@@ -260,14 +303,6 @@ const VoiceCall = ({
 
   const endCall = () => {
 
-    connectionRef.current?.destroy();
-
-    stream
-      ?.getTracks()
-      .forEach((track) =>
-        track.stop()
-      );
-
     socket.emit(
       "end-call",
       {
@@ -276,7 +311,7 @@ const VoiceCall = ({
       }
     );
 
-    onClose();
+    cleanupCall();
   };
 
   // ================= TOGGLE MIC =================
@@ -299,15 +334,13 @@ const VoiceCall = ({
   return (
     <div className="fixed inset-0 bg-gradient-to-b from-gray-950 to-black z-50 flex flex-col items-center justify-center text-white">
 
-      {/* ================= AUDIO ELEMENT ================= */}
-
+      {/* AUDIO */}
       <audio
         ref={remoteAudio}
         autoPlay
       />
 
-      {/* ================= USER INFO ================= */}
-
+      {/* USER INFO */}
       <div className="flex flex-col items-center">
 
         <img
@@ -326,28 +359,30 @@ const VoiceCall = ({
         </h2>
 
         <p className="text-gray-400 mt-2">
+
           {callAccepted
             ? "Voice call connected"
             : receivingCall
             ? "Incoming voice call..."
             : "Calling..."}
+
         </p>
       </div>
 
-      {/* ================= CONTROLS ================= */}
-
+      {/* CONTROLS */}
       <div className="flex gap-5 mt-16 flex-wrap justify-center">
 
-        {!callAccepted && (
-          <button
-            onClick={
-              callUser
-            }
-            className="bg-green-500 px-8 py-4 rounded-full text-white font-bold text-lg shadow-lg"
-          >
-            Start Voice Call
-          </button>
-        )}
+        {!callAccepted &&
+          !receivingCall && (
+            <button
+              onClick={
+                callUser
+              }
+              className="bg-green-500 px-8 py-4 rounded-full text-white font-bold text-lg shadow-lg"
+            >
+              Start Voice Call
+            </button>
+          )}
 
         {receivingCall &&
           !callAccepted && (
@@ -363,7 +398,6 @@ const VoiceCall = ({
           )}
 
         {/* MIC */}
-
         <button
           onClick={
             toggleMic
@@ -380,7 +414,6 @@ const VoiceCall = ({
         </button>
 
         {/* END */}
-
         <button
           onClick={
             endCall
