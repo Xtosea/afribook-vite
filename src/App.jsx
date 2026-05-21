@@ -226,33 +226,33 @@ function App() {
             />
 
 
-           <Route
-  path="/leaderboard"
-  element={<Leaderboard />}
-/>
+           <Routes>
 
-     <Route
-  path="/post/:id"
-  element={<PostPage />}
-/>
+  {/* ...all your other routes... */}
 
-          </Routes>
-        </div>
+  <Route
+    path="/leaderboard"
+    element={<Leaderboard />}
+  />
+
+  <Route
+    path="/post/:id"
+    element={<PostPage />}
+  />
+
+  {/* ✅ ADD THIS INSIDE ROUTES */}
+  <Route
+    path="/saved"
+    element={
+      <ProtectedRoute>
+        <SavedPosts />
+      </ProtectedRoute>
+    }
+  />
+
+</Routes>
 
 
- <Route
-  path="/saved"
-  element={
-    <ProtectedRoute>
-      <SavedPosts />
-    </ProtectedRoute>
-  }
-/>
-
-        {/* Footer */}
-       
-
-      </Router>
     </HelmetProvider>
   );
 }
