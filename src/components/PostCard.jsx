@@ -8,7 +8,12 @@ const defaultCover =
 
 const defaultProfile =
   "https://afribook-backend.onrender.com/uploads/profiles/default-profile.png";
-const PostCard = ({ post, currentUserId }) => {
+const PostCard = ({
+  post,
+  currentUserId,
+  onDeleted,
+  onUpdated,
+}) => {
   const navigate = useNavigate();
   const videoRefs = useRef([]);
   const [fullscreen, setFullscreen] = useState(null);
