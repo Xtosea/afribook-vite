@@ -544,19 +544,26 @@ const Messages = () => {
                         )}
 
                         {/* AUDIO */}
-                       {/* AUDIO */}
-{msg.mediaType ===
-  "audio" && (
-  <audio
-    controls
-    className="w-full mt-2"
-  >
-    <source
-      src={
-        msg.media
-      }
-    />
-  </audio>
+{msg.mediaType === "audio" && (
+  <div className="flex items-center gap-2 mt-2">
+
+    <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-xl">
+      ▶️
+    </div>
+
+    <div className="flex-1">
+      <audio
+        controls
+        className="w-full"
+      >
+        <source
+          src={msg.media}
+          type="audio/webm"
+        />
+      </audio>
+    </div>
+
+  </div>
 )}
 
                         {/* TEXT */}
