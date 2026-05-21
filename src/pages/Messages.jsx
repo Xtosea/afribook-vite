@@ -22,6 +22,109 @@ import VoiceCall from "../components/VoiceCall";
 const defaultProfile =
   "https://afribook-backend.onrender.com/uploads/profiles/default-profile.png";
 
+/* AUDIO MESSAGE COMPONENT */
+const AudioMessage = ({
+  src,
+  isMe,
+}) => {
+  const audioRef =
+    useRef(null);
+
+  const [playing, setPlaying] =
+    useState(false);
+
+  const togglePlay =
+    async () => {
+      if (!audioRef.current)
+        return;
+
+      try {
+        if (playing) {
+          audioRef.current.pause();
+
+          setPlaying(false);
+        } else {
+          await audioRef.current.play();
+
+          setPlaying(true);
+        }
+      } catch (err) {
+        console.log(
+          "Audio play error:",
+          err
+        );
+      }
+    };
+
+  return (
+    <div className="flex items-center gap-3 mt-2 w-full">
+
+      {/* PLAY BUTTON */}
+      <button
+        onClick={togglePlay}
+        className={`w-12 h-12 rounded-full flex items-center justify-center text-xl shadow-md transition ${
+          isMe
+            ? "bg-white/20 text-white"
+            : "bg-gray-200 text-gray-700"
+        }`}
+      >
+        {playing
+          ? "⏸️"
+          : "▶️"}
+      </button>
+
+      {/* AUDIO BODY */}
+      <div
+        className={`flex-1 rounded-2xl px-3 py-2 ${
+          isMe
+            ? "bg-white/10"
+            : "bg-gray-100"
+        }`}
+      >
+
+        {/* TITLE */}
+        <div
+          className={`text-sm font-medium mb-1 ${
+            isMe
+              ? "text-white"
+              : "text-gray-700"
+          }`}
+        >
+          🎙️ Voice message
+        </div>
+
+        {/* WAVE BARS */}
+        <div className="flex items-center gap-[3px] h-5 mb-2">
+
+          <div className="w-1 h-2 bg-current rounded animate-pulse" />
+          <div className="w-1 h-4 bg-current rounded animate-pulse" />
+          <div className="w-1 h-3 bg-current rounded animate-pulse" />
+          <div className="w-1 h-5 bg-current rounded animate-pulse" />
+          <div className="w-1 h-2 bg-current rounded animate-pulse" />
+          <div className="w-1 h-4 bg-current rounded animate-pulse" />
+          <div className="w-1 h-3 bg-current rounded animate-pulse" />
+
+        </div>
+
+        {/* HIDDEN AUDIO */}
+        <audio
+          ref={audioRef}
+          onEnded={() =>
+            setPlaying(false)
+          }
+          className="hidden"
+        >
+          <source
+            src={src}
+            type="audio/webm"
+          />
+        </audio>
+
+      </div>
+    </div>
+  );
+};
+
 const Messages = () => {
   const socketRef = useRef(null);
 
@@ -54,8 +157,6 @@ const Messages = () => {
     useState(false);
 
   const [showCall, setShowCall] =
-
-   
     useState(false);
 
   const [
@@ -72,9 +173,6 @@ const Messages = () => {
       behavior: "smooth",
     });
   };
-
-
-
 
   useEffect(() => {
     scrollToBottom();
@@ -256,15 +354,14 @@ const Messages = () => {
             : "image";
       }
 
-      
-        console.log({
-  receiver: selectedUser._id,
-  text,
-  media: uploadedMedia,
-  mediaType,
-});
+      console.log({
+        receiver: selectedUser._id,
+        text,
+        media: uploadedMedia,
+        mediaType,
+      });
 
-        const newMessage =
+      const newMessage =
         await fetchWithToken(
           `${API_BASE}/api/messages`,
           token,
@@ -482,8 +579,7 @@ const Messages = () => {
             </div>
 
             {/* MESSAGES */}
-           
-<div className="flex-1 overflow-y-auto px-3 py-4 pb-32 md:pb-4 bg-gradient-to-b from-gray-50 to-gray-100 space-y-4">
+            <div className="flex-1 overflow-y-auto px-3 py-4 pb-32 md:pb-4 bg-gradient-to-b from-gray-50 to-gray-100 space-y-4">
 
               {messages.map(
                 (msg, index) => {
@@ -544,27 +640,12 @@ const Messages = () => {
                         )}
 
                         {/* AUDIO */}
-{msg.mediaType === "audio" && (
-  <div className="flex items-center gap-2 mt-2">
-
-    <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-xl">
-      ▶️
-    </div>
-
-    <div className="flex-1">
-      <audio
-        controls
-        className="w-full"
-      >
-        <source
-          src={msg.media}
-          type="audio/webm"
-        />
-      </audio>
-    </div>
-
-  </div>
-)}
+                        {msg.mediaType === "audio" && (
+                          <AudioMessage
+                            src={msg.media}
+                            isMe={isMe}
+                          />
+                        )}
 
                         {/* TEXT */}
                         {msg.text && (
@@ -605,8 +686,7 @@ const Messages = () => {
             </div>
 
             {/* INPUT AREA */}
-           
-<div className="sticky bottom-[70px] md:bottom-0 z-30 bg-white border-t px-3 py-3 shadow-lg">
+            <div className="sticky bottom-[70px] md:bottom-0 z-30 bg-white border-t px-3 py-3 shadow-lg">
 
               <div className="space-y-2">
 
