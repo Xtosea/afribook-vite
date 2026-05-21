@@ -416,6 +416,33 @@ return (
         </div>
       )}
 
+{showEdit && (
+
+  <EditPostModal
+    post={post}
+    token={token}
+    onClose={() =>
+      setShowEdit(false)
+    }
+    onUpdated={onUpdated}
+  />
+
+)}
+
+{showReport && (
+
+  <ReportPostModal
+    post={post}
+    token={token}
+    onClose={() =>
+      setShowReport(false)
+    }
+  />
+
+)}
+
+
+
     </div>
   );
 };
