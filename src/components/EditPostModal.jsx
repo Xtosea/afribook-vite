@@ -131,15 +131,21 @@ const EditPostModal = ({
           </h2>
 
           <button
-            onClick={onClose}
-            className="
-              text-gray-500
-              hover:text-black
-              text-2xl
-            "
-          >
-            ×
-          </button>
+  onClick={() =>
+    setShowEdit(true)
+  }
+  className="
+    flex
+    items-center
+    gap-3
+    w-full
+    px-4
+    py-3
+    hover:bg-gray-100
+  "
+>
+  ✏️ Edit Post
+</button>
 
         </div>
 
