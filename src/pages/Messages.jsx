@@ -446,15 +446,13 @@ const Messages = () => {
           </h1>
 
           <button
-            className="md:hidden"
-            onClick={() =>
-              setShowSidebar(
-                false
-              )
-            }
-          >
-            <X />
-          </button>
+  className="md:hidden bg-gray-100 p-2 rounded-full"
+  onClick={() =>
+    setShowSidebar(true)
+  }
+>
+  <Menu size={22} />
+</button>
         </div>
 
         <div className="overflow-y-auto h-full pb-20">
@@ -519,16 +517,16 @@ const Messages = () => {
 
               <div className="flex items-center gap-3">
 
-                <button
-                  className="md:hidden"
-                  onClick={() =>
-                    setShowSidebar(
-                      true
-                    )
-                  }
-                >
-                  <Menu />
-                </button>
+               <button
+  onClick={() =>
+    setShowSidebar(
+      true
+    )
+  }
+  className="md:hidden absolute top-4 left-4"
+>
+  <Menu />
+</button>
 
                 <img
                   src={
