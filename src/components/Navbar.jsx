@@ -327,7 +327,7 @@ const Navbar = () => {
    <Link
   to="/saved"
   className={`flex items-center gap-1 ${
-    isActive("/leaderboard")
+    isActive("/saved")
       ? "text-blue-600"
       : "hover:text-blue-500"
   }`}
@@ -340,7 +340,7 @@ const Navbar = () => {
  <Link
   to="/postmenu"
   className={`flex items-center gap-1 ${
-    isActive("/leaderboard")
+    isActive("/postmenu")
       ? "text-blue-600"
       : "hover:text-blue-500"
   }`}
@@ -527,17 +527,25 @@ const Navbar = () => {
   Leaderboard
 </Link>
 
-
-         <Link
-  to="/leaderboard"
-  className={`flex flex-col items-center text-xs ${
-    isActive("/leaderboard")
-      ? "text-blue-600"
-      : "text-gray-500"
-  }`}
+             <Link
+  to="/saved"
+  className="block"
+  onClick={() =>
+    setMobileMenuOpen(false)
+  }
 >
-  <Users size={22} />
-  <span>Top</span>
+  Saved Posts
+</Link>
+
+
+<Link
+  to="/postmenu"
+  className="block"
+  onClick={() =>
+    setMobileMenuOpen(false)
+  }
+>
+ Post Menu
 </Link>
          
 
@@ -581,15 +589,7 @@ const Navbar = () => {
             Wallet
           </Link>
 
-          <Link to="/saved">
-        🔖 Saved Posts
-          </Link>
-
-          <Link to="/postmenu">
-        🔖 Post Menu
-          </Link>
-
-
+          
           <button
             onClick={handleLogout}
             className="w-full bg-red-500 text-white py-2 rounded-lg"
