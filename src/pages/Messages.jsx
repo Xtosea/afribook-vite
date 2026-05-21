@@ -544,19 +544,20 @@ const Messages = () => {
                         )}
 
                         {/* AUDIO */}
-                        {msg.mediaType ===
-                          "audio" && (
-                          <audio
-                            controls
-                            className="w-full mt-2"
-                          >
-                            <source
-                              src={
-                                msg.media
-                              }
-                            />
-                          </audio>
-                        )}
+                       {/* AUDIO */}
+{msg.mediaType ===
+  "audio" && (
+  <audio
+    controls
+    className="w-full mt-2"
+  >
+    <source
+      src={
+        msg.media
+      }
+    />
+  </audio>
+)}
 
                         {/* TEXT */}
                         {msg.text && (
