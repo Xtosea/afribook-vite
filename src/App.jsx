@@ -239,7 +239,14 @@ function App() {
         </div>
 
 
- 
+ <Route
+  path="/saved"
+  element={
+    <ProtectedRoute>
+      <SavedPosts />
+    </ProtectedRoute>
+  }
+/>
 
         {/* Footer */}
        
