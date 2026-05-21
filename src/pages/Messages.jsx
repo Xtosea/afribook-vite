@@ -54,6 +54,14 @@ const Messages = () => {
     useState(false);
 
   const [showCall, setShowCall] =
+
+   console.log({
+  receiver: selectedUser._id,
+  text,
+  media: uploadedMedia,
+  mediaType,
+});
+
     useState(false);
 
   const [
