@@ -84,5 +84,6 @@ export default function InstallPWAButton() {
 >
   Install App
 </button>
+</div>
   );
 }
