@@ -30,6 +30,7 @@ import FriendsList from "./pages/friends/FriendsList";
 import FriendSuggestions from "./pages/friends/FriendSuggestions";
 import Wallet from "./pages/Wallet";
 import Leaderboard from "./pages/Leaderboard";
+import PostPage from "./pages/PostPage";
 
 
 function App() {
@@ -225,6 +226,11 @@ function App() {
            <Route
   path="/leaderboard"
   element={<Leaderboard />}
+/>
+
+     <Route
+  path="/post/:id"
+  element={<PostPage />}
 />
 
           </Routes>
