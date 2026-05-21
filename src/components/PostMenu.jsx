@@ -23,6 +23,15 @@ const PostMenu = ({
   onUpdated,
 }) => {
 
+
+console.log("CURRENT USER:", currentUser);
+console.log("POST USER:", post?.user);
+console.log(
+  "OWNER CHECK:",
+  currentUser?._id,
+  post?.user?._id
+);
+
   const [open, setOpen] = useState(false);
 
   const [showEdit, setShowEdit] =
