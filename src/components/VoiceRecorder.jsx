@@ -104,7 +104,7 @@ const VoiceRecorder = ({
               );
 
               const cloudName =
-                "YOUR_CLOUD_NAME";
+                "dycqfqqlc";
 
               const res =
                 await fetch(
