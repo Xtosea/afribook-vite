@@ -256,7 +256,15 @@ const Messages = () => {
             : "image";
       }
 
-      const newMessage =
+      
+        console.log({
+  receiver: selectedUser._id,
+  text,
+  media: uploadedMedia,
+  mediaType,
+});
+
+        const newMessage =
         await fetchWithToken(
           `${API_BASE}/api/messages`,
           token,
