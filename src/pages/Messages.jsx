@@ -55,13 +55,7 @@ const Messages = () => {
 
   const [showCall, setShowCall] =
 
-   console.log({
-  receiver: selectedUser._id,
-  text,
-  media: uploadedMedia,
-  mediaType,
-});
-
+   
     useState(false);
 
   const [
@@ -78,6 +72,15 @@ const Messages = () => {
       behavior: "smooth",
     });
   };
+
+
+console.log({
+  receiver: selectedUser._id,
+  text,
+  media: uploadedMedia,
+  mediaType,
+});
+
 
   useEffect(() => {
     scrollToBottom();
