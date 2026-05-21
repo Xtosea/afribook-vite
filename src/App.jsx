@@ -31,6 +31,7 @@ import FriendSuggestions from "./pages/friends/FriendSuggestions";
 import Wallet from "./pages/Wallet";
 import Leaderboard from "./pages/Leaderboard";
 import PostPage from "./pages/PostPage";
+import SavedPosts from "./pages/SavedPosts";
 
 
 function App() {
@@ -235,6 +236,16 @@ function App() {
 
           </Routes>
         </div>
+
+
+  <Route
+  path="/saved"
+  element={
+    <SavedPosts
+      token={token}
+    />
+  }
+/>
 
         {/* Footer */}
        
