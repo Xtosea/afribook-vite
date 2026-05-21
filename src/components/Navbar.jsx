@@ -337,6 +337,20 @@ const Navbar = () => {
 </Link>
 
 
+ <Link
+  to="/postmenu"
+  className={`flex items-center gap-1 ${
+    isActive("/leaderboard")
+      ? "text-blue-600"
+      : "hover:text-blue-500"
+  }`}
+>
+  <Users size={20} />
+  Post Menu
+</Link>
+
+
+
               {/* ========================= */}
               {/* ONLINE USERS */}
               {/* ========================= */}
@@ -570,6 +584,11 @@ const Navbar = () => {
           <Link to="/saved">
         🔖 Saved Posts
           </Link>
+
+          <Link to="/postmenu">
+        🔖 Post Menu
+          </Link>
+
 
           <button
             onClick={handleLogout}
