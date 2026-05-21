@@ -100,12 +100,14 @@ function App() {
       <ToastContainer />
     </>
 
+     </Router>
+  </HelmetProvider>
+
         </Routes>
 
       </div> {/* ✅ THIS WAS MISSING */}
 
-    </Router>
-  </HelmetProvider>
+   
 );
 }
 
