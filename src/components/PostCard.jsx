@@ -274,34 +274,6 @@ return (
 </div>
 
 
-<PostMenu
-  post={post}
-  token={token}
-  currentUser={currentUser}
-  onUpdated={(updatedPost) => {
-
-    setPosts((prev) =>
-      prev.map((p) =>
-        p._id === updatedPost._id
-          ? updatedPost
-          : p
-      )
-    );
-
-  }}
-  onDeleted={(id) => {
-
-    setPosts((prev) =>
-      prev.filter(
-        (p) => p._id !== id
-      )
-    );
-
-  }}
-/>
-
-
-      
 {/* POST TEXT */}
 {post?.content && (
   <div
@@ -415,32 +387,6 @@ return (
           </div>
         </div>
       )}
-
-{showEdit && (
-
-  <EditPostModal
-    post={post}
-    token={token}
-    onClose={() =>
-      setShowEdit(false)
-    }
-    onUpdated={onUpdated}
-  />
-
-)}
-
-{showReport && (
-
-  <ReportPostModal
-    post={post}
-    token={token}
-    onClose={() =>
-      setShowReport(false)
-    }
-  />
-
-)}
-
 
 
     </div>
