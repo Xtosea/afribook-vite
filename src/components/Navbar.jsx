@@ -662,7 +662,7 @@ const Navbar = () => {
         </div>
       )}
 
-     <div className="fixed bottom-20 right-4 z-[9999]">
+     <div className="fixed bottom-20 left-4 z-[9999]">
   <InstallPWAButton />
 </div>
 
