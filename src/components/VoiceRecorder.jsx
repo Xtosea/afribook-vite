@@ -100,7 +100,7 @@ const VoiceRecorder = ({
 
               formData.append(
                 "upload_preset",
-                "YOUR_UPLOAD_PRESET"
+                "joblink_unsigned"
               );
 
               const cloudName =
