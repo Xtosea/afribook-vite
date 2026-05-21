@@ -8,7 +8,7 @@ import Peer from "simple-peer";
 
 import { connectSocket } from "../socket";
 
-const VoiceCall = ({
+const VideoCall = ({
   currentUser,
   selectedUser,
   onClose,
@@ -33,16 +33,22 @@ const VoiceCall = ({
   const [micOn, setMicOn] =
     useState(true);
 
+  const [cameraOn, setCameraOn] =
+    useState(true);
+
   const [caller, setCaller] =
     useState(null);
 
-  const remoteAudio =
+  const myVideo =
+    useRef(null);
+
+  const userVideo =
     useRef(null);
 
   const connectionRef =
     useRef(null);
 
-  // ================= GET MICROPHONE =================
+  // ================= GET CAMERA + MIC =================
 
   useEffect(() => {
 
@@ -54,8 +60,8 @@ const VoiceCall = ({
           const currentStream =
             await navigator.mediaDevices.getUserMedia(
               {
+                video: true,
                 audio: true,
-                video: false,
               }
             );
 
@@ -63,12 +69,20 @@ const VoiceCall = ({
             currentStream
           );
 
+          if (
+            myVideo.current
+          ) {
+
+            myVideo.current.srcObject =
+              currentStream;
+          }
+
         } catch (err) {
 
           console.log(err);
 
           alert(
-            "Microphone permission denied"
+            "Camera or microphone permission denied"
           );
         }
       };
@@ -86,7 +100,7 @@ const VoiceCall = ({
 
         if (
           data.callType ===
-          "voice"
+          "video"
         ) {
 
           setReceivingCall(
@@ -179,9 +193,11 @@ const VoiceCall = ({
   const callUser = () => {
 
     if (!stream) {
+
       alert(
-        "Microphone not ready yet"
+        "Camera not ready"
       );
+
       return;
     }
 
@@ -210,7 +226,7 @@ const VoiceCall = ({
             signal,
 
             callType:
-              "voice",
+              "video",
           }
         );
       }
@@ -223,10 +239,10 @@ const VoiceCall = ({
       ) => {
 
         if (
-          remoteAudio.current
+          userVideo.current
         ) {
 
-          remoteAudio.current.srcObject =
+          userVideo.current.srcObject =
             remoteStream;
         }
       }
@@ -241,9 +257,11 @@ const VoiceCall = ({
   const answerCall = () => {
 
     if (!stream) {
+
       alert(
-        "Microphone not ready yet"
+        "Camera not ready"
       );
+
       return;
     }
 
@@ -282,10 +300,10 @@ const VoiceCall = ({
       ) => {
 
         if (
-          remoteAudio.current
+          userVideo.current
         ) {
 
-          remoteAudio.current.srcObject =
+          userVideo.current.srcObject =
             remoteStream;
         }
       }
@@ -331,56 +349,81 @@ const VoiceCall = ({
     );
   };
 
+  // ================= TOGGLE CAMERA =================
+
+  const toggleCamera =
+    () => {
+
+      stream
+        ?.getVideoTracks()
+        .forEach((track) => {
+
+          track.enabled =
+            !track.enabled;
+        });
+
+      setCameraOn(
+        !cameraOn
+      );
+    };
+
   return (
-    <div className="fixed inset-0 bg-gradient-to-b from-gray-950 to-black z-50 flex flex-col items-center justify-center text-white">
+    <div className="fixed inset-0 bg-black z-50 flex flex-col">
 
-      {/* AUDIO */}
-      <audio
-        ref={remoteAudio}
-        autoPlay
-      />
+      {/* VIDEOS */}
+      <div className="flex-1 relative">
 
-      {/* USER INFO */}
-      <div className="flex flex-col items-center">
-
-        <img
-          src={
-            selectedUser?.profilePic ||
-            "https://via.placeholder.com/150"
-          }
-          alt=""
-          className="w-36 h-36 rounded-full object-cover border-4 border-gray-700 shadow-2xl"
+        {/* REMOTE VIDEO */}
+        <video
+          ref={userVideo}
+          autoPlay
+          playsInline
+          className="w-full h-full object-cover"
         />
 
-        <h2 className="text-3xl font-bold mt-6">
-          {
-            selectedUser?.name
-          }
-        </h2>
+        {/* MY VIDEO */}
+        <video
+          ref={myVideo}
+          autoPlay
+          muted
+          playsInline
+          className="absolute bottom-5 right-5 w-32 h-44 md:w-52 md:h-64 rounded-2xl object-cover border-4 border-white shadow-2xl"
+        />
 
-        <p className="text-gray-400 mt-2">
+        {/* USER INFO */}
+        <div className="absolute top-5 left-5 text-white">
 
-          {callAccepted
-            ? "Voice call connected"
-            : receivingCall
-            ? "Incoming voice call..."
-            : "Calling..."}
+          <h2 className="text-2xl font-bold">
+            {
+              selectedUser?.name
+            }
+          </h2>
 
-        </p>
+          <p className="text-gray-300">
+
+            {callAccepted
+              ? "Video call connected"
+              : receivingCall
+              ? "Incoming video call..."
+              : "Calling..."}
+
+          </p>
+        </div>
       </div>
 
       {/* CONTROLS */}
-      <div className="flex gap-5 mt-16 flex-wrap justify-center">
+      <div className="bg-black/80 py-6 flex justify-center gap-5">
 
         {!callAccepted &&
           !receivingCall && (
+
             <button
               onClick={
                 callUser
               }
-              className="bg-green-500 px-8 py-4 rounded-full text-white font-bold text-lg shadow-lg"
+              className="bg-green-500 px-6 py-3 rounded-full text-white font-bold"
             >
-              Start Voice Call
+              Start Call
             </button>
           )}
 
@@ -391,7 +434,7 @@ const VoiceCall = ({
               onClick={
                 answerCall
               }
-              className="bg-blue-500 px-8 py-4 rounded-full text-white font-bold text-lg shadow-lg"
+              className="bg-blue-500 px-6 py-3 rounded-full text-white font-bold"
             >
               Answer
             </button>
@@ -402,7 +445,7 @@ const VoiceCall = ({
           onClick={
             toggleMic
           }
-          className={`w-16 h-16 rounded-full text-2xl flex items-center justify-center shadow-lg ${
+          className={`w-16 h-16 rounded-full text-2xl flex items-center justify-center ${
             micOn
               ? "bg-gray-700"
               : "bg-red-500"
@@ -413,12 +456,28 @@ const VoiceCall = ({
             : "🔇"}
         </button>
 
+        {/* CAMERA */}
+        <button
+          onClick={
+            toggleCamera
+          }
+          className={`w-16 h-16 rounded-full text-2xl flex items-center justify-center ${
+            cameraOn
+              ? "bg-gray-700"
+              : "bg-red-500"
+          }`}
+        >
+          {cameraOn
+            ? "📹"
+            : "🚫"}
+        </button>
+
         {/* END */}
         <button
           onClick={
             endCall
           }
-          className="w-16 h-16 rounded-full bg-red-600 text-2xl flex items-center justify-center shadow-lg"
+          className="w-16 h-16 rounded-full bg-red-600 text-2xl flex items-center justify-center"
         >
           📞
         </button>
@@ -428,4 +487,4 @@ const VoiceCall = ({
   );
 };
 
-export default VoiceCall;
+export default VideoCall;
