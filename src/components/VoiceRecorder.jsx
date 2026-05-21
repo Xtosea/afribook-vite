@@ -191,33 +191,29 @@ const VoiceRecorder = ({
     };
 
   return (
-    <button
-      onClick={
-        recording
-          ? stopRecording
-          : startRecording
-      }
+   <button
+  onClick={
+    recording
+      ? stopRecording
+      : startRecording
+  }
 
-      disabled={
-        uploading
-      }
+  disabled={uploading}
 
-      className={`w-12 h-12 rounded-full text-white shadow-lg flex items-center justify-center text-xl transition ${
-        recording
-          ? "bg-red-500"
-          : uploading
-          ? "bg-gray-400"
-          : "bg-green-500"
-      }`}
-    >
-
-      {uploading
-        ? "..."
-        : recording
-        ? "⏹"
-        : "🎤"}
-
-    </button>
+  className={`w-12 h-12 rounded-full text-white shadow-lg flex items-center justify-center text-xl transition-all duration-300 ${
+    recording
+      ? "bg-red-500 animate-pulse scale-110"
+      : uploading
+      ? "bg-gray-400"
+      : "bg-green-500"
+  }`}
+>
+  {uploading
+    ? "..."
+    : recording
+    ? "⏺"
+    : "🎤"}
+</button>
   );
 };
 
