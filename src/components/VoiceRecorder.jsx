@@ -15,8 +15,16 @@ const VoiceRecorder = ({
   const chunksRef =
     useRef([]);
 
+  const streamRef =
+    useRef(null);
+
   const [recording, setRecording] =
     useState(false);
+
+  const [uploading, setUploading] =
+    useState(false);
+
+  // ================= START RECORDING =================
 
   const startRecording =
     async () => {
@@ -30,6 +38,9 @@ const VoiceRecorder = ({
             }
           );
 
+        streamRef.current =
+          stream;
+
         const mediaRecorder =
           new MediaRecorder(
             stream
@@ -42,62 +53,117 @@ const VoiceRecorder = ({
 
         mediaRecorder.ondataavailable =
           (e) => {
-            chunksRef.current.push(
-              e.data
-            );
+
+            if (e.data.size > 0) {
+
+              chunksRef.current.push(
+                e.data
+              );
+            }
           };
 
         mediaRecorder.onstop =
           async () => {
 
-            const blob =
-              new Blob(
-                chunksRef.current,
-                {
-                  type: "audio/webm",
-                }
+            try {
+
+              setUploading(
+                true
               );
 
-            const file =
-              new File(
-                [blob],
-                "voice.webm",
-                {
-                  type: "audio/webm",
-                }
+              const blob =
+                new Blob(
+                  chunksRef.current,
+                  {
+                    type:
+                      "audio/webm",
+                  }
+                );
+
+              const file =
+                new File(
+                  [blob],
+                  "voice-note.webm",
+                  {
+                    type:
+                      "audio/webm",
+                  }
+                );
+
+              const formData =
+                new FormData();
+
+              formData.append(
+                "file",
+                file
               );
 
-            const formData =
-              new FormData();
-
-            formData.append(
-              "file",
-              file
-            );
-
-            formData.append(
-              "upload_preset",
-              "YOUR_UPLOAD_PRESET"
-            );
-
-            const cloudName =
-              "YOUR_CLOUD_NAME";
-
-            const res =
-              await fetch(
-                `https://api.cloudinary.com/v1_1/${cloudName}/video/upload`,
-                {
-                  method: "POST",
-                  body: formData,
-                }
+              formData.append(
+                "upload_preset",
+                "YOUR_UPLOAD_PRESET"
               );
 
-            const data =
-              await res.json();
+              const cloudName =
+                "YOUR_CLOUD_NAME";
 
-            onSend(
-              data.secure_url
-            );
+              const res =
+                await fetch(
+                  `https://api.cloudinary.com/v1_1/${cloudName}/video/upload`,
+                  {
+                    method:
+                      "POST",
+
+                    body:
+                      formData,
+                  }
+                );
+
+              const data =
+                await res.json();
+
+              if (
+                data.secure_url
+              ) {
+
+                onSend(
+                  data.secure_url
+                );
+
+              } else {
+
+                console.log(
+                  data
+                );
+
+                alert(
+                  "Upload failed"
+                );
+              }
+
+            } catch (err) {
+
+              console.log(err);
+
+              alert(
+                "Voice upload failed"
+              );
+
+            } finally {
+
+              setUploading(
+                false
+              );
+
+              // STOP MICROPHONE
+              streamRef.current
+                ?.getTracks()
+                .forEach(
+                  (
+                    track
+                  ) =>
+                    track.stop()
+                );
+            }
           };
 
         mediaRecorder.start();
@@ -107,15 +173,22 @@ const VoiceRecorder = ({
       } catch (err) {
 
         console.log(err);
+
+        alert(
+          "Microphone permission denied"
+        );
       }
     };
 
-  const stopRecording = () => {
+  // ================= STOP RECORDING =================
 
-    mediaRecorderRef.current.stop();
+  const stopRecording =
+    () => {
 
-    setRecording(false);
-  };
+      mediaRecorderRef.current?.stop();
+
+      setRecording(false);
+    };
 
   return (
     <button
@@ -124,15 +197,26 @@ const VoiceRecorder = ({
           ? stopRecording
           : startRecording
       }
-      className={`w-12 h-12 rounded-full text-white shadow-lg ${
+
+      disabled={
+        uploading
+      }
+
+      className={`w-12 h-12 rounded-full text-white shadow-lg flex items-center justify-center text-xl transition ${
         recording
           ? "bg-red-500"
+          : uploading
+          ? "bg-gray-400"
           : "bg-green-500"
       }`}
     >
-      {recording
+
+      {uploading
+        ? "..."
+        : recording
         ? "⏹"
         : "🎤"}
+
     </button>
   );
 };
