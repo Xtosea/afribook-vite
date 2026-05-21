@@ -32,6 +32,8 @@ import Wallet from "./pages/Wallet";
 import Leaderboard from "./pages/Leaderboard";
 import PostPage from "./pages/PostPage";
 import SavedPosts from "./pages/SavedPosts";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 
 
@@ -92,6 +94,11 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+          <>
+      {/* your routes */}
+      <ToastContainer />
+    </>
 
         </Routes>
 
