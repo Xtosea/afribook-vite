@@ -279,6 +279,15 @@ return (
 </div>
 
 
+‎<PostMenu
+‎  post={post}
+‎  token={token}
+‎  currentUser={{
+‎    _id: currentUserId,
+‎  }}
+‎  onDeleted={onDeleted}
+‎  onUpdated={onUpdated}
+‎/>
 
 
 {/* POST TEXT */}
