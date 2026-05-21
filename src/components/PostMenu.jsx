@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-
 import {
   MoreHorizontal,
   Pencil,
@@ -11,9 +10,9 @@ import {
 } from "lucide-react";
 
 import { API_BASE } from "../api/api";
-
 import EditPostModal from "./EditPostModal";
 import ReportPostModal from "./ReportPostModal";
+import { toast } from "react-toastify";
 
 const PostMenu = ({
   post,
@@ -23,412 +22,237 @@ const PostMenu = ({
   onUpdated,
 }) => {
 
-
-console.log("CURRENT USER:", currentUser);
-console.log("POST USER:", post?.user);
-console.log(
-  "OWNER CHECK:",
-  currentUser?._id,
-  post?.user?._id
-);
-
   const [open, setOpen] = useState(false);
+  const [showEdit, setShowEdit] = useState(false);
+  const [showReport, setShowReport] = useState(false);
 
-  const [showEdit, setShowEdit] =
-    useState(false);
-
-  const [showReport, setShowReport] =
-    useState(false);
+  const [undoData, setUndoData] = useState(null);
+  const [undoTimer, setUndoTimer] = useState(null);
 
   const menuRef = useRef(null);
-
-  // =========================
-  // SAFE OWNER CHECK
-  // =========================
 
   const isOwner =
     currentUser?._id?.toString() ===
     post?.user?._id?.toString();
 
-  // =========================
-  // CLOSE ON OUTSIDE CLICK
-  // =========================
-
+  // CLOSE OUTSIDE
   useEffect(() => {
-
     const handleClickOutside = (e) => {
-
-      if (
-        menuRef.current &&
-        !menuRef.current.contains(e.target)
-      ) {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
         setOpen(false);
       }
     };
 
-    document.addEventListener(
-      "mousedown",
-      handleClickOutside
-    );
-
-    return () => {
-
-      document.removeEventListener(
-        "mousedown",
-        handleClickOutside
-      );
-    };
-
+    document.addEventListener("mousedown", handleClickOutside);
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   // =========================
-  // DELETE POST
+  // DELETE WITH UNDO
   // =========================
-
   const handleDelete = async () => {
-
-    const confirmDelete =
-      window.confirm(
-        "Delete this post?"
-      );
-
+    const confirmDelete = window.confirm("Delete this post?");
     if (!confirmDelete) return;
 
     try {
+      // save for undo
+      setUndoData(post);
 
-      const res = await fetch(
-        `${API_BASE}/api/posts/${post._id}`,
-        {
-          method: "DELETE",
-
-          headers: {
-            Authorization:
-              `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!res.ok) {
-        throw new Error(
-          "Delete failed"
-        );
-      }
-
-      // REMOVE FROM UI
+      // optimistic UI remove
       onDeleted?.(post._id);
 
       setOpen(false);
 
+      toast.success(
+        <div>
+          Post deleted{" "}
+          <button
+            onClick={handleUndo}
+            className="ml-2 text-blue-500 underline"
+          >
+            Undo
+          </button>
+        </div>,
+        { autoClose: 8000 }
+      );
+
+      // delay real delete
+      const timer = setTimeout(async () => {
+        try {
+          await fetch(`${API_BASE}/api/posts/${post._id}`, {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+        } catch (err) {
+          console.error("Final delete failed:", err);
+        }
+      }, 8000);
+
+      setUndoTimer(timer);
+
     } catch (err) {
-
       console.error(err);
-
-      alert("Delete failed");
+      toast.error("Delete failed");
     }
   };
 
   // =========================
-  // SAVE POST
+  // UNDO DELETE
   // =========================
+  const handleUndo = async () => {
+    if (!undoData) return;
 
+    try {
+      if (undoTimer) clearTimeout(undoTimer);
+
+      const res = await fetch(
+        `${API_BASE}/api/posts/${post._id}/restore`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!res.ok) throw new Error("Restore failed");
+
+      const data = await res.json();
+
+      onUpdated?.(data.post);
+
+      setUndoData(null);
+
+      toast.success("Post restored");
+
+    } catch (err) {
+      console.error(err);
+      toast.error("Undo failed");
+    }
+  };
+
+  // =========================
+  // SAVE
+  // =========================
   const handleSave = async () => {
-
     try {
+      await fetch(`${API_BASE}/api/posts/${post._id}/save`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-      const res = await fetch(
-        `${API_BASE}/api/posts/${post._id}/save`,
-        {
-          method: "PUT",
-
-          headers: {
-            Authorization:
-              `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!res.ok) {
-        throw new Error(
-          "Save failed"
-        );
-      }
-
-      alert("Post saved");
-
+      toast.success("Post saved");
       setOpen(false);
-
     } catch (err) {
-
-      console.error(err);
-
-      alert("Save failed");
+      toast.error("Save failed");
     }
   };
 
   // =========================
-  // PIN POST
+  // PIN
   // =========================
-
   const handlePin = async () => {
-
     try {
+      await fetch(`${API_BASE}/api/posts/${post._id}/pin`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-      const res = await fetch(
-        `${API_BASE}/api/posts/${post._id}/pin`,
-        {
-          method: "PUT",
-
-          headers: {
-            Authorization:
-              `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!res.ok) {
-        throw new Error(
-          "Pin failed"
-        );
-      }
-
-      alert("Post pinned");
-
+      toast.success("Post pinned");
       setOpen(false);
-
     } catch (err) {
-
-      console.error(err);
-
-      alert("Pin failed");
+      toast.error("Pin failed");
     }
   };
 
   // =========================
   // COPY LINK
   // =========================
-
   const handleCopyLink = async () => {
-
     try {
-
-      const url =
-        `${window.location.origin}/post/${post._id}`;
-
       await navigator.clipboard.writeText(
-        url
+        `${window.location.origin}/post/${post._id}`
       );
 
-      alert("Link copied");
-
+      toast.success("Link copied");
       setOpen(false);
-
     } catch (err) {
-
-      console.error(err);
-
-      alert("Failed to copy link");
+      toast.error("Failed to copy");
     }
   };
 
   return (
-
-    <div
-      className="relative"
-      ref={menuRef}
-    >
-
-      {/* MENU BUTTON */}
-
-      <button
-        onClick={() =>
-          setOpen(!open)
-        }
-        className="
-          p-2
-          rounded-full
-          hover:bg-gray-100
-          transition
-        "
-      >
+    <div className="relative" ref={menuRef}>
+      <button onClick={() => setOpen(!open)}>
         <MoreHorizontal size={20} />
       </button>
 
-      {/* MENU */}
-
       {open && (
-
-        <div
-          className="
-            absolute
-            right-0
-            top-12
-            bg-white
-            shadow-2xl
-            rounded-2xl
-            border
-            w-60
-            z-50
-            overflow-hidden
-          "
-        >
-
-          {/* OWNER OPTIONS */}
+        <div className="absolute right-0 top-12 bg-white shadow-xl rounded-xl w-60 z-50">
 
           {isOwner && (
-
             <>
-
               <button
-                onClick={() => {
-                  setShowEdit(true);
-                  setOpen(false);
-                }}
-                className="
-                  flex
-                  items-center
-                  gap-3
-                  w-full
-                  px-4
-                  py-3
-                  hover:bg-gray-100
-                  transition
-                "
+                onClick={() => setShowEdit(true)}
+                className="p-3 w-full hover:bg-gray-100 flex gap-2"
               >
-                <Pencil size={18} />
-                Edit Post
+                <Pencil size={16} /> Edit
               </button>
 
               <button
                 onClick={handleDelete}
-                className="
-                  flex
-                  items-center
-                  gap-3
-                  w-full
-                  px-4
-                  py-3
-                  hover:bg-gray-100
-                  text-red-500
-                  transition
-                "
+                className="p-3 w-full hover:bg-gray-100 flex gap-2 text-red-500"
               >
-                <Trash2 size={18} />
-                Delete Post
+                <Trash2 size={16} /> Delete
               </button>
 
               <button
                 onClick={handlePin}
-                className="
-                  flex
-                  items-center
-                  gap-3
-                  w-full
-                  px-4
-                  py-3
-                  hover:bg-gray-100
-                  transition
-                "
+                className="p-3 w-full hover:bg-gray-100 flex gap-2"
               >
-                <Pin size={18} />
-                Pin Post
+                <Pin size={16} /> Pin
               </button>
-
             </>
           )}
 
-          {/* SAVE */}
-
-          <button
-            onClick={handleSave}
-            className="
-              flex
-              items-center
-              gap-3
-              w-full
-              px-4
-              py-3
-              hover:bg-gray-100
-              transition
-            "
-          >
-            <Bookmark size={18} />
-            Save Post
+          <button onClick={handleSave} className="p-3 w-full hover:bg-gray-100">
+            <Bookmark size={16} /> Save
           </button>
 
-          {/* REPORT */}
-
-          <button
-            onClick={() => {
-              setShowReport(true);
-              setOpen(false);
-            }}
-            className="
-              flex
-              items-center
-              gap-3
-              w-full
-              px-4
-              py-3
-              hover:bg-gray-100
-              text-red-500
-              transition
-            "
-          >
-            <Flag size={18} />
-            Report Post
+          <button onClick={() => setShowReport(true)} className="p-3 w-full hover:bg-gray-100 text-red-500">
+            <Flag size={16} /> Report
           </button>
 
-          {/* COPY LINK */}
-
-          <button
-            onClick={handleCopyLink}
-            className="
-              flex
-              items-center
-              gap-3
-              w-full
-              px-4
-              py-3
-              hover:bg-gray-100
-              transition
-            "
-          >
-            <Link2 size={18} />
-            Copy Link
+          <button onClick={handleCopyLink} className="p-3 w-full hover:bg-gray-100">
+            <Link2 size={16} /> Copy Link
           </button>
 
         </div>
       )}
 
-      {/* EDIT MODAL */}
-
       {showEdit && (
-
         <EditPostModal
           post={post}
           token={token}
-          onClose={() =>
-            setShowEdit(false)
-          }
+          onClose={() => setShowEdit(false)}
           onUpdated={onUpdated}
         />
-
       )}
 
-      {/* REPORT MODAL */}
-
       {showReport && (
-
         <ReportPostModal
           post={post}
           token={token}
-          onClose={() =>
-            setShowReport(false)
-          }
+          onClose={() => setShowReport(false)}
         />
-
       )}
-
     </div>
   );
 };
