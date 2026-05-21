@@ -17,6 +17,9 @@ import {
 } from "lucide-react";
 
 import InstallPWAButton from "./InstallPWAButton";
+import { Link } from "react-router-dom";
+
+
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -320,6 +323,20 @@ const Navbar = () => {
 
               </div>
 
+
+   <Link
+  to="/saved"
+  className={`flex items-center gap-1 ${
+    isActive("/leaderboard")
+      ? "text-blue-600"
+      : "hover:text-blue-500"
+  }`}
+>
+  <Users size={20} />
+  Saved Posts
+</Link>
+
+
               {/* ========================= */}
               {/* ONLINE USERS */}
               {/* ========================= */}
@@ -548,6 +565,10 @@ const Navbar = () => {
             }
           >
             Wallet
+          </Link>
+
+          <Link to="/saved">
+        🔖 Saved Posts
           </Link>
 
           <button
