@@ -273,6 +273,14 @@ return (
   </div>
 </div>
 
+<PostMenu
+  post={post}
+  token={token}
+  currentUser={{
+    _id: currentUserId,
+  }}
+/>
+
 
 {/* POST TEXT */}
 {post?.content && (
