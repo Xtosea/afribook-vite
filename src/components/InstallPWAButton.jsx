@@ -77,7 +77,7 @@ export default function InstallPWAButton() {
   if (!showButton) return null;
 
   return (
-    <div className="fixed bottom-6 right-10 z-[9999]">
+    <div className="fixed bottom-20 right-2 z-[9999]">
       <button
         onClick={handleInstall}
         className="bg-blue-600 text-white px-4 py-3 rounded-full shadow-xl"
