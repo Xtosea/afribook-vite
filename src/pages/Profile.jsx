@@ -376,12 +376,12 @@ const Profile = () => {
         }
       >
         <ProfileHeader
-          user={user}
-          isOwner={true}
-          onEdit={() => setEditing(true)}
-          previewProfilePic={previewProfilePic}
-          previewCoverPhoto={previewCoverPhoto}
-        />
+  user={user}
+  isOwner={user?._id === currentUserId}
+  onEdit={() => setEditing(true)}
+  previewProfilePic={previewProfilePic}
+  previewCoverPhoto={previewCoverPhoto}
+/>
       </Suspense>
 
       {/* ================= MUTUAL FRIENDS ================= */}
