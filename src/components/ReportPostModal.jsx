@@ -241,6 +241,24 @@ const ReportPostModal = ({
 
       </div>
 
+   <button
+  onClick={() =>
+    setShowReport(true)
+  }
+  className="
+    flex
+    items-center
+    gap-3
+    w-full
+    px-4
+    py-3
+    hover:bg-gray-100
+    text-red-500
+  "
+>
+  🚩 Report Post
+</button>
+
     </div>
   );
 };
