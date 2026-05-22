@@ -26,75 +26,139 @@ const defaultProfile =
 const AudioMessage = ({
   src,
   isMe,
+  onDelete,
 }) => {
+
   const audioRef =
     useRef(null);
 
   const [playing, setPlaying] =
     useState(false);
 
+  const [muted, setMuted] =
+    useState(false);
+
+  const [loading, setLoading] =
+    useState(false);
+
+  // PLAY / PAUSE
   const togglePlay =
     async () => {
+
       if (!audioRef.current)
         return;
 
       try {
+
         if (playing) {
+
           audioRef.current.pause();
 
           setPlaying(false);
+
         } else {
+
+          setLoading(true);
+
           await audioRef.current.play();
 
           setPlaying(true);
+
+          setLoading(false);
         }
+
       } catch (err) {
+
         console.log(
           "Audio play error:",
           err
         );
+
+        setLoading(false);
       }
     };
 
+  // MUTE
+  const toggleMute =
+    () => {
+
+      if (!audioRef.current)
+        return;
+
+      audioRef.current.muted =
+        !muted;
+
+      setMuted(!muted);
+    };
+
   return (
-    <div className="flex items-center gap-3 mt-2 w-full">
+    <div className="flex items-center gap-2 mt-2 w-full">
 
       {/* PLAY BUTTON */}
       <button
         onClick={togglePlay}
-        className={`w-12 h-12 rounded-full flex items-center justify-center text-xl shadow-md transition ${
+        className={`w-11 h-11 rounded-full flex items-center justify-center text-lg shadow transition ${
           isMe
             ? "bg-white/20 text-white"
             : "bg-gray-200 text-gray-700"
         }`}
       >
-        {playing
-          ? "⏸️"
-          : "▶️"}
+        {loading
+          ? "..."
+          : playing
+          ? "⏸"
+          : "▶"}
       </button>
 
       {/* AUDIO BODY */}
       <div
-        className={`flex-1 rounded-2xl px-3 py-2 ${
+        className={`flex-1 rounded-2xl px-3 py-2 overflow-hidden ${
           isMe
             ? "bg-white/10"
             : "bg-gray-100"
         }`}
       >
 
-        {/* TITLE */}
-        <div
-          className={`text-sm font-medium mb-1 ${
-            isMe
-              ? "text-white"
-              : "text-gray-700"
-          }`}
-        >
-          🎙️ Voice message
+        {/* TOP ROW */}
+        <div className="flex items-center justify-between">
+
+          <p
+            className={`text-sm font-medium ${
+              isMe
+                ? "text-white"
+                : "text-gray-700"
+            }`}
+          >
+            🎙 Voice note
+          </p>
+
+          <div className="flex items-center gap-2">
+
+            {/* MUTE */}
+            <button
+              onClick={toggleMute}
+              className="text-xs"
+            >
+              {muted
+                ? "🔇"
+                : "🔊"}
+            </button>
+
+            {/* DELETE */}
+            {isMe && (
+              <button
+                onClick={onDelete}
+                className="text-xs text-red-400"
+              >
+                🗑
+              </button>
+            )}
+
+          </div>
         </div>
 
-        {/* WAVE BARS */}
-        <div className="flex items-center gap-[3px] h-5 mb-2">
+        {/* WAVEFORM */}
+        <div className="flex items-center gap-[3px] h-6 mt-2">
 
           <div className="w-1 h-2 bg-current rounded animate-pulse" />
           <div className="w-1 h-4 bg-current rounded animate-pulse" />
@@ -103,16 +167,19 @@ const AudioMessage = ({
           <div className="w-1 h-2 bg-current rounded animate-pulse" />
           <div className="w-1 h-4 bg-current rounded animate-pulse" />
           <div className="w-1 h-3 bg-current rounded animate-pulse" />
-
+          <div className="w-1 h-5 bg-current rounded animate-pulse" />
         </div>
 
-        {/* HIDDEN AUDIO */}
+        {/* AUDIO */}
         <audio
           ref={audioRef}
+          preload="metadata"
           onEnded={() =>
             setPlaying(false)
           }
-          className="hidden"
+          onPause={() =>
+            setPlaying(false)
+          }
         >
           <source
             src={src}
@@ -642,9 +709,16 @@ const Messages = () => {
                         {/* AUDIO */}
                         {msg.mediaType === "audio" && (
                           <AudioMessage
-                            src={msg.media}
-                            isMe={isMe}
-                          />
+  src={msg.media}
+  isMe={isMe}
+  onDelete={() => {
+    setMessages((prev) =>
+      prev.filter(
+        (_, i) => i !== index
+      )
+    );
+  }}
+/>
                         )}
 
                         {/* TEXT */}
