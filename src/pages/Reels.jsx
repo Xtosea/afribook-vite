@@ -29,6 +29,8 @@ const Reels = () => {
 
   const socket = getSocket();
 
+const [activeIndex, setActiveIndex] = useState(0);
+
   const {
     uploadFile,
     loading,
@@ -55,34 +57,35 @@ const Reels = () => {
   };
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        const index = Number(entry.target.dataset.index);
+
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.7) {
+          setActiveIndex(index);
+
           const video = entry.target;
-
-          if (entry.isIntersecting) {
-            video.play();
-          } else {
-            video.pause();
-          }
-        });
-      },
-      {
-        threshold: 0.7,
-      }
-    );
-
-    videoRefs.current.forEach((video) => {
-      if (video) observer.observe(video);
-    });
-
-    return () => {
-      videoRefs.current.forEach((video) => {
-        if (video) observer.unobserve(video);
+          video.play();
+        } else {
+          const video = entry.target;
+          video.pause();
+        }
       });
-    };
-  }, [reels]);
+    },
+    { threshold: 0.7 }
+  );
 
+  videoRefs.current.forEach((video) => {
+    if (video) observer.observe(video);
+  });
+
+  return () => {
+    videoRefs.current.forEach((video) => {
+      if (video) observer.unobserve(video);
+    });
+  };
+}, [reels]);
   const handleFileChange = (e) => {
     const file = e.target.files[0];
 
@@ -258,19 +261,19 @@ setShares(sharesObj);
     <div className="h-screen overflow-y-scroll snap-y snap-mandatory bg-black relative">
 
       {reels.map((reel, i) => (
-        <ReelCard
-          key={reel._id}
-          reel={reel}
-          reelRef={(el) =>
-            (videoRefs.current[i] = el)
-          }
-          recordView={recordView}
-          likeReel={likeReel}
-          shareReel={shareReel}
-          likes={likes}
-          shares={shares}
-        />
-      ))}
+  <ReelCard
+    key={reel._id}
+    reel={reel}
+    index={i}
+    activeIndex={activeIndex}
+    reelRef={(el) => (videoRefs.current[i] = el)}
+    recordView={recordView}
+    likeReel={likeReel}
+    shareReel={shareReel}
+    likes={likes}
+    shares={shares}
+  />
+))}
 
       <button
         onClick={() => setShowUpload(true)}
