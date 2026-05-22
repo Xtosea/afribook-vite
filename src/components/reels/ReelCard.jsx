@@ -112,41 +112,23 @@ const ReelCard = ({
 
       {/* VIDEO */}
       <video
-        ref={videoRef}
-        src={reel.media?.[0]?.url}
-        className="
-          h-full
-          w-full
-          object-cover
-        "
-        loop
-        muted
-        playsInline
-        autoPlay
-
-        onPlay={() => {
-
-          setWatchStart(
-            Date.now()
-          );
-
-          recordView(
-            reel._id
-          );
-        }}
-
-        onPause={trackWatch}
-
-        onEnded={trackWatch}
-
-        onWaiting={() =>
-          setBuffering(true)
-        }
-
-        onPlaying={() =>
-          setBuffering(false)
-        }
-      />
+  ref={videoRef}
+  data-index={index}
+  src={reel.media?.[0]?.url}
+  className="h-full w-full object-cover"
+  loop
+  playsInline
+  autoPlay
+  muted={activeIndex !== index}
+  onPlay={() => {
+    setWatchStart(Date.now());
+    recordView(reel._id);
+  }}
+  onPause={trackWatch}
+  onEnded={trackWatch}
+  onWaiting={() => setBuffering(true)}
+  onPlaying={() => setBuffering(false)}
+/>
 
       {/* BUFFERING */}
       {buffering && (
