@@ -1,8 +1,4 @@
-import React, {
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { API_BASE } from "../api/api";
 import { getSocket } from "../socket";
@@ -18,262 +14,220 @@ const Reels = () => {
   const [shares, setShares] = useState({});
 
   const [caption, setCaption] = useState("");
-
   const [showUpload, setShowUpload] = useState(false);
-
   const [preview, setPreview] = useState(null);
 
+  const [activeIndex, setActiveIndex] = useState(0);
+
   const videoRefs = useRef([]);
-
   const fileRef = useRef();
-
   const socket = getSocket();
 
-const [activeIndex, setActiveIndex] = useState(0);
+  const { uploadFile, loading, progress } = use2Upload();
 
-  const {
-    uploadFile,
-    loading,
-    progress,
-  } = use2Upload();
+  const token = localStorage.getItem("token");
 
+  /* ================= FETCH REELS ================= */
   useEffect(() => {
     fetchReels();
   }, []);
 
   const fetchReels = async () => {
     try {
-      const res = await fetch(
-        `${API_BASE}/api/posts/reels`
-      );
-
+      const res = await fetch(`${API_BASE}/api/posts/reels`);
       const data = await res.json();
 
       setReels(data);
 
+      // init likes/shares
+      const likesObj = {};
+      const sharesObj = {};
+
+      data.forEach((reel) => {
+        likesObj[reel._id] = reel.likes?.length || 0;
+        sharesObj[reel._id] = reel.shares || 0;
+      });
+
+      setLikes(likesObj);
+      setShares(sharesObj);
     } catch (err) {
       console.error(err);
     }
   };
 
+  /* ================= INTERSECTION OBSERVER ================= */
   useEffect(() => {
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        const index = Number(entry.target.dataset.index);
-
-        if (entry.isIntersecting && entry.intersectionRatio >= 0.7) {
-          setActiveIndex(index);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const index = Number(entry.target.dataset.index);
 
           const video = entry.target;
-          video.play();
-        } else {
-          const video = entry.target;
-          video.pause();
-        }
-      });
-    },
-    { threshold: 0.7 }
-  );
 
-  videoRefs.current.forEach((video) => {
-    if (video) observer.observe(video);
-  });
+          if (entry.isIntersecting && entry.intersectionRatio >= 0.7) {
+            setActiveIndex(index);
+            video.play();
+          } else {
+            video.pause();
+          }
+        });
+      },
+      { threshold: 0.7 }
+    );
 
-  return () => {
     videoRefs.current.forEach((video) => {
-      if (video) observer.unobserve(video);
+      if (video) observer.observe(video);
     });
+
+    return () => {
+      videoRefs.current.forEach((video) => {
+        if (video) observer.unobserve(video);
+      });
+    };
+  }, [reels]);
+
+  /* ================= RECORD VIEW ================= */
+  const recordView = async (id) => {
+    try {
+      await fetch(`${API_BASE}/api/posts/reels/view/${id}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    } catch (err) {
+      console.error("recordView error:", err);
+    }
   };
-}, [reels]);
+
+  /* ================= LIKE REEL ================= */
+  const likeReel = async (id) => {
+    try {
+      const res = await fetch(`${API_BASE}/api/posts/${id}/like`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+
+      setLikes((prev) => ({
+        ...prev,
+        [id]: data.likes.length,
+      }));
+    } catch (err) {
+      console.error("likeReel error:", err);
+    }
+  };
+
+  /* ================= SHARE REEL ================= */
+  const shareReel = async (id) => {
+    try {
+      const reel = reels.find((r) => r._id === id);
+      if (!reel) return;
+
+      const shareData = {
+        title: "Check out this reel",
+        text: reel.content || "Watch this reel",
+        url: `${window.location.origin}/reel/${id}`,
+      };
+
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(shareData.url);
+        alert("Link copied");
+      }
+
+      const res = await fetch(`${API_BASE}/api/posts/${id}/share`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+
+      setShares((prev) => ({
+        ...prev,
+        [id]: data.shares,
+      }));
+    } catch (err) {
+      console.error("share error:", err);
+    }
+  };
+
+  /* ================= FILE CHANGE ================= */
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-
     if (file) {
       setPreview(URL.createObjectURL(file));
     }
   };
 
+  /* ================= UPLOAD REEL ================= */
   const uploadReel = async () => {
     try {
       const file = fileRef.current.files[0];
 
-      if (!file) {
-        return alert("Select video");
-      }
+      if (!file) return alert("Select video");
 
       const uploadedUrl = await uploadFile(file);
 
-      const token = localStorage.getItem("token");
-
-      const res = await fetch(
-        `${API_BASE}/api/posts/reels`,
-        {
-          method: "POST",
-
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-
-          body: JSON.stringify({
-            caption,
-            videoUrl: uploadedUrl,
-          }),
-        }
-      );
-
-   
-     const likesObj = {};
-const sharesObj = {};
-
-data.forEach((reel) => {
-  likesObj[reel._id] =
-    reel.likes?.length || 0;
-
-  sharesObj[reel._id] =
-    reel.shares || 0;
-});
-
-setLikes(likesObj);
-setShares(sharesObj);
-
+      const res = await fetch(`${API_BASE}/api/posts/reels`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          caption,
+          videoUrl: uploadedUrl,
+        }),
+      });
 
       const newReel = await res.json();
 
       setReels((prev) => [newReel, ...prev]);
 
+      setLikes((prev) => ({
+        [newReel._id]: 0,
+        ...prev,
+      }));
+
+      setShares((prev) => ({
+        [newReel._id]: 0,
+        ...prev,
+      }));
+
       setCaption("");
       setPreview(null);
       setShowUpload(false);
 
-      if (fileRef.current) {
-        fileRef.current.value = null;
-      }
-
+      if (fileRef.current) fileRef.current.value = null;
     } catch (err) {
-      console.error(err);
+      console.error("upload error:", err);
     }
   };
-
-
-  const token =
-  localStorage.getItem("token");
-
-  const recordView = async (id) => {
-    try {
-      await fetch(
-  `${API_BASE}/api/posts/reels/view/${id}`,
-  {
-    method: "POST",
-
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }
-);
-
-  const likeReel = async (id) => {
-    try {
-      const token = localStorage.getItem("token");
-
-      const res = await fetch(
-  `${API_BASE}/api/posts/${id}/like`,
-  {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }
-);
-
-      const data = await res.json();
-
-      setLikes((prev) => ({
-  ...prev,
-  [id]: data.likes.length,
-}));
-
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const shareReel = async (id) => {
-  try {
-    const reel = reels.find((r) => r._id === id);
-
-    if (!reel) return;
-
-    const shareData = {
-      title: "Check out this reel",
-      text: reel.content || "Watch this reel",
-      url: `${window.location.origin}/reel/${id}`,
-    };
-
-    // Native mobile share
-    if (navigator.share) {
-      try {
-        await navigator.share(shareData);
-      } catch (err) {
-        // User cancelled share
-        if (err.name === "AbortError") {
-          return;
-        }
-
-        console.error("Share error:", err);
-      }
-    } else {
-      // Fallback copy link
-      await navigator.clipboard.writeText(
-        shareData.url
-      );
-
-      alert("Link copied");
-    }
-
-    // Update backend share count
-    const token = localStorage.getItem("token");
-
-    const res = await fetch(
-      `${API_BASE}/api/posts/${id}/share`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-    const data = await res.json();
-
-    setShares((prev) => ({
-      ...prev,
-      [id]: data.shares,
-    }));
-
-  } catch (err) {
-    console.error("Share failed:", err);
-  }
-};
 
   return (
     <div className="h-screen overflow-y-scroll snap-y snap-mandatory bg-black relative">
 
       {reels.map((reel, i) => (
-  <ReelCard
-    key={reel._id}
-    reel={reel}
-    index={i}
-    activeIndex={activeIndex}
-    reelRef={(el) => (videoRefs.current[i] = el)}
-    recordView={recordView}
-    likeReel={likeReel}
-    shareReel={shareReel}
-    likes={likes}
-    shares={shares}
-  />
-))}
+        <ReelCard
+          key={reel._id}
+          reel={reel}
+          index={i}
+          activeIndex={activeIndex}
+          reelRef={(el) => (videoRefs.current[i] = el)}
+          recordView={recordView}
+          likeReel={likeReel}
+          shareReel={shareReel}
+          likes={likes}
+          shares={shares}
+        />
+      ))}
 
       <button
         onClick={() => setShowUpload(true)}
@@ -295,7 +249,6 @@ setShares(sharesObj);
           loading={loading}
         />
       )}
-
     </div>
   );
 };
