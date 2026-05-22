@@ -9,6 +9,8 @@ import { API_BASE } from "../../api/api";
 
 const ReelCard = ({
   reel,
+  index,          // ✅ ADD THIS
+  activeIndex,    // ✅ ADD THIS
   reelRef,
   recordView,
   likeReel,
@@ -119,7 +121,7 @@ const ReelCard = ({
   loop
   playsInline
   autoPlay
-  muted={activeIndex !== index}
+  muted={activeIndex !== index}   // ✅ now works
   onPlay={() => {
     setWatchStart(Date.now());
     recordView(reel._id);
