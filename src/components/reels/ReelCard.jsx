@@ -310,83 +310,117 @@ const ReelCard = ({
             </div>
 
             {/* ACTIONS */}
-            <div
-              className="
-                flex
-                flex-col
-                gap-6
-                text-white
-                items-center
-              "
-            >
+<div
+  className="
+    flex
+    flex-col
+    gap-5
+    text-white
+    items-center
+  "
+>
 
-              {/* LIKE */}
-              <button
-                onClick={() =>
-                  likeReel(
-                    reel._id
-                  )
-                }
-                className="
-                  flex
-                  flex-col
-                  items-center
-                  active:scale-90
-                  transition
-                "
-              >
+  {/* LIKE */}
+  <button
+    onClick={() =>
+      likeReel(reel._id)
+    }
+    className="
+      flex
+      flex-col
+      items-center
+      active:scale-90
+      transition
+    "
+  >
 
-                <span className="text-3xl">
-                  ❤️
-                </span>
+    <span className="text-3xl">
+      ❤️
+    </span>
 
-                <span
-                  className="
-                    text-sm
-                    font-medium
-                  "
-                >
-                  {likes[
-                    reel._id
-                  ] || 0}
-                </span>
+    <span
+      className="
+        text-sm
+        font-medium
+      "
+    >
+      {likes[reel._id] || 0}
+    </span>
 
-              </button>
+  </button>
 
-              {/* SHARE */}
-              <button
-                onClick={() =>
-                  shareReel(
-                    reel._id
-                  )
-                }
-                className="
-                  flex
-                  flex-col
-                  items-center
-                  active:scale-90
-                  transition
-                "
-              >
+  {/* SHARE */}
+  <button
+    onClick={() =>
+      shareReel(reel._id)
+    }
+    className="
+      flex
+      flex-col
+      items-center
+      active:scale-90
+      transition
+    "
+  >
 
-                <span className="text-3xl">
-                  🔗
-                </span>
+    <span className="text-3xl">
+      🔗
+    </span>
 
-                <span
-                  className="
-                    text-sm
-                    font-medium
-                  "
-                >
-                  {shares[
-                    reel._id
-                  ] || 0}
-                </span>
+    <span
+      className="
+        text-sm
+        font-medium
+      "
+    >
+      {shares[reel._id] || 0}
+    </span>
 
-              </button>
+  </button>
 
-            </div>
+  {/* VIEWERS */}
+  <div className="flex flex-col items-center">
+
+    <div className="flex -space-x-2">
+
+      {reel.viewedBy
+        ?.slice(0, 5)
+        .map((viewer) => (
+
+          <img
+            key={viewer._id}
+            src={
+              viewer.profilePic ||
+              "/default-avatar.png"
+            }
+            alt={viewer.name}
+            className="
+              w-8
+              h-8
+              rounded-full
+              border-2
+              border-white
+              object-cover
+            "
+          />
+
+      ))}
+
+    </div>
+
+    <span
+      className="
+        text-xs
+        mt-1
+        text-gray-200
+      "
+    >
+      {reel.viewedBy?.length || 0} views
+    </span>
+
+  </div>
+
+</div>
 
           </div>
 
