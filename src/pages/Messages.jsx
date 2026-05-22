@@ -10,10 +10,10 @@ import { motion } from "framer-motion";
 
 import { connectSocket } from "../socket";
 
-imp MLort {
+import {
   fetchWithToken,
   API_BASE,
-l} from "../api/api";
+} from "../api/api";
 
 import VideoCall from "../components/VideoCall";
 import VoiceRecorder from "../components/VoiceRecorder";
@@ -606,9 +606,8 @@ const Messages = () => {
                           : "justify-start"
                       }`}
                     >
-                      <div
-                        <div
-  className={`max-w-[85%] overflow-hidden ml-auto mr-auto px-4 py-3 rounded-3xl shadow-md break-words ${
+                     <div
+  className={`max-w-[85%] overflow-hidden px-4 py-3 rounded-3xl shadow-md break-words ${
     isMe
       ? "bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-br-md ml-auto"
       : "bg-white text-gray-800 rounded-bl-md mr-auto"
