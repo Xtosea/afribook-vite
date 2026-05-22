@@ -3,6 +3,7 @@
 import React, {
   useRef,
   useState,
+  useEffect,
 } from "react";
 
 const VoiceRecorder = ({
@@ -18,6 +19,15 @@ const VoiceRecorder = ({
   const streamRef =
     useRef(null);
 
+  const analyserRef =
+    useRef(null);
+
+  const animationRef =
+    useRef(null);
+
+  const audioContextRef =
+    useRef(null);
+
   const startX =
     useRef(0);
 
@@ -31,6 +41,95 @@ const VoiceRecorder = ({
     isCancelling,
     setIsCancelling,
   ] = useState(false);
+
+  const [waveHeights, setWaveHeights] =
+    useState([
+      8, 14, 10, 18, 12, 16, 9,
+    ]);
+
+  // ================= WAVEFORM =================
+
+  const startWaveform =
+    (stream) => {
+
+      const audioContext =
+        new AudioContext();
+
+      audioContextRef.current =
+        audioContext;
+
+      const analyser =
+        audioContext.createAnalyser();
+
+      analyser.fftSize = 64;
+
+      const source =
+        audioContext.createMediaStreamSource(
+          stream
+        );
+
+      source.connect(analyser);
+
+      analyserRef.current =
+        analyser;
+
+      const dataArray =
+        new Uint8Array(
+          analyser.frequencyBinCount
+        );
+
+      const updateWave =
+        () => {
+
+          analyser.getByteFrequencyData(
+            dataArray
+          );
+
+          const bars =
+            Array.from(
+              {
+                length: 12,
+              },
+              (_, i) => {
+
+                const value =
+                  dataArray[i];
+
+                return Math.max(
+                  6,
+                  value / 8
+                );
+              }
+            );
+
+          setWaveHeights(
+            bars
+          );
+
+          animationRef.current =
+            requestAnimationFrame(
+              updateWave
+            );
+        };
+
+      updateWave();
+    };
+
+  // ================= STOP WAVEFORM =================
+
+  const stopWaveform =
+    () => {
+
+      cancelAnimationFrame(
+        animationRef.current
+      );
+
+      audioContextRef.current?.close();
+
+      setWaveHeights([
+        8, 14, 10, 18, 12, 16, 9,
+      ]);
+    };
 
   // ================= START RECORDING =================
 
@@ -50,6 +149,10 @@ const VoiceRecorder = ({
 
         streamRef.current =
           stream;
+
+        startWaveform(
+          stream
+        );
 
         const mediaRecorder =
           new MediaRecorder(
@@ -74,6 +177,8 @@ const VoiceRecorder = ({
 
         mediaRecorder.onstop =
           async () => {
+
+            stopWaveform();
 
             // CANCEL RECORDING
             if (isCancelling) {
@@ -183,7 +288,6 @@ const VoiceRecorder = ({
                 false
               );
 
-              // STOP MICROPHONE
               streamRef.current
                 ?.getTracks()
                 .forEach(
@@ -242,7 +346,6 @@ const VoiceRecorder = ({
         startX.current -
         currentX;
 
-      // SWIPE LEFT
       if (diff > 80) {
 
         setIsCancelling(
@@ -256,6 +359,25 @@ const VoiceRecorder = ({
         );
       }
     };
+
+  // ================= CLEANUP =================
+
+  useEffect(() => {
+
+    return () => {
+
+      stopWaveform();
+
+      streamRef.current
+        ?.getTracks()
+        .forEach(
+          (
+            track
+          ) =>
+            track.stop()
+        );
+    };
+  }, []);
 
   return (
     <div className="flex flex-col items-center">
@@ -297,6 +419,32 @@ const VoiceRecorder = ({
           ? "⏺"
           : "🎤"}
       </button>
+
+      {/* LIVE WAVEFORM */}
+      {recording && (
+        <div className="flex items-end gap-[3px] mt-3 h-10">
+
+          {waveHeights.map(
+            (
+              height,
+              index
+            ) => (
+              <div
+                key={index}
+                className={`w-1 rounded-full transition-all duration-75 ${
+                  isCancelling
+                    ? "bg-red-500"
+                    : "bg-green-500"
+                }`}
+                style={{
+                  height: `${height}px`,
+                }}
+              />
+            )
+          )}
+
+        </div>
+      )}
 
       {/* RECORDING TEXT */}
       {recording && (
