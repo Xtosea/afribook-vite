@@ -120,6 +120,22 @@ const Reels = () => {
         }
       );
 
+   
+     const likesObj = {};
+const sharesObj = {};
+
+data.forEach((reel) => {
+  likesObj[reel._id] =
+    reel.likes?.length || 0;
+
+  sharesObj[reel._id] =
+    reel.shares || 0;
+});
+
+setLikes(likesObj);
+setShares(sharesObj);
+
+
       const newReel = await res.json();
 
       setReels((prev) => [newReel, ...prev]);
@@ -137,39 +153,43 @@ const Reels = () => {
     }
   };
 
+
+  const token =
+  localStorage.getItem("token");
+
   const recordView = async (id) => {
     try {
       await fetch(
-        `${API_BASE}/api/posts/reels/view/${id}`,
-        {
-          method: "POST",
-        }
-      );
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  `${API_BASE}/api/posts/reels/view/${id}`,
+  {
+    method: "POST",
+
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+);
 
   const likeReel = async (id) => {
     try {
       const token = localStorage.getItem("token");
 
       const res = await fetch(
-        `${API_BASE}/api/posts/${id}/like`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+  `${API_BASE}/api/posts/${id}/like`,
+  {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+);
 
       const data = await res.json();
 
       setLikes((prev) => ({
-        ...prev,
-        [id]: data.likesCount,
-      }));
+  ...prev,
+  [id]: data.likes.length,
+}));
 
     } catch (err) {
       console.error(err);
