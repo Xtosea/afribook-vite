@@ -18,11 +18,19 @@ const VoiceRecorder = ({
   const streamRef =
     useRef(null);
 
+  const startX =
+    useRef(0);
+
   const [recording, setRecording] =
     useState(false);
 
   const [uploading, setUploading] =
     useState(false);
+
+  const [
+    isCancelling,
+    setIsCancelling,
+  ] = useState(false);
 
   // ================= START RECORDING =================
 
@@ -30,6 +38,8 @@ const VoiceRecorder = ({
     async () => {
 
       try {
+
+        setIsCancelling(false);
 
         const stream =
           await navigator.mediaDevices.getUserMedia(
@@ -64,6 +74,25 @@ const VoiceRecorder = ({
 
         mediaRecorder.onstop =
           async () => {
+
+            // CANCEL RECORDING
+            if (isCancelling) {
+
+              chunksRef.current = [];
+
+              setIsCancelling(false);
+
+              streamRef.current
+                ?.getTracks()
+                .forEach(
+                  (
+                    track
+                  ) =>
+                    track.stop()
+                );
+
+              return;
+            }
 
             try {
 
@@ -190,30 +219,100 @@ const VoiceRecorder = ({
       setRecording(false);
     };
 
+  // ================= TOUCH START =================
+
+  const handleTouchStart =
+    async (e) => {
+
+      startX.current =
+        e.touches[0].clientX;
+
+      await startRecording();
+    };
+
+  // ================= SWIPE CANCEL =================
+
+  const handleTouchMove =
+    (e) => {
+
+      const currentX =
+        e.touches[0].clientX;
+
+      const diff =
+        startX.current -
+        currentX;
+
+      // SWIPE LEFT
+      if (diff > 80) {
+
+        setIsCancelling(
+          true
+        );
+
+      } else {
+
+        setIsCancelling(
+          false
+        );
+      }
+    };
+
   return (
-   <button
-  onClick={
-    recording
-      ? stopRecording
-      : startRecording
-  }
+    <div className="flex flex-col items-center">
 
-  disabled={uploading}
+      {/* RECORD BUTTON */}
+      <button
+        onTouchStart={
+          handleTouchStart
+        }
+        onTouchMove={
+          handleTouchMove
+        }
+        onTouchEnd={
+          stopRecording
+        }
 
-  className={`w-12 h-12 rounded-full text-white shadow-lg flex items-center justify-center text-xl transition-all duration-300 ${
-    recording
-      ? "bg-red-500 animate-pulse scale-110"
-      : uploading
-      ? "bg-gray-400"
-      : "bg-green-500"
-  }`}
->
-  {uploading
-    ? "..."
-    : recording
-    ? "⏺"
-    : "🎤"}
-</button>
+        onMouseDown={
+          startRecording
+        }
+        onMouseUp={
+          stopRecording
+        }
+
+        disabled={uploading}
+
+        className={`w-12 h-12 rounded-full text-white shadow-lg flex items-center justify-center text-xl transition-all duration-300 ${
+          recording
+            ? isCancelling
+              ? "bg-red-700 scale-125"
+              : "bg-red-500 animate-pulse scale-110"
+            : uploading
+            ? "bg-gray-400"
+            : "bg-green-500"
+        }`}
+      >
+        {uploading
+          ? "..."
+          : recording
+          ? "⏺"
+          : "🎤"}
+      </button>
+
+      {/* RECORDING TEXT */}
+      {recording && (
+        <div
+          className={`text-xs mt-2 font-medium transition ${
+            isCancelling
+              ? "text-red-500"
+              : "text-gray-500"
+          }`}
+        >
+          {isCancelling
+            ? "❌ Release to cancel"
+            : "⬅ Swipe left to cancel"}
+        </div>
+      )}
+    </div>
   );
 };
 
