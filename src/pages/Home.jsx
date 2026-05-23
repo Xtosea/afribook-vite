@@ -23,8 +23,8 @@ import compressVideo from "../utils/compressVideo";
 import PostComposer from "../components/PostComposer";
 import SuggestedFriends from "../components/friends/SuggestedFriends";
 import Adsterra from "../components/Adsterra.jsx";
-import FriendCarousel from "../components/FriendCarousel";
-import ReelsHorizontal from "../components/reels/ReelsHorizontal";
+import FriendCarousel from "./components/FriendCarousel";
+import ReelsHorizontal from "./components/reels/ReelsHorizontal";
 
 
 
