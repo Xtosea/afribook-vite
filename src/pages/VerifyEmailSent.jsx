@@ -164,6 +164,22 @@ export default function VerifyEmailSent() {
 
           </div>
 
+
+{/* AD SECTION */}
+
+          <div className="mt-8">
+
+            <div
+              id="container-1ac49ab91139c0ad3e13572497cfbe18"
+              className="
+                rounded-2xl
+                overflow-hidden
+              "
+            ></div>
+
+          </div>
+
+
           {/* STEPS */}
 
           <div
@@ -368,19 +384,7 @@ export default function VerifyEmailSent() {
 
           </div>
 
-          {/* AD SECTION */}
-
-          <div className="mt-8">
-
-            <div
-              id="container-1ac49ab91139c0ad3e13572497cfbe18"
-              className="
-                rounded-2xl
-                overflow-hidden
-              "
-            ></div>
-
-          </div>
+          
 
           {/* FOOTER */}
 
