@@ -24,6 +24,9 @@ import PostComposer from "../components/PostComposer";
 import SuggestedFriends from "../components/friends/SuggestedFriends";
 import Adsterra from "../components/Adsterra.jsx";
 import FriendCarousel from "../components/FriendCarousel";
+import ReelsHorizontal from "../components/reels/ReelsHorizontal";
+
+
 
 // Lazy-loaded components
 const EmojiPicker = lazy(() => import("emoji-picker-react"));
@@ -94,6 +97,8 @@ useLazyVideo(videoRefs);
 
 const { uploadImage } = useCloudinaryUpload();
 const { uploadVideo } = useR2Upload();
+const [reels, setReels] = useState([]);
+
 
 const currentUser = {
 _id: currentUserId,
@@ -165,6 +170,22 @@ socket.on("new-post", (post) => {
   });  
 
 });  
+
+
+useEffect(() => {
+  const fetchReels = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/api/posts/reels`);
+      const data = await res.json();
+      setReels(data || []);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  fetchReels();
+}, []);
+
 
 // NEW STORY  
 socket.on("new-story", (story) => {  
@@ -337,8 +358,6 @@ return (
   }}
 />
 
-{/* FRIEND CAROUSEL */}
-<FriendCarousel limit={20} />
 
     {/* POSTS */}
 <div ref={feedRef} className="space-y-4">
@@ -370,6 +389,9 @@ return (
           <Adsterra containerId="container-ad-middle-1" />
         )}
 
+<ReelsHorizontal reels={reels} />
+
+
         {/* ADSTERRA 3 */}
         {(index + 1) === 8 && (
           <Adsterra containerId="container-ad-middle-2" />
@@ -388,6 +410,8 @@ return (
 {/* Adsterra 4*/}
   <Adsterra containerId="container-ad-sidebar" />
 </div>
+{/* FRIEND CAROUSEL */}
+<FriendCarousel limit={20} />
 
 </div>
 );
