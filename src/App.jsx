@@ -59,7 +59,7 @@ function App() {
 
 
  <Route path="/verify-email-sent" element={<MediaViewer />} />
-            <Route path="/post/:id" element={<verify Your Email/>} />
+            <Route path="/post/:id" element={<VerifyEmailSent/>} />
 
 
 
