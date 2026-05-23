@@ -34,6 +34,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import VerifyEmailSent from "./pages/VerifyEmailSent";
 import SuggestedFriends from "./components/friends/SuggestedFriends";
+import DiscoverFriends from "./pages/friends/DiscoverFriends";
 
 
 function App() {
