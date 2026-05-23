@@ -33,6 +33,8 @@ import SavedPosts from "./pages/SavedPosts";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import VerifyEmailSent from "./pages/VerifyEmailSent";
+import ProtectedRoute from "./components/friends/SuggestedFriends";
+
 
 function App() {
   console.log("API:", import.meta.env.VITE_API_BASE);
@@ -79,6 +81,9 @@ function App() {
             <Route path="/friend-requests" element={<ProtectedRoute><FriendRequests /></ProtectedRoute>} />
             <Route path="/friends" element={<ProtectedRoute><FriendsList /></ProtectedRoute>} />
             <Route path="/friend-suggestions" element={<ProtectedRoute><FriendSuggestions /></ProtectedRoute>} />
+
+
+suggestions-friends" element={<ProtectedRoute><SuggestionsFriends /></ProtectedRoute">} />
 
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/post/:id" element={<PostPage />} />
