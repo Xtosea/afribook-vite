@@ -58,8 +58,10 @@ function App() {
             <Route path="/post/:id" element={<PostView />} />
 
 
- <Route path="/verify-email-sent" element={<MediaViewer />} />
-            <Route path="/post/:id" element={<VerifyEmailSent/>} />
+<Route
+  path="/verify-email-sent"
+  element={<VerifyEmailSent />}
+/>
 
 
 
