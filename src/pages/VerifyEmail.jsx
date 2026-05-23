@@ -1,14 +1,28 @@
 import { useParams, useSearchParams } from "react-router-dom";
-import { useEffect, useRef } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 export default function VerifyEmail() {
   const { token } = useParams();
   const [searchParams] = useSearchParams();
   const hasRun = useRef(false);
+const [status, setStatus] =
+  useState("verifying");
+
+const [message, setMessage] =
+  useState(
+    "Please wait while we verify your email..."
+  );
+
 
   useEffect(() => {
     if (hasRun.current) return;
     hasRun.current = true;
+
+
 
     const email = searchParams.get("email");
 
