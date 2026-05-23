@@ -22,18 +22,21 @@ export default function SyncContacts() {
       },
     ];
 
-    const res = await fetch("/api/contacts/sync", {
-      method: "POST",
+    const res = await fetch(
+  `${import.meta.env.VITE_API_BASE}/api/contacts/sync`,
+  {
+    method: "POST",
 
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
 
-      body: JSON.stringify({
-        contacts: sampleContacts,
-      }),
-    });
+    body: JSON.stringify({
+      contacts: sampleContacts,
+    }),
+  }
+);
 
     if (!res.ok) {
       throw new Error("Failed to sync contacts");
