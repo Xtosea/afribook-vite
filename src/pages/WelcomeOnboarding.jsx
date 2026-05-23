@@ -93,7 +93,7 @@ export default function WelcomeOnboarding() {
   </button>
 
   <button
-    onClick={() => navigate("/SuggestedFriends")}
+    onClick={() => navigate("/suggestedfriends")}
     className="w-full bg-gradient-to-r from-indigo-600 to-blue-600 text-white px-6 py-3 rounded-xl font-semibold"
   >
     Find Friends 👥
