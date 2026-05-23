@@ -33,7 +33,7 @@ import SavedPosts from "./pages/SavedPosts";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import VerifyEmailSent from "./pages/VerifyEmailSent";
-import ProtectedRoute from "./components/friends/SuggestedFriends";
+import SuggestedFriends from "./components/friends/SuggestedFriends";
 
 
 function App() {
@@ -82,7 +82,14 @@ function App() {
             <Route path="/friends" element={<ProtectedRoute><FriendsList /></ProtectedRoute>} />
 
 
-           <Route path="/suggested-friends" element={<ProtectedRoute><SuggestedFriends /></ProtectedRoute>} />
+           <Route
+  path="/suggested-friends"
+  element={
+    <ProtectedRoute>
+      <SuggestedFriends />
+    </ProtectedRoute>
+  }
+/>
 
 <Route path="/suggested-friends" element={<ProtectedRoute><SuggestedFriends /></ProtectedRoute">} />
 
