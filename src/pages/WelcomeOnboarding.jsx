@@ -53,6 +53,10 @@ export default function WelcomeOnboarding() {
           Welcome to AfricSocial
         </h1>
 
+<p className="text-gray-600 mb-6">
+  Jump into AfricSocial and start connecting instantly 🚀
+</p>
+
         <p className="text-gray-600 mb-6">
           Your account is ready!
         </p>
@@ -64,32 +68,54 @@ export default function WelcomeOnboarding() {
 
         </div>
 
-        {/* AD */}
-        <div className="flex justify-center mb-6 overflow-hidden">
-
-          <div id="onboarding-ad"></div>
-
-        </div>
-
         {/* BUTTONS */}
-        <div className="space-y-3">
+<div className="space-y-3">
 
-          <button
-            onClick={() => navigate("/sync-contacts")}
-            className="w-full bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold"
-          >
-            Sync Contacts
-          </button>
+  <button
+    onClick={() => navigate("/")}
+    className="w-full bg-green-600 text-white px-6 py-3 rounded-xl font-semibold"
+  >
+    Go to Home 🏠
+  </button>
 
-          <button
-            onClick={() => navigate("/add-friends")}
-            className="w-full border border-gray-300 px-6 py-3 rounded-xl font-semibold"
-          >
-            Skip For Now
-          </button>
+  <button
+    onClick={() => navigate("/messages")}
+    className="w-full bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold"
+  >
+    Messages 💬
+  </button>
 
-        </div>
+  <button
+    onClick={() => navigate("/sync-contacts")}
+    className="w-full bg-indigo-600 text-white px-6 py-3 rounded-xl font-semibold"
+  >
+    Sync Contacts 📱
+  </button>
 
+  <button
+    onClick={() => navigate("/friend-requests")}
+    className="w-full border border-gray-300 px-6 py-3 rounded-xl font-semibold"
+  >
+    Find Friends 👥
+  </button>
+
+ <button
+    onClick={() => navigate("/profile")}
+    className="w-full border border-gray-300 px-6 py-3 rounded-xl font-semibold"
+  >
+    Edit Profile
+  </button>
+
+
+<button
+  onClick={() => navigate("/")}
+  className="text-sm text-gray-500 underline mt-4"
+>
+  Continue later
+</button>
+
+
+</div>
       </div>
 
     </div>
