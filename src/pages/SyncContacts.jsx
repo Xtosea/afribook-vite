@@ -8,40 +8,47 @@ export default function SyncContacts() {
   const navigate = useNavigate();
 
   const handleSync = async () => {
-    try {
-      setLoading(true);
+  try {
 
-      // 🔹 TEMP sample contacts (replace with real phone contacts later)
-      const sampleContacts = [
-        { name: "John Doe", phone: "08012345678" },
-        { name: "Jane Doe", phone: "08098765432" },
-      ];
+    // TEMP SAMPLE CONTACTS
+    const sampleContacts = [
+      {
+        name: "John Doe",
+        phone: "08012345678",
+      },
+      {
+        name: "Jane Doe",
+        phone: "08099999999",
+      },
+    ];
 
-      const res = await fetch(
-        "/api/contacts/sync",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          body: JSON.stringify({
-            contacts: sampleContacts,
-          }),
-        }
-      );
+    const res = await fetch("/api/contacts/sync", {
+      method: "POST",
 
-      const data = await res.json();
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
 
-      setContacts(data.matchedUsers || []);
+      body: JSON.stringify({
+        contacts: sampleContacts,
+      }),
+    });
 
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
+    if (!res.ok) {
+      throw new Error("Failed to sync contacts");
     }
-  };
 
+    const data = await res.json();
+
+    setContacts(data.matchedUsers || []);
+
+  } catch (err) {
+
+    console.error(err);
+
+  }
+};
   return (
     <div className="p-6 max-w-md mx-auto">
       <h1 className="text-xl font-bold mb-4">Sync Contacts</h1>
