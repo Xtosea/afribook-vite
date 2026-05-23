@@ -82,7 +82,7 @@ function App() {
             <Route path="/friends" element={<ProtectedRoute><FriendsList /></ProtectedRoute>} />
 
 
-           <Route path="//suggested-friends" element={<ProtectedRoute></SuggestedFriends /></ProtectedRoute>} />
+           <Route path="/suggested-friends" element={<ProtectedRoute></SuggestedFriends /></ProtectedRoute>} />
 
 
 <Route path="/suggested-friends" element={<ProtectedRoute><SuggestedFriends /></ProtectedRoute">} />
