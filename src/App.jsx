@@ -80,7 +80,9 @@ function App() {
             <Route path="/edit-profile" element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
             <Route path="/friend-requests" element={<ProtectedRoute><FriendRequests /></ProtectedRoute>} />
             <Route path="/friends" element={<ProtectedRoute><FriendsList /></ProtectedRoute>} />
-            <Route path="/friend-suggestions" element={<ProtectedRoute><FriendSuggestions /></ProtectedRoute>} />
+
+
+           <Route path="//suggested-friends" element={<ProtectedRoute></SuggestedFriends /></ProtectedRoute>} />
 
 
 <Route path="/suggested-friends" element={<ProtectedRoute><SuggestedFriends /></ProtectedRoute">} />
