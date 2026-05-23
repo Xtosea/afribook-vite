@@ -101,9 +101,9 @@ export default function WelcomeOnboarding() {
 
  <button
     onClick={() => navigate("/profile")}
-    className="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 px-6 py-3 rounded-xl font-semibold"👤
+    className="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 px-6 py-3 rounded-xl font-semibold">
   >
-    Edit Profile
+    Edit Profile 👤
   </button>
 
 
