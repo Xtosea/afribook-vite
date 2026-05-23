@@ -30,9 +30,9 @@ import Wallet from "./pages/Wallet";
 import Leaderboard from "./pages/Leaderboard";
 import PostPage from "./pages/PostPage";
 import SavedPosts from "./pages/SavedPosts";
-
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import VerifyEmailSent from "./pages/VerifyEmailSent";
 
 function App() {
   console.log("API:", import.meta.env.VITE_API_BASE);
@@ -85,6 +85,16 @@ function App() {
                 </ProtectedRoute>
               }
             />
+
+            <Route
+              path="/verify-email-sent"
+              element={
+                <ProtectedRoute>
+                  <Verify Your Email/>
+                </ProtectedRoute>
+              }
+            />
+
 
           </Routes>
         </div>
