@@ -13,42 +13,110 @@ export default function VerifyEmail() {
     const email = searchParams.get("email");
 
     const verify = async () => {
-      try {
-        const res = await fetch(
-          `https://afribook-backend.onrender.com/api/auth/verify/${token}?email=${email}`
-        );
 
-        const data = await res.json();
+  try {
 
-        console.log(data);
+    setStatus("verifying");
 
-        // ✅ SUCCESS
-        if (data.token) {
-          localStorage.setItem("token", data.token);
-          localStorage.setItem("userId", data.user._id);
-          localStorage.setItem("name", data.user.name);
-          localStorage.setItem("profilePic", data.user.profilePic || "");
+    const email =
+      searchParams.get("email") || "";
 
-          alert("🎉 Welcome to AfricSocial! Your email is verified.");
+    const res = await fetch(
+      `https://afribook-backend.onrender.com/api/auth/verify/${token}?email=${encodeURIComponent(email)}`
+    );
 
-          window.location.href = "/welcome";
-          return;
-        }
+    const data = await res.json();
 
-        // ✅ Already verified
-        if (data.message === "User already verified") {
-          alert("Already verified. Please login.");
-          window.location.href = "/login";
-          return;
-        }
+    console.log(data);
 
-        if (!res.ok) throw new Error(data.error);
+    // SUCCESS
+    if (data.token) {
 
-      } catch (err) {
-        alert(err.message);
-      }
-    };
+      localStorage.setItem(
+        "token",
+        data.token
+      );
 
+      localStorage.setItem(
+        "userId",
+        data.user._id
+      );
+
+      localStorage.setItem(
+        "name",
+        data.user.name
+      );
+
+      localStorage.setItem(
+        "profilePic",
+        data.user.profilePic || ""
+      );
+
+      setStatus("success");
+
+      setMessage(
+        "Your email has been verified successfully. Redirecting..."
+      );
+
+      setTimeout(() => {
+
+        window.location.href =
+          "/welcome";
+
+      }, 2500);
+
+      return;
+
+    }
+
+    // ALREADY VERIFIED
+    if (
+      data.message ===
+      "User already verified"
+    ) {
+
+      setStatus("already");
+
+      setMessage(
+        "Your email is already verified. Redirecting to login..."
+      );
+
+      setTimeout(() => {
+
+        window.location.href =
+          "/login";
+
+      }, 2500);
+
+      return;
+
+    }
+
+    // ERROR RESPONSE
+    if (!res.ok) {
+
+      throw new Error(
+        data.error ||
+        data.message ||
+        "Verification failed"
+      );
+
+    }
+
+  } catch (err) {
+
+    console.error(err);
+
+    setStatus("error");
+
+    setMessage(
+      err.message ||
+      "Something went wrong"
+    );
+
+  }
+
+};
     if (token) verify();
   }, [token, searchParams]);
 
