@@ -23,6 +23,7 @@ import compressVideo from "../utils/compressVideo";
 import PostComposer from "../components/PostComposer";
 import SuggestedFriends from "../components/friends/SuggestedFriends";
 import Adsterra from "../components/Adsterra.jsx";
+import FriendCarousel from "../components/FriendCarousel";
 
 // Lazy-loaded components
 const EmojiPicker = lazy(() => import("emoji-picker-react"));
@@ -336,7 +337,8 @@ return (
   }}
 />
 
-<SuggestedFriends limit={20} />
+{/* FRIEND CAROUSEL */}
+<FriendCarousel limit={20} />
 
     {/* POSTS */}
 <div ref={feedRef} className="space-y-4">
