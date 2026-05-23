@@ -83,7 +83,7 @@ function App() {
             <Route path="/friend-suggestions" element={<ProtectedRoute><FriendSuggestions /></ProtectedRoute>} />
 
 
-suggestions-friends" element={<ProtectedRoute><SuggestionsFriends /></ProtectedRoute">} />
+<Route path="/suggested-friends" element={<ProtectedRoute><SuggestedFriends /></ProtectedRoute">} />
 
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/post/:id" element={<PostPage />} />
