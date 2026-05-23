@@ -92,7 +92,7 @@ export default function Register() {
           "Registration successful. Please verify your email."
       );
 
-      navigate("/verify-email-sent");
+      navigate("/verify-email");
 
     } catch (err) {
 
