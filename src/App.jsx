@@ -91,7 +91,7 @@ function App() {
   }
 />
 
-<Route path="/suggested-friends" element={<ProtectedRoute><SuggestedFriends /></ProtectedRoute">} />
+
 
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/post/:id" element={<PostPage />} />
