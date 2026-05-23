@@ -36,6 +36,7 @@ import VerifyEmailSent from "./pages/VerifyEmailSent";
 import DiscoverFriends from "./pages/DiscoverFriends";
 import FriendCarousel from "./components/friends/FriendCarousel";
 import SuggestedFriends from "./components/friends/SuggestedFriends";
+import ReelsHorizontal from "./components/reels/ReelsHorizontal";
 
 
 
