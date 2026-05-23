@@ -80,6 +80,26 @@ function App() {
             <Route path="/edit-profile" element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
             <Route path="/friend-requests" element={<ProtectedRoute><FriendRequests /></ProtectedRoute>} />
             <Route path="/friends" element={<ProtectedRoute><FriendsList /></ProtectedRoute>} />
+import DiscoverFriends from "./pages/friends/DiscoverFriends";
+import FriendCarousel from "./pages/friends/FriendCarousel";
+
+<Route
+  path="/friends/discover"
+  element={
+    <ProtectedRoute>
+      <DiscoverFriends />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/friends/explore"
+  element={
+    <ProtectedRoute>
+      <FriendCarousel />
+    </ProtectedRoute>
+  }
+/>
 
 
            <Route
