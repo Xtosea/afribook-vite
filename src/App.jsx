@@ -57,6 +57,13 @@ function App() {
             <Route path="/media/:postId" element={<MediaViewer />} />
             <Route path="/post/:id" element={<PostView />} />
 
+
+ <Route path="/verify-email-sent" element={<MediaViewer />} />
+            <Route path="/post/:id" element={<verify Your Email/>} />
+
+
+
+
             {/* PROTECTED */}
             <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
@@ -86,14 +93,7 @@ function App() {
               }
             />
 
-            <Route
-              path="/verify-email-sent"
-              element={
-                <ProtectedRoute>
-                  <Verify Your Email/>
-                </ProtectedRoute>
-              }
-            />
+           
 
 
           </Routes>
