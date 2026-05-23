@@ -10,7 +10,43 @@ import {
 
 export default function VerifyEmailSent() {
 
-  
+  // =========================
+  // LOAD AD SCRIPT
+  // =========================
+
+  useEffect(() => {
+
+    if (
+      document.getElementById(
+        "verify-email-sent-ad-script"
+      )
+    ) {
+      return;
+    }
+
+    const script =
+      document.createElement(
+        "script"
+      );
+
+    script.id =
+      "verify-email-sent-ad-script";
+
+    script.async = true;
+
+    script.setAttribute(
+      "data-cfasync",
+      "false"
+    );
+
+    script.src =
+      "https://pl29467278.effectivecpmnetwork.com/1ac49ab91139c0ad3e13572497cfbe18/invoke.js";
+
+    document.body.appendChild(
+      script
+    );
+
+  }, []);
 
   return (
 
@@ -332,7 +368,19 @@ export default function VerifyEmailSent() {
 
           </div>
 
-          
+          {/* AD SECTION */}
+
+          <div className="mt-8">
+
+            <div
+              id="container-1ac49ab91139c0ad3e13572497cfbe18"
+              className="
+                rounded-2xl
+                overflow-hidden
+              "
+            ></div>
+
+          </div>
 
           {/* FOOTER */}
 
