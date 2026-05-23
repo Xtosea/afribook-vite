@@ -10,6 +10,8 @@ export default function SyncContacts() {
   const handleSync = async () => {
   try {
 
+    setLoading(true);
+
     // TEMP SAMPLE CONTACTS
     const sampleContacts = [
       {
@@ -23,20 +25,39 @@ export default function SyncContacts() {
     ];
 
     const res = await fetch(
-  `${import.meta.env.VITE_API_BASE}/api/contacts/sync`,
-  {
-    method: "POST",
+      `${import.meta.env.VITE_API_BASE}/api/contacts/sync`,
+      {
+        method: "POST",
 
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
 
-    body: JSON.stringify({
-      contacts: sampleContacts,
-    }),
+        body: JSON.stringify({
+          contacts: sampleContacts,
+        }),
+      }
+    );
+
+    if (!res.ok) {
+      throw new Error("Failed to sync contacts");
+    }
+
+    const data = await res.json();
+
+    setContacts(data.matchedUsers || []);
+
+  } catch (err) {
+
+    console.error(err);
+
+  } finally {
+
+    setLoading(false);
+
   }
-);
+};
 
     if (!res.ok) {
       throw new Error("Failed to sync contacts");
