@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { API_BASE } from "../../api/api";
+import { API_BASE } from "../api/api";
 import { useNavigate } from "react-router-dom";
 
 const defaultProfile =
