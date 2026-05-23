@@ -8,42 +8,50 @@ export default function SyncContacts() {
   const navigate = useNavigate();
 
   const handleSync = async () => {
-    try {
-      setLoading(true);
+  try {
+    setLoading(true);
 
-      // TEMP SAMPLE CONTACTS
-      const sampleContacts = [
-        { name: "John Doe", phone: "08012345678" },
-        { name: "Jane Doe", phone: "08099999999" },
-      ];
+    const token = localStorage.getItem("token");
 
-      const res = await fetch(
-        `${import.meta.env.VITE_API_BASE}/api/contacts/sync`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          body: JSON.stringify({
-            contacts: sampleContacts,
-          }),
-        }
-      );
-
-      if (!res.ok) {
-        throw new Error("Failed to sync contacts");
-      }
-
-      const data = await res.json();
-      setContacts(data.matchedUsers || []);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
+    if (!token) {
+      console.error("Missing auth token");
+      return;
     }
-  };
 
+    const sampleContacts = [
+      { name: "John Doe", phone: "08012345678" },
+      { name: "Jane Doe", phone: "08099999999" },
+    ];
+
+    const url = `${import.meta.env.VITE_API_BASE}/api/contacts/sync`;
+
+    console.log("SYNC URL:", url);
+
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ contacts: sampleContacts }),
+    });
+
+    const text = await res.text();
+    console.log("RAW RESPONSE:", text);
+
+    const data = JSON.parse(text);
+
+    if (!res.ok) {
+      throw new Error(data.message || "Sync failed");
+    }
+
+    setContacts(data.matchedUsers || []);
+  } catch (err) {
+    console.error("SYNC ERROR:", err);
+  } finally {
+    setLoading(false);
+  }
+};
   return (
     <div className="p-6 max-w-md mx-auto">
       <h1 className="text-xl font-bold mb-4">Sync Contacts</h1>
