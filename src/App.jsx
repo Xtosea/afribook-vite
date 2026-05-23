@@ -33,8 +33,9 @@ import SavedPosts from "./pages/SavedPosts";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import VerifyEmailSent from "./pages/VerifyEmailSent";
-import SuggestedFriends from "./components/friends/FriendCarousel";
-import DiscoverFriends from "./pages/friends/FriendCarousel";
+import DiscoverFriends from "./pages/friends/DiscoverFriends";
+import FriendCarousel from "./components/friends/FriendCarousel";
+import SuggestedFriends from "./components/friends/SuggestedFriends";
 
 
 
