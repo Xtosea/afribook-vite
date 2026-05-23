@@ -24,7 +24,7 @@ import PostComposer from "../components/PostComposer";
 import SuggestedFriends from "../components/friends/SuggestedFriends";
 import Adsterra from "../components/Adsterra.jsx";
 import FriendCarousel from "../components/friends/FriendCarousel";
-import ReelsHorizontal from "../components/pages/reels/ReelsHorizontal";
+import ReelsHorizontal from "../components/reels/ReelsHorizontal";
 
 
 
