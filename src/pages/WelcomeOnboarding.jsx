@@ -69,7 +69,7 @@ export default function WelcomeOnboarding() {
         </div>
 
         {/* BUTTONS */}
-<div className="space-y-3">
+<div className="space-y-3 pb-24">
 
   <button
     onClick={() => navigate("/")}
@@ -93,27 +93,25 @@ export default function WelcomeOnboarding() {
   </button>
 
   <button
-    onClick={() => navigate("/friend-requests")}
+    onClick={() => navigate("/add-friends")}
     className="w-full bg-gradient-to-r from-indigo-600 to-blue-600 text-white px-6 py-3 rounded-xl font-semibold"
   >
     Find Friends 👥
   </button>
 
- <button
+  <button
     onClick={() => navigate("/profile")}
-    className="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 px-6 py-3 rounded-xl font-semibold">
+    className="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 px-6 py-3 rounded-xl font-semibold flex items-center justify-center gap-2"
   >
-    Edit Profile 👤
+    👤 Edit Profile
   </button>
 
-
-<button
-  onClick={() => navigate("/")}
-  className="text-sm text-gray-500 underline mt-4"
->
-  Continue later
-</button>
-
+  <button
+    onClick={() => navigate("/")}
+    className="text-sm text-gray-500 underline mt-4"
+  >
+    Continue later
+  </button>
 
 </div>
       </div>
