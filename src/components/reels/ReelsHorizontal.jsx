@@ -15,8 +15,6 @@ const ReelsHorizontal = ({
 
   useEffect(() => {
 
-    if (!Array.isArray(reels)) return;
-
     const observer =
       new IntersectionObserver(
         (entries) => {
@@ -31,9 +29,7 @@ const ReelsHorizontal = ({
 
               setActiveIndex(index);
 
-              entry.target
-                .play()
-                .catch(() => {});
+              entry.target.play();
 
             } else {
 
@@ -42,7 +38,9 @@ const ReelsHorizontal = ({
             }
           });
         },
-        { threshold: 0.6 }
+        {
+          threshold: 0.6,
+        }
       );
 
     videoRefs.current.forEach(
@@ -50,7 +48,6 @@ const ReelsHorizontal = ({
 
         if (video)
           observer.observe(video);
-
       }
     );
 
@@ -61,7 +58,6 @@ const ReelsHorizontal = ({
 
           if (video)
             observer.unobserve(video);
-
         }
       );
     };
@@ -69,73 +65,81 @@ const ReelsHorizontal = ({
   }, [reels]);
 
   return (
-    <div
-      className="
-        flex
-        gap-3
-        overflow-x-auto
-        p-3
-        snap-x
-        scrollbar-hide
-      "
-    >
+    <div className="px-3">
 
-      {Array.isArray(reels) &&
-        reels.map((reel, i) => (
+      <h2 className="text-lg font-bold mb-3">
+        Reels
+      </h2>
 
-          <div
-            key={reel._id}
-            className="
-              min-w-[180px]
-              h-[300px]
-              rounded-xl
-              overflow-hidden
-              relative
-              snap-center
-              bg-black
-              flex-shrink-0
-            "
-          >
+      {(!reels || reels.length === 0) && (
+        <div className="text-gray-500">
+          No reels available
+        </div>
+      )}
 
-            <video
-              ref={(el) =>
-                (videoRefs.current[i] = el)
-              }
-              data-index={i}
-              src={
-                reel.media?.[0]?.url
-              }
-              className="
-                w-full
-                h-full
-                object-cover
-              "
-              muted
-              loop
-              playsInline
-            />
+      <div
+        className="
+          flex
+          gap-3
+          overflow-x-auto
+          scrollbar-hide
+          snap-x
+        "
+      >
 
-            {/* overlay */}
+        {Array.isArray(reels) &&
+          reels.map((reel, i) => (
+
             <div
+              key={reel._id}
               className="
-                absolute
-                bottom-0
-                w-full
-                p-2
-                bg-gradient-to-t
-                from-black
-                text-white
-                text-xs
+                min-w-[180px]
+                h-[300px]
+                rounded-2xl
+                overflow-hidden
+                relative
+                snap-center
+                bg-black
+                shrink-0
               "
             >
-              {reel.user?.name ||
-                "Unknown"}
+
+              <video
+                ref={(el) =>
+                  (videoRefs.current[i] = el)
+                }
+                data-index={i}
+                src={reel.media?.[0]?.url}
+                className="
+                  w-full
+                  h-full
+                  object-cover
+                "
+                muted
+                loop
+                playsInline
+              />
+
+              <div
+                className="
+                  absolute
+                  bottom-0
+                  left-0
+                  right-0
+                  p-2
+                  bg-gradient-to-t
+                  from-black
+                  text-white
+                  text-xs
+                "
+              >
+                {reel.user?.name ||
+                  "Unknown"}
+              </div>
+
             </div>
-
-          </div>
-
-      ))}
-
+          ))}
+      </div>
     </div>
   );
 };
