@@ -127,7 +127,13 @@ useEffect(() => {
 
       const data = await res.json();
 
-      setReels(Array.isArray(data) ? data : data.reels || []);
+      setReels(
+  Array.isArray(data)
+    ? data
+    : Array.isArray(data?.reels)
+    ? data.reels
+    : []
+);
       
 
     } catch (err) {
@@ -401,6 +407,10 @@ return (
             setVideoRefs={setVideoRefs}
           />
 
+{(index + 1) === 2 && (
+  <ReelsHorizontal reels={reels} />
+)}
+
         
         </Suspense>
 
@@ -437,7 +447,7 @@ return (
 
 {/* FRIEND CAROUSEL */}
 <FriendCarousel limit={20} />
-<ReelsHorizontal reels={reels} />
+
 
 
 </div>
