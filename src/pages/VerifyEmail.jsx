@@ -21,6 +21,7 @@ export default function VerifyEmail() {
 
         const email = searchParams.get("email") || "";
 
+        // ✅ FIXED ENDPOINT
         const res = await fetch(
           `https://africsocial.globelynks.com/api/auth/verify/${token}?email=${encodeURIComponent(
             email
@@ -35,11 +36,16 @@ export default function VerifyEmail() {
         if (data.token) {
           localStorage.setItem("token", data.token);
           localStorage.setItem("userId", data.user._id);
-          localStorage.setItem("name", data.user.name);
-          localStorage.setItem("profilePic", data.user.profilePic || "");
+          localStorage.setItem("name", data.user.name || "");
+          localStorage.setItem(
+            "profilePic",
+            data.user.profilePic || ""
+          );
 
           setStatus("success");
-          setMessage("Email verified successfully. Redirecting...");
+          setMessage(
+            "Email verified successfully. Redirecting..."
+          );
 
           setTimeout(() => {
             window.location.href = "/welcome";
@@ -51,7 +57,9 @@ export default function VerifyEmail() {
         // ALREADY VERIFIED
         if (data.message === "User already verified") {
           setStatus("already");
-          setMessage("Already verified. Redirecting to login...");
+          setMessage(
+            "Already verified. Redirecting to login..."
+          );
 
           setTimeout(() => {
             window.location.href = "/login";
@@ -63,31 +71,43 @@ export default function VerifyEmail() {
         // ERROR
         if (!res.ok) {
           throw new Error(
-            data.error || data.message || "Verification failed"
+            data.error ||
+              data.message ||
+              "Verification failed"
           );
         }
+
       } catch (err) {
         console.error(err);
+
         setStatus("error");
-        setMessage(err.message || "Something went wrong");
+        setMessage(
+          err.message || "Something went wrong"
+        );
       }
     };
 
-    if (token) verify();
+    if (token) {
+      verify();
+    }
+
   }, [token, searchParams]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="bg-white shadow-lg rounded-2xl p-8 max-w-md w-full text-center">
 
-        {/* VERIFYING */}
         {status === "verifying" && (
           <>
             <div className="text-5xl mb-4">⏳</div>
+
             <h2 className="text-2xl font-bold mb-2">
               Verifying Email
             </h2>
-            <p className="text-gray-600 mb-6">{message}</p>
+
+            <p className="text-gray-600 mb-6">
+              {message}
+            </p>
 
             <div className="flex justify-center">
               <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500"></div>
@@ -95,36 +115,45 @@ export default function VerifyEmail() {
           </>
         )}
 
-        {/* SUCCESS */}
         {status === "success" && (
           <>
             <div className="text-5xl mb-4">🎉</div>
+
             <h2 className="text-2xl font-bold text-green-600 mb-2">
               Verified!
             </h2>
-            <p className="text-gray-600">{message}</p>
+
+            <p className="text-gray-600">
+              {message}
+            </p>
           </>
         )}
 
-        {/* ALREADY VERIFIED */}
         {status === "already" && (
           <>
             <div className="text-5xl mb-4">ℹ️</div>
+
             <h2 className="text-2xl font-bold mb-2">
               Already Verified
             </h2>
-            <p className="text-gray-600">{message}</p>
+
+            <p className="text-gray-600">
+              {message}
+            </p>
           </>
         )}
 
-        {/* ERROR */}
         {status === "error" && (
           <>
             <div className="text-5xl mb-4">❌</div>
+
             <h2 className="text-2xl font-bold text-red-600 mb-2">
               Verification Failed
             </h2>
-            <p className="text-gray-600">{message}</p>
+
+            <p className="text-gray-600">
+              {message}
+            </p>
           </>
         )}
       </div>
