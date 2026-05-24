@@ -22,7 +22,7 @@ export default function VerifyEmail() {
         const email = searchParams.get("email") || "";
 
         const res = await fetch(
-          `https://africsocial.globelynks.com/api/auth/verif/${token}?email=${encodeURIComponent(
+          `https://africsocial.globelynks.com/api/auth/verify/${token}?email=${encodeURIComponent(
             email
           )}`
         );
