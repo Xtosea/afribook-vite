@@ -192,7 +192,9 @@ const postsData = await fetchWithToken(
 }  
 
 // CONNECT SOCKET
-connectSocket();
+
+useEffect(() => {
+  connectSocket();
 
 const socket = getSocket();
 
