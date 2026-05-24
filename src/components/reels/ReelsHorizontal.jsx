@@ -1,6 +1,7 @@
 import React, {
   useRef,
   useEffect,
+  useMemo,
 } from "react";
 
 import { useNavigate } from "react-router-dom";
@@ -13,8 +14,17 @@ const ReelsHorizontal = ({
 
   const videoRefs = useRef([]);
 
-  // SHOW ONLY 3 REELS
-  const previewReels = reels.slice(0, 3);
+  /* ================= RANDOM 20 REELS ================= */
+
+  const previewReels = useMemo(() => {
+
+    const shuffled = [...reels].sort(
+      () => Math.random() - 0.5
+    );
+
+    return shuffled.slice(0, 20);
+
+  }, [reels]);
 
   /* ================= AUTOPLAY ================= */
 
@@ -65,6 +75,21 @@ const ReelsHorizontal = ({
     };
 
   }, [previewReels]);
+
+  /* ================= 3 SECOND LOOP ================= */
+
+  const handleTimeUpdate = (video) => {
+
+    if (!video) return;
+
+    // RESTART AFTER 3 SECONDS
+    if (video.currentTime >= 3) {
+
+      video.currentTime = 0;
+
+      video.play().catch(() => {});
+    }
+  };
 
   return (
     <div className="px-3">
@@ -120,9 +145,7 @@ const ReelsHorizontal = ({
               relative
               min-w-[140px]
               w-[140px]
-
               aspect-[9/16]
-
               rounded-2xl
               overflow-hidden
               bg-black
@@ -149,9 +172,14 @@ const ReelsHorizontal = ({
                 pointer-events-none
               "
               muted
-              loop
               playsInline
               preload="metadata"
+
+              onTimeUpdate={(e) =>
+                handleTimeUpdate(
+                  e.target
+                )
+              }
             />
 
             {/* OVERLAY */}
