@@ -126,6 +126,28 @@ const token = localStorage.getItem("token");
     }
   };
 
+// ✅ PUT IT HERE 👇
+  const shareToFeed = async () => {
+    try {
+      const res = await fetchWithToken(
+        `${API_BASE}/api/posts/${post._id}/share-to-feed`,
+        token,
+        { method: "POST" }
+      );
+
+      const data = await res.json();
+
+      if (data?.post) {
+        onUpdated?.(data.post);
+      }
+
+      alert("Shared to feed");
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+
   /* ================= NAVIGATE PROFILE ================= */
   const goToProfile = useCallback(() => {
     if (!post?.user?._id) return;
@@ -598,6 +620,10 @@ return (
       </button>
 
     </div>
+
+   <button onClick={shareToFeed}>
+  🔁 Share to Feed
+  </button>
 
     {/* COMMENTS */}
     {showComments && (
