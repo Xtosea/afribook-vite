@@ -103,7 +103,7 @@ const ReelCard = ({
   return (
     <div
       className="
-        h-[75vh]
+        h-screen
         snap-start
         relative
         bg-black
