@@ -190,8 +190,9 @@ useEffect(() => {
 
 // ================= SOCKET CONNECTION =================
 useEffect(() => {
-  connectSocket();
-
+  if (!getSocket()) {
+    connectSocket();
+  }
   const socket = getSocket();
   if (!socket) return;
 
