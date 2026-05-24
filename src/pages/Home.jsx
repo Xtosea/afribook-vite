@@ -191,41 +191,42 @@ const postsData = await fetchWithToken(
 
 }  
 
-// CONNECT SOCKET  
-connectSocket();  
+// CONNECT SOCKET
+connectSocket();
 
-const socket = getSocket();  
+const socket = getSocket();
 
-if (!socket) return;  
+if (!socket) return;
 
-// NEW POST  
-socket.on("new-post", (post) => {  
+// HANDLERS
+const handleNewPost = (post) => {
 
-  setPosts((prev) => {  
+  setPosts((prev) => {
 
-    const exists = prev.some(  
-      (p) => p._id === post._id  
-    );  
+    const exists = prev.some(
+      (p) => p._id === post._id
+    );
 
-    if (exists) return prev;  
+    if (exists) return prev;
 
-    return [post, ...prev];  
-  });  
+    return [post, ...prev];
+  });
+};
 
-});  
+const handleNewStory = (story) => {
+  setStories((prev) => [story, ...prev]);
+};
 
+const handleBirthday = (data) => {
+  alert(`🎉 Today is ${data.name}'s birthday`);
+};
 
+// LISTENERS
+socket.on("new-post", handleNewPost);
 
+socket.on("new-story", handleNewStory);
 
-// NEW STORY  
-socket.on("new-story", (story) => {  
-  setStories((prev) => [story, ...prev]);  
-});  
-
-// BIRTHDAY  
-socket.on("birthday", (data) => {  
-  alert(`🎉 Today is ${data.name}'s birthday`);  
-});
+socket.on("birthday", handleBirthday);
 
 };
 
@@ -235,17 +236,30 @@ init();
 // CLEANUP
 return () => {
 
-const socket = getSocket();  
+  const socket = getSocket();
 
-if (!socket) return;  
+  if (!socket) return;
 
-socket.off("new-post");  
-socket.off("new-story");  
-socket.off("birthday");
+  socket.off(
+    "new-post",
+    handleNewPost
+  );
+
+  socket.off(
+    "new-story",
+    handleNewStory
+  );
+
+  socket.off(
+    "birthday",
+    handleBirthday
+  );
 
 };
 
 }, [token]);
+
+
 // LOCATION SEARCH
 const handleLocationSearch = async (value) => {
 setLocation(value);
@@ -375,12 +389,7 @@ return (
     <StoryBar user={currentUser} stories={stories} />  
 
 
-<ReelsHorizontal reels={reels} />
-
-
-
-
-    {/* CREATE POST */}  
+ {/* CREATE POST */}  
    <PostComposer
   token={token}
   currentUser={currentUser}
@@ -388,6 +397,8 @@ return (
     setPosts((prev) => [post, ...prev]);
   }}
 />
+
+<ReelsHorizontal reels={reels} />
 
 
     {/* POSTS */}
