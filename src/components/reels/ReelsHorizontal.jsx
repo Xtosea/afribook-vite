@@ -29,7 +29,7 @@ const ReelsHorizontal = ({
 
               setActiveIndex(index);
 
-              entry.target.play();
+              entry.target.play().catch(() => {});
 
             } else {
 
@@ -109,7 +109,9 @@ const ReelsHorizontal = ({
                   (videoRefs.current[i] = el)
                 }
                 data-index={i}
-                src={reel.media?.[0]?.url}
+
+                src={reel.videoUrl || reel.media?.[0]?.url}
+
                 className="
                   w-full
                   h-full
