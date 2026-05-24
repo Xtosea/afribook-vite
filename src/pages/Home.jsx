@@ -375,6 +375,7 @@ return (
     <StoryBar user={currentUser} stories={stories} />  
 
 
+<ReelsHorizontal reels={reels} />
 
 
 
@@ -414,9 +415,7 @@ return (
         
         </Suspense>
 
-      {(index + 1) === 3 && (
-  <SuggestedFriends limit={15} />
-)}
+      
 
         {/* ADSTERRA 2 */}
         {(index + 1) === 4 && (
