@@ -23,10 +23,11 @@ export default function VerifyEmail() {
 
         // ✅ FIXED ENDPOINT
         const res = await fetch(
-          `https://africsocial.globelynks.com/api/auth/verify/${token}?email=${encodeURIComponent(
-            email
-          )}`
-        );
+          const res = await fetch(
+  `https://afribook-backend.onrender.com/api/auth/verify/${token}?email=${encodeURIComponent(
+    email
+  )}`
+);
 
         const data = await res.json();
 
