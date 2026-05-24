@@ -131,6 +131,16 @@ import FriendCarousel from "./pages/friends/FriendCarousel";
 />
 
 
+<Route
+  path="/reelshorizontal"
+  element={
+    <ProtectedRoute>
+      <ReelsHorizontal />
+    </ProtectedRoute>
+  }
+/>
+
+
 
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/post/:id" element={<PostPage />} />
