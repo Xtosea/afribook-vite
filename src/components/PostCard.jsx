@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_BASE, fetchWithToken } from "../api/api";
 import PostMenu from "./PostMenu";
+import renderContentWithLinks from "../utils/renderContentWithLinks";
 
 const defaultCover =
   "https://afribook-backend.onrender.com/uploads/profiles/default-cover.png";
