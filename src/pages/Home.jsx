@@ -97,7 +97,7 @@ useLazyVideo(videoRefs);
 
 const { uploadImage } = useCloudinaryUpload();
 const { uploadVideo } = useR2Upload();
-const [reels, setReels] = useState([]);
+
 
 
 const currentUser = {
@@ -110,6 +110,43 @@ name: localStorage.getItem("name"),
 useEffect(() => {
 if (!token) navigate("/login");
 }, [token, navigate]);
+
+const [reels, setReels] = useState([]);
+
+/* ================= FETCH REELS ================= */
+
+useEffect(() => {
+
+  const fetchReels = async () => {
+
+    try {
+
+      const res = await fetch(
+        `${API_BASE}/api/posts/reels`
+      );
+
+      const data = await res.json();
+
+      setReels(Array.isArray(data) ? data : data.reels || []);
+      
+
+    } catch (err) {
+
+      console.error(
+        "FETCH REELS ERROR:",
+        err
+      );
+
+      setReels([]);
+    }
+  };
+
+  fetchReels();
+
+}, []);
+
+
+
 
 // FETCH DATA
 useEffect(() => {
@@ -172,19 +209,6 @@ socket.on("new-post", (post) => {
 });  
 
 
-useEffect(() => {
-  const fetchReels = async () => {
-    try {
-      const res = await fetch(`${API_BASE}/api/posts/reels`);
-      const data = await res.json();
-      setReels(data || []);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  fetchReels();
-}, []);
 
 
 // NEW STORY  
@@ -389,7 +413,7 @@ return (
           <Adsterra containerId="container-ad-middle-1" />
         )}
 
-<ReelsHorizontal reels={reels} />
+
 
 
         {/* ADSTERRA 3 */}
@@ -410,8 +434,11 @@ return (
 {/* Adsterra 4*/}
   <Adsterra containerId="container-ad-sidebar" />
 </div>
+
 {/* FRIEND CAROUSEL */}
 <FriendCarousel limit={20} />
+<ReelsHorizontal reels={reels} />
+
 
 </div>
 );
