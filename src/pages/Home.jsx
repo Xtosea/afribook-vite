@@ -154,113 +154,73 @@ useEffect(() => {
 
 
 
-// FETCH DATA
+// ================= FETCH DATA =================
 useEffect(() => {
-if (!token) return;
+  if (!token) return;
 
-const init = async () => {
-try {
+  const init = async () => {
+    try {
+      const postsData = await fetchWithToken(
+        `${API_BASE}/api/posts?limit=20`,
+        token
+      );
 
-const postsData = await fetchWithToken(  
-    `${API_BASE}/api/posts?limit=20`,  
-    token  
-  );  
+      setPosts(Array.isArray(postsData) ? postsData : []);
 
-  setPosts(Array.isArray(postsData) ? postsData : []);  
+      const res = await fetch(
+        `${API_BASE}/api/stories?limit=20`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-  const res = await fetch(  
-    `${API_BASE}/api/stories?limit=20`,  
-    {  
-      headers: {  
-        Authorization: `Bearer ${token}`,  
-      },  
-    }  
-  );  
+      const data = await res.json();
+      setStories(data.stories || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoadingPosts(false);
+    }
+  };
 
-  const data = await res.json();  
+  init();
+}, [token]);
 
-  setStories(data.stories || []);  
-
-} catch (err) {  
-
-  console.error(err);  
-
-} finally {  
-
-  setLoadingPosts(false);  
-
-}  
-
-// CONNECT SOCKET
-
+// ================= SOCKET CONNECTION =================
 useEffect(() => {
   connectSocket();
 
-const socket = getSocket();
-
-if (!socket) return;
-
-// HANDLERS
-const handleNewPost = (post) => {
-
-  setPosts((prev) => {
-
-    const exists = prev.some(
-      (p) => p._id === post._id
-    );
-
-    if (exists) return prev;
-
-    return [post, ...prev];
-  });
-};
-
-const handleNewStory = (story) => {
-  setStories((prev) => [story, ...prev]);
-};
-
-const handleBirthday = (data) => {
-  alert(`🎉 Today is ${data.name}'s birthday`);
-};
-
-// LISTENERS
-socket.on("new-post", handleNewPost);
-
-socket.on("new-story", handleNewStory);
-
-socket.on("birthday", handleBirthday);
-
-};
-
-// RUN INIT
-init();
-
-// CLEANUP
-return () => {
-
   const socket = getSocket();
-
   if (!socket) return;
 
-  socket.off(
-    "new-post",
-    handleNewPost
-  );
+  const handleNewPost = (post) => {
+    setPosts((prev) => {
+      const exists = prev.some((p) => p._id === post._id);
+      if (exists) return prev;
+      return [post, ...prev];
+    });
+  };
 
-  socket.off(
-    "new-story",
-    handleNewStory
-  );
+  const handleNewStory = (story) => {
+    setStories((prev) => [story, ...prev]);
+  };
 
-  socket.off(
-    "birthday",
-    handleBirthday
-  );
+  const handleBirthday = (data) => {
+    alert(`🎉 Today is ${data.name}'s birthday`);
+  };
 
-};
+  socket.on("new-post", handleNewPost);
+  socket.on("new-story", handleNewStory);
+  socket.on("birthday", handleBirthday);
 
-}, [token]);
-
+  return () => {
+    socket.off("new-post", handleNewPost);
+    socket.off("new-story", handleNewStory);
+    socket.off("birthday", handleBirthday);
+  };
+}, []);
 
 // LOCATION SEARCH
 const handleLocationSearch = async (value) => {
