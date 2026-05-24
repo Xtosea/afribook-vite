@@ -103,25 +103,39 @@ const ReelCard = ({
   return (
     <div
       className="
-        h-screen
-        snap-start
-        relative
-        bg-black
-        overflow-hidden
-      "
+  h-screen
+  w-full
+  snap-start
+  relative
+  bg-black
+  overflow-hidden
+  flex
+  items-center
+  justify-center
+"
       onDoubleClick={handleDoubleTap}
     >
 
-      {/* VIDEO */}
       <video
   ref={videoRef}
   data-index={index}
   src={reel.media?.[0]?.url}
-  className="h-full w-full object-cover"
+  className="
+    absolute
+    inset-0
+    w-full
+    h-full
+    object-cover
+    bg-black
+  "
   loop
   playsInline
+  webkit-playsinline="true"
   autoPlay
-  muted={activeIndex !== index}   // ✅ now works
+  muted={activeIndex !== index}
+  preload="metadata"
+  disablePictureInPicture
+  controlsList="nodownload noplaybackrate"
   onPlay={() => {
     setWatchStart(Date.now());
     recordView(reel._id);
@@ -131,7 +145,6 @@ const ReelCard = ({
   onWaiting={() => setBuffering(true)}
   onPlaying={() => setBuffering(false)}
 />
-
       {/* BUFFERING */}
       {buffering && (
         <div
