@@ -59,7 +59,19 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password/:token" element={<ResetPassword />} />
-            <Route path="/verify-email"  element={<VerifyEmail />} />
+
+
+            <Route
+  path="/verify-email"
+  element={<VerifyEmail />}
+/>
+
+<Route
+  path="/verify-email/:token"
+  element={<VerifyEmail />}
+/>
+
+
             <Route path="/verify-success" element={<VerifySuccess />} />
             <Route path="/verify-failed" element={<VerifyFailed />} />
             <Route path="/welcome" element={<WelcomeOnboarding />} />
