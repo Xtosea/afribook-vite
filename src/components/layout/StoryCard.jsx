@@ -56,9 +56,16 @@ const StoryCard = ({
         >
           <img
             src={
-              story.user?.profilePic ||
-              "/default-avatar.png"
-            }
+  safeUser.profilePic
+    ? safeUser.profilePic.startsWith(
+        "http"
+      )
+      ? safeUser.profilePic
+      : `${API_BASE}${safeUser.profilePic}`
+    : "/default-avatar.png"
+}
+
+
             alt=""
             className="
               w-12
