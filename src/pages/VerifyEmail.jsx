@@ -28,9 +28,21 @@ export default function VerifyEmail() {
   )}`
 );
 
-        const data = await res.json();
+const contentType =
+  res.headers.get("content-type");
 
-        console.log(data);
+if (
+  !contentType ||
+  !contentType.includes("application/json")
+) {
+  throw new Error(
+    "Server did not return JSON"
+  );
+}
+
+const data = await res.json();
+
+console.log(data);
 
         // SUCCESS
         if (data.token) {
