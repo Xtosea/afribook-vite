@@ -1,10 +1,19 @@
 const extractUrls = (text = "") => {
 
-  const urlRegex =
-    /(https?:\/\/[^\s]+)/g;
+  const regex =
+    /https?:\/\/[^\s]+/g;
 
-  return text.match(urlRegex) || [];
+  const matches =
+    text.match(regex) || [];
 
+  // remove duplicates + cleanup
+  return [
+    ...new Set(
+      matches.map((url) =>
+        url.replace(/[.,!?]+$/, "")
+      )
+    ),
+  ];
 };
 
 export default extractUrls;
