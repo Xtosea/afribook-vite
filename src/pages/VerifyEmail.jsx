@@ -23,8 +23,7 @@ export default function VerifyEmail() {
 
         // ✅ FIXED ENDPOINT
         const res = await fetch(
-  `const res = await fetch(
-          `https://afribook-backend.onrender.com/api/auth/verify/${token}?email=${email}`
+`https://afribook-backend.onrender.com/api/auth/verify/${token}?email=${email}`
         );
 
 
