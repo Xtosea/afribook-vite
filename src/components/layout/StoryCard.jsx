@@ -54,7 +54,7 @@ const StoryCard = ({
             }
           `}
         >
-          <img
+          img
             src={
   safeUser.profilePic
     ? safeUser.profilePic.startsWith(
@@ -76,6 +76,8 @@ const StoryCard = ({
               border-black
             "
           />
+
+
         </div>
       </div>
 
