@@ -91,81 +91,87 @@ const observer = useRef(null);
   // ================= FETCH FEED =================
 
   useEffect(() => {
-    if (!token) return;
+  if (!token) return;
 
-    let mounted = false;
+  let mounted = true;
 
-    const fetchFeed = async () => {
-      try {
-        setLoadingPosts(true);
+  const fetchFeed = async () => {
+    try {
+      setLoadingPosts(true);
 
-        const [postsData, storiesRes, reelsRes] =
-          await Promise.all([
-            fetchWithToken(
-  `${API_BASE}/api/posts?page=${page}&limit=10`,
-  token
-),
+      const [
+        postsData,
+        storiesRes,
+        reelsRes,
+      ] = await Promise.all([
+        fetchWithToken(
+          `${API_BASE}/api/posts?page=${page}&limit=10`,
+          token
+        ),
 
-            fetch(
-              `${API_BASE}/api/stories?limit=10`,
-              {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                },
-              }
-            ),
+        fetch(
+          `${API_BASE}/api/stories?limit=10`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        ),
 
-            fetch(
-              `${API_BASE}/api/posts/reels`
-            ),
-          ]);
+        fetch(
+          `${API_BASE}/api/posts/reels`
+        ),
+      ]);
 
-        const storiesData =
-          await storiesRes.json();
+      const storiesData =
+        await storiesRes.json();
 
-        const reelsData =
-          await reelsRes.json();
+      const reelsData =
+        await reelsRes.json();
 
-        if (!mounted) return;
+      if (!mounted) return;
 
-        const newPosts = Array.isArray(postsData)
-  ? postsData
-  : [];
+      const newPosts =
+        Array.isArray(postsData)
+          ? postsData
+          : [];
 
-setPosts((prev) =>
-  page === 1
-    ? newPosts
-    : [...prev, ...newPosts]
-);
+      setPosts((prev) =>
+        page === 1
+          ? newPosts
+          : [...prev, ...newPosts]
+      );
 
-if (newPosts.length < 10) {
-  setHasMore(false);
-}
-
-        setStories(
-          storiesData?.stories || []
-        );
-
-        setReels(
-          Array.isArray(reelsData)
-            ? reelsData
-            : reelsData?.reels || []
-        );
-      } catch (err) {
-        console.error(err);
-      } finally {
-        if (mounted) {
-          setLoadingPosts(false);
-        }
+      if (newPosts.length < 10) {
+        setHasMore(false);
       }
-    };
 
-    fetchFeed();
+      setStories(
+        storiesData?.stories || []
+      );
 
-    return () => {
-      mounted = true;
-    };
-  }, [token, page]);
+      setReels(
+        Array.isArray(reelsData)
+          ? reelsData
+          : reelsData?.reels || []
+      );
+
+    } catch (err) {
+      console.error(err);
+    } finally {
+      if (mounted) {
+        setLoadingPosts(false);
+      }
+    }
+  };
+
+  fetchFeed();
+
+  return () => {
+    mounted = false;
+  };
+
+}, [token, page]);
 
   // ================= SOCKET =================
 
