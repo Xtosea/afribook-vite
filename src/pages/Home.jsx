@@ -5,6 +5,7 @@ import React, {
   Suspense,
   lazy,
   memo,
+  useCallback,
 } from "react";
 
 import { useNavigate } from "react-router-dom";
@@ -67,7 +68,15 @@ const Home = () => {
   const [reels, setReels] = useState([]);
 
   const [loadingPosts, setLoadingPosts] =
-    useState(true);
+  useState(true);
+
+const [page, setPage] = useState(1);
+
+const [hasMore, setHasMore] =
+  useState(true);
+
+const observer = useRef(null);
+
 
   const feedRef = useRef(null);
 
@@ -84,7 +93,7 @@ const Home = () => {
   useEffect(() => {
     if (!token) return;
 
-    let mounted = true;
+    let mounted = false;
 
     const fetchFeed = async () => {
       try {
@@ -93,9 +102,9 @@ const Home = () => {
         const [postsData, storiesRes, reelsRes] =
           await Promise.all([
             fetchWithToken(
-              `${API_BASE}/api/posts?limit=10`,
-              token
-            ),
+  `${API_BASE}/api/posts?page=${page}&limit=10`,
+  token
+),
 
             fetch(
               `${API_BASE}/api/stories?limit=10`,
@@ -119,11 +128,19 @@ const Home = () => {
 
         if (!mounted) return;
 
-        setPosts(
-          Array.isArray(postsData)
-            ? postsData
-            : []
-        );
+        const newPosts = Array.isArray(postsData)
+  ? postsData
+  : [];
+
+setPosts((prev) =>
+  page === 1
+    ? newPosts
+    : [...prev, ...newPosts]
+);
+
+if (newPosts.length < 10) {
+  setHasMore(false);
+}
 
         setStories(
           storiesData?.stories || []
@@ -146,9 +163,9 @@ const Home = () => {
     fetchFeed();
 
     return () => {
-      mounted = false;
+      mounted = true;
     };
-  }, [token]);
+  }, [token, page]);
 
   // ================= SOCKET =================
 
@@ -202,6 +219,35 @@ const Home = () => {
     };
   }, [token]);
 
+
+// ================= INFINITE SCROLL =================
+
+const lastPostRef = useCallback(
+  (node) => {
+    if (loadingPosts) return;
+
+    if (observer.current) {
+      observer.current.disconnect();
+    }
+
+    observer.current =
+      new IntersectionObserver((entries) => {
+        if (
+          entries[0].isIntersecting &&
+          hasMore
+        ) {
+          setPage((prev) => prev + 1);
+        }
+      });
+
+    if (node) {
+      observer.current.observe(node);
+    }
+  },
+  [loadingPosts, hasMore]
+);
+
+
   // ================= RENDER =================
 
   return (
@@ -245,51 +291,71 @@ const Home = () => {
 
         {/* POSTS */}
 
+<div
+  ref={feedRef}
+  className="space-y-4"
+>
+  {loadingPosts && page === 1 ? (
+    <>
+      <SkeletonPost />
+      <SkeletonPost />
+    </>
+  ) : (
+    posts.map((post, index) => {
+      const isLastPost =
+        posts.length === index + 1;
+
+      return (
         <div
-          ref={feedRef}
-          className="space-y-4"
+          key={post._id}
+          ref={
+            isLastPost
+              ? lastPostRef
+              : null
+          }
         >
-          {loadingPosts ? (
-            <>
-              <SkeletonPost />
-              <SkeletonPost />
-            </>
-          ) : (
-            posts.map((post, index) => (
-              <div key={post._id}>
-                <Suspense
-                  fallback={<SkeletonPost />}
-                >
-                  <PostCard
-                    post={post}
-                    currentUserId={
-                      currentUserId
-                    }
-                  />
-                </Suspense>
+          <Suspense
+            fallback={<SkeletonPost />}
+          >
+            <PostCard
+              post={post}
+              currentUserId={
+                currentUserId
+              }
+            />
+          </Suspense>
 
-                {/* SHOW REELS AGAIN */}
+          {/* SHOW REELS AGAIN */}
 
-                {(index + 1) === 2 &&
-                  reels.length > 0 && (
-                    <ReelsHorizontal
-                      reels={reels}
-                    />
-                  )}
+          {(index + 1) === 2 &&
+            reels.length > 0 && (
+              <ReelsHorizontal
+                reels={reels}
+              />
+            )}
 
-                {/* ADS */}
+          {/* ADS */}
 
-                {(index + 1) === 4 && (
-                  <Adsterra containerId="container-ad-middle-1" />
-                )}
+          {(index + 1) === 4 && (
+            <Adsterra containerId="container-ad-middle-1" />
+          )}
 
-                {(index + 1) === 8 && (
-                  <Adsterra containerId="container-ad-middle-2" />
-                )}
-              </div>
-            ))
+          {(index + 1) === 8 && (
+            <Adsterra containerId="container-ad-middle-2" />
           )}
         </div>
+      );
+    })
+  )}
+
+  {/* LOAD MORE */}
+
+  {loadingPosts && page > 1 && (
+    <div className="text-center py-4">
+      Loading more posts...
+    </div>
+  )}
+</div>
       </main>
 
       {/* RIGHT SIDEBAR */}
