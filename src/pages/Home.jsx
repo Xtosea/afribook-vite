@@ -1,430 +1,315 @@
 import React, {
-useEffect,
-useRef,
-useState,
-Suspense,
-lazy,
+  useEffect,
+  useRef,
+  useState,
+  Suspense,
+  lazy,
+  memo,
 } from "react";
+
 import { useNavigate } from "react-router-dom";
 
 import SidebarLeft from "../components/layout/SidebarLeft";
 import SidebarRight from "../components/layout/SidebarRight";
 import StoryBar from "../components/stories/StoryBar";
-import MediaUpload from "../components/MediaUpload";
 
-import imageCompression from "browser-image-compression";
 import { API_BASE, fetchWithToken } from "../api/api";
-import { getSocket, connectSocket } from "../socket";
 
-import { useCloudinaryUpload } from "../hooks/useCloudinaryUpload";
-import { useR2Upload } from "../hooks/useR2Upload";
-import validateVideoDuration from "../utils/validateVideoDuration";
-import compressVideo from "../utils/compressVideo";
+import {
+  getSocket,
+  connectSocket,
+} from "../socket";
+
 import PostComposer from "../components/PostComposer";
-import SuggestedFriends from "../components/friends/SuggestedFriends";
+
 import Adsterra from "../components/Adsterra.jsx";
+
 import FriendCarousel from "../components/friends/FriendCarousel";
+
 import ReelsHorizontal from "../components/reels/ReelsHorizontal";
 
+// Lazy Components
+const PostCard = lazy(() =>
+  import("../components/PostCard")
+);
 
+// ================= SKELETON =================
 
-// Lazy-loaded components
-const EmojiPicker = lazy(() => import("emoji-picker-react"));
-const PostCard = lazy(() => import("../components/PostCard"));
+const SkeletonPost = memo(() => (
+  <div className="bg-white p-4 rounded-2xl shadow animate-pulse space-y-4">
+    <div className="h-64 bg-gray-300 rounded-xl"></div>
+  </div>
+));
 
-// Skeleton loader
-const SkeletonPost = () => (
-
-  <div className="bg-white p-4 rounded-2xl shadow animate-pulse space-y-4">  
-    <div className="h-64 bg-gray-300 rounded-xl"></div>  
-  </div>  
-);  // Lazy video hook
-const useLazyVideo = (videos) => {
-useEffect(() => {
-if (!videos || videos.length === 0) return;
-
-const observer = new IntersectionObserver((entries) => {  
-  entries.forEach((entry) => {  
-    const video = entry.target;  
-
-    if (entry.isIntersecting) {  
-      if (!video.src) video.src = video.dataset.src;  
-      video.play().catch(() => {});  
-    } else {  
-      video.pause();  
-    }  
-  });  
-}, { threshold: 0.5 });  
-
-videos.forEach((v) => observer.observe(v));  
-
-return () => observer.disconnect();
-
-}, [videos]);
-};
+// ================= HOME =================
 
 const Home = () => {
-const token = localStorage.getItem("token");
-const currentUserId = localStorage.getItem("userId");
-const navigate = useNavigate();
+  const navigate = useNavigate();
 
-const [posts, setPosts] = useState([]);
-const [stories, setStories] = useState([]);
-const [loadingPosts, setLoadingPosts] = useState(true);
+  const token = localStorage.getItem("token");
 
-const [newPost, setNewPost] = useState("");
-const [mediaFiles, setMediaFiles] = useState([]);
-const [posting, setPosting] = useState(false);
+  const currentUserId =
+    localStorage.getItem("userId");
 
-const [expanded, setExpanded] = useState(false);
-
-const [showEmoji, setShowEmoji] = useState(false);
-const [showLocation, setShowLocation] = useState(false);
-const [showFeeling, setShowFeeling] = useState(false);
-const [showTag, setShowTag] = useState(false);
-
-const [location, setLocation] = useState("");
-const [locationSuggestions, setLocationSuggestions] = useState([]);
-
-const [feeling, setFeeling] = useState("");
-const [tagInput, setTagInput] = useState("");
-const [taggedFriends, setTaggedFriends] = useState([]);
-
-const feedRef = useRef();
-const [videoRefs, setVideoRefs] = useState([]);
-
-useLazyVideo(videoRefs);
-
-const { uploadImage } = useCloudinaryUpload();
-const { uploadVideo } = useR2Upload();
-
-
-
-const currentUser = {
-_id: currentUserId,
-profilePic: localStorage.getItem("profilePic"),
-name: localStorage.getItem("name"),
-};
-
-// redirect if no token
-useEffect(() => {
-if (!token) navigate("/login");
-}, [token, navigate]);
-
-const [reels, setReels] = useState([]);
-
-/* ================= FETCH REELS ================= */
-
-useEffect(() => {
-
-  const fetchReels = async () => {
-
-    try {
-
-      const res = await fetch(
-        `${API_BASE}/api/posts/reels`
-      );
-
-      const data = await res.json();
-
-      setReels(
-  Array.isArray(data)
-    ? data
-    : Array.isArray(data?.reels)
-    ? data.reels
-    : []
-);
-      
-
-    } catch (err) {
-
-      console.error(
-        "FETCH REELS ERROR:",
-        err
-      );
-
-      setReels([]);
-    }
+  const currentUser = {
+    _id: currentUserId,
+    profilePic:
+      localStorage.getItem("profilePic"),
+    name: localStorage.getItem("name"),
   };
 
-  fetchReels();
+  // ================= STATES =================
 
-}, []);
+  const [posts, setPosts] = useState([]);
 
+  const [stories, setStories] = useState([]);
 
+  const [reels, setReels] = useState([]);
 
+  const [loadingPosts, setLoadingPosts] =
+    useState(true);
 
-// ================= FETCH DATA =================
-useEffect(() => {
-  if (!token) return;
+  const feedRef = useRef(null);
 
-  const init = async () => {
-    try {
-      const postsData = await fetchWithToken(
-        `${API_BASE}/api/posts?limit=20`,
-        token
-      );
+  // ================= AUTH =================
 
-      setPosts(Array.isArray(postsData) ? postsData : []);
+  useEffect(() => {
+    if (!token) {
+      navigate("/login");
+    }
+  }, [token, navigate]);
 
-      const res = await fetch(
-        `${API_BASE}/api/stories?limit=20`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+  // ================= FETCH FEED =================
+
+  useEffect(() => {
+    if (!token) return;
+
+    let mounted = true;
+
+    const fetchFeed = async () => {
+      try {
+        setLoadingPosts(true);
+
+        const [postsData, storiesRes, reelsRes] =
+          await Promise.all([
+            fetchWithToken(
+              `${API_BASE}/api/posts?limit=10`,
+              token
+            ),
+
+            fetch(
+              `${API_BASE}/api/stories?limit=10`,
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            ),
+
+            fetch(
+              `${API_BASE}/api/posts/reels`
+            ),
+          ]);
+
+        const storiesData =
+          await storiesRes.json();
+
+        const reelsData =
+          await reelsRes.json();
+
+        if (!mounted) return;
+
+        setPosts(
+          Array.isArray(postsData)
+            ? postsData
+            : []
+        );
+
+        setStories(
+          storiesData?.stories || []
+        );
+
+        setReels(
+          Array.isArray(reelsData)
+            ? reelsData
+            : reelsData?.reels || []
+        );
+      } catch (err) {
+        console.error(err);
+      } finally {
+        if (mounted) {
+          setLoadingPosts(false);
         }
+      }
+    };
+
+    fetchFeed();
+
+    return () => {
+      mounted = false;
+    };
+  }, [token]);
+
+  // ================= SOCKET =================
+
+  useEffect(() => {
+    if (!token) return;
+
+    if (!getSocket()) {
+      connectSocket();
+    }
+
+    const socket = getSocket();
+
+    if (!socket) return;
+
+    const handleNewPost = (post) => {
+      setPosts((prev) => {
+        const exists = prev.some(
+          (p) => p._id === post._id
+        );
+
+        if (exists) return prev;
+
+        return [post, ...prev];
+      });
+    };
+
+    const handleNewStory = (story) => {
+      setStories((prev) => [
+        story,
+        ...prev,
+      ]);
+    };
+
+    socket.on("new-post", handleNewPost);
+
+    socket.on(
+      "new-story",
+      handleNewStory
+    );
+
+    return () => {
+      socket.off(
+        "new-post",
+        handleNewPost
       );
 
-      const data = await res.json();
-      setStories(data.stories || []);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoadingPosts(false);
-    }
-  };
+      socket.off(
+        "new-story",
+        handleNewStory
+      );
+    };
+  }, [token]);
 
-  init();
-}, [token]);
+  // ================= RENDER =================
 
-// ================= SOCKET CONNECTION =================
-useEffect(() => {
-  if (!getSocket()) {
-    connectSocket();
-  }
-  const socket = getSocket();
-  if (!socket) return;
+  return (
+    <div className="w-full min-h-screen grid grid-cols-1 md:grid-cols-4 gap-4 max-w-7xl mx-auto px-2">
 
-  const handleNewPost = (post) => {
-    setPosts((prev) => {
-      const exists = prev.some((p) => p._id === post._id);
-      if (exists) return prev;
-      return [post, ...prev];
-    });
-  };
+      {/* LEFT SIDEBAR */}
 
-  const handleNewStory = (story) => {
-    setStories((prev) => [story, ...prev]);
-  };
+      <aside className="hidden md:block md:col-span-1">
+        <SidebarLeft />
+      </aside>
 
-  const handleBirthday = (data) => {
-    alert(`🎉 Today is ${data.name}'s birthday`);
-  };
+      {/* MAIN FEED */}
 
-  socket.on("new-post", handleNewPost);
-  socket.on("new-story", handleNewStory);
-  socket.on("birthday", handleBirthday);
+      <main className="md:col-span-2 space-y-4">
 
-  return () => {
-    socket.off("new-post", handleNewPost);
-    socket.off("new-story", handleNewStory);
-    socket.off("birthday", handleBirthday);
-  };
-}, []);
+        {/* STORIES */}
 
-// LOCATION SEARCH
-const handleLocationSearch = async (value) => {
-setLocation(value);
+        <StoryBar
+          user={currentUser}
+          stories={stories}
+        />
 
-if (value.length < 2) return;  
+        {/* POST COMPOSER */}
 
-try {  
-  const res = await fetch(  
-    `https://nominatim.openstreetmap.org/search?format=json&q=${value}`  
-  );  
+        <PostComposer
+          token={token}
+          currentUser={currentUser}
+          onPostCreated={(post) => {
+            setPosts((prev) => [
+              post,
+              ...prev,
+            ]);
+          }}
+        />
 
-  const data = await res.json();  
+        {/* REELS */}
 
-  setLocationSuggestions(  
-    data.slice(0, 5).map((item) => item.display_name)  
-  );  
-} catch (err) {  
-  console.log(err);  
-}
-
-};
-
-// TAG FRIENDS
-const handleTagFriends = (value) => {
-setTagInput(value);
-setTaggedFriends(value.split(","));
-};
-
-// SUBMIT POST
-const handleSubmitPost = async (e) => {
-e.preventDefault();
-
-if (!newPost && mediaFiles.length === 0) return;
-
-setPosting(true);
-
-try {
-
-const uploadedMedia = [];  
-
-// Upload all files first  
-for (let file of mediaFiles) {  
-
-  const type = file.type.startsWith("image")  
-    ? "image"  
-    : "video";  
-
-  let url = "";  
-
-  // IMAGE  
-  if (type === "image") {  
-
-    url = await uploadImage(file);  
-
-  } else {  
-
-    // VIDEO → R2  
-    // VIDEO VALIDATION
-await validateVideoDuration(
-  file,
-  180
-);
-
-// VIDEO COMPRESSION
-const compressedVideo =
-  await compressVideo(file);
-
-// UPLOAD TO R2
-url = await uploadVideo(
-  compressedVideo
-);  
-
-  }  
-
-  uploadedMedia.push({  
-    url,  
-    type,  
-  });  
-}  
-
-// CREATE POST IN DATABASE  
-const res = await fetch(`${API_BASE}/api/posts`, {  
-  method: "POST",  
-  headers: {  
-    Authorization: `Bearer ${token}`,  
-    "Content-Type": "application/json",  
-  },  
-  body: JSON.stringify({  
-    content: newPost,  
-    media: uploadedMedia,  
-    location,  
-    feeling,  
-    taggedFriends,  
-  }),  
-});  
-
-const data = await res.json();
-
-// Socket.IO will add the post automatically
-
-setNewPost("");
-setMediaFiles([]);
-
-} catch (err) {
-
-console.error(err);  
-alert(
-  err.message || "Post failed"
-);
-
-}
-
-setPosting(false);
-};
-
-return (
-<div className="w-full min-h-screen grid grid-cols-1 md:grid-cols-4 gap-4 max-w-7xl mx-auto">
-
-{/* LEFT SIDEBAR */}  
-  <div className="hidden md:block md:col-span-1">  
-    <SidebarLeft />  
-  </div>  
-
-  {/* MAIN FEED */}  
-  <div className="md:col-span-2 space-y-4">  
-
-    <StoryBar user={currentUser} stories={stories} />  
-
-
- {/* CREATE POST */}  
-   <PostComposer
-  token={token}
-  currentUser={currentUser}
-  onPostCreated={(post) => {
-    setPosts((prev) => [post, ...prev]);
-  }}
-/>
-
-<ReelsHorizontal reels={reels} />
-
-
-    {/* POSTS */}
-<div ref={feedRef} className="space-y-4">
-  {loadingPosts ? (
-    <>
-      <SkeletonPost />
-      <SkeletonPost />
-    </>
-  ) : (
-    Array.isArray(posts) &&
-    posts.map((post, index) => (
-      <React.Fragment key={post._id}>
-        <Suspense fallback={<SkeletonPost />}>
-          <PostCard
-            post={post}
-            currentUserId={currentUserId}
-            setVideoRefs={setVideoRefs}
-          />
-
-{(index + 1) === 2 && (
-  <ReelsHorizontal reels={reels} />
-)}
-
-        
-        </Suspense>
-
-      
-
-        {/* ADSTERRA 2 */}
-        {(index + 1) === 4 && (
-          <Adsterra containerId="container-ad-middle-1" />
+        {reels.length > 0 && (
+          <ReelsHorizontal reels={reels} />
         )}
 
+        {/* POSTS */}
 
+        <div
+          ref={feedRef}
+          className="space-y-4"
+        >
+          {loadingPosts ? (
+            <>
+              <SkeletonPost />
+              <SkeletonPost />
+            </>
+          ) : (
+            posts.map((post, index) => (
+              <div key={post._id}>
+                <Suspense
+                  fallback={<SkeletonPost />}
+                >
+                  <PostCard
+                    post={post}
+                    currentUserId={
+                      currentUserId
+                    }
+                  />
+                </Suspense>
 
+                {/* SHOW REELS AGAIN */}
 
-        {/* ADSTERRA 3 */}
-        {(index + 1) === 8 && (
-          <Adsterra containerId="container-ad-middle-2" />
-        )}
-      </React.Fragment>
-    ))
-  )}
-</div>
+                {(index + 1) === 2 &&
+                  reels.length > 0 && (
+                    <ReelsHorizontal
+                      reels={reels}
+                    />
+                  )}
 
-  </div>  
+                {/* ADS */}
 
-  {/* RIGHT SIDEBAR */}
-<div className="md:col-span-1 space-y-4">
-  <SidebarRight />
+                {(index + 1) === 4 && (
+                  <Adsterra containerId="container-ad-middle-1" />
+                )}
 
-{/* Adsterra 4*/}
-  <Adsterra containerId="container-ad-sidebar" />
-</div>
+                {(index + 1) === 8 && (
+                  <Adsterra containerId="container-ad-middle-2" />
+                )}
+              </div>
+            ))
+          )}
+        </div>
+      </main>
 
-{/* FRIEND CAROUSEL */}
-<FriendCarousel limit={20} />
+      {/* RIGHT SIDEBAR */}
 
+      <aside className="hidden md:block md:col-span-1 space-y-4">
 
+        <SidebarRight />
 
-</div>
-);
+        <Adsterra containerId="container-ad-sidebar" />
+
+      </aside>
+
+      {/* FRIEND CAROUSEL */}
+
+      <div className="md:hidden">
+        <FriendCarousel limit={10} />
+      </div>
+
+    </div>
+  );
 };
 
-export default Home;
+export default memo(Home);
