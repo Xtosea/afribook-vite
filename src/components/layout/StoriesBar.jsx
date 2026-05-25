@@ -159,13 +159,15 @@ console.log("USER:", user);
         >
           <img
   src={
-    safeUser.profilePic
+    safeUser?.profilePic
       ? safeUser.profilePic.startsWith(
           "http"
         )
         ? safeUser.profilePic
         : `${API_BASE}${safeUser.profilePic}`
-      : "/default-avatar.png"
+      : localStorage.getItem(
+          "profilePic"
+        ) || "/default-avatar.png"
   }
   className="w-14 h-14 rounded-full border-4 border-white object-cover"
 />
