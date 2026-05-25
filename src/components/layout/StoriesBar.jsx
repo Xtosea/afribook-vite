@@ -156,16 +156,12 @@ console.log("USER:", user);
           className="relative min-w-[110px] h-44 rounded-2xl overflow-hidden cursor-pointer bg-gradient-to-b from-gray-200 to-gray-400 flex flex-col items-center justify-center shadow-lg"
         >
           <img
-            src={
-  safeUser.profilePic
-    ? safeUser.profilePic.startsWith(
-        "http"
-      )
-      ? safeUser.profilePic
-      : `${API_BASE}${safeUser.profilePic}`
-    : "/default-avatar.png"
-}
-
+  src={
+    localStorage.getItem("profilePic") ||
+    "/default-avatar.png"
+  }
+  className="w-14 h-14 rounded-full border-4 border-white object-cover"
+/>
 
             className="w-14 h-14 rounded-full border-4 border-white object-cover"
           />
