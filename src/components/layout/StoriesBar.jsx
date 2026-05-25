@@ -145,8 +145,10 @@ const StoriesBar = ({
     };
   }, [socket]);
 
-  return (
 console.log("USER:", user);
+
+  return (
+
     <>
       <div className="flex gap-4 overflow-x-auto pb-3 no-scrollbar">
 
