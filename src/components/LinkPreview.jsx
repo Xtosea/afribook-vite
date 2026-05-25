@@ -8,22 +8,30 @@ const LinkPreview = ({ url }) => {
   const [preview, setPreview] =
     useState(null);
 
+  const [loading, setLoading] =
+    useState(true);
+
   useEffect(() => {
+
+    let mounted = true;
 
     const fetchPreview = async () => {
 
       try {
 
-        // FREE API
         const res = await fetch(
           `https://api.microlink.io/?url=${encodeURIComponent(
             url
           )}`
         );
 
-        const data = await res.json();
+        const data =
+          await res.json();
 
-        if (data.status === "success") {
+        if (
+          mounted &&
+          data.status === "success"
+        ) {
 
           setPreview(data.data);
 
@@ -36,14 +44,35 @@ const LinkPreview = ({ url }) => {
           err
         );
 
-      }
+      } finally {
 
+        if (mounted) {
+          setLoading(false);
+        }
+
+      }
     };
 
     fetchPreview();
 
+    return () => {
+      mounted = false;
+    };
+
   }, [url]);
 
+  // LOADING
+  if (loading) {
+
+    return (
+      <div className="border rounded-xl p-4 animate-pulse">
+        <div className="h-40 bg-gray-200 rounded-lg"></div>
+      </div>
+    );
+
+  }
+
+  // FAILED
   if (!preview) return null;
 
   return (
@@ -51,7 +80,7 @@ const LinkPreview = ({ url }) => {
     <a
       href={url}
       target="_blank"
-      rel="noreferrer"
+      rel="noopener noreferrer"
       className="
         block
         border
@@ -71,9 +100,10 @@ const LinkPreview = ({ url }) => {
         <img
           src={preview.image.url}
           alt=""
+          loading="lazy"
           className="
             w-full
-            max-h-64
+            max-h-72
             object-cover
           "
         />
@@ -82,21 +112,22 @@ const LinkPreview = ({ url }) => {
 
       {/* CONTENT */}
 
-      <div className="p-3 space-y-1">
+      <div className="p-4">
 
-        <p className="font-semibold line-clamp-2">
+        <h3 className="font-semibold line-clamp-2">
 
-          {preview.title}
+          {preview.title ||
+            "Link Preview"}
 
-        </p>
+        </h3>
 
-        <p className="text-sm text-gray-600 line-clamp-3">
+        <p className="text-sm text-gray-600 line-clamp-3 mt-1">
 
           {preview.description}
 
         </p>
 
-        <p className="text-xs text-blue-500 truncate">
+        <p className="text-xs text-blue-500 truncate mt-2">
 
           {url}
 
