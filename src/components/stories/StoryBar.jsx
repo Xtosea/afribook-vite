@@ -270,14 +270,19 @@ console.log("user profile pic:", user?.profilePic);
   {/* PROFILE PICTURE */}
   <div className="absolute inset-0 flex items-center justify-center">
   <img
-    src={user?.profilePic || "/default-avatar.png"}
-    alt="profile"
-    className="w-32 h-32 object-cover rounded-full border-4 border-white"
-    onError={(e) => {
-      console.log("IMAGE FAILED:", e.target.src);
-      e.target.src = "/default-avatar.png";
-    }}
-  />
+  src={user?.profilePic}
+  alt="profile"
+  className="w-full h-full object-cover"
+  onLoad={() =>
+    console.log("IMAGE LOADED")
+  }
+  onError={(e) => {
+    console.log(
+      "IMAGE FAILED:",
+      e.target.src
+    );
+  }}
+/>
 </div>
 
       {/* + BUTTON */}
