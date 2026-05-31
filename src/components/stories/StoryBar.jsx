@@ -172,15 +172,15 @@ setActiveStories([...myStories, ...others]);
 
   /* ================= OPEN STORY ================= */
   const openStory = (story) => {
-    setSelectedStory(story);
+  setOpening(true);
+  setSelectedStory(story);
 
-    if (!viewedStories.includes(story._id)) {
-      setViewedStories((prev) => [
-        ...prev,
-        story._id,
-      ]);
-    }
-  };
+  setTimeout(() => setOpening(false), 200);
+
+  if (!viewedStories.includes(story._id)) {
+    setViewedStories((prev) => [...prev, story._id]);
+  }
+};
 
   /* ================= LIKE ================= */
   const handleLike = async (story) => {
