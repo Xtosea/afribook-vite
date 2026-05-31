@@ -269,41 +269,30 @@ useEffect(() => {
   "
 >
   {/* PROFILE PICTURE */}
-  <div className="relative w-20 h-20 flex items-center justify-center">
-  <img
-    src={user?.profilePic || "/default-avatar.png"}
-    alt="profile"
-    className="
-      w-20 h-20
-      rounded-full
-      object-cover
-      border-4 border-white
-      shrink-0
-      transform-gpu
-    "
-    style={{
-      backfaceVisibility: "hidden",
-      transform: "translateZ(0)",
-    }}
-    onError={(e) => {
-      e.target.src = "/default-avatar.png";
-    }}
-  />
+  <div className="relative w-24 h-24 flex items-center justify-center">
+  <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white bg-gray-800">
+    <img
+      src={user?.profilePic || "/default-avatar.png"}
+      alt="profile"
+      className="w-full h-full object-cover"
+      onError={(e) => {
+        e.target.src = "/default-avatar.png";
+      }}
+    />
+  </div>
 
   {/* + BUTTON */}
   <div
     className="
       absolute
-      -bottom-1
-      -right-1
+      bottom-0
+      right-0
       w-7 h-7
       bg-blue-600
       rounded-full
       flex items-center justify-center
-      text-white
-      text-lg
+      text-white text-lg
       border-2 border-white
-      shadow-md
     "
   >
     +
