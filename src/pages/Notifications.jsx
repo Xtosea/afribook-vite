@@ -80,10 +80,23 @@ const Notifications = () => {
 
           <div className="flex-1">
             <p className="text-sm">
-              <span className="font-semibold">
-                {n.sender?.name || "Someone"}
-              </span>{" "}
-              {n.text}
+              <p className="text-sm">
+  {n.count > 1 ? (
+    <>
+      <span className="font-semibold">
+        {n.sender?.name || "Someone"}
+      </span>{" "}
+      and {n.count - 1} others {n.text}
+    </>
+  ) : (
+    <>
+      <span className="font-semibold">
+        {n.sender?.name || "Someone"}
+      </span>{" "}
+      {n.text}
+    </>
+  )}
+</p>
             </p>
 
             <p className="text-xs text-gray-500 mt-1">
