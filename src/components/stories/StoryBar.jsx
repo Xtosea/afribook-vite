@@ -245,6 +245,8 @@ useEffect(() => {
   };
 }, [selectedStory, activeStories]);
 
+console.log("user profile pic:", user?.profilePic);
+
 
   return (
     <>
@@ -262,47 +264,52 @@ useEffect(() => {
     cursor-pointer
     shadow-lg
     bg-black
-    flex
-    flex-col
-    items-center
-    justify-center
   "
 >
-  {/* PROFILE PICTURE */}
-  <div className="relative w-24 h-24 flex items-center justify-center">
-  <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white bg-gray-800">
-    <img
-      src={user?.profilePic || "/default-avatar.png"}
-      alt="profile"
-      className="w-full h-full object-cover"
-      onError={(e) => {
-        e.target.src = "/default-avatar.png";
-      }}
-    />
-  </div>
 
-  {/* + BUTTON */}
+  {/* PROFILE PICTURE */}
+  <img
+    src={user?.profilePic || "/default-avatar.png"}
+    alt="profile"
+    className="w-full h-full object-cover"
+    onError={(e) => {
+      e.target.src = "/default-avatar.png";
+    }}
+  />
+
+      {/* + BUTTON */}
+
+  <div className="absolute inset-0 bg-black/40" />
+
   <div
     className="
       absolute
-      bottom-0
-      right-0
-      w-7 h-7
+      top-3
+      right-3
+      w-8
+      h-8
       bg-blue-600
       rounded-full
-      flex items-center justify-center
-      text-white text-lg
-      border-2 border-white
+      flex
+      items-center
+      justify-center
+      text-white
+      text-xl
+      font-bold
     "
   >
     +
   </div>
-</div>
 
-  {/* TEXT */}
-  <p className="text-white text-sm font-semibold mt-4">
-    {loading ? `Uploading ${progress}%` : "Create Story"}
-  </p>
+      {/* TEXT */}
+
+  <div className="absolute bottom-3 left-3 right-3">
+    <p className="text-white text-sm font-semibold">
+      {loading
+        ? `Uploading ${progress}%`
+        : "Create Story"}
+    </p>
+  </div>
 
   <input
     type="file"
