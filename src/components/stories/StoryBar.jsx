@@ -273,23 +273,16 @@ console.log("user profile pic:", user?.profilePic);
   {/* PROFILE PICTURE */}
   <div className="relative w-20 h-20">
     <img
-      
   src={
-    user?.profilePic ||
+    activeStories.find(
+      (s) => s.user?._id === user?._id
+    )?.user?.profilePic ||
     activeStories?.[0]?.user?.profilePic ||
     "/default-avatar.png"
   }
-      alt="profile"
-      className="
-        w-20 h-20
-        rounded-full
-        object-cover
-        border-4 border-white
-      "
-      onError={(e) => {
-        e.target.src = "/default-avatar.png";
-      }}
-    />
+  alt="profile"
+  className="w-20 h-20 rounded-full object-cover border-4 border-white"
+/>
 
     {/* + BUTTON */}
     <div
