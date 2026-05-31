@@ -40,35 +40,33 @@ const [opening, setOpening] = useState(false);
 
   /* ================= FETCH STORIES ================= */
   const fetchStories = async () => {
+  try {
+    const token = localStorage.getItem("token");
 
-    try {
+    const res = await fetch(`${API_BASE}/api/stories`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-      const token =
-        localStorage.getItem("token");
+    const data = await res.json();
 
-      const res = await fetch(
-        `${API_BASE}/api/stories`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+    const sorted = Array.isArray(data) ? data : [];
 
-      const data = await res.json();
+    const myStories = sorted.filter(
+      (s) => s.user?._id === user?._id
+    );
 
+    const others = sorted.filter(
+      (s) => s.user?._id !== user?._id
+    );
 
-     const sorted = Array.isArray(data) ? data : [];
+    setActiveStories([...myStories, ...others]);
 
-const myStories = sorted.filter(
-  (s) => s.user?._id === user?._id
-);
-
-const others = sorted.filter(
-  (s) => s.user?._id !== user?._id
-);
-
-setActiveStories([...myStories, ...others]);
+  } catch (err) {
+    console.error("Fetch stories error:", err);
+  }
+};
 
 
 
@@ -245,18 +243,6 @@ const nextStory = () => {
     );
   } else {
     setSelectedStory(null);
-  }
-};
-
-
-const openStory = (story) => {
-  setOpening(true);
-  setSelectedStory(story);
-
-  setTimeout(() => setOpening(false), 200);
-
-  if (!viewedStories.includes(story._id)) {
-    setViewedStories((prev) => [...prev, story._id]);
   }
 };
 
