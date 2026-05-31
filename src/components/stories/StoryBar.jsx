@@ -36,7 +36,6 @@ const StoryBar = ({ user }) => {
 const [opening, setOpening] = useState(false);
 
 
-console.log("StoryBar user:", user);
 
   /* ================= FETCH STORIES ================= */
   const fetchStories = async () => {
