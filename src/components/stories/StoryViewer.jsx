@@ -108,7 +108,11 @@ const StoryViewer = ({
         setProgress((prev) => {
           if (prev >= 100) {
             clearInterval(interval);
-            onClose?.();
+            if (window.nextStory) {
+  window.nextStory();
+} else {
+  onClose?.();
+}
             return 100;
           }
           return prev + 1;
