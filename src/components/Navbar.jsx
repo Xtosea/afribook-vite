@@ -47,9 +47,35 @@ const Navbar = () => {
 
   const currentUserId = localStorage.getItem("userId");
 
-const [notifications, setNotifications] =
-  useState([]);
+const [unreadCount, setUnreadCount] = useState(0);
 
+
+useEffect(() => {
+  const fetchCount = async () => {
+    const token = localStorage.getItem("token");
+
+    const res = await fetch(
+      `${API_BASE}/api/notifications/unread-count`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const data = await res.json();
+    setUnreadCount(data.count || 0);
+  };
+
+  fetchCount();
+}, []);
+
+
+socket.on("new-notification", (notification) => {
+  setNotifications((prev) => [notification, ...prev]);
+
+  setUnreadCount((prev) => prev + 1);
+});
 
 
   // =========================
@@ -196,45 +222,6 @@ const [notifications, setNotifications] =
   };
 
   return (
-
-useEffect(() => {
-  const fetchCount = async () => {
-    const token =
-      localStorage.getItem("token");
-
-    const res = await fetch(
-      `${API_BASE}/api/notifications/unread-count`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-    const data = await res.json();
-
-    setUnreadCount(data.count || 0);
-  };
-
-  fetchCount();
-}, []);
-
-
-socket.on(
-  "new-notification",
-  (notification) => {
-
-    setNotifications(prev => [
-      notification,
-      ...prev,
-    ]);
-
-    setUnreadCount(prev => prev + 1);
-  }
-);
-
-
-
 
 
     <>
@@ -401,19 +388,17 @@ socket.on(
                 ref={dropdownRef}
               >
                 <button
-                  onClick={() =>
-                    setShowDropdown(!showDropdown)
-                  }
-                  className="relative"
-                >
-                  <Bell size={22} />
+  onClick={() => setShowDropdown(!showDropdown)}
+  className="relative"
+>
+  <Bell size={22} />
 
-                  {notifications.length > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1 rounded-full">
-                      {notifications.length}
-                    </span>
-                  )}
-                </button>
+  {unreadCount > 0 && (
+    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1 rounded-full">
+      {unreadCount}
+    </span>
+  )}
+</button>
 
                 {showDropdown && (
                   <div className="absolute right-0 mt-2 w-72 bg-white shadow-lg rounded-xl border z-50 overflow-hidden">
@@ -657,12 +642,7 @@ socket.on(
   <InstallPWAButton />
 
 
-{unreadCount > 0 && (
-  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1 rounded-full">
-    {unreadCount}
-  </span>
-)}
-
+{
     </>
   );
 };
