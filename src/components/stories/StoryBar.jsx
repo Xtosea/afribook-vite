@@ -263,49 +263,66 @@ useEffect(() => {
     cursor-pointer
     shadow-lg
     bg-black
-    flex
-    flex-col
-    items-center
-    justify-center
   "
 >
-  {/* PROFILE PICTURE */}
-  <div className="relative w-20 h-20">
-    <img
-  src={
-    activeStories.find(
-      (s) => s.user?._id === user?._id
-    )?.user?.profilePic ||
-    activeStories?.[0]?.user?.profilePic ||
-    "/default-avatar.png"
-  }
-  alt="profile"
-  className="w-20 h-20 rounded-full object-cover border-4 border-white"
-/>
+  {/* PROFILE IMAGE */}
+  <img
+    src={
+      activeStories.find(
+        (s) => s.user?._id === user?._id
+      )?.user?.profilePic ||
+      activeStories?.[0]?.user?.profilePic ||
+      "/default-avatar.png"
+    }
+    alt="profile"
+    className="w-full h-[140px] object-cover"
+  />
 
-    {/* + BUTTON */}
-    <div
-      className="
-        absolute
-        -bottom-1
-        -right-1
-        w-7 h-7
-        bg-blue-600
-        rounded-full
-        flex items-center justify-center
-        text-white
-        text-lg
-        border-2 border-white
-      "
-    >
-      +
-    </div>
+  {/* PLUS BUTTON */}
+  <div
+    className="
+      absolute
+      top-[120px]
+      left-1/2
+      -translate-x-1/2
+      w-10
+      h-10
+      rounded-full
+      bg-blue-600
+      border-4
+      border-white
+      flex
+      items-center
+      justify-center
+      text-white
+      text-2xl
+      font-bold
+    "
+  >
+    +
   </div>
 
-  {/* TEXT */}
-  <p className="text-white text-sm font-semibold mt-4">
-    {loading ? `Uploading ${progress}%` : "Create Story"}
-  </p>
+  {/* BOTTOM AREA */}
+  <div
+    className="
+      absolute
+      bottom-0
+      left-0
+      right-0
+      h-[50px]
+      bg-white
+      flex
+      items-end
+      justify-center
+      pb-2
+    "
+  >
+    <p className="text-black text-xs font-semibold">
+      {loading
+        ? `Uploading ${progress}%`
+        : "Create Story"}
+    </p>
+  </div>
 
   <input
     type="file"
