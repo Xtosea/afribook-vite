@@ -33,6 +33,9 @@ const StoryBar = ({ user }) => {
   const [activeStories, setActiveStories] =
     useState([]);
 
+
+
+
   /* ================= FETCH STORIES ================= */
   const fetchStories = async () => {
 
@@ -204,31 +207,109 @@ const StoryBar = ({ user }) => {
     }
   };
 
+const nextStory = () => {
+  if (!selectedStory) return;
+
+  const currentIndex =
+    activeStories.findIndex(
+      (s) => s._id === selectedStory._id
+    );
+
+  const next =
+    activeStories[currentIndex + 1];
+
+  if (next) {
+    setSelectedStory(next);
+
+    setViewedStories((prev) =>
+      prev.includes(next._id)
+        ? prev
+        : [...prev, next._id]
+    );
+  } else {
+    setSelectedStory(null);
+  }
+};
+
+
+useEffect(() => {
+  window.nextStory = nextStory;
+
+  return () => {
+    delete window.nextStory;
+  };
+}, [selectedStory, activeStories]);
+
+
   return (
     <>
       <div className="flex gap-4 overflow-x-auto py-3 px-3 scrollbar-hide">
 
         {/* CREATE STORY */}
-        <div
-          onClick={handleCreateStory}
-          className="min-w-[110px] h-[180px] rounded-2xl bg-gradient-to-b from-blue-500 to-blue-700 flex flex-col items-center justify-center cursor-pointer shadow-lg"
-        >
-          <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center text-3xl font-bold text-blue-600">
-            +
-          </div>
+<div
+  onClick={handleCreateStory}
+  className="
+    relative
+    min-w-[110px]
+    h-[190px]
+    rounded-2xl
+    overflow-hidden
+    cursor-pointer
+    shadow-lg
+    bg-gray-900
+  "
+>
+  <img
+    src={
+      user?.profilePic ||
+      "/default-avatar.png"
+    }
+    alt=""
+    className="
+      w-full
+      h-full
+      object-cover
+    "
+  />
 
-          <p className="text-white text-sm font-semibold mt-3">
-            {loading ? `Uploading ${progress}%` : "Create Story"}
-          </p>
+  <div className="absolute inset-0 bg-black/40" />
 
-          <input
-            type="file"
-            ref={fileRef}
-            className="hidden"
-            accept="image/*,video/*"
-            onChange={handleUpload}
-          />
-        </div>
+  <div className="absolute top-3 left-3">
+    <div
+      className="
+        w-12
+        h-12
+        rounded-full
+        bg-blue-600
+        border-2
+        border-white
+        flex
+        items-center
+        justify-center
+        text-white
+        text-3xl
+      "
+    >
+      +
+    </div>
+  </div>
+
+  <div className="absolute bottom-3 left-3 right-3">
+    <p className="text-white text-sm font-semibold">
+      {loading
+        ? `Uploading ${progress}%`
+        : "Create Story"}
+    </p>
+  </div>
+
+  <input
+    type="file"
+    ref={fileRef}
+    className="hidden"
+    accept="image/*,video/*"
+    onChange={handleUpload}
+  />
+</div>
 
         {/* STORIES */}
         {activeStories.map((story) => (
