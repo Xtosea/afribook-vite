@@ -1,9 +1,23 @@
-import React, { useEffect, useState, useRef } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import React, {
+  useEffect,
+  useState,
+  useRef,
+} from "react";
+
+import {
+  Link,
+  useNavigate,
+  useLocation,
+} from "react-router-dom";
 
 import SearchBar from "./SearchBar";
 
-import { connectSocket, safeEmit } from "../socket";
+import {
+  connectSocket,
+  safeEmit,
+} from "../socket";
+
+import { API_BASE } from "../api/api";
 
 import {
   Bell,
@@ -52,30 +66,67 @@ const [unreadCount, setUnreadCount] = useState(0);
 
 useEffect(() => {
   const fetchCount = async () => {
-    const token = localStorage.getItem("token");
+    try {
+      const token = localStorage.getItem("token");
 
-    const res = await fetch(
-      `${API_BASE}/api/notifications/unread-count`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+      const res = await fetch(
+        `${API_BASE}/api/notifications/unread-count`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-    const data = await res.json();
-    setUnreadCount(data.count || 0);
+      const data = await res.json();
+
+      setUnreadCount(data.count || 0);
+    } catch (err) {
+      console.error(
+        "Failed to fetch unread count:",
+        err
+      );
+    }
   };
 
   fetchCount();
 }, []);
 
 
-socket.on("new-notification", (notification) => {
-  setNotifications((prev) => [notification, ...prev]);
 
-  setUnreadCount((prev) => prev + 1);
-});
+// =========================
+// FETCH NOTIFICATIONS
+// =========================
+
+useEffect(() => {
+  const fetchNotifications = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const res = await fetch(
+        `${API_BASE}/api/notifications`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await res.json();
+
+      setNotifications(
+        Array.isArray(data) ? data : []
+      );
+    } catch (err) {
+      console.error(
+        "Failed to load notifications:",
+        err
+      );
+    }
+  };
+
+  fetchNotifications();
+}, []);
 
 
   // =========================
@@ -128,10 +179,12 @@ socket.on("new-notification", (notification) => {
 
     // Notifications
     const handleNotification = (data) => {
-      setNotifications((prev) => {
-        return [data, ...prev].slice(0, 50);
-      });
-    };
+  setNotifications((prev) => {
+    return [data, ...prev].slice(0, 50);
+  });
+
+  setUnreadCount((prev) => prev + 1);
+};
 
     // Online users
     const handleOnlineUsers = (users) => {
