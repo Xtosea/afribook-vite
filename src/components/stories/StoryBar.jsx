@@ -273,7 +273,12 @@ console.log("user profile pic:", user?.profilePic);
   {/* PROFILE PICTURE */}
   <div className="relative w-20 h-20">
     <img
-      src={user?.profilePic || "/default-avatar.png"}
+      <img
+  src={
+    user?.profilePic ||
+    activeStories?.[0]?.user?.profilePic ||
+    "/default-avatar.png"
+  }
       alt="profile"
       className="
         w-20 h-20
