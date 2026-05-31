@@ -5,6 +5,10 @@ import React, {
 
 import { API_BASE } from "../api/api";
 
+import { useNavigate } from "react-router-dom";
+
+const navigate = useNavigate()
+
 const defaultProfile =
   "https://via.placeholder.com/100";
 
@@ -74,14 +78,19 @@ const Notifications = () => {
       )}
 
       {notifications.map((n) => (
-        <div
-          key={n._id}
-          className={`flex gap-3 p-3 rounded-lg mb-2 border ${
-            !n.read
-              ? "bg-blue-50"
-              : "bg-white"
-          }`}
-        >
+  <div
+    key={n._id}
+    onClick={() => {
+      if (n.post) {
+        navigate(`/post/${n.post._id}`);
+      } else if (n.sender) {
+        navigate(`/profile/${n.sender._id}`);
+      }
+    }}
+    className={`flex gap-3 p-3 rounded-lg mb-2 border cursor-pointer ${
+      !n.read ? "bg-blue-50" : "bg-white"
+    }`}
+  >
           <img
             src={
               n.sender?.profilePic ||
