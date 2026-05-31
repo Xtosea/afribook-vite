@@ -47,6 +47,11 @@ const Navbar = () => {
 
   const currentUserId = localStorage.getItem("userId");
 
+const [notifications, setNotifications] =
+  useState([]);
+
+
+
   // =========================
   // LOGIN STATE
   // =========================
@@ -191,6 +196,47 @@ const Navbar = () => {
   };
 
   return (
+
+useEffect(() => {
+  const fetchCount = async () => {
+    const token =
+      localStorage.getItem("token");
+
+    const res = await fetch(
+      `${API_BASE}/api/notifications/unread-count`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const data = await res.json();
+
+    setUnreadCount(data.count || 0);
+  };
+
+  fetchCount();
+}, []);
+
+
+socket.on(
+  "new-notification",
+  (notification) => {
+
+    setNotifications(prev => [
+      notification,
+      ...prev,
+    ]);
+
+    setUnreadCount(prev => prev + 1);
+  }
+);
+
+
+
+
+
     <>
       {/* ========================= */}
       {/* NAVBAR */}
@@ -610,6 +656,12 @@ const Navbar = () => {
 
   <InstallPWAButton />
 
+
+{unreadCount > 0 && (
+  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1 rounded-full">
+    {unreadCount}
+  </span>
+)}
 
     </>
   );
