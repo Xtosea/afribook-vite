@@ -309,7 +309,7 @@ useEffect(() => {
       bottom-0
       left-0
       right-0
-      h-[50px]
+      h-[30px]
       bg-white
       flex
       items-end
@@ -332,6 +332,8 @@ useEffect(() => {
     onChange={handleUpload}
   />
 </div>
+
+
         {/* STORIES */}
         {activeStories.map((story) => (
           <StoryCard
