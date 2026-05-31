@@ -260,38 +260,35 @@ useEffect(() => {
   "
 >
   <img
-    src={
-      user?.profilePic ||
-      "/default-avatar.png"
-    }
-    alt=""
-    className="
-      w-full
-      h-full
-      object-cover
-    "
-  />
+  src={user?.profilePic || "/default-avatar.png"}
+  alt="profile"
+  className="
+    w-full
+    h-full
+    object-cover
+    object-center
+    scale-105
+  "
+  onError={(e) => {
+    e.target.src = "/default-avatar.png";
+  }}
+/>
 
-  <div className="absolute inset-0 bg-black/40" />
+  <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/40 to-black/70" />
 
   <div className="absolute top-3 left-3">
     <div
-      className="
-        w-12
-        h-12
-        rounded-full
-        bg-blue-600
-        border-2
-        border-white
-        flex
-        items-center
-        justify-center
-        text-white
-        text-3xl
-      "
-    >
-      +
-    </div>
+  className="
+    w-12 h-12 rounded-full
+    bg-blue-600
+    border-2 border-white
+    flex items-center justify-center
+    text-white text-3xl
+    shadow-lg
+  "
+>
+  +
+</div>
   </div>
 
   <div className="absolute bottom-3 left-3 right-3">
