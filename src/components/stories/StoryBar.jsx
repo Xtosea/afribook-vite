@@ -69,16 +69,6 @@ const [opening, setOpening] = useState(false);
 };
 
 
-
-      setActiveStories(
-        Array.isArray(data) ? data : []
-      );
-
-    } catch (err) {
-      console.error("Fetch stories error:", err);
-    }
-  };
-
   useEffect(() => {
     fetchStories();
   }, []);
