@@ -77,7 +77,7 @@ export default function InstallPWAButton() {
   if (!showButton) return null;
 
   return (
-    <div className="fixed bottom-[600px]  left-1/2 -translate-x-1/2 z-[9999]">
+    <div className="fixed bottom-[605px]  left-1/2 -translate-x-1/2 z-[9999]">
   <button
   onClick={handleInstall}
   className="
