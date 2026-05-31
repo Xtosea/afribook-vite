@@ -273,7 +273,7 @@ console.log("user profile pic:", user?.profilePic);
   {/* PROFILE PICTURE */}
   <div className="relative w-20 h-20">
     <img
-      <img
+      
   src={
     user?.profilePic ||
     activeStories?.[0]?.user?.profilePic ||
