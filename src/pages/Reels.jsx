@@ -88,50 +88,38 @@ const Reels = () => {
 
   /* ================= RECORD VIEW ================= */
   const recordView = async (id) => {
-  try {
-    const res = await fetch(
-      `${API_BASE}/api/reels/${id}/view`,
-      {
-        method: "PUT",
+    try {
+      await fetch(`${API_BASE}/api/posts/reels/view/${id}`, {
+        method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      }
-    );
-
-    const data = await res.json();
-
-    console.log("VIEW RESPONSE:", data);
-  } catch (err) {
-    console.error("recordView error:", err);
-  }
-};
+      });
+    } catch (err) {
+      console.error("recordView error:", err);
+    }
+  };
 
   /* ================= LIKE REEL ================= */
   const likeReel = async (id) => {
-  try {
-    const res = await fetch(
-      `${API_BASE}/api/reels/${id}/like`,
-      {
-        method: "PUT",
+    try {
+      const res = await fetch(`${API_BASE}/api/posts/${id}/like`, {
+        method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      }
-    );
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    console.log("LIKE RESPONSE:", data);
-
-    setLikes((prev) => ({
-      ...prev,
-      [id]: data.likes || 0,
-    }));
-  } catch (err) {
-    console.error(err);
-  }
-};
+      setLikes((prev) => ({
+        ...prev,
+        [id]: data.likes.length,
+      }));
+    } catch (err) {
+      console.error("likeReel error:", err);
+    }
+  };
 
   /* ================= SHARE REEL ================= */
   const shareReel = async (id) => {
