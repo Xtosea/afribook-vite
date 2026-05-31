@@ -264,60 +264,51 @@ console.log("user profile pic:", user?.profilePic);
     cursor-pointer
     shadow-lg
     bg-black
+    flex
+    flex-col
+    items-center
+    justify-center
   "
 >
-
   {/* PROFILE PICTURE */}
-  <div className="absolute inset-0 flex items-center justify-center">
-  <img
-  src={user?.profilePic}
-  alt="profile"
-  className="w-full h-full object-cover"
-  onLoad={() =>
-    console.log("IMAGE LOADED")
-  }
-  onError={(e) => {
-    console.log(
-      "IMAGE FAILED:",
-      e.target.src
-    );
-  }}
-/>
-</div>
+  <div className="relative w-20 h-20">
+    <img
+      src={user?.profilePic || "/default-avatar.png"}
+      alt="profile"
+      className="
+        w-20 h-20
+        rounded-full
+        object-cover
+        border-4 border-white
+      "
+      onError={(e) => {
+        e.target.src = "/default-avatar.png";
+      }}
+    />
 
-      {/* + BUTTON */}
-
-  <div className="absolute inset-0 bg-black/40" />
-
-  <div
-    className="
-      absolute
-      top-3
-      right-3
-      w-8
-      h-8
-      bg-blue-600
-      rounded-full
-      flex
-      items-center
-      justify-center
-      text-white
-      text-xl
-      font-bold
-    "
-  >
-    +
+    {/* + BUTTON */}
+    <div
+      className="
+        absolute
+        -bottom-1
+        -right-1
+        w-7 h-7
+        bg-blue-600
+        rounded-full
+        flex items-center justify-center
+        text-white
+        text-lg
+        border-2 border-white
+      "
+    >
+      +
+    </div>
   </div>
 
-      {/* TEXT */}
-
-  <div className="absolute bottom-3 left-3 right-3">
-    <p className="text-white text-sm font-semibold">
-      {loading
-        ? `Uploading ${progress}%`
-        : "Create Story"}
-    </p>
-  </div>
+  {/* TEXT */}
+  <p className="text-white text-sm font-semibold mt-4">
+    {loading ? `Uploading ${progress}%` : "Create Story"}
+  </p>
 
   <input
     type="file"
@@ -327,7 +318,6 @@ console.log("user profile pic:", user?.profilePic);
     onChange={handleUpload}
   />
 </div>
-
         {/* STORIES */}
         {activeStories.map((story) => (
           <StoryCard
