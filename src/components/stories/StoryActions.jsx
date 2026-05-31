@@ -66,8 +66,8 @@ const StoryActions = ({
             },
 
             body: JSON.stringify({
-              type,
-            }),
+  reaction: type,
+})
           }
         );
 
