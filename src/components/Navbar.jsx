@@ -642,7 +642,7 @@ socket.on("new-notification", (notification) => {
   <InstallPWAButton />
 
 
-{
+
     </>
   );
 };
