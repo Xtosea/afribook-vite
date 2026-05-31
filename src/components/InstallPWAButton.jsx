@@ -80,9 +80,25 @@ export default function InstallPWAButton() {
     <div className="fixed bottom-[430px]  left-1/2 -translate-x-1/2 z-[9999]">
   <button
   onClick={handleInstall}
-  className="bg-blue-600 text-white px-3 py-3 rounded-full shadow-xl -ml-4"
+  className="
+    bg-blue-600
+    text-white
+    w-14
+    h-14
+    rounded-full
+    shadow-xl
+    flex
+    flex-col
+    items-center
+    justify-center
+    text-xs
+    font-semibold
+    leading-tight
+    -ml-4
+  "
 >
-  Install App
+  <span>Install</span>
+  <span>App</span>
 </button>
 </div>
   );
