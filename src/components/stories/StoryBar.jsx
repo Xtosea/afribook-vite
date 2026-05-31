@@ -244,7 +244,7 @@ useEffect(() => {
   };
 }, [selectedStory, activeStories]);
 
-console.log("user profile pic:", user?.profilePic);
+
 
 
   return (
