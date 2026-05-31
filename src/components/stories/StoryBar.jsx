@@ -33,6 +33,8 @@ const StoryBar = ({ user }) => {
   const [activeStories, setActiveStories] =
     useState([]);
 
+const [opening, setOpening] = useState(false);
+
 
 
 
@@ -54,6 +56,21 @@ const StoryBar = ({ user }) => {
       );
 
       const data = await res.json();
+
+
+     const sorted = Array.isArray(data) ? data : [];
+
+const myStories = sorted.filter(
+  (s) => s.user?._id === user?._id
+);
+
+const others = sorted.filter(
+  (s) => s.user?._id !== user?._id
+);
+
+setActiveStories([...myStories, ...others]);
+
+
 
       setActiveStories(
         Array.isArray(data) ? data : []
@@ -210,13 +227,13 @@ const StoryBar = ({ user }) => {
 const nextStory = () => {
   if (!selectedStory) return;
 
-  const currentIndex =
-    activeStories.findIndex(
-      (s) => s._id === selectedStory._id
-    );
+  const currentIndex = activeStories.findIndex(
+    (s) => s._id === selectedStory._id
+  );
 
-  const next =
-    activeStories[currentIndex + 1];
+  const next = activeStories.find(
+    (s, i) => i > currentIndex && !viewedStories.includes(s._id)
+  );
 
   if (next) {
     setSelectedStory(next);
@@ -228,6 +245,18 @@ const nextStory = () => {
     );
   } else {
     setSelectedStory(null);
+  }
+};
+
+
+const openStory = (story) => {
+  setOpening(true);
+  setSelectedStory(story);
+
+  setTimeout(() => setOpening(false), 200);
+
+  if (!viewedStories.includes(story._id)) {
+    setViewedStories((prev) => [...prev, story._id]);
   }
 };
 
@@ -256,48 +285,52 @@ useEffect(() => {
     overflow-hidden
     cursor-pointer
     shadow-lg
-    bg-gray-900
+    bg-black
+    flex
+    flex-col
+    items-center
+    justify-center
   "
 >
-  <img
-  src={user?.profilePic || "/default-avatar.png"}
-  alt="profile"
-  className="
-    w-full
-    h-full
-    object-cover
-    object-center
-    scale-105
-  "
-  onError={(e) => {
-    e.target.src = "/default-avatar.png";
-  }}
-/>
+  {/* PROFILE PICTURE */}
+  <div className="relative w-20 h-20">
+    <img
+      src={user?.profilePic || "/default-avatar.png"}
+      alt="profile"
+      className="
+        w-20 h-20
+        rounded-full
+        object-cover
+        border-4 border-white
+      "
+      onError={(e) => {
+        e.target.src = "/default-avatar.png";
+      }}
+    />
 
-  <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/40 to-black/70" />
-
-  <div className="absolute top-3 left-3">
+    {/* + BUTTON */}
     <div
-  className="
-    w-12 h-12 rounded-full
-    bg-blue-600
-    border-2 border-white
-    flex items-center justify-center
-    text-white text-3xl
-    shadow-lg
-  "
->
-  +
-</div>
+      className="
+        absolute
+        -bottom-1
+        -right-1
+        w-7 h-7
+        bg-blue-600
+        rounded-full
+        flex items-center justify-center
+        text-white
+        text-lg
+        border-2 border-white
+      "
+    >
+      +
+    </div>
   </div>
 
-  <div className="absolute bottom-3 left-3 right-3">
-    <p className="text-white text-sm font-semibold">
-      {loading
-        ? `Uploading ${progress}%`
-        : "Create Story"}
-    </p>
-  </div>
+  {/* TEXT */}
+  <p className="text-white text-sm font-semibold mt-4">
+    {loading ? `Uploading ${progress}%` : "Create Story"}
+  </p>
 
   <input
     type="file"
