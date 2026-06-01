@@ -470,38 +470,96 @@ useEffect(() => {
 
                         {notifications.map((n) => (
   <div
-  key={n._id}
-  onClick={() => {
-    setShowDropdown(false);
+    key={n._id}
+    onClick={() => {
+      setShowDropdown(false);
 
-    if (n.post) {
-      navigate(`/post/${n.post._id}`);
-    } else if (n.sender) {
-      navigate(`/profile/${n.sender._id}`);
-    }
-  }}
-  className="flex items-center gap-3 p-3 border-b hover:bg-gray-100 cursor-pointer"
->
+      if (n.post) {
+        navigate(`/post/${n.post._id}`);
+      } else if (n.sender) {
+        navigate(`/profile/${n.sender._id}`);
+      }
+    }}
+    className={`flex gap-3 p-3 border-b cursor-pointer hover:bg-gray-50 ${
+      !n.read ? "bg-blue-50" : ""
+    }`}
+  >
+    {/* Main Profile */}
     <img
-      src={n.sender?.profilePic || defaultProfile}
-      className="w-10 h-10 rounded-full object-cover"
+      src={
+        n.sender?.profilePic ||
+        defaultProfile
+      }
       alt=""
+      className="w-12 h-12 rounded-full object-cover border"
     />
 
-    <div className="flex-1">
+    <div className="flex-1 min-w-0">
+      {/* Grouped avatars */}
+      {n.senders?.length > 1 && (
+        <div className="flex -space-x-2 mb-2">
+          {n.senders
+            .slice(0, 3)
+            .map((user) => (
+              <img
+                key={user._id}
+                src={
+                  user.profilePic ||
+                  defaultProfile
+                }
+                alt=""
+                className="w-6 h-6 rounded-full border-2 border-white object-cover"
+              />
+            ))}
+        </div>
+      )}
+
       <p className="text-sm">
-        <span className="font-semibold">
-          {n.sender?.name || "Someone"}
-        </span>{" "}
-        {n.count > 1
-          ? `and ${n.count - 1} others ${n.text}`
-          : n.text}
+        {n.count > 1 ? (
+          <>
+            <span className="font-semibold">
+              {n.sender?.name ||
+                "Someone"}
+            </span>{" "}
+            and {n.count - 1} others{" "}
+            {n.text}
+          </>
+        ) : (
+          <>
+            <span className="font-semibold">
+              {n.sender?.name ||
+                "Someone"}
+            </span>{" "}
+            {n.text}
+          </>
+        )}
       </p>
+
+      <p className="text-xs text-gray-500 mt-1">
+        {new Date(
+          n.createdAt
+        ).toLocaleString()}
+      </p>
+
+      {/* Post thumbnail */}
+      {n.post?.media && (
+        <img
+          src={n.post.media}
+          alt=""
+          className="w-16 h-16 rounded-lg object-cover mt-2 border"
+        />
+      )}
     </div>
+
+    {!n.read && (
+      <div className="w-2 h-2 rounded-full bg-blue-500 mt-2" />
+    )}
   </div>
 ))}
 
-                      </div>
+                      
+                 
+                 </div>
                     )}
 
                   </div>
