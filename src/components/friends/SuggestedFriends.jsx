@@ -6,7 +6,7 @@ const defaultProfile =
   "https://afribook-backend.onrender.com/uploads/profiles/default-profile.png";
 
 const SuggestedFriends = ({
-  limit = 10,
+  limit = 12,
 }) => {
   const navigate = useNavigate();
 
@@ -183,9 +183,9 @@ const SuggestedFriends = ({
 
         <div className="flex gap-4 overflow-hidden">
 
-          <div className="min-w-[220px] h-48 bg-gray-200 rounded-2xl animate-pulse"></div>
+          <div className="min-w-[240px] h-48 bg-gray-200 rounded-2xl animate-pulse"></div>
 
-          <div className="min-w-[220px] h-48 bg-gray-200 rounded-2xl animate-pulse"></div>
+          <div className="min-w-[240px] h-48 bg-gray-200 rounded-2xl animate-pulse"></div>
 
         </div>
 
@@ -242,23 +242,23 @@ const SuggestedFriends = ({
                     >
 
                       <img
-                        src={
-                          user.profilePic ||
-                          defaultProfile
-                        }
-                        onError={(e) => {
-                          e.target.src =
-                            defaultProfile;
-                        }}
-                        alt={user.name}
-                        className="
-                          w-16
-                          h-16
-                          rounded-full
-                          object-cover
-                          mb-2
-                        "
-                      />
+  src={
+    user.profilePic ||
+    defaultProfile
+  }
+  onError={(e) => {
+    e.target.src =
+      defaultProfile;
+  }}
+  alt={user.name}
+  className="
+    w-40
+    h-40
+    rounded-2xl
+    object-cover
+    mb-3
+  "
+/>
 
                       <h3 className="font-semibold text-sm">
                         {user.name}
