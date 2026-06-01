@@ -67,6 +67,16 @@ const Notifications = () => {
       {notifications.length === 0 && <p>No notifications yet</p>}
 
       {notifications.map((n) => (
+
+  const previewImage =
+  n.post?.thumbnail ||
+  n.post?.media ||
+  n.post?.images?.[0];
+
+console.log("Post:", n.post);
+console.log("Preview:", previewImage);
+
+
         <div
   key={n._id}
   onClick={() => {
@@ -76,11 +86,6 @@ const Notifications = () => {
           ? n.post
           : n.post._id;
 
-
-
-console.log("Notification:", n);
-console.log("Post:", n.post);
-console.log("Preview:", previewImage);
 
       navigate(`/post/${postId}`);
     } else if (n.sender) {
