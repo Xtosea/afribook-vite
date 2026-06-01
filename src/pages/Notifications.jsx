@@ -76,6 +76,12 @@ const Notifications = () => {
           ? n.post
           : n.post._id;
 
+
+
+console.log("Notification:", n);
+console.log("Post:", n.post);
+console.log("Preview:", previewImage);
+
       navigate(`/post/${postId}`);
     } else if (n.sender) {
       const senderId =
