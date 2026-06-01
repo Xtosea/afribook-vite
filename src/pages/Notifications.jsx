@@ -173,6 +173,8 @@ const Notifications = () => {
     )}
   </div>
 </div>
+))}
+ </div>
   );
 };
 
