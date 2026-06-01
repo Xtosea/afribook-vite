@@ -130,6 +130,8 @@ useEffect(() => {
 }, []);
 
 
+
+ 
   // =========================
   // LOGIN STATE
   // =========================
@@ -442,7 +444,30 @@ useEffect(() => {
                 ref={dropdownRef}
               >
                 <button
-  onClick={() => setShowDropdown(!showDropdown)}
+  onClick={async () => {
+    setShowDropdown(!showDropdown);
+
+    if (!showDropdown) {
+      const token =
+        localStorage.getItem("token");
+
+      try {
+        await fetch(
+          `${API_BASE}/api/notifications/read`,
+          {
+            method: "PUT",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        setUnreadCount(0);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  }}
   className="relative"
 >
   <Bell size={22} />
@@ -455,7 +480,7 @@ useEffect(() => {
 </button>
 
                 {showDropdown && (
-                  <div className="absolute right-0 mt-2 w-72 bg-white shadow-lg rounded-xl border z-50 overflow-hidden">
+                  <div className="absolute right-0 mt-2 w-96 bg-white shadow-lg rounded-xl border z-50 overflow-hidden">
 
                     <div className="p-3 border-b font-semibold">
                       Notifications
@@ -468,94 +493,86 @@ useEffect(() => {
                     ) : (
                       <div className="max-h-80 overflow-y-auto">
 
-                        {notifications.map((n) => (
-  <div
-    key={n._id}
-    onClick={() => {
-      setShowDropdown(false);
+                        {notifications.map((n) => {
+  const previewImage =
+    n.post?.thumbnail ||
+    n.post?.media ||
+    n.post?.images?.[0];
 
-      if (n.post) {
-        navigate(`/post/${n.post._id}`);
-      } else if (n.sender) {
-        navigate(`/profile/${n.sender._id}`);
-      }
-    }}
-    className={`flex gap-3 p-3 border-b cursor-pointer hover:bg-gray-50 ${
-      !n.read ? "bg-blue-50" : ""
-    }`}
-  >
-    {/* Main Profile */}
-    <img
-      src={
-        n.sender?.profilePic ||
-        defaultProfile
-      }
-      alt=""
-      className="w-12 h-12 rounded-full object-cover border"
-    />
+  return (
+    <div
+      key={n._id}
+      onClick={() => {
+        setShowDropdown(false);
 
-    <div className="flex-1 min-w-0">
-      {/* Grouped avatars */}
-      {n.senders?.length > 1 && (
-        <div className="flex -space-x-2 mb-2">
-          {n.senders
-            .slice(0, 3)
-            .map((user) => (
+        if (n.post) {
+          navigate(`/post/${n.post._id}`);
+        } else if (n.sender) {
+          navigate(`/profile/${n.sender._id}`);
+        }
+      }}
+      className={`flex gap-3 p-3 border-b cursor-pointer hover:bg-gray-50 ${
+        !n.read ? "bg-blue-50" : ""
+      }`}
+    >
+      <img
+        src={n.sender?.profilePic || defaultProfile}
+        alt=""
+        className="w-12 h-12 rounded-full object-cover border"
+      />
+
+      <div className="flex-1 min-w-0">
+
+        {n.senders?.length > 1 && (
+          <div className="flex -space-x-2 mb-2">
+            {n.senders.slice(0, 3).map((user) => (
               <img
                 key={user._id}
-                src={
-                  user.profilePic ||
-                  defaultProfile
-                }
+                src={user.profilePic || defaultProfile}
                 alt=""
                 className="w-6 h-6 rounded-full border-2 border-white object-cover"
               />
             ))}
-        </div>
-      )}
-
-      <p className="text-sm">
-        {n.count > 1 ? (
-          <>
-            <span className="font-semibold">
-              {n.sender?.name ||
-                "Someone"}
-            </span>{" "}
-            and {n.count - 1} others{" "}
-            {n.text}
-          </>
-        ) : (
-          <>
-            <span className="font-semibold">
-              {n.sender?.name ||
-                "Someone"}
-            </span>{" "}
-            {n.text}
-          </>
+          </div>
         )}
-      </p>
 
-      <p className="text-xs text-gray-500 mt-1">
-        {new Date(
-          n.createdAt
-        ).toLocaleString()}
-      </p>
+        <p className="text-sm">
+          {n.count > 1 ? (
+            <>
+              <span className="font-semibold">
+                {n.sender?.name || "Someone"}
+              </span>{" "}
+              and {n.count - 1} others {n.text}
+            </>
+          ) : (
+            <>
+              <span className="font-semibold">
+                {n.sender?.name || "Someone"}
+              </span>{" "}
+              {n.text}
+            </>
+          )}
+        </p>
 
-      {/* Post thumbnail */}
-      {n.post?.media && (
-        <img
-          src={n.post.media}
-          alt=""
-          className="w-16 h-16 rounded-lg object-cover mt-2 border"
-        />
+        <p className="text-xs text-gray-500 mt-1">
+          {new Date(n.createdAt).toLocaleString()}
+        </p>
+
+        {previewImage && (
+          <img
+            src={previewImage}
+            alt=""
+            className="w-16 h-16 rounded-lg object-cover mt-2 border"
+          />
+        )}
+      </div>
+
+      {!n.read && (
+        <div className="w-2 h-2 rounded-full bg-blue-500 mt-2" />
       )}
     </div>
-
-    {!n.read && (
-      <div className="w-2 h-2 rounded-full bg-blue-500 mt-2" />
-    )}
-  </div>
-))}
+  );
+})}
 
                       
                  
@@ -566,7 +583,9 @@ useEffect(() => {
                 )}
               </div>
 
-              {/* ========================= */}
+
+{/* 
+========================= */}
               {/* SETTINGS */}
               {/* ========================= */}
 
