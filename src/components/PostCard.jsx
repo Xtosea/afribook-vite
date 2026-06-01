@@ -25,6 +25,7 @@ import {
   MessageCircle,
   Share2,
 } from "lucide-react";
+import { BadgeCheck } from "lucide-react";
 
 
 const defaultProfile =
@@ -429,18 +430,21 @@ const PostCard = ({
             loading="lazy"
           />
 
-          <div>
+          <div
+  className="flex items-center gap-1 cursor-pointer"
+  onClick={goToProfile}
+>
+  <p className="font-semibold">
+    {post?.user?.name || "User"}
+  </p>
 
-            <p
-              className="font-semibold cursor-pointer"
-              onClick={
-                goToProfile
-              }
-            >
-              {post?.user
-                ?.name ||
-                "User"}
-            </p>
+  {post?.user?.verified && (
+    <BadgeCheck
+      size={16}
+      className="text-blue-500 fill-blue-500"
+    />
+  )}
+</div>
 
             <p className="text-xs text-gray-500">
 
@@ -568,75 +572,56 @@ const PostCard = ({
 
       {/* ACTIONS */}
 
-<div className="grid grid-cols-4 border-t pt-3">
+<div className="grid grid-cols-4 border-t border-gray-200 pt-2">
 
   {/* SHARE TO FEED */}
-
   <button
     onClick={shareToFeed}
-    className="flex flex-col items-center justify-center gap-1 py-2 hover:text-blue-600 transition"
+    className="flex flex-col items-center justify-center py-2 hover:bg-gray-100 rounded-lg transition"
   >
-    <Repeat2 size={22} />
-    <span className="text-xs font-medium">
+    <Repeat2 size={20} />
+    <span className="text-xs mt-1">
       Share to Feed
     </span>
   </button>
 
   {/* LIKE */}
-
   <button
     onClick={handleLike}
     disabled={liking}
-    className={`flex flex-col items-center justify-center gap-1 py-2 transition ${
+    className={`flex flex-col items-center justify-center py-2 rounded-lg transition ${
       likedByUser
-        ? "text-blue-600 font-semibold"
-        : "hover:text-blue-600"
+        ? "text-blue-600"
+        : "hover:bg-gray-100"
     }`}
   >
-    <ThumbsUp size={22} />
-
-    <span className="text-xs font-medium">
-      Like
-    </span>
-
-    <span className="text-[11px] text-gray-500">
-      {likes.length}
+    <ThumbsUp size={20} />
+    <span className="text-xs mt-1">
+      Like ({likes.length})
     </span>
   </button>
 
   {/* COMMENT */}
-
   <button
     onClick={() =>
       setShowComments(!showComments)
     }
-    className="flex flex-col items-center justify-center gap-1 py-2 hover:text-blue-600 transition"
+    className="flex flex-col items-center justify-center py-2 hover:bg-gray-100 rounded-lg transition"
   >
-    <MessageCircle size={22} />
-
-    <span className="text-xs font-medium">
-      Comment
-    </span>
-
-    <span className="text-[11px] text-gray-500">
-      {comments.length}
+    <MessageCircle size={20} />
+    <span className="text-xs mt-1">
+      Comment ({comments.length})
     </span>
   </button>
 
   {/* SHARE */}
-
   <button
     onClick={handleShare}
-    className="flex flex-col items-center justify-center gap-1 py-2 hover:text-blue-600 transition"
+    className="flex flex-col items-center justify-center py-2 hover:bg-gray-100 rounded-lg transition"
   >
-    <Share2 size={22} />
-
-    <span className="text-xs font-medium">
-      Share
-    </span>
-
-    <span className="text-[11px] text-gray-500">
-      {shares}
+    <Share2 size={20} />
+    <span className="text-xs mt-1">
+      Share ({shares})
     </span>
   </button>
 
@@ -712,4 +697,4 @@ const PostCard = ({
 
 export default React.memo(
   PostCard
-);
+);.
