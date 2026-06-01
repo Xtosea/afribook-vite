@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 
 
 const defaultProfile =
-  "https://via.placeholder.com/100";
+  "https://ui-avatars.com/api/?name=User";
 
 const Notifications = () => {
   const navigate = useNavigate();
