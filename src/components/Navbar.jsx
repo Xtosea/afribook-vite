@@ -467,15 +467,29 @@ useEffect(() => {
                     ) : (
                       <div className="max-h-80 overflow-y-auto">
 
-                        {notifications.map((n, i) => (
-                          <div
-                            key={i}
-                            className="p-3 border-b hover:bg-gray-100 cursor-pointer"
-                          >
-                            {n.text ||
-                              "New Notification"}
-                          </div>
-                        ))}
+                        {notifications.map((n) => (
+  <div
+    key={n._id}
+    className="flex items-center gap-3 p-3 border-b hover:bg-gray-100 cursor-pointer"
+  >
+    <img
+      src={n.sender?.profilePic || defaultProfile}
+      className="w-10 h-10 rounded-full object-cover"
+      alt=""
+    />
+
+    <div className="flex-1">
+      <p className="text-sm">
+        <span className="font-semibold">
+          {n.sender?.name || "Someone"}
+        </span>{" "}
+        {n.count > 1
+          ? `and ${n.count - 1} others ${n.text}`
+          : n.text}
+      </p>
+    </div>
+  </div>
+))}
 
                       </div>
                     )}
