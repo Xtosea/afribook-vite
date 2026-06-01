@@ -66,18 +66,41 @@ const Notifications = () => {
 
       {notifications.length === 0 && <p>No notifications yet</p>}
 
-      {notifications.map((n) => (
-
+      {notifications.map((n) => {
   const previewImage =
-  n.post?.thumbnail ||
-  n.post?.media ||
-  n.post?.images?.[0];
+    n.post?.thumbnail ||
+    n.post?.media ||
+    n.post?.images?.[0];
 
-console.log("Post:", n.post);
-console.log("Preview:", previewImage);
+  console.log("Post:", n.post);
+  console.log("Preview:", previewImage);
 
+  return (
+    <div
+      key={n._id}
+      onClick={() => {
+        if (n.post) {
+          const postId =
+            typeof n.post === "string"
+              ? n.post
+              : n.post._id;
 
-        <div
+          navigate(`/post/${postId}`);
+        } else if (n.sender) {
+          const senderId =
+            typeof n.sender === "string"
+              ? n.sender
+              : n.sender._id;
+
+          navigate(`/profile/${senderId}`);
+        }
+      }}
+      className={`flex gap-3 p-4 rounded-xl mb-3 border cursor-pointer transition hover:bg-gray-50 ${
+        !n.read
+          ? "bg-blue-50 border-blue-200"
+          : "bg-white"
+      }`}
+    >
   key={n._id}
   onClick={() => {
     if (n.post) {
@@ -175,16 +198,16 @@ console.log("Preview:", previewImage);
     </div>
 
     {/* Post Preview */}
-    {n.post?.media && (
-      <img
-        src={n.post.media}
-        alt=""
-        className="w-24 h-24 rounded-lg object-cover mt-3 border"
-      />
-    )}
+    {previewImage && (
+  <img
+    src={previewImage}
+    alt=""
+    className="w-24 h-24 rounded-lg object-cover mt-3 border"
+  />
+)}
   </div>
-</div>
-))}
+  );
+})}
  </div>
   );
 };
