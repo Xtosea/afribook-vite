@@ -470,9 +470,18 @@ useEffect(() => {
 
                         {notifications.map((n) => (
   <div
-    key={n._id}
-    className="flex items-center gap-3 p-3 border-b hover:bg-gray-100 cursor-pointer"
-  >
+  key={n._id}
+  onClick={() => {
+    setShowDropdown(false);
+
+    if (n.post) {
+      navigate(`/post/${n.post._id}`);
+    } else if (n.sender) {
+      navigate(`/profile/${n.sender._id}`);
+    }
+  }}
+  className="flex items-center gap-3 p-3 border-b hover:bg-gray-100 cursor-pointer"
+>
     <img
       src={n.sender?.profilePic || defaultProfile}
       className="w-10 h-10 rounded-full object-cover"
@@ -559,7 +568,20 @@ useEffect(() => {
       </nav>
 
       {mobileMenuOpen && (
-  <div className="fixed top-[64px] left-0 right-0 bottom-0 md:hidden bg-white shadow p-4 space-y-4 z-50 overflow-y-auto">
+  <div
+  className="
+    fixed inset-0
+    pt-[64px]
+    md:hidden
+    bg-white
+    shadow
+    p-4
+    pb-32
+    space-y-4
+    z-50
+    overflow-y-auto
+  "
+>
 
     <SearchBar />
 
@@ -649,7 +671,7 @@ useEffect(() => {
       {/* BOTTOM MOBILE NAV */}
       {/* ========================= */}
 
-      {isLoggedIn && (
+      {isLoggedIn && !mobileMenuOpen && (
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t md:hidden z-50">
 
           <div className="flex justify-around py-2">
