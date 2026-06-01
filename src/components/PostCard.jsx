@@ -404,64 +404,64 @@ const PostCard = ({
 
   }, [media]);
 
+console.log(post.user);
   // ================= RENDER =================
 
-  return (
+return (
+  <div className="bg-white rounded-xl shadow p-3 space-y-3">
 
-    <div className="flex items-center gap-3">
+    {/* HEADER */}
+    <div className="flex items-center justify-between">
 
-  <img
-    src={post?.user?.profilePic || defaultProfile}
-    onClick={goToProfile}
-    className="w-14 h-14 rounded-full object-cover cursor-pointer"
-    alt=""
-    loading="lazy"
-  />
+      <div className="flex items-center gap-3">
 
-  <div>
-
-    <div
-      className="flex items-center gap-1 cursor-pointer"
-      onClick={goToProfile}
-    >
-      <p className="font-semibold">
-        {post?.user?.name || "User"}
-      </p>
-
-      {post?.user?.verified && (
-        <BadgeCheck
-          size={16}
-          className="text-blue-500 fill-blue-500"
+        <img
+          src={post?.user?.profilePic || defaultProfile}
+          onClick={goToProfile}
+          className="w-14 h-14 rounded-full object-cover cursor-pointer"
+          alt=""
+          loading="lazy"
         />
-      )}
-    </div>
 
-    <p className="text-xs text-gray-500">
-      {post?.createdAt
-        ? new Date(post.createdAt).toLocaleString()
-        : ""}
-    </p>
+        <div>
 
-  </div>
+          <div
+            className="flex items-center gap-1 cursor-pointer"
+            onClick={goToProfile}
+          >
+            <p className="font-semibold">
+              {post?.user?.name || "User"}
+            </p>
 
-</div>
+            {post?.user?.verified && (
+              <BadgeCheck
+                size={16}
+                className="text-blue-500 fill-blue-500"
+              />
+            )}
+          </div>
 
-        <PostMenu
-          post={post}
-          token={token}
-          currentUser={{
-            _id:
-              currentUserId,
-          }}
-          onDeleted={
-            onDeleted
-          }
-          onUpdated={
-            onUpdated
-          }
-        />
+          <p className="text-xs text-gray-500">
+            {post?.createdAt
+              ? new Date(post.createdAt).toLocaleString()
+              : ""}
+          </p>
+
+        </div>
 
       </div>
+
+      <PostMenu
+        post={post}
+        token={token}
+        currentUser={{
+          _id: currentUserId,
+        }}
+        onDeleted={onDeleted}
+        onUpdated={onUpdated}
+      />
+
+    </div>
 
       {/* TEXT */}
 
