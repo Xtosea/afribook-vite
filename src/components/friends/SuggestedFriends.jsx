@@ -183,9 +183,9 @@ const SuggestedFriends = ({
 
         <div className="flex gap-4 overflow-hidden">
 
-          <div className="min-w-[240px] h-48 bg-gray-200 rounded-2xl animate-pulse"></div>
+          <div className="min-w-[340px] h-48 bg-gray-200 rounded-2xl animate-pulse"></div>
 
-          <div className="min-w-[240px] h-48 bg-gray-200 rounded-2xl animate-pulse"></div>
+          <div className="min-w-[340px] h-48 bg-gray-200 rounded-2xl animate-pulse"></div>
 
         </div>
 
@@ -252,8 +252,8 @@ const SuggestedFriends = ({
   }}
   alt={user.name}
   className="
-    w-40
-    h-40
+    w-80
+    h-80
     rounded-2xl
     object-cover
     mb-3
