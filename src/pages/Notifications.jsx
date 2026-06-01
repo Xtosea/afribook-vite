@@ -33,10 +33,15 @@ const Notifications = () => {
         },
       });
 
+
+     
+      console.log(
+  JSON.stringify(notifications, null, 2)
+);
       const data = await res.json();
       setNotifications(data);
 
-      await fetch(`${API_BASE}/api/notifications/read`, {
+  await fetch(`${API_BASE}/api/notifications/read`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
