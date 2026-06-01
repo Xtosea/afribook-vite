@@ -41,7 +41,7 @@ import ReelsHorizontal from "./components/reels/ReelsHorizontal";
 import Notifications from "./pages/Notifications";
 
 
-FriendCarousel
+
 
 
 function App() {
