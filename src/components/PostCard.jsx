@@ -19,6 +19,13 @@ import renderContentWithLinks from "../utils/renderContentWithLinks";
 import LinkPreview from "./LinkPreview";
 
 import extractUrls from "../utils/extractUrls";
+import {
+  Repeat2,
+  ThumbsUp,
+  MessageCircle,
+  Share2,
+} from "lucide-react";
+
 
 const defaultProfile =
   "https://afribook-backend.onrender.com/uploads/profiles/default-profile.png";
@@ -561,74 +568,79 @@ const PostCard = ({
 
       {/* ACTIONS */}
 
-      <div className="flex justify-between items-center text-sm border-t pt-3">
+<div className="grid grid-cols-4 border-t pt-3">
 
-        {/* SHARE TO FEED */}
+  {/* SHARE TO FEED */}
 
-        <button
-          onClick={
-            shareToFeed
-          }
-          className="flex items-center gap-1 hover:text-blue-600 transition"
-        >
-          🔁
-          <span className="hidden sm:inline">
-            Share
-          </span>
-        </button>
+  <button
+    onClick={shareToFeed}
+    className="flex flex-col items-center justify-center gap-1 py-2 hover:text-blue-600 transition"
+  >
+    <Repeat2 size={22} />
+    <span className="text-xs font-medium">
+      Share to Feed
+    </span>
+  </button>
 
-        {/* LIKE */}
+  {/* LIKE */}
 
-        <button
-          onClick={
-            handleLike
-          }
-          disabled={liking}
-          className={`flex items-center gap-1 transition ${
-            likedByUser
-              ? "text-blue-600 font-semibold"
-              : "hover:text-blue-600"
-          }`}
-        >
-          👍
-          <span>
-            {likes.length}
-          </span>
-        </button>
+  <button
+    onClick={handleLike}
+    disabled={liking}
+    className={`flex flex-col items-center justify-center gap-1 py-2 transition ${
+      likedByUser
+        ? "text-blue-600 font-semibold"
+        : "hover:text-blue-600"
+    }`}
+  >
+    <ThumbsUp size={22} />
 
-        {/* COMMENT */}
+    <span className="text-xs font-medium">
+      Like
+    </span>
 
-        <button
-          onClick={() =>
-            setShowComments(
-              !showComments
-            )
-          }
-          className="flex items-center gap-1 hover:text-blue-600 transition"
-        >
-          💬
-          <span>
-            {
-              comments.length
-            }
-          </span>
-        </button>
+    <span className="text-[11px] text-gray-500">
+      {likes.length}
+    </span>
+  </button>
 
-        {/* SHARE */}
+  {/* COMMENT */}
 
-        <button
-          onClick={
-            handleShare
-          }
-          className="flex items-center gap-1 hover:text-blue-600 transition"
-        >
-          🔗
-          <span>
-            {shares}
-          </span>
-        </button>
+  <button
+    onClick={() =>
+      setShowComments(!showComments)
+    }
+    className="flex flex-col items-center justify-center gap-1 py-2 hover:text-blue-600 transition"
+  >
+    <MessageCircle size={22} />
 
-      </div>
+    <span className="text-xs font-medium">
+      Comment
+    </span>
+
+    <span className="text-[11px] text-gray-500">
+      {comments.length}
+    </span>
+  </button>
+
+  {/* SHARE */}
+
+  <button
+    onClick={handleShare}
+    className="flex flex-col items-center justify-center gap-1 py-2 hover:text-blue-600 transition"
+  >
+    <Share2 size={22} />
+
+    <span className="text-xs font-medium">
+      Share
+    </span>
+
+    <span className="text-[11px] text-gray-500">
+      {shares}
+    </span>
+  </button>
+
+</div>
 
       {/* COMMENTS */}
 
