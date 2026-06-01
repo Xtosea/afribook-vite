@@ -408,57 +408,43 @@ const PostCard = ({
 
   return (
 
-    <div className="bg-white rounded-xl shadow p-3 space-y-3">
+    <div className="flex items-center gap-3">
 
-      {/* HEADER */}
+  <img
+    src={post?.user?.profilePic || defaultProfile}
+    onClick={goToProfile}
+    className="w-14 h-14 rounded-full object-cover cursor-pointer"
+    alt=""
+    loading="lazy"
+  />
 
-      <div className="flex items-center justify-between">
+  <div>
 
-        <div className="flex items-center gap-3">
+    <div
+      className="flex items-center gap-1 cursor-pointer"
+      onClick={goToProfile}
+    >
+      <p className="font-semibold">
+        {post?.user?.name || "User"}
+      </p>
 
-          <img
-            src={
-              post?.user
-                ?.profilePic ||
-              defaultProfile
-            }
-            onClick={
-              goToProfile
-            }
-            className="w-14 h-14 rounded-full object-cover cursor-pointer"
-            alt=""
-            loading="lazy"
-          />
+      {post?.user?.verified && (
+        <BadgeCheck
+          size={16}
+          className="text-blue-500 fill-blue-500"
+        />
+      )}
+    </div>
 
-          <div
-  className="flex items-center gap-1 cursor-pointer"
-  onClick={goToProfile}
->
-  <p className="font-semibold">
-    {post?.user?.name || "User"}
-  </p>
+    <p className="text-xs text-gray-500">
+      {post?.createdAt
+        ? new Date(post.createdAt).toLocaleString()
+        : ""}
+    </p>
 
-  {post?.user?.verified && (
-    <BadgeCheck
-      size={16}
-      className="text-blue-500 fill-blue-500"
-    />
-  )}
+  </div>
+
 </div>
-
-            <p className="text-xs text-gray-500">
-
-              {post?.createdAt
-                ? new Date(
-                    post.createdAt
-                  ).toLocaleString()
-                : ""}
-
-            </p>
-
-          </div>
-
-        </div>
 
         <PostMenu
           post={post}
@@ -697,4 +683,4 @@ const PostCard = ({
 
 export default React.memo(
   PostCard
-);.
+);
