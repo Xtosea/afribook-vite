@@ -579,8 +579,7 @@ useEffect(() => {
     pb-32
     space-y-4
     z-50
-    overflow-y-auto
-  "
+    overflow-y-auto"
 >
 
     <SearchBar />
