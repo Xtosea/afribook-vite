@@ -53,59 +53,126 @@ const Notifications = () => {
 
   return (
     <div className="max-w-xl mx-auto p-4">
-      <h2 className="text-2xl font-bold mb-4">Notifications</h2>
+      <div className="sticky top-0 bg-white z-10 pb-3 mb-4 border-b">
+  <h2 className="text-2xl font-bold">
+    Notifications
+  </h2>
+
+  <p className="text-gray-500 text-sm">
+    Stay updated with likes,
+    comments, follows and rewards.
+  </p>
+</div>
 
       {notifications.length === 0 && <p>No notifications yet</p>}
 
       {notifications.map((n) => (
         <div
-          key={n._id}
-          onClick={() => {
-            if (n.post) {
-              const postId = typeof n.post === "string" ? n.post : n.post._id;
-              navigate(`/post/${postId}`);
-            } else if (n.sender) {
-              const senderId = typeof n.sender === "string" ? n.sender : n.sender._id;
-              navigate(`/profile/${senderId}`);
-            }
-          }}
-          className={`flex gap-3 p-3 rounded-lg mb-2 border cursor-pointer ${
-            !n.read ? "bg-blue-50" : "bg-white"
-          }`}
-        >
-          <img
-            src={n.sender?.profilePic || defaultProfile}
-            className="w-12 h-12 rounded-full object-cover"
-          />
+  key={n._id}
+  onClick={() => {
+    if (n.post) {
+      const postId =
+        typeof n.post === "string"
+          ? n.post
+          : n.post._id;
 
-          <div className="flex-1">
-            <p className="text-sm">
-              <p className="text-sm">
-  {n.count > 1 ? (
-    <>
-      <span className="font-semibold">
-        {n.sender?.name || "Someone"}
-      </span>{" "}
-      and {n.count - 1} others {n.text}
-    </>
-  ) : (
-    <>
-      <span className="font-semibold">
-        {n.sender?.name || "Someone"}
-      </span>{" "}
-      {n.text}
-    </>
-  )}
-</p>
-            </p>
+      navigate(`/post/${postId}`);
+    } else if (n.sender) {
+      const senderId =
+        typeof n.sender === "string"
+          ? n.sender
+          : n.sender._id;
 
-            <p className="text-xs text-gray-500 mt-1">
-              {new Date(n.createdAt).toLocaleString()}
-            </p>
-          </div>
-        </div>
+      navigate(`/profile/${senderId}`);
+    }
+  }}
+  className={`flex gap-3 p-4 rounded-xl mb-3 border cursor-pointer transition hover:bg-gray-50 ${
+    !n.read
+      ? "bg-blue-50 border-blue-200"
+      : "bg-white"
+  }`}
+>
+  {/* Profile */}
+  <img
+    src={
+      n.sender?.profilePic ||
+      defaultProfile
+    }
+    alt=""
+    className="w-14 h-14 rounded-full object-cover border"
+  />
+
+  {/* Content */}
+  <div className="flex-1 min-w-0">
+    <div className="flex items-start justify-between gap-2">
+      <div>
+        <p className="text-sm">
+          {n.count > 1 ? (
+            <>
+              <span className="font-bold">
+                {n.sender?.name ||
+                  "Someone"}
+              </span>{" "}
+              and{" "}
+              <span className="font-bold">
+                {n.count - 1}
+              </span>{" "}
+              others {n.text}
+            </>
+          ) : (
+            <>
+              <span className="font-bold">
+                {n.sender?.name ||
+                  "Someone"}
+              </span>{" "}
+              {n.text}
+            </>
+          )}
+        </p>
+
+      
+        {n.senders?.length > 1 && (
+  <div className="flex -space-x-2 mb-2">
+    {n.senders
+      .slice(0, 3)
+      .map((user) => (
+        <img
+          key={user._id}
+          src={
+            user.profilePic ||
+            defaultProfile
+          }
+          alt=""
+          className="w-7 h-7 rounded-full border-2 border-white object-cover"
+        />
       ))}
+  </div>
+)}
+
+
+
+        <p className="text-xs text-gray-500 mt-1">
+          {new Date(
+            n.createdAt
+          ).toLocaleString()}
+        </p>
+      </div>
+
+      {!n.read && (
+        <div className="w-3 h-3 rounded-full bg-blue-500 mt-1" />
+      )}
     </div>
+
+    {/* Post Preview */}
+    {n.post?.media && (
+      <img
+        src={n.post.media}
+        alt=""
+        className="w-24 h-24 rounded-lg object-cover mt-3 border"
+      />
+    )}
+  </div>
+</div>
   );
 };
 
