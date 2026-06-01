@@ -463,15 +463,9 @@ return (
 
     </div>
 
-<BadgeCheck
-  size={16}
-  className="text-blue-500 fill-blue-500"
-/>
 
 
-
-
-      {/* TEXT */}
+     {/* TEXT */}
 
       {post?.content && (
 
