@@ -34,7 +34,8 @@ import InstallPWAButton from "./InstallPWAButton";
 
 
 
-
+const defaultProfile =
+  "https://ui-avatars.com/api/?name=User";
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
