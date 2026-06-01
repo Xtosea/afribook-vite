@@ -38,6 +38,7 @@ import FriendCarousel from "./components/friends/FriendCarousel";
 import SuggestedFriends from "./components/friends/SuggestedFriends";
 import ReelsHorizontal from "./components/reels/ReelsHorizontal";
 
+import Notifications from "./pages/Notifications";
 
 
 FriendCarousel
@@ -150,6 +151,15 @@ import FriendCarousel from "./pages/friends/FriendCarousel";
               element={
                 <ProtectedRoute>
                   <SavedPosts />
+                </ProtectedRoute>
+              }
+            />
+
+    <Route
+              path="/notifications"
+              element={
+                <ProtectedRoute>
+                  <Notifications/>
                 </ProtectedRoute>
               }
             />
