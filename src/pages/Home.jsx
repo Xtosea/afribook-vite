@@ -290,6 +290,10 @@ const lastPostRef = useCallback(
           }}
         />
 
+
+       
+<SidebarRight />
+
         {/* REELS */}
 
         {reels.length > 0 && (
