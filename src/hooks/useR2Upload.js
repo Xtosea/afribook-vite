@@ -1,4 +1,5 @@
 import { API_BASE } from "../api/api";
+import generateThumbnail from "../utils/generateThumbnail";
 
 export const useR2Upload = () => {
 
