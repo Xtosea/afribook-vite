@@ -3,7 +3,6 @@ import React, {
   useState,
   useRef,
 } from "react";
-
 import {
   Link,
   useNavigate,
@@ -15,8 +14,7 @@ import SearchBar from "./SearchBar";
 import { API_BASE } from "../api/api";
 import {
   
-  safeEmit,
-} from "../socket";import InstallPWAButton from "./InstallPWAButton";
+import InstallPWAButton from "./InstallPWAButton";
 
 import { connectSocket, safeEmit } from "../socket";
 import { API_BASE } from "../api/api";
