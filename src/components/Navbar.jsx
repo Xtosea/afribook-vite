@@ -305,18 +305,26 @@ useEffect(() => {
   return (
   <>
     {/* NAVBAR */}
-    <nav className="bg-white shadow px-4 md:px-6 py-3 flex justify-between items-center sticky top-0 z-50">
+    <nav className="bg-white shadow px-4 md:px-6 py-3 flex items-center justify-between flex-wrap sticky top-0 z-50">
 
       {/* LEFT */}
-      <div className="flex flex-col">
-        <Link
-          to="/"
-          className="font-bold text-2xl text-blue-600 leading-none"
-        >
-          AfricSocial
-        </Link>
+      <div className="flex flex-col justify-center">
+  
+  {/* LOGO (always visible) */}
+  <Link
+    to="/"
+    className="font-bold text-2xl text-blue-600 leading-none"
+className="font-bold text-2xl text-blue-600 leading-none flex-shrink-0"
+  >
+    AfricSocial
+  </Link>
 
-        <div className="hidden md:flex gap-6 mt-1 text-sm text-gray-700 items-center">
+  {/* DESKTOP MENU ONLY */}
+  <div className="hidden md:flex gap-6 mt-1 text-sm text-gray-700 items-center">
+    ...
+  </div>
+
+</div>
           <Link to="/" className={isActive("/") ? "text-blue-600 font-semibold" : "hover:text-blue-500"}>
             <Home size={18} /> Home
           </Link>
@@ -358,7 +366,7 @@ useEffect(() => {
       )}
 
       {/* RIGHT */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 flex-shrink-0">
 
         <div className="hidden md:flex items-center gap-2 text-sm">
           <Users size={18} />
