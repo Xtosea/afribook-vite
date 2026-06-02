@@ -64,12 +64,24 @@ const Reels = () => {
 
           const video = entry.target;
 
-          if (entry.isIntersecting && entry.intersectionRatio >= 0.7) {
-            setActiveIndex(index);
-            video.play();
-          } else {
-            video.pause();
-          }
+          if (
+  entry.isIntersecting &&
+  entry.intersectionRatio >= 0.7
+) {
+  setActiveIndex(index);
+
+  video
+    .play()
+    .catch((err) => {
+      console.log(
+        "Autoplay blocked:",
+        err.message
+      );
+    });
+
+} else {
+  video.pause();
+}
         });
       },
       { threshold: 0.7 }
