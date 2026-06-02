@@ -198,48 +198,27 @@ if (thumbnailBlob) {
     { type: "image/jpeg" }
   );
 
-  const fd = new FormData();
-  fd.append("file", thumbnailFile);
+  const thumbRes = await fetch(
+  `${API_BASE}/api/posts/thumbnail-signed-url`
+);
 
-  console.log("Uploading thumbnail...");
+const thumbData =
+  await thumbRes.json();
 
-const thumbUploadRes = await fetch(
-  `${API_BASE}/api/r2/upload-thumbnail`,
+await fetch(
+  thumbData.uploadUrl,
   {
-    method: "POST",
-    body: fd,
+    method: "PUT",
+    body: thumbnailBlob,
     headers: {
-      Authorization: `Bearer ${token}`,
+      "Content-Type":
+        "image/jpeg",
     },
   }
 );
 
-const responseText =
-  await thumbUploadRes.text();
-
-console.log(
-  "Thumbnail response:",
-  responseText
-);
-
-if (!thumbUploadRes.ok) {
-  throw new Error("Thumbnail upload failed");
-}
-
-let thumbData = {};
-
-try {
-  thumbData =
-    JSON.parse(responseText);
-} catch (err) {
-  console.error(
-    "Invalid JSON:",
-    responseText
-  );
-}
-
 thumbnailUrl =
-  thumbData.thumbnailUrl || "";
+  thumbData.thumbnailUrl;
 }
 
     // 4. Create reel in DB
