@@ -313,8 +313,8 @@ useEffect(() => {
   {/* LOGO (always visible) */}
   <Link
     to="/"
-    className="font-bold text-2xl text-blue-600 leading-none. flex-shrink-0""
-  >
+    className="font-bold text-2xl text-blue-600 leading-none. flex-shrink-0">
+  
     AfricSocial
   </Link>
 
