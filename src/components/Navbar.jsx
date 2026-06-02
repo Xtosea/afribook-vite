@@ -55,85 +55,155 @@ const Navbar = () => {
   return (
     <>
       {/* NAVBAR */}
-      <nav className="bg-white shadow px-4 py-3 flex items-center justify-between sticky top-0 z-50">
+      <nav className="bg-white shadow sticky top-0 z-50">
 
-        {/* LOGO */}
-        <Link to="/" className="font-extrabold text-2xl text-blue-600">
-          AfricSocial
-        </Link>
+  {/* TOP ROW */}
+  <div className="px-4 py-3 flex items-center justify-between">
 
-        {/* DESKTOP MENU */}
-        <div className="hidden md:flex items-center gap-2">
-          <Link to="/" className={`${navItem} ${isActive("/") && "text-blue-600 font-semibold"}`}>
-            <Home size={18} /> Home
-          </Link>
+    {/* LOGO */}
+    <Link
+      to="/"
+      className="font-extrabold text-3xl text-blue-600"
+    >
+      AfricSocial
+    </Link>
 
-          <Link to="/reels" className={`${navItem} ${isActive("/reels") && "text-blue-600 font-semibold"}`}>
-            <Video size={18} /> Reels
-          </Link>
+    {/* SEARCH */}
+    <div className="hidden md:block flex-1 max-w-xl mx-6">
+      <SearchBar />
+    </div>
 
-          <Link to="/messages" className={`${navItem} ${isActive("/messages") && "text-blue-600 font-semibold"}`}>
-            <MessageCircle size={18} /> Messages
-          </Link>
+    {/* RIGHT SIDE */}
+    <div className="flex items-center gap-4">
 
-          <Link to="/friends" className={`${navItem} ${isActive("/friends") && "text-blue-600 font-semibold"}`}>
-            <Users size={18} /> Friends
-          </Link>
+      {/* NOTIFICATION */}
+      <button
+        onClick={() =>
+          setShowNotifications(!showNotifications)
+        }
+        className="relative"
+      >
+        <Bell size={22} />
 
-          <Link to="/wallet" className={`${navItem} ${isActive("/wallet") && "text-blue-600 font-semibold"}`}>
-            <Wallet size={18} /> Wallet
-          </Link>
+        {unreadCount > 0 && (
+          <span
+            className="
+              absolute
+              -top-2
+              -right-2
+              bg-red-500
+              text-white
+              text-xs
+              rounded-full
+              px-1
+            "
+          >
+            {unreadCount}
+          </span>
+        )}
+      </button>
 
-          <SearchBar />
-        </div>
+      {/* SETTINGS */}
+      <button
+        onClick={() =>
+          setShowSettings(!showSettings)
+        }
+      >
+        <Settings size={22} />
+      </button>
 
-        {/* RIGHT */}
-        <div className="flex items-center gap-3">
+      {/* MOBILE MENU */}
+      <button
+        className="md:hidden"
+        onClick={() =>
+          setMobileOpen(!mobileOpen)
+        }
+      >
+        {mobileOpen ? <X /> : <Menu />}
+      </button>
 
-          {/* NOTIFICATIONS */}
-          <div className="relative">
-            <button onClick={() => setShowNotifications(!showNotifications)}>
-              <Bell />
-            </button>
+    </div>
 
-            {showNotifications && (
-              <div className="absolute right-0 mt-2 w-80 bg-white border shadow rounded-lg z-50">
-                <div className="p-3 border-b font-semibold">Notifications</div>
-                {notifications.map((n) => (
-                  <div key={n._id} className="p-3 text-sm border-b">
-                    {n.text}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+  </div>
 
-          {/* SETTINGS */}
-          <div className="relative">
-            <button onClick={() => setShowSettings(!showSettings)}>
-              <Settings />
-            </button>
+  {/* DESKTOP MENU ROW */}
+  <div className="hidden md:flex items-center gap-6 px-6 py-2 border-t text-sm">
 
-            {showSettings && (
-              <div className="absolute right-0 mt-2 w-40 bg-white border shadow rounded-lg z-50">
-                <button
-                  onClick={handleLogout}
-                  className="w-full px-3 py-2 text-left hover:bg-gray-100 flex items-center gap-2"
-                >
-                  <LogOut size={16} /> Logout
-                </button>
-              </div>
-            )}
-          </div>
+    <Link
+      to="/"
+      className={`flex items-center gap-1 ${
+        isActive("/")
+          ? "text-blue-600 font-semibold"
+          : ""
+      }`}
+    >
+      <Home size={18} />
+      Home
+    </Link>
 
-          {/* MOBILE MENU BUTTON */}
-          <button className="md:hidden" onClick={() => setMobileOpen(!mobileOpen)}>
-            {mobileOpen ? <X /> : <Menu />}
-          </button>
+    <Link
+      to="/reels"
+      className={`flex items-center gap-1 ${
+        isActive("/reels")
+          ? "text-blue-600 font-semibold"
+          : ""
+      }`}
+    >
+      <Video size={18} />
+      Reels
+    </Link>
 
-        </div>
-      </nav>
+    <Link
+      to="/messages"
+      className={`flex items-center gap-1 ${
+        isActive("/messages")
+          ? "text-blue-600 font-semibold"
+          : ""
+      }`}
+    >
+      <MessageCircle size={18} />
+      Messages
+    </Link>
 
+    <Link
+      to="/friends"
+      className={`flex items-center gap-1 ${
+        isActive("/friends")
+          ? "text-blue-600 font-semibold"
+          : ""
+      }`}
+    >
+      <Users size={18} />
+      Friends
+    </Link>
+
+    <Link
+      to="/leaderboard"
+      className={`flex items-center gap-1 ${
+        isActive("/leaderboard")
+          ? "text-blue-600 font-semibold"
+          : ""
+      }`}
+    >
+      <Users size={18} />
+      Leaderboard
+    </Link>
+
+    <Link
+      to="/wallet"
+      className={`flex items-center gap-1 ${
+        isActive("/wallet")
+          ? "text-blue-600 font-semibold"
+          : ""
+      }`}
+    >
+      <Wallet size={18} />
+      Wallet
+    </Link>
+
+  </div>
+
+</nav>
       {/* MOBILE SIDEBAR */}
       {mobileOpen && (
         <div className="fixed inset-0 bg-white z-50 p-4 space-y-3 md:hidden">
