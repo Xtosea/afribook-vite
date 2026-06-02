@@ -120,6 +120,7 @@ const ReelCard = ({
   ref={videoRef}
   data-index={index}
   src={reel.media?.[0]?.url}
+  poster={reel.media?.[0]?.thumbnailUrl}
   className="
     absolute
     inset-0
@@ -130,7 +131,6 @@ const ReelCard = ({
   "
   loop
   playsInline
-  webkit-playsinline="true"
   autoPlay
   muted={activeIndex !== index}
   preload="metadata"
@@ -144,16 +144,6 @@ const ReelCard = ({
   onEnded={trackWatch}
   onWaiting={() => setBuffering(true)}
   onPlaying={() => setBuffering(false)}
-/>
-
-
-<video
-  ref={reelRef}
-  src={reel.media?.[0]?.url}
-  poster={reel.media?.[0]?.thumbnailUrl}
-  playsInline
-  controls
-  className="w-full h-full object-cover"
 />
 
       {/* BUFFERING */}
