@@ -716,6 +716,6 @@ useEffect(() => {
 
     </>
   );
-};
+
 
 export default Navbar;
