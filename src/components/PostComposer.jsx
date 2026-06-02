@@ -228,59 +228,62 @@ const PostComposer = ({
 
       for (let file of mediaFiles) {
 
-        // already enhanced
-        if (
-          file.enhanced &&
-          file.url
-        ) {
+  if (file.enhanced && file.url) {
+    uploadedMedia.push({
+      url: file.url,
+      type: "image",
+    });
+    continue;
+  }
 
-          uploadedMedia.push({
-            url: file.url,
-            type: "image",
-          });
+  const type =
+    file.type?.startsWith("image")
+      ? "image"
+      : "video";
 
-          continue;
-        }
+  if (type === "image") {
 
-        const type =
-          file.type?.startsWith("image")
-            ? "image"
-            : "video";
+    const url =
+      await uploadImage(file);
 
-        let url = "";
+    uploadedMedia.push({
+      url,
+      type: "image",
+    });
 
-        // =========================
-        // IMAGE
-        // =========================
+    continue;
+  }
 
-        if (type === "image") {
+  await validateVideoDuration(
+    file,
+    180
+  );
 
-          url =
-            await uploadImage(file);
+  const {
+    videoUrl,
+    thumbnailBlob,
+  } = await uploadVideo(file);
 
-        }
-
-        // =========================
-        // VIDEO
-        // =========================
-
-        else {
-
-          await validateVideoDuration(
-            file,
-            180
-          );
-
-          url =
-            await uploadVideo(file);
-        }
-
-        uploadedMedia.push({
-          url,
-          type,
-        });
+  const thumbnailFile =
+    new File(
+      [thumbnailBlob],
+      "thumbnail.jpg",
+      {
+        type: "image/jpeg",
       }
+    );
 
+  const thumbnailUrl =
+    await uploadImage(
+      thumbnailFile
+    );
+
+  uploadedMedia.push({
+    url: videoUrl,
+    type: "video",
+    thumbnailUrl,
+  });
+}
       // =========================
       // CREATE POST
       // =========================
