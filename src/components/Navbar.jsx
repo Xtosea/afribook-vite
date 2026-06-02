@@ -2,8 +2,6 @@ import React, { useEffect, useState, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 
 import SearchBar from "./SearchBar";
-import InstallPWAButton from "./InstallPWAButton";
-
 import { connectSocket, safeEmit } from "../socket";
 import { API_BASE } from "../api/api";
 
@@ -16,10 +14,11 @@ import {
   Settings,
   Users,
   Wallet,
-  LogOut,
   Menu,
   X,
 } from "lucide-react";
+
+import InstallPWAButton from "./InstallPWAButton";
 
 const defaultProfile =
   "https://ui-avatars.com/api/?name=User";
@@ -31,67 +30,82 @@ const Navbar = () => {
   const dropdownRef = useRef(null);
   const settingsRef = useRef(null);
 
-  // =========================
-  // STATE
-  // =========================
   const [isLoggedIn, setIsLoggedIn] = useState(
     !!localStorage.getItem("token")
   );
 
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
-
   const [notifications, setNotifications] = useState([]);
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  const [showSettings, setShowSettings] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   const [onlineUsers, setOnlineUsers] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const currentUserId = localStorage.getItem("userId");
 
-  // =========================
-  // ACTIVE ROUTE
-  // =========================
   const isActive = (path) => location.pathname === path;
 
   // =========================
-  // LOGIN CHECK
+  // FETCH NOTIFICATIONS COUNT
   // =========================
   useEffect(() => {
-    const check = () => setIsLoggedIn(!!localStorage.getItem("token"));
-    check();
+    const fetchCount = async () => {
+      try {
+        const token = localStorage.getItem("token");
 
-    window.addEventListener("storage", check);
-    return () => window.removeEventListener("storage", check);
+        const res = await fetch(
+          `${API_BASE}/api/notifications/unread-count`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        const data = await res.json();
+        setUnreadCount(data.count || 0);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchCount();
   }, []);
 
   // =========================
   // FETCH NOTIFICATIONS
   // =========================
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchNotifications = async () => {
       try {
         const token = localStorage.getItem("token");
 
-        const [notifRes, countRes] = await Promise.all([
-          fetch(`${API_BASE}/api/notifications`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          fetch(`${API_BASE}/api/notifications/unread-count`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-        ]);
+        const res = await fetch(`${API_BASE}/api/notifications`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
-        const notifData = await notifRes.json();
-        const countData = await countRes.json();
-
-        setNotifications(Array.isArray(notifData) ? notifData : []);
-        setUnreadCount(countData.count || 0);
+        const data = await res.json();
+        setNotifications(Array.isArray(data) ? data : []);
       } catch (err) {
-        console.error("Notification fetch error:", err);
+        console.error(err);
       }
     };
 
-    fetchData();
+    fetchNotifications();
+  }, []);
+
+  // =========================
+  // LOGIN CHECK
+  // =========================
+  useEffect(() => {
+    const check = () => {
+      setIsLoggedIn(!!localStorage.getItem("token"));
+    };
+
+    check();
+    window.addEventListener("storage", check);
+
+    return () => window.removeEventListener("storage", check);
   }, []);
 
   // =========================
@@ -111,30 +125,35 @@ const Navbar = () => {
     if (socket.connected) joinUser();
     socket.on("connect", joinUser);
 
-    const handleNotification = (data) => {
-      setNotifications((prev) => [data, ...prev].slice(0, 50));
-      setUnreadCount((prev) => prev + 1);
-    };
-
-    socket.on("new-notification", handleNotification);
     socket.on("online-users", setOnlineUsers);
+
+    socket.on("new-notification", (data) => {
+      setNotifications((prev) => [data, ...prev]);
+      setUnreadCount((prev) => prev + 1);
+    });
 
     return () => {
       socket.off("connect", joinUser);
-      socket.off("new-notification", handleNotification);
       socket.off("online-users", setOnlineUsers);
     };
   }, [currentUserId]);
 
   // =========================
-  // CLOSE OUTSIDE
+  // CLOSE DROPDOWNS
   // =========================
   useEffect(() => {
     const handleClick = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target)
+      ) {
         setShowDropdown(false);
       }
-      if (settingsRef.current && !settingsRef.current.contains(e.target)) {
+
+      if (
+        settingsRef.current &&
+        !settingsRef.current.contains(e.target)
+      ) {
         setShowSettings(false);
       }
     };
@@ -143,88 +162,47 @@ const Navbar = () => {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  // =========================
-  // LOGOUT
-  // =========================
   const handleLogout = () => {
     localStorage.clear();
-    setIsLoggedIn(false);
     setMobileMenuOpen(false);
     navigate("/login");
   };
 
-  // =========================
-  // NAV LINKS (REUSABLE)
-  // =========================
-  const navLinks = [
-    { to: "/", label: "Home", icon: Home },
-    { to: "/reels", label: "Reels", icon: Video },
-    { to: "/messages", label: "Messages", icon: MessageCircle },
-    { to: "/leaderboard", label: "Leaderboard", icon: Users },
-    { to: "/friends", label: "Friends", icon: Users },
-    { to: "/wallet", label: "Wallet", icon: Wallet },
-    { to: "/profile", label: "Profile", icon: User },
-  ];
-
   return (
     <>
       {/* ================= NAVBAR ================= */}
-      <nav className="bg-white shadow px-4 md:px-6 py-3 sticky top-0 z-50">
-        <div className="flex justify-between items-start">
+      <nav className="bg-white shadow-md sticky top-0 z-50">
 
-          {/* ================= LEFT (LOGO + DESKTOP MENU) ================= */}
-          <div className="flex flex-col">
-            <Link
-              to="/"
-              className="font-extrabold text-3xl text-blue-600"
-            >
-              AfricSocial
-            </Link>
+        {/* TOP BAR */}
+        <div className="flex items-center justify-between px-4 md:px-6 py-3">
 
-            {/* Desktop menu UNDER logo */}
-            {isLoggedIn && (
-              <div className="hidden md:flex gap-5 mt-2 text-sm text-gray-700">
-                {navLinks.slice(0, 6).map(({ to, label, icon: Icon }) => (
-                  <Link
-                    key={to}
-                    to={to}
-                    className={`flex items-center gap-1 ${
-                      isActive(to)
-                        ? "text-blue-600 font-semibold"
-                        : "hover:text-blue-500"
-                    }`}
-                  >
-                    <Icon size={16} />
-                    {label}
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
+          {/* LOGO */}
+          <Link
+            to="/"
+            className="font-extrabold text-3xl text-blue-600"
+          >
+            AfricSocial
+          </Link>
 
-          {/* ================= CENTER SEARCH ================= */}
+          {/* SEARCH (desktop) */}
           {isLoggedIn && (
-            <div className="flex-1 mx-6 hidden md:flex">
+            <div className="hidden md:flex flex-1 mx-6">
               <SearchBar />
             </div>
           )}
 
-          {/* ================= RIGHT ================= */}
+          {/* RIGHT ICONS */}
           <div className="flex items-center gap-4">
 
-            {/* Online users */}
-            <div className="hidden md:flex items-center gap-1 text-sm text-gray-600">
-              <Users size={16} />
-              <span>{onlineUsers.length}</span>
+            <div className="hidden md:flex items-center gap-2 text-sm">
+              <Users size={18} />
+              {onlineUsers.length}
             </div>
 
-            {/* Notifications */}
+            {/* NOTIFICATIONS */}
             <div className="relative" ref={dropdownRef}>
-              <button
-                onClick={() => setShowDropdown(!showDropdown)}
-                className="relative"
-              >
-                <Bell size={20} />
+              <button onClick={() => setShowDropdown(!showDropdown)}>
+                <Bell />
                 {unreadCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1 rounded-full">
                     {unreadCount}
@@ -233,93 +211,103 @@ const Navbar = () => {
               </button>
 
               {showDropdown && (
-                <div className="absolute right-0 mt-2 w-80 bg-white shadow-lg rounded-xl border z-50">
-                  <div className="p-3 border-b font-semibold">
+                <div className="absolute right-0 mt-2 w-80 bg-white shadow-lg rounded-xl border">
+                  <div className="p-3 font-semibold border-b">
                     Notifications
                   </div>
 
-                  <div className="max-h-72 overflow-y-auto">
-                    {notifications.length === 0 ? (
-                      <div className="p-3 text-gray-500">
-                        No notifications
-                      </div>
-                    ) : (
-                      notifications.map((n) => (
+                  {notifications.length === 0 ? (
+                    <div className="p-3 text-gray-500">
+                      No notifications
+                    </div>
+                  ) : (
+                    <div className="max-h-80 overflow-y-auto">
+                      {notifications.map((n) => (
                         <div
                           key={n._id}
-                          className="p-3 border-b hover:bg-gray-50 cursor-pointer"
+                          className="p-3 border-b hover:bg-gray-50"
                         >
                           <p className="text-sm">{n.text}</p>
                         </div>
-                      ))
-                    )}
-                  </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
 
-            {/* Settings */}
+            {/* SETTINGS */}
             <div className="relative" ref={settingsRef}>
               <button onClick={() => setShowSettings(!showSettings)}>
-                <Settings size={20} />
+                <Settings />
               </button>
 
               {showSettings && (
-                <div className="absolute right-0 mt-2 w-44 bg-white shadow-lg rounded-xl border z-50">
-                  <Link
-                    to="/settings"
-                    className="block px-4 py-2 hover:bg-gray-100"
-                  >
+                <div className="absolute right-0 mt-2 w-44 bg-white shadow-lg border rounded-lg">
+                  <Link className="block px-4 py-2 hover:bg-gray-100" to="/settings">
                     Settings
                   </Link>
 
                   <button
                     onClick={handleLogout}
-                    className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center gap-2"
+                    className="w-full text-left px-4 py-2 hover:bg-gray-100"
                   >
-                    <LogOut size={16} />
                     Logout
                   </button>
                 </div>
               )}
             </div>
 
-            {/* Mobile menu button */}
+            {/* HAMBURGER */}
             <button
               className="md:hidden"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              onClick={() => setMobileMenuOpen(true)}
             >
-              {mobileMenuOpen ? <X /> : <Menu />}
+              <Menu />
             </button>
           </div>
+        </div>
+
+        {/* ================= DESKTOP MENU (UNDER LOGO) ================= */}
+        <div className="hidden md:flex justify-center gap-6 py-2 border-t text-sm text-gray-700">
+
+          <Link to="/" className="flex items-center gap-1"><Home size={16}/> Home</Link>
+          <Link to="/reels" className="flex items-center gap-1"><Video size={16}/> Reels</Link>
+          <Link to="/messages" className="flex items-center gap-1"><MessageCircle size={16}/> Messages</Link>
+          <Link to="/friends" className="flex items-center gap-1"><Users size={16}/> Friends</Link>
+          <Link to="/leaderboard" className="flex items-center gap-1"><Users size={16}/> Leaderboard</Link>
+          <Link to="/wallet" className="flex items-center gap-1"><Wallet size={16}/> Wallet</Link>
+          <Link to="/profile" className="flex items-center gap-1"><User size={16}/> Profile</Link>
+
         </div>
       </nav>
 
       {/* ================= MOBILE MENU ================= */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 bg-white z-50 p-4 overflow-y-auto md:hidden">
-          <SearchBar />
+        <div className="fixed inset-0 bg-black/40 z-50">
+          <div className="w-72 bg-white h-full p-4">
 
-          <div className="mt-4 space-y-3">
-            {navLinks.map(({ to, label, icon: Icon }) => (
-              <Link
-                key={to}
-                to={to}
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-3 p-3 border-b"
-              >
-                <Icon size={18} />
-                {label}
-              </Link>
-            ))}
-
-            <button
-              onClick={handleLogout}
-              className="w-full mt-6 bg-red-500 text-white py-3 rounded-lg flex items-center justify-center gap-2"
-            >
-              <LogOut size={18} />
-              Logout
+            <button onClick={() => setMobileMenuOpen(false)}>
+              <X />
             </button>
+
+            <div className="mt-6 space-y-4">
+
+              <Link to="/" onClick={() => setMobileMenuOpen(false)}>Home</Link>
+              <Link to="/reels" onClick={() => setMobileMenuOpen(false)}>Reels</Link>
+              <Link to="/messages" onClick={() => setMobileMenuOpen(false)}>Messages</Link>
+              <Link to="/friends" onClick={() => setMobileMenuOpen(false)}>Friends</Link>
+              <Link to="/wallet" onClick={() => setMobileMenuOpen(false)}>Wallet</Link>
+              <Link to="/settings" onClick={() => setMobileMenuOpen(false)}>Settings</Link>
+
+              <button
+                onClick={handleLogout}
+                className="w-full bg-red-500 text-white py-2 rounded"
+              >
+                Logout
+              </button>
+
+            </div>
           </div>
         </div>
       )}
