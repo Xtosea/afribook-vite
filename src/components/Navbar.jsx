@@ -243,41 +243,52 @@ const Navbar = () => {
       </nav>
 
       {/* ================= MOBILE MENU ================= */}
-      {mobileMenuOpen && (
-        <div className="fixed inset-0 bg-black/50 z-50">
+{mobileMenuOpen && (
+  <div className="fixed inset-0 z-[999] bg-black/60 flex">
 
-          <div className="w-72 bg-white h-full p-4">
+    {/* Sidebar */}
+    <div className="w-72 bg-white h-full p-4 shadow-xl">
 
-            <button
-              onClick={() => setMobileMenuOpen(false)}
-              className="mb-4"
-            >
-              <X />
-            </button>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="font-bold text-lg text-blue-600">AfricSocial</h2>
 
-            <div className="flex flex-col gap-4">
+        <button onClick={() => setMobileMenuOpen(false)}>
+          <X size={24} />
+        </button>
+      </div>
 
-              <Link to="/" onClick={() => setMobileMenuOpen(false)}>Home</Link>
-              <Link to="/reels" onClick={() => setMobileMenuOpen(false)}>Reels</Link>
-              <Link to="/messages" onClick={() => setMobileMenuOpen(false)}>Messages</Link>
-              <Link to="/friends" onClick={() => setMobileMenuOpen(false)}>Friends</Link>
-              <Link to="/leaderboard" onClick={() => setMobileMenuOpen(false)}>Leaderboard</Link>
-              <Link to="/wallet" onClick={() => setMobileMenuOpen(false)}>Wallet</Link>
-              <Link to="/profile" onClick={() => setMobileMenuOpen(false)}>Profile</Link>
-              <Link to="/settings" onClick={() => setMobileMenuOpen(false)}>Settings</Link>
+      {/* Links */}
+      <div className="flex flex-col gap-4 text-gray-700">
 
-              <button
-                onClick={handleLogout}
-                className="bg-red-500 text-white py-2 rounded"
-              >
-                Logout
-              </button>
+        <Link to="/" onClick={() => setMobileMenuOpen(false)}>🏠 Home</Link>
+        <Link to="/reels" onClick={() => setMobileMenuOpen(false)}>🎬 Reels</Link>
+        <Link to="/messages" onClick={() => setMobileMenuOpen(false)}>💬 Messages</Link>
+        <Link to="/friends" onClick={() => setMobileMenuOpen(false)}>👥 Friends</Link>
+        <Link to="/leaderboard" onClick={() => setMobileMenuOpen(false)}>🏆 Leaderboard</Link>
+        <Link to="/wallet" onClick={() => setMobileMenuOpen(false)}>💰 Wallet</Link>
+        <Link to="/profile" onClick={() => setMobileMenuOpen(false)}>👤 Profile</Link>
+        <Link to="/settings" onClick={() => setMobileMenuOpen(false)}>⚙️ Settings</Link>
 
-            </div>
-          </div>
-        </div>
-      )}
+        <hr className="my-3" />
 
+        <button
+          onClick={handleLogout}
+          className="bg-red-500 text-white py-2 rounded"
+        >
+          Logout
+        </button>
+
+      </div>
+    </div>
+
+    {/* Click outside area */}
+    <div
+      className="flex-1"
+      onClick={() => setMobileMenuOpen(false)}
+    />
+  </div>
+)}
       <InstallPWAButton />
     </>
   );
