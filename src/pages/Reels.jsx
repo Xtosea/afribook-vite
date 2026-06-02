@@ -201,7 +201,9 @@ if (thumbnailBlob) {
   const fd = new FormData();
   fd.append("file", thumbnailFile);
 
-  const thumbUploadRes = await fetch(
+  console.log("Uploading thumbnail...");
+
+const thumbUploadRes = await fetch(
   `${API_BASE}/api/r2/upload-thumbnail`,
   {
     method: "POST",
@@ -212,14 +214,32 @@ if (thumbnailBlob) {
   }
 );
 
+const responseText =
+  await thumbUploadRes.text();
+
+console.log(
+  "Thumbnail response:",
+  responseText
+);
+
 if (!thumbUploadRes.ok) {
   throw new Error("Thumbnail upload failed");
 }
 
-const thumbData = await thumbUploadRes.json();
+let thumbData = {};
 
-thumbnailUrl = thumbData.thumbnailUrl;
+try {
+  thumbData =
+    JSON.parse(responseText);
+} catch (err) {
+  console.error(
+    "Invalid JSON:",
+    responseText
+  );
 }
+
+thumbnailUrl =
+  thumbData.thumbnailUrl || "";
 
     // 4. Create reel in DB
     const res = await fetch(`${API_BASE}/api/posts/reels`, {
