@@ -125,6 +125,80 @@ const Navbar = () => {
     </div>
 
   </div>
+</nav>
+
+
+  {/* DESKTOP MENU ROW */}
+  <nav className="bg-white shadow sticky top-0 z-50">
+
+  {/* TOP ROW */}
+  <div className="px-4 py-3 flex items-center justify-between">
+
+    {/* LOGO */}
+    <Link
+      to="/"
+      className="font-extrabold text-3xl text-blue-600"
+    >
+      AfricSocial
+    </Link>
+
+    {/* SEARCH */}
+    <div className="hidden md:block flex-1 max-w-xl mx-6">
+      <SearchBar />
+    </div>
+
+    {/* RIGHT SIDE */}
+    <div className="flex items-center gap-4">
+
+      {/* NOTIFICATION */}
+      <button
+        onClick={() =>
+          setShowNotifications(!showNotifications)
+        }
+        className="relative"
+      >
+        <Bell size={22} />
+
+        {unreadCount > 0 && (
+          <span
+            className="
+              absolute
+              -top-2
+              -right-2
+              bg-red-500
+              text-white
+              text-xs
+              rounded-full
+              px-1
+            "
+          >
+            {unreadCount}
+          </span>
+        )}
+      </button>
+
+      {/* SETTINGS */}
+      <button
+        onClick={() =>
+          setShowSettings(!showSettings)
+        }
+      >
+        <Settings size={22} />
+      </button>
+
+      {/* MOBILE MENU */}
+      <button
+        className="md:hidden"
+        onClick={() =>
+          setMobileOpen(!mobileOpen)
+        }
+      >
+        {mobileOpen ? <X /> : <Menu />}
+      </button>
+
+    </div>
+
+  </div>
 
   {/* DESKTOP MENU ROW */}
   <div className="hidden md:flex items-center gap-6 px-6 py-2 border-t text-sm">
