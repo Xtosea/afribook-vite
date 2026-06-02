@@ -15,7 +15,10 @@ import { API_BASE } from "../api/api";
   
 import InstallPWAButton from "./InstallPWAButton";
 
-import { connectSocket, safeEmit } from "../socket";
+import { connectSocket, safeEmit } from
+ "../socket";
+import  Notifications from "../pages/Notifications";
+
 
 
 import {
@@ -108,7 +111,7 @@ const Navbar = () => {
         const nData = await nRes.json();
         const cData = await cRes.json();
 
-        setNotifications(Array.isArray(nData) ? nData : []);
+        setNotification(Array.isArray(nData) ? nData : []);
         setUnreadCount(cData.count || 0);
       } catch (err) {
         console.error(err);
