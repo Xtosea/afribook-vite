@@ -16,6 +16,7 @@ import { API_BASE } from "../api/api";
 import InstallPWAButton from "./InstallPWAButton";
 
 import { connectSocket, safeEmit } from "../socket";
+import  Notifications from "../Pages/Notifications";
 
 
 import {
