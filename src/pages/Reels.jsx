@@ -207,6 +207,7 @@ if (!thumbUploadRes.ok) {
 const thumbData = await thumbUploadRes.json();
 
 thumbnailUrl = thumbData.thumbnailUrl;
+}
 
     // 4. Create reel in DB
     const res = await fetch(`${API_BASE}/api/posts/reels`, {
