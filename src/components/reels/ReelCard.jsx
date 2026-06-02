@@ -55,7 +55,7 @@ const ReelCard = ({
         );
 
       await fetch(
-        `${API_BASE}/api/posts/${reel._id}/watch`,
+        `${API_BASE}/api/posts/${reel._id}/view`,
         {
           method: "POST",
 
