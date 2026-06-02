@@ -12,12 +12,11 @@ import {
 import SearchBar from "./SearchBar";
 
 import { API_BASE } from "../api/api";
-import {
   
 import InstallPWAButton from "./InstallPWAButton";
 
 import { connectSocket, safeEmit } from "../socket";
-import { API_BASE } from "../api/api";
+
 
 import {
   Bell,
