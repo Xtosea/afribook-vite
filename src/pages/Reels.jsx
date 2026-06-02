@@ -168,90 +168,77 @@ const Reels = () => {
 
   /* ================= UPLOAD REEL ================= */
   const uploadReel = async () => {
-    try {
-      const file = fileRef.current.files[0];
+  try {
+    const file = fileRef.current.files[0];
 
-      if (!file) return alert("Select video");
+    if (!file) return alert("Select video");
 
-      const {
-  videoUrl,
-  thumbnailBlob,
-} = await uploadFile(file);
+    // 1. Upload video to R2
+    const { videoUrl, thumbnailBlob } = await uploadFile(file);
 
+    // 2. Convert thumbnail blob to file
+    const thumbnailFile = new File(
+      [thumbnailBlob],
+      "thumbnail.jpg",
+      { type: "image/jpeg" }
+    );
 
-const thumbnailFile =
-  new File(
-    [thumbnailBlob],
-    "thumbnail.jpg",
-    {
-      type: "image/jpeg",
-    }
-  );
-
-const formData =
-  new FormData();
-
-formData.append(
-  "file",
-  thumbnailFile
-);
-
-formData.append(
-  "upload_preset",
-  "YOUR_PRESET"
-);
-
-const cloudinaryRes =
-  await fetch(
-    "https://api.cloudinary.com/v1_1/YOUR_CLOUD_NAME/image/upload",
-    {
-      method: "POST",
-      body: formData,
-    }
-  );
-
-const cloudinaryData =
-  await cloudinaryRes.json();
-
-const thumbnailUrl =
-  cloudinaryData.secure_url;
-
-      const res = await fetch(`${API_BASE}/api/posts/reels`, {
+    // 3. Upload thumbnail to backend
+    const thumbUploadRes = await fetch(
+      `${API_BASE}/api/r2/upload-thumbnail`,
+      {
         method: "POST",
+        body: (() => {
+          const fd = new FormData();
+          fd.append("file", thumbnailFile);
+          return fd;
+        })(),
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-  caption,
-  videoUrl,
-  thumbnailUrl,
-})
-      });
+      }
+    );
 
-      const newReel = await res.json();
+    const { thumbnailUrl } = await thumbUploadRes.json();
 
-      setReels((prev) => [newReel, ...prev]);
+    // 4. Create reel in DB
+    const res = await fetch(`${API_BASE}/api/posts/reels`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        caption,
+        videoUrl,
+        thumbnailUrl,
+      }),
+    });
 
-      setLikes((prev) => ({
-        [newReel._id]: 0,
-        ...prev,
-      }));
+    const newReel = await res.json();
 
-      setShares((prev) => ({
-        [newReel._id]: 0,
-        ...prev,
-      }));
+    setReels((prev) => [newReel, ...prev]);
 
-      setCaption("");
-      setPreview(null);
-      setShowUpload(false);
+    setLikes((prev) => ({
+      ...prev,
+      [newReel._id]: 0,
+    }));
 
-      if (fileRef.current) fileRef.current.value = null;
-    } catch (err) {
-      console.error("upload error:", err);
-    }
-  };
+    setShares((prev) => ({
+      ...prev,
+      [newReel._id]: 0,
+    }));
+
+    setCaption("");
+    setPreview(null);
+    setShowUpload(false);
+
+    if (fileRef.current) fileRef.current.value = null;
+
+  } catch (err) {
+    console.error("upload error:", err);
+  }
+};
 
   return (
     <div className="h-screen overflow-y-scroll snap-y snap-mandatory bg-black relative">
