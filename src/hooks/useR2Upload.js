@@ -61,9 +61,14 @@ export const useR2Upload = () => {
       );
     }
 
+const thumbnailBlob =
+  await generateThumbnail(file);
+
     // ================= RETURN PUBLIC URL =================
-    return data.fileUrl;
-  };
+    return {
+  videoUrl: data.fileUrl,
+  thumbnailBlob,
+};
 
   return { uploadVideo };
 };
