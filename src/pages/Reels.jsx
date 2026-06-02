@@ -173,7 +173,48 @@ const Reels = () => {
 
       if (!file) return alert("Select video");
 
-      const uploadedUrl = await uploadFile(file);
+      const {
+  videoUrl,
+  thumbnailBlob,
+} = await uploadFile(file);
+
+
+const thumbnailFile =
+  new File(
+    [thumbnailBlob],
+    "thumbnail.jpg",
+    {
+      type: "image/jpeg",
+    }
+  );
+
+const formData =
+  new FormData();
+
+formData.append(
+  "file",
+  thumbnailFile
+);
+
+formData.append(
+  "upload_preset",
+  "YOUR_PRESET"
+);
+
+const cloudinaryRes =
+  await fetch(
+    "https://api.cloudinary.com/v1_1/YOUR_CLOUD_NAME/image/upload",
+    {
+      method: "POST",
+      body: formData,
+    }
+  );
+
+const cloudinaryData =
+  await cloudinaryRes.json();
+
+const thumbnailUrl =
+  cloudinaryData.secure_url;
 
       const res = await fetch(`${API_BASE}/api/posts/reels`, {
         method: "POST",
@@ -182,9 +223,10 @@ const Reels = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          caption,
-          videoUrl: uploadedUrl,
-        }),
+  caption,
+  videoUrl,
+  thumbnailUrl,
+})
       });
 
       const newReel = await res.json();
