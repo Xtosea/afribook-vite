@@ -387,6 +387,8 @@ useEffect(() => {
         )}
 
         {/* RIGHT SIDE */}
+
+<div className="flex items-center gap-4">
         
               {/* ========================= */}
               {/* ONLINE USERS */}
@@ -588,9 +590,7 @@ useEffect(() => {
                       Logout
                     </button>
 
-                  </div>
-                )}
-              </div>
+                 
 
               {/* ========================= */}
               {/* MOBILE MENU BUTTON */}
@@ -706,11 +706,11 @@ useEffect(() => {
     >
       Logout
     </button>
-
-  </div>
+</div>
+  
 )}
 
- </div>      <InstallPWAButton />
+     <InstallPWAButton />
 
 </>
   );
