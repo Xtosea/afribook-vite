@@ -132,7 +132,7 @@ const ReelCard = ({
   loop
   playsInline
   autoPlay
-  muted={activeIndex !== index}
+  muted
   preload="metadata"
   disablePictureInPicture
   controlsList="nodownload noplaybackrate"
