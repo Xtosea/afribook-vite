@@ -142,7 +142,7 @@ const Navbar = () => {
   // ================= UI =================
   return (
     <>
-      <nav className="bg-white shadow sticky top-0 z-50 px-4 py-2 flex items-center justify-between">
+      <nav className="bg-white shadow sticky top-2 z-50 px-4 py-2 flex items-center justify-between">
 
         {/* LOGO */}
         <Link to="/" className="text-2xl font-bold text-blue-600">
@@ -187,7 +187,7 @@ const Navbar = () => {
           {/* NOTIFICATIONS */}
           <div ref={dropdownRef} className="relative">
             <button onClick={() => setShowNotifications(!showNotifications)} className="relative p-2">
-              <Bell size={20} />
+              <Bell size={25} />
               {unreadCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1 rounded-full">
                   {unreadCount}
@@ -196,7 +196,7 @@ const Navbar = () => {
             </button>
 
             {showNotifications && (
-              <div className="absolute right-0 mt-2 w-80 bg-white shadow rounded-lg border max-h-96 overflow-y-auto">
+              <div className="absolute right-0 mt-2 w-sceen bg-white shadow rounded-lg border max-h-96 overflow-y-auto">
                 <div className="p-3 font-semibold border-b">Notifications</div>
 
                 {notifications.map((n) => (
@@ -238,7 +238,7 @@ const Navbar = () => {
 {/* MOBILE QUICK MENU */}
 
 {isLoggedIn && (
-  <div className="md:hidden bg-white border-b shadow-sm">
+  <div className="md:hidden bg-white border-b shadow-sm sticky top-2">
 
     <div className="grid grid-cols-5 gap-2 p-2">
 
