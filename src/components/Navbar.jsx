@@ -710,12 +710,10 @@ useEffect(() => {
   </div>
 )}
 
-       <InstallPWAButton />
+ </div>      <InstallPWAButton />
 
-
-
-    </>
+</>
   );
-
+};
 
 export default Navbar;
