@@ -196,7 +196,7 @@ const Navbar = () => {
             </button>
 
             {showNotifications && (
-              <div className="absolute right-0 mt-2 w-sceen bg-white shadow rounded-lg border max-h-96 overflow-y-auto">
+              <div className="absolute right-0 mt-2 w-srceen bg-white shadow rounded-lg border max-h-96 overflow-y-auto">
                 <div className="p-3 font-semibold border-b">Notifications</div>
 
                 {notifications.map((n) => (
