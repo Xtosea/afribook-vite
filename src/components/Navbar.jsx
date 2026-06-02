@@ -305,15 +305,15 @@ useEffect(() => {
   return (
   <>
     {/* NAVBAR */}
-    <nav className="bg-white shadow px-4 md:px-6 py-3 flex items-center justify-between flex-wrap sticky top-0 z-50">
+    <nav className="bg-white shadow px-4 md:px-6 py-3 flex items-center justify-between flex-wrap sticky top-0 z-[60]">
 
       {/* LEFT */}
       <div className="flex flex-col justify-center">
   
   {/* LOGO (always visible) */}
   <Link
-    to="/"
-    className="font-bold text-2xl text-blue-600 leading-none flex-shrink-0"
+  to="/"
+  className="block text-red-600 text-4xl font-bold"
 >
     AfricSocial
   </Link>
