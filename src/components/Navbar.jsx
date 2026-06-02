@@ -528,9 +528,7 @@ useEffect(() => {
   </div>
 )}
 
-      
-        </div>
-      )}
+   
 
   <InstallPWAButton />
 
