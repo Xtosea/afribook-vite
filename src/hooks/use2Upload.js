@@ -1,3 +1,9 @@
+import { useState } from "react";
+import axios from "axios";
+import generateThumbnail from "../utils/generateThumbnail";
+
+const API_BASE = import.meta.env.VITE_API_BASE;
+
 export function use2Upload() {
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -9,7 +15,6 @@ export function use2Upload() {
       setProgress(0);
       setError(null);
 
-      // 1. Get signed URL
       const signedRes = await fetch(
         `${API_BASE}/api/r2/signed-url?contentType=${file.type}`
       );
@@ -20,7 +25,6 @@ export function use2Upload() {
 
       const signedData = await signedRes.json();
 
-      // 2. Upload video to R2
       const uploadRes = await axios.put(
         signedData.uploadUrl,
         file,
@@ -37,22 +41,27 @@ export function use2Upload() {
         }
       );
 
-      if (uploadRes.status !== 200 && uploadRes.status !== 204) {
+      if (
+        uploadRes.status !== 200 &&
+        uploadRes.status !== 204
+      ) {
         throw new Error("Video upload failed");
       }
 
-      // 3. Generate thumbnail (safe)
       let thumbnailBlob = null;
 
       try {
-        thumbnailBlob = await generateThumbnail(file);
+        thumbnailBlob =
+          await generateThumbnail(file);
       } catch (err) {
-        console.warn("Thumbnail generation failed");
+        console.warn(
+          "Thumbnail generation failed"
+        );
       }
 
       return {
         videoUrl: signedData.fileUrl,
-        thumbnailBlob: thumbnailBlob || null,
+        thumbnailBlob,
       };
 
     } catch (err) {
