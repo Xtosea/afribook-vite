@@ -64,6 +64,8 @@ const Navbar = () => {
 
 const [unreadCount, setUnreadCount] = useState(0);
 
+const [unreadMessages, setUnreadMessages] = useState(0);
+
 
 useEffect(() => {
   const fetchCount = async () => {
@@ -250,6 +252,29 @@ useEffect(() => {
     };
   }, []);
 
+
+useEffect(() => {
+  const fetchUnreadMessages = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const res = await fetch(`${API_BASE}/api/messages/unread-count`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+
+      setUnreadMessages(data.count || 0);
+    } catch (err) {
+      console.error("Failed to fetch unread messages:", err);
+    }
+  };
+
+  fetchUnreadMessages();
+}, []);
+
   // =========================
   // LOGOUT
   // =========================
@@ -287,13 +312,89 @@ useEffect(() => {
 
       <nav className="bg-white shadow px-4 md:px-6 py-3 flex justify-between items-center sticky top-0 z-50">
 
-        {/* LOGO */}
-        <Link
-          to="/"
-          className="font-bold text-2xl text-blue-600"
-        >
-          AfricSocial
-        </Link>
+        {/* LEFT SIDE */}
+<div className="flex flex-col">
+
+  {/* LOGO */}
+  <Link
+    to="/"
+    className="font-bold text-2xl text-blue-600 leading-none"
+  >
+    AfricSocial
+  </Link>
+
+  {/* TOP NAV (Desktop) */}
+  <div className="hidden md:flex gap-6 mt-1 text-sm text-gray-700 items-center">
+
+    <Link
+      to="/"
+      className={`flex items-center gap-1 ${
+        isActive("/") ? "text-blue-600 font-semibold" : "hover:text-blue-500"
+      }`}
+    >
+      <Home size={18} />
+      Home
+    </Link>
+
+    <Link
+      to="/reels"
+      className={`flex items-center gap-1 ${
+        isActive("/reels") ? "text-blue-600 font-semibold" : "hover:text-blue-500"
+      }`}
+    >
+      <Video size={18} />
+      Reels
+    </Link>
+
+    {/* Messages with badge */}
+    <Link
+      to="/messages"
+      className={`flex items-center gap-1 relative ${
+        isActive("/messages") ? "text-blue-600 font-semibold" : "hover:text-blue-500"
+      }`}
+    >
+      <MessageCircle size={18} />
+      Messages
+
+      {unreadMessages > 0 && (
+        <span className="absolute -top-2 -right-3 bg-red-500 text-white text-[10px] px-1.5 rounded-full">
+          {unreadMessages}
+        </span>
+      )}
+    </Link>
+
+    <Link
+      to="/leaderboard"
+      className={`flex items-center gap-1 ${
+        isActive("/leaderboard") ? "text-blue-600 font-semibold" : "hover:text-blue-500"
+      }`}
+    >
+      <Users size={18} />
+      Leaderboard
+    </Link>
+
+    <Link
+      to="/friends"
+      className={`flex items-center gap-1 ${
+        isActive("/friends") ? "text-blue-600 font-semibold" : "hover:text-blue-500"
+      }`}
+    >
+      <Users size={18} />
+      Friends
+    </Link>
+
+    <Link
+      to="/profile"
+      className={`flex items-center gap-1 ${
+        isActive("/profile") ? "text-blue-600 font-semibold" : "hover:text-blue-500"
+      }`}
+    >
+      <User size={18} />
+      Profile
+    </Link>
+
+  </div>
+</div>
 
         {/* SEARCH */}
         {isLoggedIn && (
@@ -308,119 +409,7 @@ useEffect(() => {
           {isLoggedIn && (
             <>
             {/* ========================= */}
-{/* DESKTOP NAV */}
-{/* ========================= */}
 
-<div className="hidden md:flex items-center gap-5">
-
-  <Link
-    to="/"
-    className={`flex items-center gap-1 ${
-      isActive("/")
-        ? "text-blue-600"
-        : "hover:text-blue-500"
-    }`}
-  >
-    <Home size={20} />
-    Home
-  </Link>
-
-  <Link
-    to="/reels"
-    className={`flex items-center gap-1 ${
-      isActive("/reels")
-        ? "text-blue-600"
-        : "hover:text-blue-500"
-    }`}
-  >
-    <Video size={20} />
-    Reels
-  </Link>
-
-  <Link
-    to="/leaderboard"
-    className={`flex items-center gap-1 ${
-      isActive("/leaderboard")
-        ? "text-blue-600"
-        : "hover:text-blue-500"
-    }`}
-  >
-    <Users size={20} />
-    Leaderboard
-  </Link>
-
-  <Link
-    to="/messages"
-    className={`flex items-center gap-1 ${
-      isActive("/messages")
-        ? "text-blue-600"
-        : "hover:text-blue-500"
-    }`}
-  >
-    <MessageCircle size={20} />
-    Messages
-  </Link>
-
-  <Link
-    to="/saved"
-    className={`flex items-center gap-1 ${
-      isActive("/saved")
-        ? "text-blue-600"
-        : "hover:text-blue-500"
-    }`}
-  >
-    🔖 Saved
-  </Link>
-
-  <Link
-    to="/profile"
-    className={`flex items-center gap-1 ${
-      isActive("/profile")
-        ? "text-blue-600"
-        : "hover:text-blue-500"
-    }`}
-  >
-    <User size={20} />
-    Profile
-  </Link>
-
-  <Link
-    to="/friends"
-    className={`flex items-center gap-1 ${
-      isActive("/friends")
-        ? "text-blue-600"
-        : "hover:text-blue-500"
-    }`}
-  >
-    <Users size={20} />
-    Friends
-  </Link>
-
-  <Link
-    to="/friend-requests"
-    className={`flex items-center gap-1 ${
-      isActive("/friend-requests")
-        ? "text-blue-600"
-        : "hover:text-blue-500"
-    }`}
-  >
-    <Users size={20} />
-    Requests
-  </Link>
-
-  <Link
-    to="/wallet"
-    className={`flex items-center gap-1 ${
-      isActive("/wallet")
-        ? "text-blue-600"
-        : "hover:text-blue-500"
-    }`}
-  >
-    <Wallet size={20} />
-    Wallet
-  </Link>
-
-</div>
               {/* ========================= */}
               {/* ONLINE USERS */}
               {/* ========================= */}
@@ -645,19 +634,21 @@ useEffect(() => {
       </nav>
 
       {mobileMenuOpen && (
-  <div
-  className="
-    fixed inset-0
-    pt-[64px]
-    md:hidden
-    bg-white
-    shadow
-    p-4
-    pb-32
-    space-y-4
-    z-50
-    overflow-y-auto"
->
+  <div className="fixed inset-0 pt-[64px] md:hidden bg-white shadow p-4 pb-32 space-y-4 z-50 overflow-y-auto">
+    
+    {/* TOP BAR INSIDE MOBILE MENU */}
+    <div className="flex items-center justify-between mb-3 border-b pb-3">
+      <span className="font-semibold text-lg text-blue-600">
+        Menu
+      </span>
+
+      <button
+        onClick={() => setMobileMenuOpen(false)}
+        className="text-2xl font-bold px-2"
+      >
+        ✖
+      </button>
+    </div>
 
     <SearchBar />
 
@@ -743,65 +734,7 @@ useEffect(() => {
   </div>
 )}
 
-      {/* ========================= */}
-      {/* BOTTOM MOBILE NAV */}
-      {/* ========================= */}
-
-      {isLoggedIn && !mobileMenuOpen && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t md:hidden z-50">
-
-          <div className="flex justify-around py-2">
-
-            <Link
-              to="/"
-              className={`flex flex-col items-center text-xs ${
-                isActive("/")
-                  ? "text-blue-600"
-                  : "text-gray-500"
-              }`}
-            >
-              <Home size={22} />
-              <span>Home</span>
-            </Link>
-
-            <Link
-              to="/reels"
-              className={`flex flex-col items-center text-xs ${
-                isActive("/reels")
-                  ? "text-blue-600"
-                  : "text-gray-500"
-              }`}
-            >
-              <Video size={22} />
-              <span>Reels</span>
-            </Link>
-
-            <Link
-              to="/messages"
-              className={`flex flex-col items-center text-xs ${
-                isActive("/messages")
-                  ? "text-blue-600"
-                  : "text-gray-500"
-              }`}
-            >
-              <MessageCircle size={22} />
-              <span>Messages</span>
-            </Link>
-
-            <Link
-              to="/profile"
-              className={`flex flex-col items-center text-xs ${
-                isActive("/profile")
-                  ? "text-blue-600"
-                  : "text-gray-500"
-              }`}
-            >
-              <User size={22} />
-              <span>Profile</span>
-            </Link>
-
-          </div>
-
+      
         </div>
       )}
 
