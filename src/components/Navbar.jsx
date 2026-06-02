@@ -319,41 +319,130 @@ useEffect(() => {
 </Link>
 
   {/* DESKTOP MENU ONLY */}
-  <div className="hidden md:flex gap-6 mt-1 text-sm text-gray-700 items-center">
-    
+  <div className="flex gap-6 mt-1 text-sm text-gray-700 items-center flex-wrap">
   
-          <Link to="/" className={isActive("/") ? "text-blue-600 font-semibold" : "hover:text-blue-500"}>
-            <Home size={18} /> Home
-          </Link>
+          <Link
+  to="/"
+  className={`flex items-center gap-1 ${
+    isActive("/")
+      ? "text-blue-600 font-semibold"
+      : "hover:text-blue-500"
+  }`}
+>
+  <Home size={18} />
+  Home
+</Link>
 
-          <Link to="/reels" className={isActive("/reels") ? "text-blue-600 font-semibold" : "hover:text-blue-500"}>
-            <Video size={18} /> Reels
-          </Link>
+          <Link
+  to="/reels"
+  className={`flex items-center gap-1 ${
+    isActive("/reels")
+      ? "text-blue-600 font-semibold"
+      : "hover:text-blue-500"
+  }`}
+>
+  <Reels size={18} />
+  Reels
+</Link>
 
-          <Link to="/messages" className="relative flex items-center gap-1">
-            <MessageCircle size={18} />
-            Messages
+          <Link
+  to="/messages"
+  className={`flex items-center gap-1 ${
+    isActive("/messages")
+      ? "text-blue-600 font-semibold"
+      : "hover:text-blue-500"
+  }`}
+>
+  <Messages size={18} />
+  Messages 
+</Link>
 
-            {unreadMessages > 0 && (
-              <span className="absolute -top-1 -right-2 bg-red-500 text-white text-[10px] px-1.5 rounded-full">
-                {unreadMessages}
-              </span>
-            )}
-          </Link>
+          <Link
+  to="/leaderboard"
+  className={`flex items-center gap-1 ${
+    isActive("/leaderboard")
+      ? "text-blue-600 font-semibold"
+      : "hover:text-blue-500"
+  }`}
+>
+  <Leaderboard size={18} />
+  Leaderboard 
+</Link>
 
-          <Link to="/leaderboard" className={isActive("/leaderboard") ? "text-blue-600 font-semibold" : "hover:text-blue-500"}>
-            <Users size={18} /> Leaderboard
-          </Link>
+          <Link
+  to="/friends"
+  className={`flex items-center gap-1 ${
+    isActive("/friends")
+      ? "text-blue-600 font-semibold"
+      : "hover:text-blue-500"
+  }`}
+>
+  <Friends size={18} />
+  Friends 
+</Link>
 
-          <Link to="/friends" className={isActive("/friends") ? "text-blue-600 font-semibold" : "hover:text-blue-500"}>
-            <Users size={18} /> Friends
-          </Link>
+          <Link
+  to="/wallet"
+  className={`flex items-center gap-1 ${
+    isActive("/wallet")
+      ? "text-blue-600 font-semibold"
+      : "hover:text-blue-500"
+  }`}
+>
+  <Wallet size={18} />
+  Wallet 
+</Link>
 
-          <Link to="/profile" className={isActive("/profile") ? "text-blue-600 font-semibold" : "hover:text-blue-500"}>
-            <User size={18} /> Profile
-          </Link>
-        </div>
-      </div>
+<Link
+  to="/notifications"
+  className={`flex items-center gap-1 ${
+    isActive("/notifications")
+      ? "text-blue-600 font-semibold"
+      : "hover:text-blue-500"
+  }`}
+>
+  <Notifications size={18} />
+  Notifications 
+</Link>
+
+
+<Link
+  to="/profile"
+  className={`flex items-center gap-1 ${
+    isActive("/profile")
+      ? "text-blue-600 font-semibold"
+      : "hover:text-blue-500"
+  }`}
+>
+  <Profile size={18} />
+  Profile 
+</Link>
+
+<Link
+  to="/requests"
+  className={`flex items-center gap-1 ${
+    isActive("/requests")
+      ? "text-blue-600 font-semibold"
+      : "hover:text-blue-500"
+  }`}
+>
+  <Requests size={18} />
+  Requests 
+</Link>
+
+
+<Link
+  to="/saved-posts"
+  className={`flex items-center gap-1 ${
+    isActive("/saved-posts")
+      ? "text-blue-600 font-semibold"
+      : "hover:text-blue-500"
+  }`}
+>
+  <Save Posts size={18} />
+  Saved Posts
+</Link>
+
 
       {/* CENTER SEARCH */}
       {isLoggedIn && (
@@ -487,19 +576,28 @@ useEffect(() => {
           <button onClick={() => setShowSettings(!showSettings)}>
             <Settings size={20} />
           </button>
-        </div>
+    
+      <div className="relative" ref={settingsRef}>
+  <button onClick={() => setShowSettings(!showSettings)}>
+    <Settings size={20} />
+  </button>
+
+  {showSettings && (
+    <div className="absolute right-0 mt-2 w-44 bg-white shadow-lg rounded-xl border z-50 overflow-hidden">
+      ...
+    </div>
+  )}
+</div>
 
         {/* MOBILE MENU */}
         <button
           className="md:hidden text-2xl"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
         >
-          {mobileMenuOpen ? "✖" : "☰"}
+          {mobileMenuOpen ? "" : "☰"}
         </button>
 
-        {showSettings && (
-  <div className="absolute right-0 mt-2 w-44 bg-white shadow-lg rounded-xl border z-50 overflow-hidden">
-
+        
     <Link
       to="/settings"
       className="block px-4 py-2 hover:bg-gray-100"
