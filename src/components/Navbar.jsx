@@ -14,7 +14,7 @@ import SearchBar from "./SearchBar";
 
 import { API_BASE } from "../api/api";
 import {
-  connectSocket,
+  
   safeEmit,
 } from "../socket";import InstallPWAButton from "./InstallPWAButton";
 
