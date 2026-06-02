@@ -313,8 +313,7 @@ useEffect(() => {
   {/* LOGO (always visible) */}
   <Link
     to="/"
-    className="font-bold text-2xl text-blue-600 leading-none"
-className="font-bold text-2xl text-blue-600 leading-none flex-shrink-0"
+    className="font-bold text-2xl text-blue-600 leading-none. flex-shrink-0""
   >
     AfricSocial
   </Link>
@@ -325,6 +324,7 @@ className="font-bold text-2xl text-blue-600 leading-none flex-shrink-0"
   </div>
 
 </div>
+
           <Link to="/" className={isActive("/") ? "text-blue-600 font-semibold" : "hover:text-blue-500"}>
             <Home size={18} /> Home
           </Link>
