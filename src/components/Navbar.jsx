@@ -397,6 +397,89 @@ useEffect(() => {
               </span>
             )}
           </button>
+
+         {showDropdown && (
+  <div className="absolute right-0 mt-2 w-96 bg-white shadow-lg rounded-xl border z-50 overflow-hidden">
+
+    <div className="p-3 border-b font-semibold">
+      Notifications
+    </div>
+
+    {notifications.length === 0 ? (
+      <div className="p-3 text-gray-500">
+        No notifications
+      </div>
+    ) : (
+      <div className="max-h-80 overflow-y-auto">
+
+        {notifications.map((n) => {
+          const previewImage =
+            n.post?.thumbnail ||
+            n.post?.media ||
+            n.post?.images?.[0];
+
+          return (
+            <div
+              key={n._id}
+              onClick={() => {
+                setShowDropdown(false);
+
+                if (n.post) {
+                  navigate(`/post/${n.post._id}`);
+                } else if (n.sender) {
+                  navigate(`/profile/${n.sender._id}`);
+                }
+              }}
+              className={`flex gap-3 p-3 border-b cursor-pointer hover:bg-gray-50 ${
+                !n.read ? "bg-blue-50" : ""
+              }`}
+            >
+              <img
+                src={
+                  n.sender?.profilePic ||
+                  defaultProfile
+                }
+                alt=""
+                className="w-12 h-12 rounded-full object-cover border"
+              />
+
+              <div className="flex-1 min-w-0">
+
+                <p className="text-sm">
+                  <span className="font-semibold">
+                    {n.sender?.name ||
+                      "Someone"}
+                  </span>{" "}
+                  {n.text}
+                </p>
+
+                <p className="text-xs text-gray-500 mt-1">
+                  {new Date(
+                    n.createdAt
+                  ).toLocaleString()}
+                </p>
+
+                {previewImage && (
+                  <img
+                    src={previewImage}
+                    alt=""
+                    className="w-16 h-16 rounded-lg object-cover mt-2 border"
+                  />
+                )}
+              </div>
+
+              {!n.read && (
+                <div className="w-2 h-2 rounded-full bg-blue-500 mt-2" />
+              )}
+            </div>
+          );
+        })}
+
+      </div>
+    )}
+  </div>
+)}
+    
         </div>
 
         {/* SETTINGS */}
@@ -413,6 +496,40 @@ useEffect(() => {
         >
           {mobileMenuOpen ? "✖" : "☰"}
         </button>
+
+        {showSettings && (
+  <div className="absolute right-0 mt-2 w-44 bg-white shadow-lg rounded-xl border z-50 overflow-hidden">
+
+    <Link
+      to="/settings"
+      className="block px-4 py-2 hover:bg-gray-100"
+      onClick={() =>
+        setShowSettings(false)
+      }
+    >
+      Settings
+    </Link>
+
+    <Link
+      to="/wallet"
+      className="block px-4 py-2 hover:bg-gray-100"
+      onClick={() =>
+        setShowSettings(false)
+      }
+    >
+      Wallet
+    </Link>
+
+    <button
+      onClick={handleLogout}
+      className="w-full text-left px-4 py-2 hover:bg-gray-100"
+    >
+      Logout
+    </button>
+
+  </div>
+)}
+
 
       </div>
     </nav>
