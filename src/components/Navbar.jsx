@@ -312,71 +312,64 @@ useEffect(() => {
 
       <nav className="bg-white shadow px-4 md:px-6 py-3 flex justify-between items-center sticky top-0 z-50">
 
-  {/* ================= LEFT ================= */}
-  <div className="hidden md:flex gap-6 mt-1 text-sm text-gray-700 items-center">
-
+  <div className="flex flex-col">
+  {/* LOGO */}
   <Link
     to="/"
-    className={`flex items-center gap-1 ${
-      isActive("/") ? "text-blue-600 font-semibold" : "hover:text-blue-500"
-    }`}
+    className="font-bold text-2xl text-blue-600 leading-none"
   >
-    <Home size={18} />
-    Home
+    AfricSocial
   </Link>
 
-  <Link
-    to="/reels"
-    className={`flex items-center gap-1 ${
-      isActive("/reels") ? "text-blue-600 font-semibold" : "hover:text-blue-500"
-    }`}
-  >
-    <Video size={18} />
-    Reels
-  </Link>
+  {/* SECONDARY NAV (Desktop only) */}
+  {isLoggedIn && (
+    <div className="hidden md:flex gap-6 mt-1 text-sm text-gray-700">
+      
+      <Link
+        to="/"
+        className={`${isActive("/") ? "text-blue-600 font-semibold" : "hover:text-blue-500"}`}
+      >
+        Home
+      </Link>
 
-  <Link
-    to="/messages"
-    className={`flex items-center gap-1 relative ${
-      isActive("/messages") ? "text-blue-600 font-semibold" : "hover:text-blue-500"
-    }`}
-  >
-    <MessageCircle size={18} />
-    Messages
-  </Link>
+      <Link
+        to="/reels"
+        className={`${isActive("/reels") ? "text-blue-600 font-semibold" : "hover:text-blue-500"}`}
+      >
+        Reels
+      </Link>
 
-  <Link
-    to="/leaderboard"
-    className={`flex items-center gap-1 ${
-      isActive("/leaderboard") ? "text-blue-600 font-semibold" : "hover:text-blue-500"
-    }`}
-  >
-    <Users size={18} />
-    Leaderboard
-  </Link>
+      <Link
+        to="/messages"
+        className={`${isActive("/messages") ? "text-blue-600 font-semibold" : "hover:text-blue-500"}`}
+      >
+        Messages
+      </Link>
 
-  <Link
-    to="/friends"
-    className={`flex items-center gap-1 ${
-      isActive("/friends") ? "text-blue-600 font-semibold" : "hover:text-blue-500"
-    }`}
-  >
-    <Users size={18} />
-    Friends
-  </Link>
+      <Link
+        to="/leaderboard"
+        className={`${isActive("/leaderboard") ? "text-blue-600 font-semibold" : "hover:text-blue-500"}`}
+      >
+        Leaderboard
+      </Link>
 
-  <Link
-    to="/profile"
-    className={`flex items-center gap-1 ${
-      isActive("/profile") ? "text-blue-600 font-semibold" : "hover:text-blue-500"
-    }`}
-  >
-    <User size={18} />
-    Profile
-  </Link>
+      <Link
+        to="/friends"
+        className={`${isActive("/friends") ? "text-blue-600 font-semibold" : "hover:text-blue-500"}`}
+      >
+        Friends
+      </Link>
 
+      <Link
+        to="/profile"
+        className={`${isActive("/profile") ? "text-blue-600 font-semibold" : "hover:text-blue-500"}`}
+      >
+        Profile
+      </Link>
+
+    </div>
+  )}
 </div>
-  </div>
 
   {/* ================= CENTER SEARCH ================= */}
   {isLoggedIn && (
