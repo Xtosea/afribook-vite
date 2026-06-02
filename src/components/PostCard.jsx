@@ -536,6 +536,7 @@ return (
                   }
                   src={m.url}
                   controls
+                  poster={m.thumbnailUrl || ""}
                   preload="none"
                   playsInline
                   className="w-full rounded-xl bg-black max-h-[600px] object-cover"
