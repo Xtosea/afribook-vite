@@ -1,7 +1,23 @@
-import React, { useEffect, useState, useRef } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import React, {
+  useEffect,
+  useState,
+  useRef,
+} from "react";
+
+import {
+  Link,
+  useNavigate,
+  useLocation,
+} from "react-router-dom";
 
 import SearchBar from "./SearchBar";
+
+import {
+  connectSocket,
+  safeEmit,
+} from "../socket";
+
+import { API_BASE } from "../api/api";
 import InstallPWAButton from "./InstallPWAButton";
 
 import { connectSocket, safeEmit } from "../socket";
@@ -21,8 +37,10 @@ import {
   User,
   Bookmark,
   UserPlus,
-  Send,
+  Trophy,
 } from "lucide-react";
+
+
 
 const defaultProfile =
   "https://ui-avatars.com/api/?name=User";
