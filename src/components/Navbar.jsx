@@ -313,10 +313,10 @@ useEffect(() => {
   {/* LOGO (always visible) */}
   <Link
   to="/"
-  className="block text-red-600 text-4xl font-bold"
+  className="font-extrabold text-3xl text-blue-600 leading-none"
 >
-    AfricSocial
-  </Link>
+  AfricSocial
+</Link>
 
   {/* DESKTOP MENU ONLY */}
   <div className="hidden md:flex gap-6 mt-1 text-sm text-gray-700 items-center">
