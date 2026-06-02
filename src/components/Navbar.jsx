@@ -586,8 +586,7 @@ useEffect(() => {
     <div className="absolute right-0 mt-2 w-44 bg-white shadow-lg rounded-xl border z-50 overflow-hidden">
       ...
     </div>
-  )}
-</div>
+  
 
         {/* MOBILE MENU */}
         <button
