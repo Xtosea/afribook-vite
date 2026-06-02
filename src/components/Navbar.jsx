@@ -1,42 +1,30 @@
+
+
+
 import React, { useEffect, useState, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-
-import SearchBar from "./SearchBar";
-import InstallPWAButton from "./InstallPWAButton";
-
-import { connectSocket, safeEmit } from "../socket";
-import { API_BASE } from "../api/api";
-
 import {
-  Bell,
   Home,
   Video,
   MessageCircle,
   Users,
   Wallet,
+  Bell,
   Settings,
+  LogOut,
   Menu,
   X,
-  LogOut,
-  User,
-  Bookmark,
-  UserPlus,
-  Send,
 } from "lucide-react";
 
-const defaultProfile =
-  "https://ui-avatars.com/api/?name=User";
+import SearchBar from "./SearchBar";
+import { API_BASE } from "../api/api";
+
+const navItem =
+  "flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-100 transition";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-
-  const dropdownRef = useRef(null);
-  const settingsRef = useRef(null);
-
-  const [isLoggedIn, setIsLoggedIn] = useState(
-    !!localStorage.getItem("token")
-  );
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -44,150 +32,78 @@ const Navbar = () => {
 
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [onlineUsers, setOnlineUsers] = useState([]);
-
-  const currentUserId = localStorage.getItem("userId");
 
   const isActive = (path) => location.pathname === path;
-
-  // ================= SOCKET =================
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token || !currentUserId) return;
-
-    const socket = connectSocket();
-    if (!socket) return;
-
-    const joinUser = () => safeEmit("join", currentUserId);
-
-    if (socket.connected) joinUser();
-    socket.on("connect", joinUser);
-
-    socket.on("new-notification", (data) => {
-      setNotifications((prev) => [data, ...prev].slice(0, 50));
-      setUnreadCount((c) => c + 1);
-    });
-
-    socket.on("online-users", setOnlineUsers);
-
-    return () => {
-      socket.off("connect", joinUser);
-      socket.off("new-notification");
-      socket.off("online-users");
-    };
-  }, [currentUserId]);
-
-  // ================= FETCH =================
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    const fetchData = async () => {
-      try {
-        const [nRes, cRes] = await Promise.all([
-          fetch(`${API_BASE}/api/notifications`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          fetch(`${API_BASE}/api/notifications/unread-count`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-        ]);
-
-        const nData = await nRes.json();
-        const cData = await cRes.json();
-
-        setNotifications(Array.isArray(nData) ? nData : []);
-        setUnreadCount(cData.count || 0);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  // ================= OUTSIDE CLICK =================
-  useEffect(() => {
-    const handleClick = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setShowNotifications(false);
-      }
-
-      if (settingsRef.current && !settingsRef.current.contains(e.target)) {
-        setShowSettings(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, []);
 
   const handleLogout = () => {
     localStorage.clear();
     navigate("/login");
   };
 
-  // ================= UI =================
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      const token = localStorage.getItem("token");
+
+      const res = await fetch(`${API_BASE}/api/notifications`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const data = await res.json();
+      setNotifications(Array.isArray(data) ? data : []);
+    };
+
+    fetchNotifications();
+  }, []);
+
   return (
     <>
-      <nav className="bg-white shadow sticky top-0 z-50 px-4 py-2 flex items-center justify-between">
+      {/* NAVBAR */}
+      <nav className="bg-white shadow px-4 py-3 flex items-center justify-between sticky top-0 z-50">
 
         {/* LOGO */}
-        <Link to="/" className="text-2xl font-bold text-blue-600">
+        <Link to="/" className="font-extrabold text-2xl text-blue-600">
           AfricSocial
         </Link>
 
-        {/* SEARCH */}
-        <div className="hidden md:flex flex-1 mx-6">
+        {/* DESKTOP MENU */}
+        <div className="hidden md:flex items-center gap-2">
+          <Link to="/" className={`${navItem} ${isActive("/") && "text-blue-600 font-semibold"}`}>
+            <Home size={18} /> Home
+          </Link>
+
+          <Link to="/reels" className={`${navItem} ${isActive("/reels") && "text-blue-600 font-semibold"}`}>
+            <Video size={18} /> Reels
+          </Link>
+
+          <Link to="/messages" className={`${navItem} ${isActive("/messages") && "text-blue-600 font-semibold"}`}>
+            <MessageCircle size={18} /> Messages
+          </Link>
+
+          <Link to="/friends" className={`${navItem} ${isActive("/friends") && "text-blue-600 font-semibold"}`}>
+            <Users size={18} /> Friends
+          </Link>
+
+          <Link to="/wallet" className={`${navItem} ${isActive("/wallet") && "text-blue-600 font-semibold"}`}>
+            <Wallet size={18} /> Wallet
+          </Link>
+
           <SearchBar />
         </div>
 
-        {/* RIGHT ICONS */}
+        {/* RIGHT */}
         <div className="flex items-center gap-3">
 
-          {/* ONLINE */}
-          <div className="hidden md:flex items-center gap-1 text-sm text-gray-600">
-            <Users size={18} />
-            <span>{onlineUsers.length}</span>
-          </div>
-
-          {/* HOME ICON */}
-          <Link to="/" className="hidden md:block p-2 hover:bg-gray-100 rounded">
-            <Home size={20} />
-          </Link>
-
-          <Link to="/reels" className="hidden md:block p-2 hover:bg-gray-100 rounded">
-            <Video size={20} />
-          </Link>
-
-          <Link to="/messages" className="hidden md:block p-2 hover:bg-gray-100 rounded">
-            <MessageCircle size={20} />
-          </Link>
-
-          <Link to="/friends" className="hidden md:block p-2 hover:bg-gray-100 rounded">
-            <Users size={20} />
-          </Link>
-
-          <Link to="/wallet" className="hidden md:block p-2 hover:bg-gray-100 rounded">
-            <Wallet size={20} />
-          </Link>
-
           {/* NOTIFICATIONS */}
-          <div ref={dropdownRef} className="relative">
-            <button onClick={() => setShowNotifications(!showNotifications)} className="relative p-2">
-              <Bell size={20} />
-              {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1 rounded-full">
-                  {unreadCount}
-                </span>
-              )}
+          <div className="relative">
+            <button onClick={() => setShowNotifications(!showNotifications)}>
+              <Bell />
             </button>
 
             {showNotifications && (
-              <div className="absolute right-0 mt-2 w-80 bg-white shadow rounded-lg border max-h-96 overflow-y-auto">
-                <div className="p-3 font-semibold border-b">Notifications</div>
-
+              <div className="absolute right-0 mt-2 w-80 bg-white border shadow rounded-lg z-50">
+                <div className="p-3 border-b font-semibold">Notifications</div>
                 {notifications.map((n) => (
-                  <div key={n._id} className="p-3 border-b text-sm">
+                  <div key={n._id} className="p-3 text-sm border-b">
                     {n.text}
                   </div>
                 ))}
@@ -196,92 +112,64 @@ const Navbar = () => {
           </div>
 
           {/* SETTINGS */}
-          <div ref={settingsRef} className="relative">
-            <button onClick={() => setShowSettings(!showSettings)} className="p-2">
-              <Settings size={20} />
+          <div className="relative">
+            <button onClick={() => setShowSettings(!showSettings)}>
+              <Settings />
             </button>
 
             {showSettings && (
-              <div className="absolute right-0 mt-2 w-40 bg-white border shadow rounded-lg">
+              <div className="absolute right-0 mt-2 w-40 bg-white border shadow rounded-lg z-50">
                 <button
                   onClick={handleLogout}
-                  className="w-full text-left px-3 py-2 hover:bg-gray-100 flex items-center gap-2"
+                  className="w-full px-3 py-2 text-left hover:bg-gray-100 flex items-center gap-2"
                 >
-                  <LogOut size={16} />
-                  Logout
+                  <LogOut size={16} /> Logout
                 </button>
               </div>
             )}
           </div>
 
-          {/* MOBILE MENU */}
-          <button className="md:hidden p-2" onClick={() => setMobileOpen(true)}>
-            <Menu />
+          {/* MOBILE MENU BUTTON */}
+          <button className="md:hidden" onClick={() => setMobileOpen(!mobileOpen)}>
+            {mobileOpen ? <X /> : <Menu />}
           </button>
+
         </div>
       </nav>
 
-      {/* ================= MOBILE DRAWER ================= */}
+      {/* MOBILE SIDEBAR */}
       {mobileOpen && (
-        <div className="fixed inset-0 bg-black/40 z-50">
-          <div className="w-72 h-full bg-white p-4">
+        <div className="fixed inset-0 bg-white z-50 p-4 space-y-3 md:hidden">
 
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-bold">Menu</h2>
-              <button onClick={() => setMobileOpen(false)}>
-                <X />
-              </button>
-            </div>
+          <SearchBar />
 
-            <div className="flex flex-col gap-3">
+          <Link to="/" onClick={() => setMobileOpen(false)} className={navItem}>
+            <Home size={18} /> Home
+          </Link>
 
-              <Link onClick={() => setMobileOpen(false)} to="/" className="flex items-center gap-2">
-                <Home size={18} /> Home
-              </Link>
+          <Link to="/reels" onClick={() => setMobileOpen(false)} className={navItem}>
+            <Video size={18} /> Reels
+          </Link>
 
-              <Link onClick={() => setMobileOpen(false)} to="/reels" className="flex items-center gap-2">
-                <Video size={18} /> Reels
-              </Link>
+          <Link to="/messages" onClick={() => setMobileOpen(false)} className={navItem}>
+            <MessageCircle size={18} /> Messages
+          </Link>
 
-              <Link onClick={() => setMobileOpen(false)} to="/messages" className="flex items-center gap-2">
-                <MessageCircle size={18} /> Messages
-              </Link>
+          <Link to="/friends" onClick={() => setMobileOpen(false)} className={navItem}>
+            <Users size={18} /> Friends
+          </Link>
 
-              <Link onClick={() => setMobileOpen(false)} to="/friends" className="flex items-center gap-2">
-                <Users size={18} /> Friends
-              </Link>
+          <Link to="/wallet" onClick={() => setMobileOpen(false)} className={navItem}>
+            <Wallet size={18} /> Wallet
+          </Link>
 
-              <Link onClick={() => setMobileOpen(false)} to="/friend-requests" className="flex items-center gap-2">
-                <UserPlus size={18} /> Requests
-              </Link>
+          <button onClick={handleLogout} className="w-full bg-red-500 text-white py-3 rounded-lg">
+            Logout
+          </button>
 
-              <Link onClick={() => setMobileOpen(false)} to="/saved" className="flex items-center gap-2">
-                <Bookmark size={18} /> Saved
-              </Link>
-
-              <Link onClick={() => setMobileOpen(false)} to="/profile" className="flex items-center gap-2">
-                <User size={18} /> Profile
-              </Link>
-
-              <Link onClick={() => setMobileOpen(false)} to="/wallet" className="flex items-center gap-2">
-                <Wallet size={18} /> Wallet
-              </Link>
-
-              <button
-                onClick={handleLogout}
-                className="mt-4 bg-red-500 text-white py-2 rounded"
-              >
-                Logout
-              </button>
-            </div>
-
-          </div>
         </div>
       )}
-
-      <InstallPWAButton />
     </>
   );
 };
 
-export default Navbar;
