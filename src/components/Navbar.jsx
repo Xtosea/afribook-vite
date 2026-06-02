@@ -303,250 +303,154 @@ useEffect(() => {
   };
 
   return (
+  <>
+    {/* NAVBAR */}
+    <nav className="bg-white shadow px-4 md:px-6 py-3 flex justify-between items-center sticky top-0 z-50">
 
+      {/* LEFT */}
+      <div className="flex flex-col">
+        <Link
+          to="/"
+          className="font-bold text-2xl text-blue-600 leading-none"
+        >
+          AfricSocial
+        </Link>
 
-    <>
-      {/* ========================= */}
-      {/* NAVBAR */}
-      {/* ========================= */}
+        <div className="hidden md:flex gap-6 mt-1 text-sm text-gray-700 items-center">
+          <Link to="/" className={isActive("/") ? "text-blue-600 font-semibold" : "hover:text-blue-500"}>
+            <Home size={18} /> Home
+          </Link>
 
-      <nav className="bg-white shadow px-4 md:px-6 py-3 flex justify-between items-center sticky top-0 z-50">
+          <Link to="/reels" className={isActive("/reels") ? "text-blue-600 font-semibold" : "hover:text-blue-500"}>
+            <Video size={18} /> Reels
+          </Link>
 
-  <div className="flex flex-col">
-  {/* LOGO */}
-  <Link
-    to="/"
-    className="font-bold text-2xl text-blue-600 leading-none"
-  >
-    AfricSocial
-  </Link>
+          <Link to="/messages" className="relative flex items-center gap-1">
+            <MessageCircle size={18} />
+            Messages
 
-  {/* SECONDARY NAV (Desktop only) */}
-  {isLoggedIn && (
-    <div className="hidden md:flex gap-6 mt-1 text-sm text-gray-700">
-      
-      <Link
-        to="/"
-        className={`${isActive("/") ? "text-blue-600 font-semibold" : "hover:text-blue-500"}`}
-      >
-        Home
-      </Link>
+            {unreadMessages > 0 && (
+              <span className="absolute -top-1 -right-2 bg-red-500 text-white text-[10px] px-1.5 rounded-full">
+                {unreadMessages}
+              </span>
+            )}
+          </Link>
 
-      <Link
-        to="/reels"
-        className={`${isActive("/reels") ? "text-blue-600 font-semibold" : "hover:text-blue-500"}`}
-      >
-        Reels
-      </Link>
+          <Link to="/leaderboard" className={isActive("/leaderboard") ? "text-blue-600 font-semibold" : "hover:text-blue-500"}>
+            <Users size={18} /> Leaderboard
+          </Link>
 
-      <Link
-        to="/messages"
-        className={`${isActive("/messages") ? "text-blue-600 font-semibold" : "hover:text-blue-500"}`}
-      >
-        Messages
-      </Link>
+          <Link to="/friends" className={isActive("/friends") ? "text-blue-600 font-semibold" : "hover:text-blue-500"}>
+            <Users size={18} /> Friends
+          </Link>
 
-      <Link
-        to="/leaderboard"
-        className={`${isActive("/leaderboard") ? "text-blue-600 font-semibold" : "hover:text-blue-500"}`}
-      >
-        Leaderboard
-      </Link>
+          <Link to="/profile" className={isActive("/profile") ? "text-blue-600 font-semibold" : "hover:text-blue-500"}>
+            <User size={18} /> Profile
+          </Link>
+        </div>
+      </div>
 
-      <Link
-        to="/friends"
-        className={`${isActive("/friends") ? "text-blue-600 font-semibold" : "hover:text-blue-500"}`}
-      >
-        Friends
-      </Link>
+      {/* CENTER SEARCH */}
+      {isLoggedIn && (
+        <div className="flex-1 mx-4 hidden md:flex">
+          <SearchBar />
+        </div>
+      )}
 
-      <Link
-        to="/profile"
-        className={`${isActive("/profile") ? "text-blue-600 font-semibold" : "hover:text-blue-500"}`}
-      >
-        Profile
-      </Link>
+      {/* RIGHT */}
+      <div className="flex items-center gap-4">
 
-    </div>
-  )}
-</div>
+        <div className="hidden md:flex items-center gap-2 text-sm">
+          <Users size={18} />
+          <span>{onlineUsers.length} Online</span>
+        </div>
 
-  {/* ================= CENTER SEARCH ================= */}
-  {isLoggedIn && (
-    <div className="flex-1 mx-4 hidden md:flex">
-      <SearchBar />
-    </div>
-  )}
+        {/* NOTIFICATIONS */}
+        <div className="relative" ref={dropdownRef}>
+          <button
+            onClick={async () => {
+              setShowDropdown(!showDropdown);
 
-  {/* ================= RIGHT SIDE ================= */}
-  <div className="flex items-center gap-4">
+              if (!showDropdown) {
+                const token = localStorage.getItem("token");
 
-    {/* ONLINE USERS */}
-    <div className="hidden md:flex items-center gap-2 text-sm">
-      <Users size={18} />
-      <span>{onlineUsers.length} Online</span>
-    </div>
+                await fetch(`${API_BASE}/api/notifications/read`, {
+                  method: "PUT",
+                  headers: { Authorization: `Bearer ${token}` },
+                });
 
-    {/* NOTIFICATIONS */}
-    <div className="relative" ref={dropdownRef}>
-      <button
-        onClick={async () => {
-          setShowDropdown(!showDropdown);
+                setUnreadCount(0);
+              }
+            }}
+            className="relative"
+          >
+            <Bell size={22} />
 
-          if (!showDropdown) {
-            const token = localStorage.getItem("token");
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1 rounded-full">
+                {unreadCount}
+              </span>
+            )}
+          </button>
+        </div>
 
-            await fetch(`${API_BASE}/api/notifications/read`, {
-              method: "PUT",
-              headers: { Authorization: `Bearer ${token}` },
-            });
+        {/* SETTINGS */}
+        <div className="relative" ref={settingsRef}>
+          <button onClick={() => setShowSettings(!showSettings)}>
+            <Settings size={20} />
+          </button>
+        </div>
 
-            setUnreadCount(0);
-          }
-        }}
-        className="relative"
-      >
-        <Bell size={22} />
+        {/* MOBILE MENU */}
+        <button
+          className="md:hidden text-2xl"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+        >
+          {mobileMenuOpen ? "✖" : "☰"}
+        </button>
 
-        {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1 rounded-full">
-            {unreadCount}
-          </span>
-        )}
-      </button>
-
-      {/* dropdown stays same */}
-    </div>
-
-    {/* SETTINGS */}
-    <div className="relative" ref={settingsRef}>
-      <button onClick={() => setShowSettings(!showSettings)}>
-        <Settings size={20} />
-      </button>
-
-      {/* dropdown stays same */}
-    </div>
+      </div>
+    </nav>
 
     {/* MOBILE MENU */}
-    <button
-      className="md:hidden text-2xl"
-      onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-    >
-      {mobileMenuOpen ? "✖" : "☰"}
-    </button>
+    {mobileMenuOpen && (
+      <div className="fixed inset-0 pt-[64px] md:hidden bg-white shadow p-4 pb-32 space-y-4 z-50 overflow-y-auto">
 
-  </div>
-</nav>
+        <div className="flex items-center justify-between mb-3 border-b pb-3">
+          <span className="font-semibold text-lg text-blue-600">Menu</span>
 
-      {mobileMenuOpen && (
-  <div className="fixed inset-0 pt-[64px] md:hidden bg-white shadow p-4 pb-32 space-y-4 z-50 overflow-y-auto">
-    
-    {/* TOP BAR INSIDE MOBILE MENU */}
-    <div className="flex items-center justify-between mb-3 border-b pb-3">
-      <span className="font-semibold text-lg text-blue-600">
-        Menu
-      </span>
+          <button
+            onClick={() => setMobileMenuOpen(false)}
+            className="text-2xl font-bold px-2"
+          >
+            ✖
+          </button>
+        </div>
 
-      <button
-        onClick={() => setMobileMenuOpen(false)}
-        className="text-2xl font-bold px-2"
-      >
-        ✖
-      </button>
-    </div>
+        <SearchBar />
 
-    <SearchBar />
+        <Link to="/" onClick={() => setMobileMenuOpen(false)} className="block py-2 border-b">🏠 Home</Link>
+        <Link to="/reels" onClick={() => setMobileMenuOpen(false)} className="block py-2 border-b">🎬 Reels</Link>
+        <Link to="/messages" onClick={() => setMobileMenuOpen(false)} className="block py-2 border-b">💬 Messages</Link>
+        <Link to="/leaderboard" onClick={() => setMobileMenuOpen(false)} className="block py-2 border-b">🏆 Leaderboard</Link>
+        <Link to="/saved" onClick={() => setMobileMenuOpen(false)} className="block py-2 border-b">🔖 Saved Posts</Link>
+        <Link to="/profile" onClick={() => setMobileMenuOpen(false)} className="block py-2 border-b">👤 Profile</Link>
+        <Link to="/friends" onClick={() => setMobileMenuOpen(false)} className="block py-2 border-b">👥 Friends</Link>
+        <Link to="/friend-requests" onClick={() => setMobileMenuOpen(false)} className="block py-2 border-b">📩 Requests</Link>
+        <Link to="/wallet" onClick={() => setMobileMenuOpen(false)} className="block py-2 border-b">💰 Wallet</Link>
 
-    <Link
-      to="/"
-      className="block py-2 border-b"
-      onClick={() => setMobileMenuOpen(false)}
-    >
-      🏠 Home
-    </Link>
+        <button
+          onClick={handleLogout}
+          className="w-full bg-red-500 text-white py-3 rounded-lg mt-4"
+        >
+          Logout
+        </button>
+      </div>
+    )}
 
-    <Link
-      to="/reels"
-      className="block py-2 border-b"
-      onClick={() => setMobileMenuOpen(false)}
-    >
-      🎬 Reels
-    </Link>
-
-    <Link
-      to="/messages"
-      className="block py-2 border-b"
-      onClick={() => setMobileMenuOpen(false)}
-    >
-      💬 Messages
-    </Link>
-
-    <Link
-      to="/leaderboard"
-      className="block py-2 border-b"
-      onClick={() => setMobileMenuOpen(false)}
-    >
-      🏆 Leaderboard
-    </Link>
-
-    <Link
-      to="/saved"
-      className="block py-2 border-b"
-      onClick={() => setMobileMenuOpen(false)}
-    >
-      🔖 Saved Posts
-    </Link>
-
-    <Link
-      to="/profile"
-      className="block py-2 border-b"
-      onClick={() => setMobileMenuOpen(false)}
-    >
-      👤 Profile
-    </Link>
-
-    <Link
-      to="/friends"
-      className="block py-2 border-b"
-      onClick={() => setMobileMenuOpen(false)}
-    >
-      👥 Friends
-    </Link>
-
-    <Link
-      to="/friend-requests"
-      className="block py-2 border-b"
-      onClick={() => setMobileMenuOpen(false)}
-    >
-      📩 Requests
-    </Link>
-
-    <Link
-      to="/wallet"
-      className="block py-2 border-b"
-      onClick={() => setMobileMenuOpen(false)}
-    >
-      💰 Wallet
-    </Link>
-
-    <button
-      onClick={handleLogout}
-      className="w-full bg-red-500 text-white py-3 rounded-lg mt-4"
-    >
-      Logout
-    </button>
-
-  </div>
-)}
-
-   
-
-  <InstallPWAButton />
-
-
-
-    </>
-  );
+    <InstallPWAButton />
+  </>
+);
 };
 
 export default Navbar;
