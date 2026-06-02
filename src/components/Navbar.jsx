@@ -53,7 +53,7 @@ const Navbar = () => {
   );
 
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [showNotifications, setShowNotifications] = useState(false);
+  const [Notifications, setNotifications] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
 
   const [notifications, setNotifications] = useState([]);
@@ -187,7 +187,7 @@ const Navbar = () => {
 
           {/* NOTIFICATIONS */}
           <div ref={dropdownRef} className="relative">
-            <button onClick={() => setShowNotifications(!showNotifications)} className="relative p-2">
+            <button onClick={() => setNotifications(!Notifications)} className="relative p-2">
               <Bell size={25} />
               {unreadCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1 rounded-full">
@@ -196,7 +196,7 @@ const Navbar = () => {
               )}
             </button>
 
-            {showNotifications && (
+            {Notifications && (
               <div className="absolute right-0 mt-2 w-srceen bg-white shadow rounded-lg border max-h-96 overflow-y-auto">
                 <div className="p-3 font-semibold border-b">Notifications</div>
 
