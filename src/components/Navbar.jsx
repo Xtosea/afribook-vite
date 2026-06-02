@@ -1,6 +1,3 @@
-
-
-
 import React, { useEffect, useState, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
@@ -173,3 +170,4 @@ const Navbar = () => {
   );
 };
 
+export default Navbar;
