@@ -1,5 +1,14 @@
-import React, { useEffect, useState, useRef } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import React, {
+  useEffect,
+  useState,
+  useRef,
+} from "react";
+
+import {
+  Link,
+  useNavigate,
+  useLocation,
+} from "react-router-dom";
 
 import SearchBar from "./SearchBar";
 import { connectSocket, safeEmit } from "../socket";
@@ -20,9 +29,6 @@ import {
 
 import InstallPWAButton from "./InstallPWAButton";
 
-const defaultProfile =
-  "https://ui-avatars.com/api/?name=User";
-
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -36,7 +42,6 @@ const Navbar = () => {
 
   const [notifications, setNotifications] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
-
   const [showSettings, setShowSettings] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -47,70 +52,38 @@ const Navbar = () => {
 
   const isActive = (path) => location.pathname === path;
 
-  // =========================
-  // FETCH NOTIFICATIONS COUNT
-  // =========================
+  // ================= FETCH NOTIFICATIONS COUNT =================
   useEffect(() => {
     const fetchCount = async () => {
-      try {
-        const token = localStorage.getItem("token");
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${API_BASE}/api/notifications/unread-count`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-        const res = await fetch(
-          `${API_BASE}/api/notifications/unread-count`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-
-        const data = await res.json();
-        setUnreadCount(data.count || 0);
-      } catch (err) {
-        console.error(err);
-      }
+      const data = await res.json();
+      setUnreadCount(data.count || 0);
     };
 
     fetchCount();
   }, []);
 
-  // =========================
-  // FETCH NOTIFICATIONS
-  // =========================
+  // ================= FETCH NOTIFICATIONS =================
   useEffect(() => {
     const fetchNotifications = async () => {
-      try {
-        const token = localStorage.getItem("token");
+      const token = localStorage.getItem("token");
 
-        const res = await fetch(`${API_BASE}/api/notifications`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+      const res = await fetch(`${API_BASE}/api/notifications`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-        const data = await res.json();
-        setNotifications(Array.isArray(data) ? data : []);
-      } catch (err) {
-        console.error(err);
-      }
+      const data = await res.json();
+      setNotifications(Array.isArray(data) ? data : []);
     };
 
     fetchNotifications();
   }, []);
 
-  // =========================
-  // LOGIN CHECK
-  // =========================
-  useEffect(() => {
-    const check = () => {
-      setIsLoggedIn(!!localStorage.getItem("token"));
-    };
-
-    check();
-    window.addEventListener("storage", check);
-
-    return () => window.removeEventListener("storage", check);
-  }, []);
-
-  // =========================
-  // SOCKET
-  // =========================
+  // ================= SOCKET =================
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token || !currentUserId) return;
@@ -118,9 +91,7 @@ const Navbar = () => {
     const socket = connectSocket();
     if (!socket) return;
 
-    const joinUser = () => {
-      safeEmit("join", currentUserId);
-    };
+    const joinUser = () => safeEmit("join", currentUserId);
 
     if (socket.connected) joinUser();
     socket.on("connect", joinUser);
@@ -138,22 +109,14 @@ const Navbar = () => {
     };
   }, [currentUserId]);
 
-  // =========================
-  // CLOSE DROPDOWNS
-  // =========================
+  // ================= OUTSIDE CLICK =================
   useEffect(() => {
     const handleClick = (e) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(e.target)
-      ) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setShowDropdown(false);
       }
 
-      if (
-        settingsRef.current &&
-        !settingsRef.current.contains(e.target)
-      ) {
+      if (settingsRef.current && !settingsRef.current.contains(e.target)) {
         setShowSettings(false);
       }
     };
@@ -164,7 +127,6 @@ const Navbar = () => {
 
   const handleLogout = () => {
     localStorage.clear();
-    setMobileMenuOpen(false);
     navigate("/login");
   };
 
@@ -173,34 +135,47 @@ const Navbar = () => {
       {/* ================= NAVBAR ================= */}
       <nav className="bg-white shadow-md sticky top-0 z-50">
 
-        {/* TOP BAR */}
+        {/* TOP ROW */}
         <div className="flex items-center justify-between px-4 md:px-6 py-3">
 
-          {/* LOGO */}
-          <Link
-            to="/"
-            className="font-extrabold text-3xl text-blue-600"
-          >
-            AfricSocial
-          </Link>
+          {/* LEFT COLUMN (LOGO + MENU UNDER IT) */}
+          <div className="flex flex-col">
 
-          {/* SEARCH (desktop) */}
-          {isLoggedIn && (
-            <div className="hidden md:flex flex-1 mx-6">
-              <SearchBar />
+            <Link
+              to="/"
+              className="font-extrabold text-3xl text-blue-600"
+            >
+              AfricSocial
+            </Link>
+
+            {/* DESKTOP MENU UNDER LOGO */}
+            <div className="hidden md:flex gap-4 mt-2 text-sm text-gray-700 flex-wrap">
+              <Link to="/" className="flex items-center gap-1"><Home size={16}/>Home</Link>
+              <Link to="/reels" className="flex items-center gap-1"><Video size={16}/>Reels</Link>
+              <Link to="/messages" className="flex items-center gap-1"><MessageCircle size={16}/>Messages</Link>
+              <Link to="/friends" className="flex items-center gap-1"><Users size={16}/>Friends</Link>
+              <Link to="/leaderboard" className="flex items-center gap-1"><Users size={16}/>Leaderboard</Link>
+              <Link to="/wallet" className="flex items-center gap-1"><Wallet size={16}/>Wallet</Link>
+              <Link to="/profile" className="flex items-center gap-1"><User size={16}/>Profile</Link>
             </div>
-          )}
+          </div>
+
+          {/* CENTER SEARCH */}
+          <div className="hidden md:flex flex-1 mx-6">
+            <SearchBar />
+          </div>
 
           {/* RIGHT ICONS */}
           <div className="flex items-center gap-4">
 
+            {/* ONLINE */}
             <div className="hidden md:flex items-center gap-2 text-sm">
-              <Users size={18} />
+              <Users size={16} />
               {onlineUsers.length}
             </div>
 
             {/* NOTIFICATIONS */}
-            <div className="relative" ref={dropdownRef}>
+            <div ref={dropdownRef} className="relative">
               <button onClick={() => setShowDropdown(!showDropdown)}>
                 <Bell />
                 {unreadCount > 0 && (
@@ -211,8 +186,8 @@ const Navbar = () => {
               </button>
 
               {showDropdown && (
-                <div className="absolute right-0 mt-2 w-80 bg-white shadow-lg rounded-xl border">
-                  <div className="p-3 font-semibold border-b">
+                <div className="absolute right-0 mt-2 w-80 bg-white shadow-lg border rounded-lg z-50">
+                  <div className="p-3 border-b font-semibold">
                     Notifications
                   </div>
 
@@ -223,11 +198,8 @@ const Navbar = () => {
                   ) : (
                     <div className="max-h-80 overflow-y-auto">
                       {notifications.map((n) => (
-                        <div
-                          key={n._id}
-                          className="p-3 border-b hover:bg-gray-50"
-                        >
-                          <p className="text-sm">{n.text}</p>
+                        <div key={n._id} className="p-3 border-b text-sm">
+                          {n.text}
                         </div>
                       ))}
                     </div>
@@ -237,14 +209,14 @@ const Navbar = () => {
             </div>
 
             {/* SETTINGS */}
-            <div className="relative" ref={settingsRef}>
+            <div ref={settingsRef} className="relative">
               <button onClick={() => setShowSettings(!showSettings)}>
                 <Settings />
               </button>
 
               {showSettings && (
-                <div className="absolute right-0 mt-2 w-44 bg-white shadow-lg border rounded-lg">
-                  <Link className="block px-4 py-2 hover:bg-gray-100" to="/settings">
+                <div className="absolute right-0 mt-2 w-40 bg-white border shadow-lg rounded-lg">
+                  <Link to="/settings" className="block px-4 py-2 hover:bg-gray-100">
                     Settings
                   </Link>
 
@@ -263,46 +235,40 @@ const Navbar = () => {
               className="md:hidden"
               onClick={() => setMobileMenuOpen(true)}
             >
-              <Menu />
+              <Menu size={28} />
             </button>
+
           </div>
-        </div>
-
-        {/* ================= DESKTOP MENU (UNDER LOGO) ================= */}
-        <div className="hidden md:flex justify-center gap-6 py-2 border-t text-sm text-gray-700">
-
-          <Link to="/" className="flex items-center gap-1"><Home size={16}/> Home</Link>
-          <Link to="/reels" className="flex items-center gap-1"><Video size={16}/> Reels</Link>
-          <Link to="/messages" className="flex items-center gap-1"><MessageCircle size={16}/> Messages</Link>
-          <Link to="/friends" className="flex items-center gap-1"><Users size={16}/> Friends</Link>
-          <Link to="/leaderboard" className="flex items-center gap-1"><Users size={16}/> Leaderboard</Link>
-          <Link to="/wallet" className="flex items-center gap-1"><Wallet size={16}/> Wallet</Link>
-          <Link to="/profile" className="flex items-center gap-1"><User size={16}/> Profile</Link>
-
         </div>
       </nav>
 
       {/* ================= MOBILE MENU ================= */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 bg-black/40 z-50">
+        <div className="fixed inset-0 bg-black/50 z-50">
+
           <div className="w-72 bg-white h-full p-4">
 
-            <button onClick={() => setMobileMenuOpen(false)}>
+            <button
+              onClick={() => setMobileMenuOpen(false)}
+              className="mb-4"
+            >
               <X />
             </button>
 
-            <div className="mt-6 space-y-4">
+            <div className="flex flex-col gap-4">
 
               <Link to="/" onClick={() => setMobileMenuOpen(false)}>Home</Link>
               <Link to="/reels" onClick={() => setMobileMenuOpen(false)}>Reels</Link>
               <Link to="/messages" onClick={() => setMobileMenuOpen(false)}>Messages</Link>
               <Link to="/friends" onClick={() => setMobileMenuOpen(false)}>Friends</Link>
+              <Link to="/leaderboard" onClick={() => setMobileMenuOpen(false)}>Leaderboard</Link>
               <Link to="/wallet" onClick={() => setMobileMenuOpen(false)}>Wallet</Link>
+              <Link to="/profile" onClick={() => setMobileMenuOpen(false)}>Profile</Link>
               <Link to="/settings" onClick={() => setMobileMenuOpen(false)}>Settings</Link>
 
               <button
                 onClick={handleLogout}
-                className="w-full bg-red-500 text-white py-2 rounded"
+                className="bg-red-500 text-white py-2 rounded"
               >
                 Logout
               </button>
