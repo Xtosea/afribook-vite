@@ -177,29 +177,36 @@ const Reels = () => {
     const { videoUrl, thumbnailBlob } = await uploadFile(file);
 
     // 2. Convert thumbnail blob to file
-    const thumbnailFile = new File(
-      [thumbnailBlob],
-      "thumbnail.jpg",
-      { type: "image/jpeg" }
-    );
+    let thumbnailUrl = "";
 
-    // 3. Upload thumbnail to backend
-    const thumbUploadRes = await fetch(
-      `${API_BASE}/api/r2/upload-thumbnail`,
-      {
-        method: "POST",
-        body: (() => {
-          const fd = new FormData();
-          fd.append("file", thumbnailFile);
-          return fd;
-        })(),
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+if (thumbnailBlob) {
+  const thumbnailFile = new File(
+    [thumbnailBlob],
+    "thumbnail.jpg",
+    { type: "image/jpeg" }
+  );
 
-    const { thumbnailUrl } = await thumbUploadRes.json();
+  const fd = new FormData();
+  fd.append("file", thumbnailFile);
+
+  const thumbUploadRes = await fetch(
+  `${API_BASE}/api/r2/upload-thumbnail`,
+  {
+    method: "POST",
+    body: fd,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+);
+
+if (!thumbUploadRes.ok) {
+  throw new Error("Thumbnail upload failed");
+}
+
+const thumbData = await thumbUploadRes.json();
+
+thumbnailUrl = thumbData.thumbnailUrl;
 
     // 4. Create reel in DB
     const res = await fetch(`${API_BASE}/api/posts/reels`, {
