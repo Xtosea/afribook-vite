@@ -408,23 +408,6 @@ const lastPostRef = useCallback(
 )}
 
 
-          
-
-          {/* ADS */}
-
-          {(index + 1) === 4 && (
-            <Adsterra containerId="container-ad-middle-1" />
-          )}
-
-          {(index + 1) === 8 && (
-            <Adsterra containerId="container-ad-middle-2" />
-          )}
-        </div>
-      );
-    })
-  )}
-
-
 
   {/* LOAD MORE */}
 
