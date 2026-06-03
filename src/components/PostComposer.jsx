@@ -442,16 +442,12 @@ const PostComposer = ({
     <h3 className="font-bold text-xl text-gray-900">
   What's happening today?
 </h3>
-
 <p className="text-sm text-gray-500">
-  Share photos, videos, thoughts and moments with your friends
-</p>
-
-    <p className="text-sm text-gray-500">
-      Share photos, videos, reels and updates with friends
+      Share photos, videos and updates with friends
     </p>
   </div>
 </div>
+
 <div className="border-b pb-3"></div>
 
       {/* TEXTAREA */}
@@ -490,7 +486,7 @@ const PostComposer = ({
     setExpanded(true)
   }
   placeholder={`Share a photo, video or thought... ${
-    currentUser?.name || "User"
+    currentUser?.name || 
   }?`}
   style={{
     color: textColor,
