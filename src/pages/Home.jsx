@@ -291,15 +291,7 @@ const lastPostRef = useCallback(
         />
 
 
-       
-<SidebarRight />
-
-        {/* REELS */}
-
-        {reels.length > 0 && (
-          <ReelsHorizontal reels={reels} />
-        )}
-
+         
         {/* POSTS */}
 
 <div
@@ -358,6 +350,8 @@ const lastPostRef = useCallback(
       );
     })
   )}
+
+SidebarRight />
 
   {/* LOAD MORE */}
 
