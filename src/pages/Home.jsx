@@ -29,6 +29,10 @@ import FriendCarousel from "../components/friends/FriendCarousel";
 
 import ReelsHorizontal from "../components/reels/ReelsHorizontal";
 
+import FeedSection from "../components/feed/FeedSection";
+import TopCreators from "../components/feed/TopCreators";
+import ChallengesWidget from "../components/feed/ChallengesWidget";
+
 // Lazy Components
 const PostCard = lazy(() =>
   import("../components/PostCard")
@@ -328,6 +332,44 @@ const lastPostRef = useCallback(
             />
           </Suspense>
 
+         {(index + 1) === 2 && reels.length > 0 && (
+  <FeedSection title="🎬 Trending Reels">
+    <ReelsHorizontal reels={reels} />
+  </FeedSection>
+)}
+
+{(index + 1) === 4 && (
+  <FeedSection title="👥 People You May Know">
+    <  SidebarRight limit={10} />
+  </FeedSection>
+)}
+
+{(index + 1) === 6 && (
+  <FeedSection title="📢 Sponsored">
+    <Adsterra containerId="feed-ad-1" />
+  </FeedSection>
+)}
+
+{(index + 1) === 8 && (
+  <FeedSection title="⭐ Top Creators">
+    <TopCreators />
+  </FeedSection>
+)}
+
+{(index + 1) === 10 && (
+  <FeedSection title="🏆 Active Challenges">
+    <ChallengesWidget />
+  </FeedSection>
+)}
+
+{(index + 1) === 12 &&
+  reels.length > 0 && (
+    <FeedSection title="🎬 More Reels">
+      <ReelsHorizontal reels={reels} />
+    </FeedSection>
+)}
+
+
           {/* SHOW REELS AGAIN */}
 
           {(index + 1) === 2 &&
@@ -337,7 +379,7 @@ const lastPostRef = useCallback(
               />
             )}
 
-         <SidebarRight />
+       
 
           {/* ADS */}
 
