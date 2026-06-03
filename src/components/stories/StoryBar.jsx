@@ -140,16 +140,18 @@ const [showCreator, setShowCreator] =
 };
 
   /* ================= UPLOAD STORY ================= */
-  const handleUpload = async (formData) => {
+  const handleUpload = async ({ file, text, music }) => {
   try {
-    const res = await uploadStory(formData);
+    const newStory = await uploadStory(file); // ONLY file goes to R2
 
-    const story = res?.story || res?.data || res;
+    const story = newStory?.story || newStory?.data || newStory;
 
     if (!story?._id) return;
 
     const safeStory = {
       ...story,
+      text,
+      music,
       user: story.user || user,
     };
 
