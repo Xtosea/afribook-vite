@@ -10,6 +10,11 @@ const StoryCreator = ({ onClose, onSelectFile }) => {
   const [music, setMusic] = useState(null);
 const [musicList, setMusicList] =
   useState([]);
+const [music, setMusic] = useState(null);
+const [text, setText] = useState("");
+const [stickers, setStickers] = useState([]);
+const [backgroundColor, setBackgroundColor] = useState("#000000");
+
 
   // ================= HANDLE FILE =================
   const handleFile = (e) => {
