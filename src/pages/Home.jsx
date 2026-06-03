@@ -351,7 +351,7 @@ const lastPostRef = useCallback(
     })
   )}
 
-SidebarRight />
+<SidebarRight />
 
   {/* LOAD MORE */}
 
