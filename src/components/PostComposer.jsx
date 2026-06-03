@@ -416,10 +416,19 @@ const PostComposer = ({
 
   return (
 
-    <form
-      onSubmit={handleSubmitPost}
-      className="bg-white p-5 rounded-2xl shadow-md space-y-4"
-    >
+  <form
+    onSubmit={handleSubmitPost}
+    className="
+      bg-white
+      p-5
+      rounded-3xl
+      shadow-lg
+      border
+      border-gray-100
+      space-y-4
+    "
+  >
+    
 
     <div className="flex items-center gap-3 mb-3">
   <img
@@ -428,20 +437,48 @@ const PostComposer = ({
     className="w-12 h-12 rounded-full object-cover"
   />
  
-          {/* TEXT FOR SHARE POST, IMAGE OR THOUGHT*/}
+          {/* TEXT FOR A SHARE POST, IMAGE OR THOUGHT*/}
   <div>
-    <h3 className="font-bold text-lg text-gray-900">
-      Create a Post
-    </h3>
+    <h3 className="font-bold text-xl text-gray-900">
+  What's happening today?
+</h3>
+
+<p className="text-sm text-gray-500">
+  Share photos, videos, thoughts and moments with your friends
+</p>
 
     <p className="text-sm text-gray-500">
       Share photos, videos, reels and updates with friends
     </p>
   </div>
 </div>
-
+<div className="border-b pb-3"></div>
 
       {/* TEXTAREA */}
+
+
+<div className="flex justify-between pt-2 border-t">
+  <button
+    type="button"
+    className="flex items-center gap-2 text-red-500"
+  >
+    🎥 Video
+  </button>
+
+  <button
+    type="button"
+    className="flex items-center gap-2 text-green-500"
+  >
+    📷 Photo
+  </button>
+
+  <button
+    type="button"
+    className="flex items-center gap-2 text-blue-500"
+  >
+    😊 Feeling
+  </button>
+</div>
 
       <textarea
   rows={expanded ? 4 : 1}
