@@ -54,19 +54,19 @@ const StoryCreator = ({ onClose, onSelectFile }) => {
 
         {/* MEDIA PREVIEW */}
         {preview && (
-          <div className="relative mb-3 rounded-xl overflow-hidden">
+          <div className="relative mb-3 rounded-xl overflow-hidden max-h-[300px] flex items-center justify-center bg-black">
 
             {media?.type?.startsWith("video") ? (
               <video
-                src={preview}
-                controls
-                className="w-full rounded-xl"
-              />
+  src={preview}
+  controls
+  className="max-h-[300px] w-auto object-contain"
+/>
             ) : (
               <img
-                src={preview}
-                className="w-full rounded-xl"
-              />
+  src={preview}
+  className="max-h-[300px] w-auto object-contain"
+/>
             )}
 
             {/* TEXT OVERLAY */}
