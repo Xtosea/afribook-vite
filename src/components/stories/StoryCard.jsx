@@ -70,9 +70,21 @@ const StoryCard = ({
   "
 />
 
+</div>
+ </div>
 
-        </div>
-      </div>
+      {story.music && (
+  <div className="absolute top-2 right-2">
+    🎵
+  </div>
+)}
+
+
+{story.text && (
+  <div className="absolute bottom-10 left-2">
+    ✍️
+  </div>
+)}
 
       {/* USERNAME */}
       <div className="absolute bottom-3 left-3 right-3">
