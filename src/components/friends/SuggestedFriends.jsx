@@ -164,7 +164,7 @@ const SuggestedFriends = ({
       <div className="flex items-center justify-between">
 
         <h2 className="font-bold text-lg">
-          People You May Know
+          {/*People You May Know*/}
         </h2>
 
         <button
@@ -183,9 +183,9 @@ const SuggestedFriends = ({
 
         <div className="flex gap-4 overflow-hidden">
 
-          <div className="min-w-[260px] h-48 bg-gray-200 rounded-2xl animate-pulse"></div>
+          <div className="min-w-[240px] h-48 bg-gray-200 rounded-2xl animate-pulse"></div>
 
-          <div className="min-w-[260px] h-48 bg-gray-200 rounded-2xl animate-pulse"></div>
+          <div className="min-w-[240px] h-48 bg-gray-200 rounded-2xl animate-pulse"></div>
 
         </div>
 
@@ -252,8 +252,8 @@ const SuggestedFriends = ({
   }}
   alt={user.name}
   className="
-    w-60
-    h-60
+    w-40
+    h-40
     rounded-2xl
     object-cover
     mb-3
