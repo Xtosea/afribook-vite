@@ -322,6 +322,7 @@ const lastPostRef = useCallback(
         />
       </Suspense>
 
+
       {(index + 1) === 2 &&
         reels.length > 0 && (
           <FeedSection title="🎬 Trending Reels">
@@ -329,11 +330,13 @@ const lastPostRef = useCallback(
           </FeedSection>
       )}
 
+
       {(index + 1) === 4 && (
         <FeedSection title="👥 People You May Know">
           <SuggestedFriends limit={10} />
         </FeedSection>
       )}
+
 
       {(index + 1) === 6 && (
         <FeedSection title="📢 Sponsored">
@@ -341,11 +344,13 @@ const lastPostRef = useCallback(
         </FeedSection>
       )}
 
+
       {(index + 1) === 8 && (
         <FeedSection title="⭐ Top Creators">
           <TopCreators />
         </FeedSection>
       )}
+
 
       {(index + 1) === 10 && (
         <FeedSection title="🏆 Active Challenges">
@@ -353,12 +358,14 @@ const lastPostRef = useCallback(
         </FeedSection>
       )}
 
+
       {(index + 1) === 12 &&
         reels.length > 0 && (
           <FeedSection title="🎬 More Reels">
             <ReelsHorizontal reels={reels} />
           </FeedSection>
       )}
+
         </div>
       );
     })
