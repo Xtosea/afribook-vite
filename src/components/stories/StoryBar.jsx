@@ -39,6 +39,10 @@ const [opening, setOpening] = useState(false);
 
 const [showCreator, setShowCreator] =
   useState(false);
+const [media, setMedia] = useState(null);
+const [music, setMusic] = useState(null);
+const [text, setText] = useState("");
+const [preview, setPreview] = useState(null);
 
 
 
