@@ -421,6 +421,26 @@ const PostComposer = ({
       className="bg-white p-5 rounded-2xl shadow-md space-y-4"
     >
 
+    <div className="flex items-center gap-3 mb-3">
+  <img
+    src={currentUser?.profilePic}
+    alt=""
+    className="w-12 h-12 rounded-full object-cover"
+  />
+ 
+          {/* TEXT FOR SHARE POST, IMAGE OR THOUGHT*/}
+  <div>
+    <h3 className="font-bold text-lg text-gray-900">
+      Create a Post
+    </h3>
+
+    <p className="text-sm text-gray-500">
+      Share photos, videos, reels and updates with friends
+    </p>
+  </div>
+</div>
+
+
       {/* TEXTAREA */}
 
       <textarea
@@ -432,7 +452,7 @@ const PostComposer = ({
   onFocus={() =>
     setExpanded(true)
   }
-  placeholder={`Post Video/Image, ${
+  placeholder={`Share a photo, video or thought... ${
     currentUser?.name || "User"
   }?`}
   style={{
