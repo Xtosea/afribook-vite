@@ -414,6 +414,8 @@ const PostComposer = ({
     }
   };
 
+console.log("Profile Pic:", currentUser?.profilePic);
+
   return (
 
   <form
@@ -433,10 +435,13 @@ const PostComposer = ({
     
  <div className="flex items-center gap-3 mb-3">
   <img
-    src={currentUser?.profilePic}
-    alt=""
-    className="w-12 h-12 rounded-full object-cover"
-  />
+  src={
+    currentUser?.profilePic ||
+    "/default-avatar.png"
+  }
+  alt="Profile"
+  className="w-12 h-12 rounded-full object-cover"
+/>
 
   <div>
     <h3 className="font-bold text-xl text-gray-900">
