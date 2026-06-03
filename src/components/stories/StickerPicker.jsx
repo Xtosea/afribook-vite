@@ -1,4 +1,4 @@
-const stickers = [
+const emojiList = [
   "🔥",
   "❤️",
   "😂",
