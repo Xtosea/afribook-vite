@@ -20,19 +20,16 @@ const StoryCreator = ({ onClose, onSelectFile }) => {
 
   // ================= POST STORY =================
   const handlePost = async () => {
-    if (!media) return;
+  if (!media) return;
 
-    const formData = new FormData();
-    formData.append("media", media);
-    formData.append("text", text);
+  await onSelectFile({
+    file: media,
+    text,
+    music,
+  });
 
-    if (music) {
-      formData.append("music", music);
-    }
-
-    await onSelectFile(formData);
-    onClose();
-  };
+  onClose();
+};
 
   // ================= UI =================
   return (
