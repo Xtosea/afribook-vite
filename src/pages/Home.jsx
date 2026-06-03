@@ -25,7 +25,7 @@ import PostComposer from "../components/PostComposer";
 
 import Adsterra from "../components/Adsterra.jsx";
 
-import FriendCarousel from "../components/friends/FriendCarousel";
+import SuggestedFriends from "../components/friends/SuggestedFriends";
 
 import ReelsHorizontal from "../components/reels/ReelsHorizontal";
 
@@ -359,9 +359,17 @@ const lastPostRef = useCallback(
             <ReelsHorizontal reels={reels} />
           </FeedSection>
       )}
+        </div>
+      );
+    })
+  )}
+
+  {loadingPosts && page > 1 && (
+    <div className="text-center py-4">
+      Loading more posts...
     </div>
-  );
-})
+  )}
+</div>
 
    </main>
 
