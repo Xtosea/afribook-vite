@@ -140,7 +140,13 @@ const [showCreator, setShowCreator] =
 };
 
   /* ================= UPLOAD STORY ================= */
-const handleUpload = async ({ file, text, music }) => {
+const handleUpload = async ({
+  file,
+  text,
+  music,
+  stickers,
+  backgroundColor,
+}) => {
   try {
     const newStory = await uploadStory(file);
 
