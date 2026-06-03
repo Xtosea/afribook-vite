@@ -430,28 +430,62 @@ const PostComposer = ({
   >
     
 
-    <div className="flex items-center gap-3 mb-3">
+    
+ <div className="flex items-center gap-3 mb-3">
   <img
     src={currentUser?.profilePic}
     alt=""
     className="w-12 h-12 rounded-full object-cover"
   />
- 
-          {/* TEXT FOR A SHARE POST, IMAGE OR THOUGHT*/}
+
   <div>
     <h3 className="font-bold text-xl text-gray-900">
-  What's happening today?
-</h3>
-<p className="text-sm text-gray-500">
+      What's happening today?
+    </h3>
+
+    <p className="text-sm text-gray-500">
       Share photos, videos and updates with friends
     </p>
   </div>
-
+</div>
 
 <div className="border-b pb-3"></div>
 
       {/* TEXTAREA */}
 
+      <textarea
+  rows={expanded ? 4 : 1}
+  value={newPost}
+  onChange={(e) =>
+    setNewPost(e.target.value)
+  }
+  onFocus={() =>
+    setExpanded(true)
+  }
+  placeholder={`Share a photo, video or thought... ${
+    currentUser?.name || "Friend"
+  }?`}
+  style={{
+    color: textColor,
+    ...getBackgroundStyle(),
+  }}
+  className={`
+    w-full
+    p-4
+    rounded-2xl
+    border
+    resize-none
+    transition-all
+    duration-200
+    focus:outline-none
+    focus:ring-2
+    focus:ring-blue-400
+    relative
+    z-0
+    ${expanded ? "h-28" : "h-12"}
+    ${fontStyle}
+  `}
+/>
 
 <div className="flex justify-between pt-2 border-t">
   <button
@@ -476,39 +510,6 @@ const PostComposer = ({
   </button>
 </div>
 
-      <textarea
-  rows={expanded ? 4 : 1}
-  value={newPost}
-  onChange={(e) =>
-    setNewPost(e.target.value)
-  }
-  onFocus={() =>
-    setExpanded(true)
-  }
-  placeholder={`Share a photo, video or thought... ${
-    currentUser?.name || 
-  }?`}
-  style={{
-    color: textColor,
-    ...getBackgroundStyle(),
-  }}
-  className={`
-    w-full
-    p-4
-    rounded-2xl
-    border
-    resize-none
-    transition-all
-    duration-200
-    focus:outline-none
-    focus:ring-2
-    focus:ring-blue-400
-    relative
-    z-0
-    ${expanded ? "h-28" : "h-12"}
-    ${fontStyle}
-  `}
-/>
 
       {/* EXPANDED */}
 
