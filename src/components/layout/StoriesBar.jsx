@@ -146,25 +146,7 @@ const StoriesBar = ({
   }, [socket]);
 
 
-console.log(
-  "PROFILE PIC:",
-  safeUser?.profilePic
-);
 
-console.log(
-  "LOCAL PROFILE:",
-  localStorage.getItem(
-    "profilePic"
-  )
-);
-
-
-const StoriesBar = ({ user, stories = [] }) => {
-
-  console.log("StoriesBar user:", user);
-
-  ...
-}
 
 
   return (
@@ -177,13 +159,11 @@ const StoriesBar = ({ user, stories = [] }) => {
           onClick={handleAddStory}
           className="relative min-w-[110px] h-44 rounded-2xl overflow-hidden cursor-pointer bg-gradient-to-b from-gray-200 to-gray-400 flex flex-col items-center justify-center shadow-lg"
         >
-          <img
+  <img
   src={
-    user?.profilePic?.trim()
-      ? user.profilePic
-      : localStorage.getItem("profilePic")?.trim()
-      ? localStorage.getItem("profilePic")
-      : "/default-avatar.png"
+    safeUser?.profilePic ||
+    localStorage.getItem("profilePic") ||
+    "/default-avatar.png"
   }
   alt=""
   className="w-14 h-14 rounded-full border-4 border-white object-cover"
