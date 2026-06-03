@@ -148,7 +148,14 @@ const handleUpload = async ({
   backgroundColor,
 }) => {
   try {
-    const newStory = await uploadStory(file);
+    const newStory =
+      await uploadStory({
+        file,
+        text,
+        music,
+        stickers,
+        backgroundColor,
+      });
 
     const story =
       newStory?.story ||
@@ -158,13 +165,13 @@ const handleUpload = async ({
     if (!story?._id) return;
 
     const safeStory = {
-  ...story,
-  text,
-  music,
-  stickers,
-  backgroundColor,
-  user: story.user || user,
-};
+      ...story,
+      text,
+      music,
+      stickers,
+      backgroundColor,
+      user: story.user || user,
+    };
 
     setActiveStories((prev) => {
       const exists = prev.some(
