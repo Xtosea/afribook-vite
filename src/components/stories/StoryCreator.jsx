@@ -1,19 +1,25 @@
-import React, { useRef, useState } from "react";
+import React, {
+  useRef,
+  useState,
+  useEffect,
+} from "react";
+
+import { API_BASE } from "../../api/api";
 
 const StoryCreator = ({ onClose, onSelectFile }) => {
   const fileRef = useRef();
 
   // ================= STATES =================
   const [media, setMedia] = useState(null);
-  const [preview, setPreview] = useState(null);
-  const [text, setText] = useState("");
-  const [music, setMusic] = useState(null);
-const [musicList, setMusicList] =
-  useState([]);
-const [music, setMusic] = useState(null);
+const [preview, setPreview] = useState(null);
+
 const [text, setText] = useState("");
+const [music, setMusic] = useState(null);
+
+const [musicList, setMusicList] = useState([]);
 const [stickers, setStickers] = useState([]);
-const [backgroundColor, setBackgroundColor] = useState("#000000");
+const [backgroundColor, setBackgroundColor] =
+  useState("#000000");
 
 
   // ================= HANDLE FILE =================
