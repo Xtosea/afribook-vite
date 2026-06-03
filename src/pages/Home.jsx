@@ -429,12 +429,6 @@ containerId="container-1ac49ab91139c0ad3e13572497cfbe18"
         <SidebarRight />
 
        </aside>
-
-      {/* FRIEND CAROUSEL */}
-
-      <div className="md:hidden">
-        <FriendCarousel limit={10} />
-      </div>
      
     </div>
    };
