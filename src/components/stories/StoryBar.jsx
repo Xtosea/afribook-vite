@@ -158,11 +158,13 @@ const handleUpload = async ({
     if (!story?._id) return;
 
     const safeStory = {
-      ...story,
-      text,
-      music,
-      user: story.user || user,
-    };
+  ...story,
+  text,
+  music,
+  stickers,
+  backgroundColor,
+  user: story.user || user,
+};
 
     setActiveStories((prev) => {
       const exists = prev.some(
