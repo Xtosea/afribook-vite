@@ -145,35 +145,13 @@ const [showCreator, setShowCreator] =
     const newStory = await uploadStory(formData);
 
     if (newStory?._id) {
-      setActiveStories((prev) => [
-        newStory,
-        ...prev,
-      ]);
+      setActiveStories((prev) => [newStory, ...prev]);
     }
   } catch (err) {
     console.error("Upload story error:", err);
   }
 };
-    if (!file) return;
-
-    try {
-
-      const newStory = await uploadStory(file);
-
-      if (newStory?._id) {
-
-  setActiveStories((prev) => [
-    newStory,
-    ...prev,
-  ]);
-
-}
-
-    } catch (err) {
-      console.error("Upload story error:", err);
-    }
-  };
-
+    
   /* ================= OPEN STORY ================= */
   const openStory = (story) => {
   setOpening(true);
