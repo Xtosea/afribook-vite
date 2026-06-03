@@ -36,11 +36,12 @@ const [backgroundColor, setBackgroundColor] =
   if (!media) return;
 
   await onSelectFile({
-    file: media,
-    text,
-    music,
-  });
-
+  file: media,
+  text,
+  music,
+  stickers,
+  backgroundColor,
+});
   onClose();
 };
 
@@ -106,6 +107,45 @@ useEffect(() => {
           onChange={(e) => setText(e.target.value)}
           className="w-full p-2 border rounded mb-3"
         />
+
+
+<div className="mb-3">
+  <p className="font-semibold">
+    Stickers
+  </p>
+
+  <div className="flex gap-2 flex-wrap">
+    {emojiList.map((emoji) => (
+      <button
+        key={emoji}
+        onClick={() =>
+          setStickers((prev) => [
+            ...prev,
+            emoji,
+          ])
+        }
+        className="text-3xl"
+      >
+        {emoji}
+      </button>
+    ))}
+  </div>
+</div>
+
+
+<div className="mb-3">
+  <p className="font-semibold">
+    Background Color
+  </p>
+
+  <input
+    type="color"
+    value={backgroundColor}
+    onChange={(e) =>
+      setBackgroundColor(e.target.value)
+    }
+  />
+</div>
 
          <div className="mb-3">
   <p className="font-semibold mb-2">
