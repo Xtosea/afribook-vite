@@ -127,6 +127,12 @@ const StoryViewer = ({
 
   const media = story.media?.[0];
 
+const music = story.music;
+const text = story.text;
+const stickers = story.stickers || [];
+const backgroundColor =
+  story.backgroundColor || "#000";
+
   /* ================= REACTION HANDLER ================= */
   const handleReaction = async (reaction) => {
     try {
@@ -177,45 +183,145 @@ const StoryViewer = ({
         <StoryProgress progress={progress} />
       </div>
 
-      {/* MEDIA */}
-      {media?.type === "image" ? (
-        <img
-          src={media.url}
-          className="w-full h-full object-contain"
-        />
-      ) : (
-        <video
-          ref={videoRef}
-          src={media?.url}
-          className="w-full h-full object-contain"
-          autoPlay
-          playsInline
-          loop
-          onClick={() => setPaused(!paused)}
-        />
-      )}
+      {/* BACKGROUND STORY */}
+{!media && (
+  <div
+    className="absolute inset-0"
+    style={{
+      background: backgroundColor,
+    }}
+  />
+)}
+
+{/* IMAGE */}
+{media?.type === "image" && (
+  <img
+    src={media.url}
+    className="w-full h-full object-contain"
+  />
+)}
+
+{/* VIDEO */}
+{media?.type === "video" && (
+  <video
+    ref={videoRef}
+    src={media.url}
+    className="w-full h-full object-contain"
+    autoPlay
+    playsInline
+    loop
+    onClick={() => setPaused(!paused)}
+  />
+)}
+
+
+{music?.audioUrl && (
+  <audio
+    autoPlay
+    controls
+    src={music.audioUrl}
+    className="
+      absolute
+      top-20
+      right-3
+      w-52
+      z-50
+    "
+  />
+)}
+
+
+{text && (
+  <div
+    className="
+      absolute
+      left-1/2
+      top-1/2
+      -translate-x-1/2
+      -translate-y-1/2
+      text-white
+      text-3xl
+      font-bold
+      text-center
+      px-6
+      drop-shadow-lg
+      z-40
+    "
+  >
+    {text}
+  </div>
+)}
+
+
+{stickers.map((sticker, i) => (
+  <div
+    key={i}
+    className="
+      absolute
+      text-5xl
+      z-40
+    "
+    style={{
+      top:
+        sticker.y || `${20 + i * 10}%`,
+      left:
+        sticker.x || `${20 + i * 10}%`,
+    }}
+  >
+    {sticker.emoji || sticker}
+  </div>
+))}
+
 
       {/* USER INFO */}
       <div className="absolute top-0 left-0 right-0 p-4 flex items-center gap-3 bg-gradient-to-b from-black/70 to-transparent">
-        <img
-          src={story.user?.profilePic || "/default-avatar.png"}
-          className="w-10 h-10 rounded-full object-cover"
-        />
+  <img
+    src={story.user?.profilePic || "/default-avatar.png"}
+    className="w-10 h-10 rounded-full object-cover"
+  />
 
-        <div>
-          <p className="text-white font-semibold">
-            {story.user?.name}
-          </p>
-          <p className="text-xs text-gray-300">Story</p>
-        </div>
-      </div>
+  <div>
+    <p className="text-white font-semibold">
+      {story.user?.name}
+    </p>
+
+    <p className="text-xs text-gray-300">
+      Story
+    </p>
+  </div>
+</div>
 
       {/* BOTTOM ACTIONS */}
       <div className="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-black/80 to-transparent">
 
-        <p className="text-white text-sm mb-2">
-  {story.caption}
-</p>
+        {story.caption && (
+  <p className="text-white text-sm mb-2">
+    {story.caption}
+  </p>
+)}
+
+
+{music && (
+  <p className="text-xs text-green-400">
+    🎵 Music Story
+  </p>
+)}
+
+{text && !media && (
+  <p className="text-xs text-yellow-400">
+    ✍️ Text Story
+  </p>
+)}
+
+
+{music?.title && (
+  <p className="text-white text-xs mb-2">
+    🎵 {music.title}
+    {music.artist
+      ? ` • ${music.artist}`
+      : ""}
+  </p>
+)}
 
 <div className="text-white text-sm mb-3">
   {reactions.length || 0} reactions
