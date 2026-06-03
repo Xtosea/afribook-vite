@@ -294,9 +294,7 @@ const lastPostRef = useCallback(
           }}
         />
 
-
-         
-        {/* POSTS */}
+{/* POSTS */}
 
 <div
   ref={feedRef}
