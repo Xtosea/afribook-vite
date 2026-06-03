@@ -6,6 +6,16 @@ import React, {
 
 import { API_BASE } from "../../api/api";
 
+const emojiList = [
+  "🔥",
+  "❤️",
+  "😂",
+  "😎",
+  "🎉",
+  "💯",
+];
+
+
 const StoryCreator = ({ onClose, onSelectFile }) => {
   const fileRef = useRef();
 
