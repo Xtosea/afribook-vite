@@ -11,6 +11,8 @@ import { API_BASE } from "../../api/api";
 import { useStoryUpload } from "../../hooks/useStoryUpload";
 
 import { getSocket } from "../../socket";
+import StoryCreator from "./StoryCreator";
+
 
 const StoryBar = ({ user }) => {
 
