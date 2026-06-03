@@ -337,6 +337,8 @@ const lastPostRef = useCallback(
               />
             )}
 
+         <SidebarRight />
+
           {/* ADS */}
 
           {(index + 1) === 4 && (
@@ -351,7 +353,7 @@ const lastPostRef = useCallback(
     })
   )}
 
-<SidebarRight />
+
 
   {/* LOAD MORE */}
 
