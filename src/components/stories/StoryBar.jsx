@@ -39,10 +39,7 @@ const [opening, setOpening] = useState(false);
 
 const [showCreator, setShowCreator] =
   useState(false);
-const [media, setMedia] = useState(null);
-const [music, setMusic] = useState(null);
-const [text, setText] = useState("");
-const [preview, setPreview] = useState(null);
+
 
 
 
@@ -143,9 +140,20 @@ const [preview, setPreview] = useState(null);
 };
 
   /* ================= UPLOAD STORY ================= */
-  const handleUpload = async (e) => {
+  const handleUpload = async (formData) => {
+  try {
+    const newStory = await uploadStory(formData);
 
-    const file = e.target.files[0];
+    if (newStory?._id) {
+      setActiveStories((prev) => [
+        newStory,
+        ...prev,
+      ]);
+    }
+  } catch (err) {
+    console.error("Upload story error:", err);
+  }
+};
     if (!file) return;
 
     try {
@@ -359,10 +367,9 @@ useEffect(() => {
     onClose={() =>
       setShowCreator(false)
     }
-    onSelectFile={(e) => {
-      handleUpload(e);
-      setShowCreator(false);
-    }}
+    onSelectFile={(formData) => {
+  handleUpload(formData);
+}}
   />
 )}
 
