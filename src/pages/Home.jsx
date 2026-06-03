@@ -384,7 +384,10 @@ const lastPostRef = useCallback(
 
 {(index + 1) === 6 && (
   <FeedSection title="📢 Sponsored">
-    <Adsterra containerId="feed-ad-1" />
+ 
+<Adsterra
+containerId="container-1ac49ab91139c0ad3e13572497cfbe18"
+/>
   </FeedSection>
 )}
 
@@ -434,9 +437,9 @@ const lastPostRef = useCallback(
       </div>
      
     </div>
-
+   };
    
   );
 
 
-export default memo(Home);
+export default memo(Home;
