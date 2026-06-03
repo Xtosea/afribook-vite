@@ -145,7 +145,7 @@ const Navbar = () => {
   // ================= UI =================
   return (
     <>
-      <nav className="bg-white shadow sticky top-2 z-50 px-4 py-2 flex items-center justify-between">
+      <nav className="bg-white shadow sticky top-0 z-50 px-4 py-2 flex items-center justify-between">
 
         {/* LOGO */}
         <Link to="/" className="text-2xl font-bold text-blue-600">
