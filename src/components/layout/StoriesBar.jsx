@@ -159,6 +159,13 @@ console.log(
 );
 
 
+const StoriesBar = ({ user, stories = [] }) => {
+
+  console.log("StoriesBar user:", user);
+
+  ...
+}
+
 
   return (
 
