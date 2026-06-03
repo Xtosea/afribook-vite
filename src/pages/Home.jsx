@@ -433,7 +433,6 @@ const lastPostRef = useCallback(
         <FriendCarousel limit={10} />
       </div>
 
-    </div>
   );
 };
 
