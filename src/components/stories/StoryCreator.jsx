@@ -32,16 +32,24 @@ const [backgroundColor, setBackgroundColor] =
   };
 
   // ================= POST STORY =================
-  const handlePost = async () => {
-  if (!media) return;
+const handlePost = async () => {
+  if (
+    !media &&
+    !text &&
+    !music &&
+    stickers.length === 0
+  ) {
+    return;
+  }
 
   await onSelectFile({
-  file: media,
-  text,
-  music,
-  stickers,
-  backgroundColor,
-});
+    file: media,
+    text,
+    music,
+    stickers,
+    backgroundColor,
+  });
+
   onClose();
 };
 
