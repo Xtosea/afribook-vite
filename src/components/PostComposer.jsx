@@ -446,7 +446,7 @@ const PostComposer = ({
       Share photos, videos and updates with friends
     </p>
   </div>
-</div>
+
 
 <div className="border-b pb-3"></div>
 
