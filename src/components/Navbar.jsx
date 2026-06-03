@@ -47,7 +47,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const dropdownRef = useRef(null);
+  
   const settingsRef = useRef(null);
 
   const [isLoggedIn, setIsLoggedIn] = useState(
@@ -55,7 +55,7 @@ const Navbar = () => {
   );
 
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [showNotifications, setShowNotifications] = useState(false);
+  
   const [showSettings, setShowSettings] = useState(false);
 
   const [notifications, setNotifications] = useState([]);
@@ -187,29 +187,18 @@ const Navbar = () => {
             <Wallet size={20} />
           </Link>
 
-          {/* NOTIFICATIONS */}
-          <div ref={dropdownRef} className="relative">
-            <button onClick={() => setShowNotifications(!Notifications)} className="relative p-2">
-              <Bell size={25} />
-              {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1 rounded-full">
-                  {unreadCount}
-                </span>
-              )}
-            </button>
+          <button
+  onClick={() => navigate("/notifications")}
+  className="relative p-2"
+>
+  <Bell size={25} />
 
-            {Notifications && (
-              <div className="absolute right-0 mt-2 w-screen bg-white shadow rounded-lg border max-h-96 overflow-y-auto">
-                <div className="p-3 font-semibold border-b">Notifications</div>
-
-                {shownotifications.map((n) => (
-                  <div key={n._id} className="p-3 border-b text-sm">
-                    {n.text}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+  {unreadCount > 0 && (
+    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1 rounded-full">
+      {unreadCount}
+    </span>
+  )}
+</button>
 
           {/* SETTINGS */}
           <div ref={settingsRef} className="relative">
