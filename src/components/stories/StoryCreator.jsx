@@ -107,6 +107,30 @@ useEffect(() => {
           className="w-full p-2 border rounded mb-3"
         />
 
+         <div className="mb-3">
+  <p className="font-semibold mb-2">
+    Music Library
+  </p>
+
+  <div className="max-h-40 overflow-y-auto border rounded">
+    {musicList.map((song) => (
+      <div
+        key={song._id}
+        onClick={() => setMusic(song)}
+        className="
+          p-2
+          border-b
+          cursor-pointer
+          hover:bg-gray-100
+        "
+      >
+        🎵 {song.title}
+        {song.artist && ` - ${song.artist}`}
+      </div>
+    ))}
+  </div>
+</div>
+
         {/* MUSIC INPUT */}
         <input
           type="file"
