@@ -140,35 +140,14 @@ const [showCreator, setShowCreator] =
 };
 
   /* ================= UPLOAD STORY ================= */
-  const handleUpload = async ({ file, text, music }) => {
-  try {
-    const newStory = await uploadStory(file); // ONLY file goes to R2
-
-    const story = newStory?.story || newStory?.data || newStory;
-
-    if (!story?._id) return;
-
-    const safeStory = {
-      ...story,
-      text,
-      music,
-      user: story.user || user,
-    };
-
-    setActiveStories((prev) => {
-  const exists = prev.some((s) => s._id === safeStory._id);
-
-  if (exists) return prev;
-
-  return [safeStory, ...prev];
-});
-    
-  /* ================= UPLOAD STORY ================= */
 const handleUpload = async ({ file, text, music }) => {
   try {
-    const newStory = await uploadStory(file); // ONLY file goes to R2
+    const newStory = await uploadStory(file);
 
-    const story = newStory?.story || newStory?.data || newStory;
+    const story =
+      newStory?.story ||
+      newStory?.data ||
+      newStory;
 
     if (!story?._id) return;
 
@@ -180,15 +159,55 @@ const handleUpload = async ({ file, text, music }) => {
     };
 
     setActiveStories((prev) => {
-      const exists = prev.some((s) => s._id === safeStory._id);
+      const exists = prev.some(
+        (s) => s._id === safeStory._id
+      );
+
       if (exists) return prev;
+
       return [safeStory, ...prev];
     });
 
   } catch (err) {
-    console.error("Upload story error:", err);
+    console.error(
+      "Upload story error:",
+      err
+    );
   }
 };
+
+
+  /* ================= OPEN STORY ================= */
+  const openStory = (story) => {
+  setOpening(true);
+  setSelectedStory(story);
+
+  setTimeout(() => setOpening(false), 200);
+
+  if (!viewedStories.includes(story._id)) {
+    setViewedStories((prev) => [...prev, story._id]);
+  }
+};
+
+  /* ================= LIKE ================= */
+  const handleLike = async (story) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      await fetch(
+        `${API_BASE}/api/stories/like/${story._id}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+    } catch (err) {
+      console.error("Like story error:", err);
+    }
+  };
+
 
   /* ================= SHARE ================= */
   const handleShare = async (story) => {
