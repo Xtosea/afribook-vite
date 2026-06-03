@@ -142,11 +142,18 @@ const [showCreator, setShowCreator] =
   /* ================= UPLOAD STORY ================= */
   const handleUpload = async (formData) => {
   try {
-    const newStory = await uploadStory(formData);
+    const res = await uploadStory(formData);
 
-    if (newStory?._id) {
-      setActiveStories((prev) => [newStory, ...prev]);
-    }
+    const story = res?.story || res?.data || res;
+
+    if (!story?._id) return;
+
+    const safeStory = {
+      ...story,
+      user: story.user || user,
+    };
+
+    setActiveStories((prev) => [safeStory, ...prev]);
   } catch (err) {
     console.error("Upload story error:", err);
   }
