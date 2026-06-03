@@ -432,7 +432,10 @@ const lastPostRef = useCallback(
       <div className="md:hidden">
         <FriendCarousel limit={10} />
       </div>
+     
+    </div>
 
+    </div>
   );
 };
 
