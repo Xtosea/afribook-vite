@@ -155,7 +155,13 @@ const [showCreator, setShowCreator] =
       user: story.user || user,
     };
 
-    setActiveStories((prev) => [safeStory, ...prev]);
+    setActiveStories((prev) => {
+  const exists = prev.some((s) => s._id === safeStory._id);
+
+  if (exists) return prev;
+
+  return [safeStory, ...prev];
+}); [safeStory, ...prev]);
   } catch (err) {
     console.error("Upload story error:", err);
   }
