@@ -12,141 +12,98 @@ export const useStoryUpload = () => {
   const [progress, setProgress] =
     useState(0);
 
-  const uploadStory =
-    async (file) => {
+  const uploadStory = async (input) => {
+  try {
+    setLoading(true);
 
-      try {
+    let file;
+    let caption = "";
+    let music = null;
 
-        setLoading(true);
+    // =========================
+    // CASE 1: FormData (NEW STORY CREATOR)
+    // =========================
+    if (input instanceof FormData) {
+      file = input.get("media");
+      caption = input.get("text") || "";
+      music = input.get("music") || null;
+    } else {
+      // =========================
+      // CASE 2: OLD SINGLE FILE
+      // =========================
+      file = input;
+    }
 
-        // =========================
-        // GET SIGNED URL
-        // =========================
-        const signedRes =
-          await fetch(
-            `${API_BASE}/api/r2/signed-url?contentType=${file.type}`
-          );
+    if (!file) throw new Error("No file provided");
 
-        const signedData =
-          await signedRes.json();
+    // =========================
+    // GET SIGNED URL
+    // =========================
+    const signedRes = await fetch(
+      `${API_BASE}/api/r2/signed-url?contentType=${file.type}`
+    );
 
-        if (
-          !signedData.uploadUrl ||
-          !signedData.fileUrl
-        ) {
-          throw new Error(
-            "Invalid signed URL response"
-          );
-        }
+    const signedData = await signedRes.json();
 
-        // =========================
-        // UPLOAD TO R2
-        // =========================
-        await axios.put(
-          signedData.uploadUrl,
-          file,
+    if (!signedData.uploadUrl || !signedData.fileUrl) {
+      throw new Error("Invalid signed URL response");
+    }
+
+    // =========================
+    // UPLOAD TO R2
+    // =========================
+    await axios.put(signedData.uploadUrl, file, {
+      headers: {
+        "Content-Type": file.type,
+      },
+      onUploadProgress: (event) => {
+        const percent = Math.round(
+          (event.loaded * 100) / event.total
+        );
+        setProgress(percent);
+      },
+    });
+
+    // =========================
+    // SAVE STORY TO DATABASE
+    // =========================
+    const token = localStorage.getItem("token");
+
+    const res = await fetch(`${API_BASE}/api/stories`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        media: [
           {
-            headers: {
-              "Content-Type":
-                file.type,
-            },
+            url: signedData.fileUrl,
+            type: file.type.startsWith("video")
+              ? "video"
+              : "image",
+          },
+        ],
 
-            onUploadProgress:
-              (event) => {
+        caption,
+        music: music ? "attached" : null,
+      }),
+    });
 
-                const percent =
-                  Math.round(
-                    (
-                      event.loaded *
-                      100
-                    ) /
-                    event.total
-                  );
+    const story = await res.json();
 
-                setProgress(percent);
-              },
-          }
-        );
+    if (!res.ok) {
+      throw new Error(story.error || "Failed to create story");
+    }
 
-        // =========================
-        // SAVE STORY TO DATABASE
-        // =========================
-        const token =
-          localStorage.getItem(
-            "token"
-          );
+    console.log("Uploaded story:", story);
 
-        const res =
-          await fetch(
-            `${API_BASE}/api/stories`,
-            {
-              method: "POST",
-
-              headers: {
-                "Content-Type":
-                  "application/json",
-
-                Authorization:
-                  `Bearer ${token}`,
-              },
-
-              body: JSON.stringify({
-                media: [
-                  {
-                    url:
-                      signedData.fileUrl,
-
-                    type:
-                      file.type.startsWith(
-                        "video"
-                      )
-                        ? "video"
-                        : "image",
-                  },
-                ],
-
-                caption: "",
-              }),
-            }
-          );
-
-        const story =
-          await res.json();
-
-        console.log(
-          "Uploaded story:",
-          story
-        );
-
-        if (!res.ok) {
-          throw new Error(
-            story.error ||
-            "Failed to create story"
-          );
-        }
-
-        return story;
-
-      } catch (err) {
-
-        console.error(
-          "Story upload error:",
-          err
-        );
-
-        throw err;
-
-      } finally {
-
-        setLoading(false);
-
-        setProgress(0);
-      }
-    };
-
-  return {
-    uploadStory,
-    loading,
-    progress,
-  };
+    return story;
+  } catch (err) {
+    console.error("Story upload error:", err);
+    throw err;
+  } finally {
+    setLoading(false);
+    setProgress(0);
+  }
 };
