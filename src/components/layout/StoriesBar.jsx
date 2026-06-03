@@ -146,7 +146,11 @@ const StoriesBar = ({
   }, [socket]);
 
 
-
+console.log("safeUser:", safeUser);
+console.log(
+  "local profile:",
+  localStorage.getItem("profilePic")
+);
 
 
   return (
