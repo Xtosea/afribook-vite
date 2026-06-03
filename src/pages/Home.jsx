@@ -435,8 +435,8 @@ const lastPostRef = useCallback(
      
     </div>
 
-    </div>
+   
   );
-};
+
 
 export default memo(Home);
