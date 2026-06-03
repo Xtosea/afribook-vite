@@ -307,77 +307,63 @@ const lastPostRef = useCallback(
     </>
   ) : (
     posts.map((post, index) => {
-      const isLastPost =
-        posts.length === index + 1;
+  const isLastPost =
+    posts.length === index + 1;
 
-      return (
-        <div
-          key={post._id}
-          ref={
-            isLastPost
-              ? lastPostRef
-              : null
-          }
-        >
-          <Suspense
-            fallback={<SkeletonPost />}
-          >
-            <PostCard
-              post={post}
-              currentUserId={
-                currentUserId
-              }
-            />
-          </Suspense>
+  return (
+    <div
+      key={post._id}
+      ref={isLastPost ? lastPostRef : null}
+    >
+      <Suspense fallback={<SkeletonPost />}>
+        <PostCard
+          post={post}
+          currentUserId={currentUserId}
+        />
+      </Suspense>
 
-         {(index + 1) === 2 && reels.length > 0 && (
-  <FeedSection title="🎬 Trending Reels">
-    <ReelsHorizontal reels={reels} />
-  </FeedSection>
-)}
+      {(index + 1) === 2 &&
+        reels.length > 0 && (
+          <FeedSection title="🎬 Trending Reels">
+            <ReelsHorizontal reels={reels} />
+          </FeedSection>
+      )}
 
-{(index + 1) === 4 && (
-  <FeedSection title="👥 People You May Know">
-    <  SidebarRight limit={10} />
-  </FeedSection>
-)}
+      {(index + 1) === 4 && (
+        <FeedSection title="👥 People You May Know">
+          <SuggestedFriends limit={10} />
+        </FeedSection>
+      )}
 
-{(index + 1) === 6 && (
-  <FeedSection title="📢 Sponsored">
-    <Adsterra containerId="feed-ad-1" />
-  </FeedSection>
-)}
+      {(index + 1) === 6 && (
+        <FeedSection title="📢 Sponsored">
+          <Adsterra containerId="feed-ad-1" />
+        </FeedSection>
+      )}
 
-{(index + 1) === 8 && (
-  <FeedSection title="⭐ Top Creators">
-    <TopCreators />
-  </FeedSection>
-)}
+      {(index + 1) === 8 && (
+        <FeedSection title="⭐ Top Creators">
+          <TopCreators />
+        </FeedSection>
+      )}
 
-{(index + 1) === 10 && (
-  <FeedSection title="🏆 Active Challenges">
-    <ChallengesWidget />
-  </FeedSection>
-)}
+      {(index + 1) === 10 && (
+        <FeedSection title="🏆 Active Challenges">
+          <ChallengesWidget />
+        </FeedSection>
+      )}
 
-{(index + 1) === 12 &&
-  reels.length > 0 && (
-    <FeedSection title="🎬 More Reels">
-      <ReelsHorizontal reels={reels} />
-    </FeedSection>
-)}
-
-
-  
-{/* LOAD MORE */}
-
-  {loadingPosts && page > 1 && (
-    <div className="text-center py-4">
-      Loading more posts...
+      {(index + 1) === 12 &&
+        reels.length > 0 && (
+          <FeedSection title="🎬 More Reels">
+            <ReelsHorizontal reels={reels} />
+          </FeedSection>
+      )}
     </div>
-  )}
-</div>
-      </main>
+  );
+})
+
+   </main>
 
       {/* RIGHT SIDEBAR */}
 
