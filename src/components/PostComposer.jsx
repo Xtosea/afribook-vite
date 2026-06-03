@@ -414,7 +414,7 @@ const PostComposer = ({
     }
   };
 
-console.log("Profile Pic:", currentUser?.profilePic);
+
 
   return (
 
