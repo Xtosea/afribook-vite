@@ -368,49 +368,8 @@ const lastPostRef = useCallback(
 )}
 
 
-  {(index + 1) === 2 && reels.length > 0 && (
-  <FeedSection title="🎬 Trending Reels">
-    <ReelsHorizontal reels={reels} />
-  </FeedSection>
-)}
-
-{(index + 1) === 4 && (
-  <FeedSection title="👥 People You May Know">
-    <  SidebarRight limit={10} />
-  </FeedSection>
-)}
-
-{(index + 1) === 6 && (
-  <FeedSection title="📢 Sponsored">
- 
-<Adsterra
-containerId="container-1ac49ab91139c0ad3e13572497cfbe18"
-/>
-  </FeedSection>
-)}
-
-{(index + 1) === 8 && (
-  <FeedSection title="⭐ Top Creators">
-    <TopCreators />
-  </FeedSection>
-)}
-
-{(index + 1) === 10 && (
-  <FeedSection title="🏆 Active Challenges">
-    <ChallengesWidget />
-  </FeedSection>
-)}
-
-{(index + 1) === 12 &&
-  reels.length > 0 && (
-    <FeedSection title="🎬 More Reels">
-      <ReelsHorizontal reels={reels} />
-    </FeedSection>
-)}
-
-
-
-  {/* LOAD MORE */}
+  
+{/* LOAD MORE */}
 
   {loadingPosts && page > 1 && (
     <div className="text-center py-4">
@@ -428,10 +387,8 @@ containerId="container-1ac49ab91139c0ad3e13572497cfbe18"
 
        </aside>
      
-    </div>
-   };
-   
+   </div>
   );
+};
 
-
-export default memo(Home;
+export default memo(Home);
