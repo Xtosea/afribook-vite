@@ -432,7 +432,7 @@ const PostComposer = ({
   onFocus={() =>
     setExpanded(true)
   }
-  placeholder={`What's on your mind, ${
+  placeholder={`Post Video/Image, ${
     currentUser?.name || "User"
   }?`}
   style={{
