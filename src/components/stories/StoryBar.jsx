@@ -267,16 +267,14 @@ useEffect(() => {
 >
   {/* PROFILE IMAGE */}
   <img
-    src={
-      activeStories.find(
-        (s) => s.user?._id === user?._id
-      )?.user?.profilePic ||
-      activeStories?.[0]?.user?.profilePic ||
-      "/default-avatar.png"
-    }
-    alt="profile"
-    className="w-full h-[140px] object-cover"
-  />
+  src={
+    user?.profilePic ||
+    localStorage.getItem("profilePic") ||
+    "/default-avatar.png"
+  }
+  alt="profile"
+  className="w-full h-[140px] object-cover"
+/>
 
   {/* PLUS BUTTON */}
   <div
