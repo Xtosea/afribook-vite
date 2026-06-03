@@ -35,6 +35,9 @@ const StoryBar = ({ user }) => {
 
 const [opening, setOpening] = useState(false);
 
+const [showCreator, setShowCreator] =
+  useState(false);
+
 
 
   /* ================= FETCH STORIES ================= */
@@ -130,8 +133,8 @@ const [opening, setOpening] = useState(false);
 
   /* ================= CREATE STORY ================= */
   const handleCreateStory = () => {
-    fileRef.current?.click();
-  };
+  setShowCreator(true);
+};
 
   /* ================= UPLOAD STORY ================= */
   const handleUpload = async (e) => {
