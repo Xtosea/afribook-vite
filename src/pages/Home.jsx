@@ -425,9 +425,7 @@ const lastPostRef = useCallback(
 
         <SidebarRight />
 
-        <Adsterra containerId="container-ad-sidebar" />
-
-      </aside>
+       </aside>
 
       {/* FRIEND CAROUSEL */}
 
