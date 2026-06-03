@@ -8,6 +8,8 @@ const StoryCreator = ({ onClose, onSelectFile }) => {
   const [preview, setPreview] = useState(null);
   const [text, setText] = useState("");
   const [music, setMusic] = useState(null);
+const [musicList, setMusicList] =
+  useState([]);
 
   // ================= HANDLE FILE =================
   const handleFile = (e) => {
@@ -30,6 +32,16 @@ const StoryCreator = ({ onClose, onSelectFile }) => {
 
   onClose();
 };
+
+
+useEffect(() => {
+  fetch(
+    `${API_BASE}/api/story-music`
+  )
+    .then((res) => res.json())
+    .then(setMusicList);
+}, []);
+
 
   // ================= UI =================
   return (
