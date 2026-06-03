@@ -55,20 +55,14 @@ const StoryCard = ({
           `}
         >
           <img
-            src={
-              story.user?.profilePic ||
-              "/default-avatar.png"
-            }
-            alt=""
-            className="
-              w-12
-              h-12
-              rounded-full
-              object-cover
-              border-2
-              border-black
-            "
-          />
+  src={
+    user?.profilePic ||
+    localStorage.getItem("profilePic") ||
+    "/default-avatar.png"
+  }
+  alt="profile"
+  className="w-full h-[140px] object-cover"
+/>
         </div>
       </div>
 
