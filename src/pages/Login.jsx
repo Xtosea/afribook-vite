@@ -43,9 +43,33 @@ export default function Login() {
         return;
       }
 
-      // ✅ Save token + userId
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("userId", data.user._id);
+      // ✅ Save user session
+localStorage.setItem("token", data.token);
+
+localStorage.setItem(
+  "userId",
+  data.user._id
+);
+
+localStorage.setItem(
+  "name",
+  data.user.name || ""
+);
+
+localStorage.setItem(
+  "profilePic",
+  data.user.profilePic || ""
+);
+
+localStorage.setItem(
+  "verified",
+  data.user.verified || false
+);
+
+localStorage.setItem(
+  "verificationBadge",
+  data.user.verificationBadge || ""
+);
 
       // ✅ Navigate to Home
       navigate("/", { replace: true });
