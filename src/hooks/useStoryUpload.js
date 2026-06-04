@@ -3,7 +3,7 @@ import axios from "axios";
 
 const API_BASE = import.meta.env.VITE_API_BASE;
 
-export function use2Upload() {
+export default function use2Upload() {
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState(null);
