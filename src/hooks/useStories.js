@@ -27,8 +27,22 @@ export const useStoryUpload = () => {
       // MEDIA UPLOAD (OPTIONAL)
       // =========================
       if (file) {
+        const token =
+          localStorage.getItem("token");
+
         const signedRes = await fetch(
-          `${API_BASE}/api/r2/signed-url?contentType=${file.type}`
+          `${API_BASE}/api/r2/upload-url`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type":
+                "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              fileType: file.type,
+            }),
+          }
         );
 
         const signedData =
@@ -48,7 +62,8 @@ export const useStoryUpload = () => {
           file,
           {
             headers: {
-              "Content-Type": file.type,
+              "Content-Type":
+                file.type,
             },
 
             onUploadProgress: (
@@ -69,7 +84,7 @@ export const useStoryUpload = () => {
           {
             url: signedData.fileUrl,
             type:
-              file.type.startsWith(
+              file?.type?.startsWith(
                 "video"
               )
                 ? "video"
@@ -81,6 +96,7 @@ export const useStoryUpload = () => {
       // =========================
       // SAVE STORY
       // =========================
+
       const token =
         localStorage.getItem("token");
 
@@ -97,22 +113,30 @@ export const useStoryUpload = () => {
           },
 
           body: JSON.stringify({
-            body: JSON.stringify({
-  media,
-  text,
+            media,
+            text,
 
-  music: music
-    ? {
-        title: music.title,
-        artist: music.artist,
-        audioUrl: music.audioUrl,
-        coverUrl: music.coverUrl || "",
-      }
-    : null,
+            music:
+              music &&
+              !(music instanceof File)
+                ? {
+                    title:
+                      music.title,
+                    artist:
+                      music.artist,
+                    audioUrl:
+                      music.audioUrl,
+                    coverUrl:
+                      music.coverUrl ||
+                      "",
+                  }
+                : null,
 
-  stickers,
-  backgroundColor,
-})
+            stickers,
+            backgroundColor,
+          }),
+        }
+      );
 
       const story =
         await res.json();
