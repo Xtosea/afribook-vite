@@ -1,50 +1,44 @@
 import { useState } from "react";
 import axios from "axios";
 
-const API_BASE =
-  import.meta.env.VITE_API_BASE;
+const API_BASE = import.meta.env.VITE_API_BASE;
 
 export const useStoryUpload = () => {
-
-
-
-  const [loading, setLoading] =
-    useState(false);
-
-  const [progress, setProgress] =
-    useState(0);
+  const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   const uploadStory = async ({
-    file,
+    file = null,
     text = "",
     music = null,
     stickers = [],
     backgroundColor = "#000000",
   }) => {
-
-console.log("FILE:", file);
-console.log("FILE TYPE:", file?.type);
-console.log("MUSIC:", music);
-
     try {
       setLoading(true);
+
+      console.log("FILE:", file);
+      console.log("FILE TYPE:", file?.type);
+      console.log("MUSIC:", music);
 
       let media = [];
 
       // =========================
       // MEDIA UPLOAD (OPTIONAL)
       // =========================
-      if (file) {
-        const token =
-          localStorage.getItem("token");
+      if (
+        file &&
+        typeof file === "object" &&
+        typeof file.type === "string"
+      ) {
+        const token = localStorage.getItem("token");
 
         const signedRes = await fetch(
           `${API_BASE}/api/r2/upload-url`,
           {
             method: "POST",
             headers: {
-              "Content-Type":
-                "application/json",
+              "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({
@@ -53,12 +47,11 @@ console.log("MUSIC:", music);
           }
         );
 
-        const signedData =
-          await signedRes.json();
+        const signedData = await signedRes.json();
 
         if (
-          !signedData.uploadUrl ||
-          !signedData.fileUrl
+          !signedData?.uploadUrl ||
+          !signedData?.fileUrl
         ) {
           throw new Error(
             "Invalid signed URL response"
@@ -70,18 +63,14 @@ console.log("MUSIC:", music);
           file,
           {
             headers: {
-              "Content-Type":
-                file.type,
+              "Content-Type": file.type,
             },
 
-            onUploadProgress: (
-              event
-            ) => {
-              const percent =
-                Math.round(
-                  (event.loaded * 100) /
-                    event.total
-                );
+            onUploadProgress: (event) => {
+              const percent = Math.round(
+                (event.loaded * 100) /
+                  (event.total || 1)
+              );
 
               setProgress(percent);
             },
@@ -92,12 +81,11 @@ console.log("MUSIC:", music);
           {
             url: signedData.fileUrl,
             type:
-              type:
-  file &&
-  typeof file.type === "string" &&
-  file.type.startsWith("video")
-    ? "video"
-    : "image",
+              (file.type || "").startsWith(
+                "video"
+              )
+                ? "video"
+                : "image",
           },
         ];
       }
@@ -106,8 +94,9 @@ console.log("MUSIC:", music);
       // SAVE STORY
       // =========================
 
-      const token =
-        localStorage.getItem("token");
+      const token = localStorage.getItem(
+        "token"
+      );
 
       const res = await fetch(
         `${API_BASE}/api/stories`,
@@ -117,7 +106,6 @@ console.log("MUSIC:", music);
           headers: {
             "Content-Type":
               "application/json",
-
             Authorization: `Bearer ${token}`,
           },
 
@@ -130,14 +118,13 @@ console.log("MUSIC:", music);
               !(music instanceof File)
                 ? {
                     title:
-                      music.title,
+                      music.title || "",
                     artist:
-                      music.artist,
+                      music.artist || "",
                     audioUrl:
-                      music.audioUrl,
+                      music.audioUrl || "",
                     coverUrl:
-                      music.coverUrl ||
-                      "",
+                      music.coverUrl || "",
                   }
                 : null,
 
@@ -147,12 +134,11 @@ console.log("MUSIC:", music);
         }
       );
 
-      const story =
-        await res.json();
+      const story = await res.json();
 
       if (!res.ok) {
         throw new Error(
-          story.error ||
+          story?.error ||
             "Failed to create story"
         );
       }
