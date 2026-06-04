@@ -33,21 +33,21 @@ export const useStoryUpload = () => {
       ) {
         const token = localStorage.getItem("token");
 
-        const res = await fetch(
-        `${API_BASE}/api/stories`,
-        {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-              fileType: file.type,
-            }),
-          }
-        );
+        const signedRes = await fetch(
+  `${API_BASE}/api/r2/upload-url`,
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      fileType: file.type,
+    }),
+  }
+);
 
-        const signedData = await signedRes.json();
+const signedData = await signedRes.json();
 
         if (
           !signedData?.uploadUrl ||
