@@ -40,6 +40,8 @@ import ReelsHorizontal from "./components/reels/ReelsHorizontal";
 
 import Notifications from "./pages/Notifications";
 
+import StoryMusicUploader from "./components/stories/StoryMusicUploader";
+
 
 
 
@@ -82,6 +84,11 @@ function App() {
 
 <Route path="/verify-email-sent" element={<VerifyEmailSent />} />
 
+
+<Route
+  path="/admin/story-music"
+  element={<StoryMusicUploader />}
+/>
 
 
 
