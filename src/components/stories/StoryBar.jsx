@@ -8,7 +8,7 @@ import StoryCard from "./StoryCard";
 import StoryViewer from "./StoryViewer";
 
 import { API_BASE } from "../../api/api";
-import { useStory } from "../../hooks/useStory";
+import { useStoryUpload } from "../../hooks/useStoryUpload";
 
 import { getSocket } from "../../socket";
 import StoryCreator from "./StoryCreator";
