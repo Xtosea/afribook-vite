@@ -77,7 +77,7 @@ useEffect(() => {
   return (
     <div className="fixed inset-0 z-[9999] bg-black/90 flex items-center justify-center">
 
-      <div className="bg-white w-screen max-w-md rounded-2xl p-4">
+      <div className="bg-white w-screen max-w-md rounded-2xl p-4 max-h-[90vh] overflow-y-auto">
 
         {/* HEADER */}
         <div className="flex justify-between items-center mb-3">
@@ -208,7 +208,7 @@ useEffect(() => {
         {/* MEDIA PICKER BUTTON */}
         <button
           onClick={() => fileRef.current?.click()}
-          className="w-full bg-blue-600 text-white p-3 rounded-xl mb-3"
+          className="sticky bottom-0 w-full bg-blue-600 text-white p-3 rounded-xl mb-3"
         >
           📷 Add Photo / Video
         </button>
