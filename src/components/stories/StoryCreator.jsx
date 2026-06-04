@@ -77,7 +77,7 @@ useEffect(() => {
   return (
     <div className="fixed inset-0 z-[9999] bg-black/90 flex items-center justify-center">
 
-      <div className="bg-white w-full max-w-md rounded-2xl p-4">
+      <div className="bg-white w-screen max-w-md rounded-2xl p-4">
 
         {/* HEADER */}
         <div className="flex justify-between items-center mb-3">
