@@ -5,6 +5,11 @@ const API_BASE =
   import.meta.env.VITE_API_BASE;
 
 export const useStoryUpload = () => {
+
+console.log("FILE:", file);
+console.log("FILE TYPE:", file?.type);
+console.log("MUSIC:", music);
+
   const [loading, setLoading] =
     useState(false);
 
