@@ -97,18 +97,22 @@ export const useStoryUpload = () => {
           },
 
           body: JSON.stringify({
-            media,
+            body: JSON.stringify({
+  media,
+  text,
 
-            text,
+  music: music
+    ? {
+        title: music.title,
+        artist: music.artist,
+        audioUrl: music.audioUrl,
+        coverUrl: music.coverUrl || "",
+      }
+    : null,
 
-            music,
-
-            stickers,
-
-            backgroundColor,
-          }),
-        }
-      );
+  stickers,
+  backgroundColor,
+})
 
       const story =
         await res.json();
