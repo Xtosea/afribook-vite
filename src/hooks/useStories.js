@@ -89,11 +89,12 @@ console.log("MUSIC:", music);
           {
             url: signedData.fileUrl,
             type:
-              file?.type?.startsWith(
-                "video"
-              )
-                ? "video"
-                : "image",
+              type:
+  file &&
+  typeof file.type === "string" &&
+  file.type.startsWith("video")
+    ? "video"
+    : "image",
           },
         ];
       }
