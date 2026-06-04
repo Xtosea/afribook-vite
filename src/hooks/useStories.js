@@ -6,9 +6,7 @@ const API_BASE =
 
 export const useStoryUpload = () => {
 
-console.log("FILE:", file);
-console.log("FILE TYPE:", file?.type);
-console.log("MUSIC:", music);
+
 
   const [loading, setLoading] =
     useState(false);
@@ -23,6 +21,11 @@ console.log("MUSIC:", music);
     stickers = [],
     backgroundColor = "#000000",
   }) => {
+
+console.log("FILE:", file);
+console.log("FILE TYPE:", file?.type);
+console.log("MUSIC:", music);
+
     try {
       setLoading(true);
 
