@@ -61,7 +61,7 @@ export function useStoryUpload() {
       const token = localStorage.getItem("token");
 
       const res = await fetch(
-        `${API_BASE}/api/stories`,
+        `${API_BASE}/api/storyr2`,
         {
           method: "POST",
 
