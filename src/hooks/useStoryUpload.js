@@ -3,100 +3,62 @@ import axios from "axios";
 
 const API_BASE = import.meta.env.VITE_API_BASE;
 
-export const useStoryUpload = () => {
+export function useStoryUpload() {
   const [loading, setLoading] = useState(false);
+
   const [progress, setProgress] = useState(0);
 
-  const uploadStory = async ({
-    file = null,
-    text = "",
-    music = null,
-    stickers = [],
-    backgroundColor = "#000000",
-  }) => {
+  const [error, setError] = useState(null);
+
+  const uploadStory = async (file) => {
     try {
       setLoading(true);
 
-      console.log("FILE:", file);
-      console.log("FILE TYPE:", file?.type);
-      console.log("MUSIC:", music);
+      setProgress(0);
 
-      let media = [];
+      setError(null);
 
       // =========================
-      // MEDIA UPLOAD (OPTIONAL)
+      // GET SIGNED URL
       // =========================
-      if (
-        file &&
-        typeof file === "object" &&
-        typeof file.type === "string"
-      ) {
-        const token = localStorage.getItem("token");
 
-        const signedRes = await fetch(
-  `${API_BASE}/api/r2/upload-url`,
-  {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({
-      fileType: file.type,
-    }),
-  }
-);
+      const signedRes = await fetch(
+        `${API_BASE}/api/r2/signed-url?contentType=${file.type}`
+      );
 
-const signedData = await signedRes.json();
+      const signedData = await signedRes.json();
 
-        if (
-          !signedData?.uploadUrl ||
-          !signedData?.fileUrl
-        ) {
-          throw new Error(
-            "Invalid signed URL response"
-          );
-        }
-
-        await axios.put(
-          signedData.uploadUrl,
-          file,
-          {
-            headers: {
-              "Content-Type": file.type,
-            },
-
-            onUploadProgress: (event) => {
-              const percent = Math.round(
-                (event.loaded * 100) /
-                  (event.total || 1)
-              );
-
-              setProgress(percent);
-            },
-          }
-        );
-
-        media = [
-          {
-            url: signedData.fileUrl,
-            type:
-              (file.type || "").startsWith(
-                "video"
-              )
-                ? "video"
-                : "image",
-          },
-        ];
+      if (!signedData.uploadUrl) {
+        throw new Error("Failed to generate signed URL");
       }
 
       // =========================
-      // SAVE STORY
+      // UPLOAD DIRECTLY TO R2
       // =========================
 
-      const token = localStorage.getItem(
-        "token"
+      await axios.put(
+        signedData.uploadUrl,
+        file,
+        {
+          headers: {
+            "Content-Type": file.type,
+          },
+
+          onUploadProgress: (event) => {
+            const percent = Math.round(
+              (event.loaded * 100) / event.total
+            );
+
+            setProgress(percent);
+          },
+        }
       );
+
+      // =========================
+      // SAVE STORY TO DATABASE
+      // =========================
+
+      const token = localStorage.getItem("token");
 
       const res = await fetch(
         `${API_BASE}/api/stories`,
@@ -104,56 +66,41 @@ const signedData = await signedRes.json();
           method: "POST",
 
           headers: {
-            "Content-Type":
-              "application/json",
+            "Content-Type": "application/json",
+
             Authorization: `Bearer ${token}`,
           },
 
           body: JSON.stringify({
-            media,
-            text,
+            media: [
+              {
+                url: signedData.fileUrl,
 
-            music:
-              music &&
-              !(music instanceof File)
-                ? {
-                    title:
-                      music.title || "",
-                    artist:
-                      music.artist || "",
-                    audioUrl:
-                      music.audioUrl || "",
-                    coverUrl:
-                      music.coverUrl || "",
-                  }
-                : null,
-
-            stickers,
-            backgroundColor,
+                type: file.type.startsWith("video")
+                  ? "video"
+                  : "image",
+              },
+            ],
           }),
         }
       );
 
       const story = await res.json();
 
-      if (!res.ok) {
-        throw new Error(
-          story?.error ||
-            "Failed to create story"
-        );
-      }
-
       return story;
+
     } catch (err) {
-      console.error(
-        "Story upload error:",
-        err
-      );
+
+      console.error("Story Upload Error:", err);
+
+      setError(err.message);
 
       throw err;
+
     } finally {
+
       setLoading(false);
-      setProgress(0);
+
     }
   };
 
@@ -161,5 +108,6 @@ const signedData = await signedRes.json();
     uploadStory,
     loading,
     progress,
+    error,
   };
-};
+}
