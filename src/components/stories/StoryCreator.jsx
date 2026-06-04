@@ -117,6 +117,21 @@ useEffect(() => {
           </div>
         )}
 
+
+       {/* STICKERS PREVIEW */}
+{stickers.length > 0 && (
+  <div className="absolute top-4 left-4 flex flex-wrap gap-2">
+    {stickers.map((sticker, index) => (
+      <span
+        key={index}
+        className="text-3xl"
+      >
+        {sticker}
+      </span>
+    ))}
+  </div>
+)}
+
         {/* TEXT INPUT */}
         <input
           type="text"
@@ -198,12 +213,18 @@ useEffect(() => {
         />
 
         {music && (
-          <audio
-            controls
-            src={URL.createObjectURL(music)}
-            className="w-full mb-3"
-          />
-        )}
+  <audio
+    controls
+    src={
+      music instanceof File
+        ? URL.createObjectURL(music)
+        : music.audioUrl
+    }
+    className="w-full mb-3"
+  />
+)}
+            
+        
 
         {/* MEDIA PICKER BUTTON */}
         <button
