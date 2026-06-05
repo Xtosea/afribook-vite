@@ -45,6 +45,10 @@ import AdminWithdrawals
 from "./pages/admin/AdminWithdrawals";
 import AdminDashboard
 from "./pages/admin/AdminDashboard";
+import AdminVerifications
+from "./pages/admin/AdminVerifications";
+
+
 
 
 
@@ -104,6 +108,10 @@ function App() {
     element={<AdminDashboard />}
   />
 
+<Route
+  path="/admin/verifications"
+  element={<AdminVerifications />}
+/>
 
             {/* PROTECTED */}
             <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
