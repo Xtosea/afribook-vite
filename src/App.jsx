@@ -51,6 +51,9 @@ import AdminCreators from "./pages/admin/AdminCreators";
 import AdminAdvertisers from "./pages/admin/AdminAdvertisers";
 import AdminCampaigns
 from "./pages/admin/AdminCampaigns";
+import AdminFraud
+from "./pages/admin/AdminFraud";
+
 
 
 
@@ -130,6 +133,11 @@ function App() {
 <Route
   path="/admin/campaigns"
   element={<AdminCampaigns />}
+/>
+
+<Route
+  path="/admin/fraud"
+  element={<AdminFraud />}
 />
 
 
