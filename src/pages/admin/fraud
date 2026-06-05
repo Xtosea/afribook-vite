@@ -1,0 +1,83 @@
+router.get(
+  "/fraud",
+  verifyToken,
+  isAdmin,
+  async (req, res) => {
+
+    try {
+
+      const excessiveViews =
+        await AdImpression.aggregate([
+          {
+            $group: {
+              _id: "$viewer",
+              views: {
+                $sum: 1,
+              },
+            },
+          },
+          {
+            $match: {
+              views: {
+                $gt: 100,
+              },
+            },
+          },
+        ]);
+
+      const excessiveClicks =
+        await AdImpression.aggregate([
+          {
+            $match: {
+              clicked: true,
+            },
+          },
+          {
+            $group: {
+              _id: "$viewer",
+              clicks: {
+                $sum: 1,
+              },
+            },
+          },
+          {
+            $match: {
+              clicks: {
+                $gt: 20,
+              },
+            },
+          },
+        ]);
+
+      const selfClicks =
+        await AdImpression.find({
+          $expr: {
+            $eq: [
+              "$viewer",
+              "$creator",
+            ],
+          },
+        })
+        .populate(
+          "viewer",
+          "name profilePic"
+        )
+        .limit(100);
+
+      res.json({
+        excessiveViews,
+        excessiveClicks,
+        selfClicks,
+      });
+
+    } catch (err) {
+
+      console.error(err);
+
+      res.status(500).json({
+        error:
+          "Failed to fetch fraud data",
+      });
+    }
+  }
+);
