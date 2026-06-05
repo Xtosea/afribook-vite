@@ -49,6 +49,8 @@ import AdminVerifications
 from "./pages/admin/AdminVerifications";
 import AdminCreators from "./pages/admin/AdminCreators";
 import AdminAdvertisers from "./pages/admin/AdminAdvertisers";
+import AdminCampaigns
+from "./pages/admin/AdminCampaigns";
 
 
 
@@ -124,6 +126,12 @@ function App() {
   path="/admin/advertisers"
   element={<AdminAdvertisers />}
 />
+
+<Route
+  path="/admin/campaigns"
+  element={<AdminCampaigns />}
+/>
+
 
 
 
