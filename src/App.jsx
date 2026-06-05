@@ -43,7 +43,8 @@ import Notifications from "./pages/Notifications";
 import StoryMusicUploader from "./components/stories/StoryMusicUploader";
 import AdminWithdrawals
 from "./pages/admin/AdminWithdrawals";
-
+import AdminDashboard
+from "./pages/admin/AdminDashboard";
 
 
 
@@ -96,6 +97,12 @@ function App() {
     element={<AdminWithdrawals />}
   />
 
+
+ 
+ <Route
+    path="/admin"
+    element={<AdminDashboard />}
+  />
 
 
             {/* PROTECTED */}
