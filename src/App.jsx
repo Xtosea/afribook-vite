@@ -100,7 +100,7 @@ function App() {
 
  
  <Route
-    path="/admin"
+    path="/admindashboard"
     element={<AdminDashboard />}
   />
 
