@@ -47,6 +47,8 @@ import AdminDashboard
 from "./pages/admin/AdminDashboard";
 import AdminVerifications
 from "./pages/admin/AdminVerifications";
+import AdminCreators from "./pages/admin/AdminCreators";
+import AdminAdvertisers from "./pages/admin/AdminAdvertisers";
 
 
 
@@ -112,6 +114,18 @@ function App() {
   path="/admin/verifications"
   element={<AdminVerifications />}
 />
+
+<Route
+  path="/admin/creators"
+  element={<AdminCreators />}
+/>
+
+<Route
+  path="/admin/advertisers"
+  element={<AdminAdvertisers />}
+/>
+
+
 
             {/* PROTECTED */}
             <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
