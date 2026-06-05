@@ -41,7 +41,8 @@ import ReelsHorizontal from "./components/reels/ReelsHorizontal";
 import Notifications from "./pages/Notifications";
 
 import StoryMusicUploader from "./components/stories/StoryMusicUploader";
-
+import AdminWithdrawals
+from "./pages/admin/AdminWithdrawals";
 
 
 
@@ -89,6 +90,11 @@ function App() {
   path="/admin/story-music"
   element={<StoryMusicUploader />}
 />
+
+ <Route
+    path="/admin/withdrawals"
+    element={<AdminWithdrawals />}
+  />
 
 
 
