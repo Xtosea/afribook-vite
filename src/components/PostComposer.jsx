@@ -417,68 +417,73 @@ const PostComposer = ({
 
 
   return (
-
   <form
-
-<div
-  className="
-    sticky
-    top-0
-    z-50
-    bg-white
-    border-b
-    px-4
-    py-3
-    flex
-    items-center
-    justify-between
-  "
->
-  <button
-    type="button"
-    onClick={() => {
-      setExpanded(false);
-      setNewPost("");
-      setMediaFiles([]);
-      setSelectedFile(null);
-      setLocation("");
-      setLocationSuggestions([]);
-      setFeeling("");
-      setTagInput("");
-      setTaggedFriends([]);
-    }}
+    onSubmit={handleSubmitPost}
     className="
-      text-red-500
-      font-medium
+      fixed
+      inset-0
+      bg-white
+      overflow-y-auto
+      z-50
     "
   >
-    Cancel
-  </button>
 
-  <h2 className="font-bold text-lg">
-    Create Post
-  </h2>
+    <div
+      className="
+        sticky
+        top-0
+        z-50
+        bg-white
+        border-b
+        px-4
+        py-3
+        flex
+        items-center
+        justify-between
+      "
+    >
+      <butto         type="button"
+        onClick={() => {
+          setExpanded(false);
+          setNewPost("");
+          setMediaFiles([]);
+          setSelectedFile(null);
+          setLocation("");
+          setLocationSuggestions([]);
+          setFeeling("");
+          setTagInput("");
+          setTaggedFriends([]);
+        }}
+        className="text-red-500 font-medium"
+      >
+        Cancel
+      </button>
 
-  <button
-    type="submit"
-    disabled={posting}
-    className={`
-      px-5
-      py-2
-      rounded-full
-      text-white
-      font-medium
-      ${
-        posting
-          ? "bg-gray-400"
-          : "bg-blue-500"
-      }
-    `}
-  >
-    {posting ? "Posting..." : "Post"}
-  </button>
-</div>
-<div className="p-5 space-y-4">
+      <h2 className="font-bold text-lg">
+        Create Post
+      </h2>
+
+      <button
+        type="submit"
+        disabled={posting}
+        className={`
+          px-5
+          py-2
+          rounded-full
+          text-white
+          font-medium
+          ${
+            posting
+              ? "bg-gray-400"
+              : "bg-blue-500"
+          }
+        `}
+      >
+        {posting ? "Posting..." : "Post"}
+      </button>
+    </div>
+
+    <div className="p-5 space-y-4">
 
     onSubmit={handleSubmitPost}
     className="
@@ -520,14 +525,14 @@ const PostComposer = ({
       {/* TEXTAREA */}
 
       <textarea
-  rows={expanded ? 4 : 1}
+  rows={10}
   value={newPost}
   onChange={(e) =>
     setNewPost(e.target.value)
   }
-  onFocus={() =>
-    setExpanded(true)
-  }
+  onClick={() =>
+  setExpanded(true)
+}
   placeholder={`Share a photo, video or thought... ${
     currentUser?.name || "Friend"
   }?`}
@@ -548,7 +553,7 @@ const PostComposer = ({
     focus:ring-blue-400
     relative
     z-0
-    ${expanded ? "h-28" : "h-12"}
+    min-h-[250px]
     ${fontStyle}
   `}
 />
@@ -949,43 +954,7 @@ const PostComposer = ({
 
             </div>
 
-            {/* RIGHT ACTIONS */}
-
-            <div className="flex gap-2">
-
-              <button
-                type="button"
-                onClick={() => {
-
-                  setExpanded(false);
-
-                  setNewPost("");
-
-                  setMediaFiles([]);
-
-                  setSelectedFile(
-                    null
-                  );
-
-                  setLocation("");
-
-                  setLocationSuggestions(
-                    []
-                  );
-
-                  setFeeling("");
-
-                  setTagInput("");
-
-                  setTaggedFriends([]);
-
-                }}
-
-
-                
-
-            </div>
-
+            
           </div>
 
         </div>
