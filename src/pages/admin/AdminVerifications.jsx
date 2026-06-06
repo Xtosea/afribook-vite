@@ -177,40 +177,37 @@ const AdminVerifications = () => {
                 </a>
               )}
 
-              item.status?.toLowerCase() === "pending" && (
-                <div className="flex gap-3 mt-4">
+              {item.status?.toLowerCase() === "pending" && (
+  <div className="flex gap-3 mt-4">
 
-                  <button
-                    onClick={() =>
-                      updateStatus(
-                        item._id,
-                        "approve"
-                      )
-                    }
-                    className="flex-1 bg-green-600 py-2 rounded-xl flex items-center justify-center gap-2"
-                  >
-                    <CheckCircle
-                      size={18}
-                    />
-                    Approve
-                  </button>
+    <button
+      onClick={() =>
+        updateStatus(
+          item._id,
+          "approve"
+        )
+      }
+      className="flex-1 bg-green-600 py-2 rounded-xl flex items-center justify-center gap-2"
+    >
+      <CheckCircle size={18} />
+      Approve
+    </button>
 
-                  <button
-                    onClick={() =>
-                      updateStatus(
-                        item._id,
-                        "reject"
-                      )
-                    }
-                    className="flex-1 bg-red-600 py-2 rounded-xl flex items-center justify-center gap-2"
-                  >
-                    <XCircle
-                      size={18}
-                    />
-                    Reject
-                  </button>
+    <button
+      onClick={() =>
+        updateStatus(
+          item._id,
+          "reject"
+        )
+      }
+      className="flex-1 bg-red-600 py-2 rounded-xl flex items-center justify-center gap-2"
+    >
+      <XCircle size={18} />
+      Reject
+    </button>
 
-                </div>
+  </div>
+)}
               )}
 
             </div>
