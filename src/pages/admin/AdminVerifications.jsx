@@ -44,7 +44,7 @@ const AdminVerifications = () => {
         const data =
           await res.json();
 
-        setVerifications(data);
+        setVerifications(data.verifications || data.data || data || []);
 
       } catch (err) {
 
@@ -128,8 +128,8 @@ const AdminVerifications = () => {
 
       <div className="space-y-4">
 
-        {verifications.map(
-          (item) => (
+        {Array.isArray(verifications) &&
+  verifications.map((item) => (
             <div
               key={item._id}
               className="bg-gray-900 rounded-2xl p-4"
@@ -177,8 +177,7 @@ const AdminVerifications = () => {
                 </a>
               )}
 
-              {item.status ===
-                "PENDING" && (
+              item.status?.toLowerCase() === "pending" && (
                 <div className="flex gap-3 mt-4">
 
                   <button
