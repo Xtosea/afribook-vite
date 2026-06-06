@@ -19,6 +19,11 @@ import {
 
 import { API_BASE }
 from "../../api/api";
+import {
+  DollarSign,
+  Coins,
+} from "lucide-react";
+
 
 const AdminDashboard = () => {
 
@@ -87,38 +92,48 @@ const AdminDashboard = () => {
 
       <div className="grid grid-cols-2 gap-4">
 
-        <AdminLink
-          to="/admin/verifications"
-          label="Verifications"
-        />
+  <AdminLink
+    to="/admin/verifications"
+    label="Verifications"
+  />
 
-        <AdminLink
-          to="/admin/withdrawals"
-          label="Withdrawals"
-        />
+  <AdminLink
+    to="/admin/withdrawals"
+    label="Withdrawals"
+  />
 
-        <AdminLink
-          to="/admin/creators"
-          label="Creators"
-        />
+  <AdminLink
+    to="/admin/creators"
+    label="Creators"
+  />
 
-        <AdminLink
-          to="/admin/advertisers"
-          label="Advertisers"
-        />
+  <AdminLink
+    to="/admin/advertisers"
+    label="Advertisers"
+  />
 
-        <AdminLink
-          to="/admin/campaigns"
-          label="Campaigns"
-        />
+  <AdminLink
+    to="/admin/campaigns"
+    label="Campaigns"
+  />
 
-        <AdminLink
-          to="/admin/fraud"
-          label="Fraud Detection"
-        />
+  <AdminLink
+    to="/admin/fraud"
+    label="Fraud Detection"
+  />
 
-      </div>
+  {/* ✅ NEW */}
+  <AdminLink
+    to="/admin/earnings"
+    label="Creator Earnings"
+  />
 
+  <AdminLink
+    to="/admin/revenue"
+    label="Revenue Dashboard"
+  />
+
+</div>
     </div>
   );
 };
