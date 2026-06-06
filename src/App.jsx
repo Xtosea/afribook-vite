@@ -57,6 +57,26 @@ import AdminRevenue
 from "./pages/admin/AdminRevenue";
 import AdminEarnings
 from "./pages/admin/AdminEarnings";
+import CreatorDashboard
+from "./pages/creator/CreatorDashboard";
+
+import CreatorEarnings
+from "./pages/creator/CreatorEarnings";
+
+import ApplyMonetization
+from "./pages/creator/ApplyMonetization";
+
+import AdvertiserDashboard
+from "./pages/ads/AdvertiserDashboard";
+
+import ApplyAdvertiser
+from "./pages/ads/ApplyAdvertiser";
+
+import CreateCampaign
+from "./pages/ads/CreateCampaign";
+
+import MyCampaigns
+from "./pages/ads/MyCampaigns";
 
 
 
@@ -146,6 +166,40 @@ function App() {
 
 <Route path="/admin/earnings" element={<AdminEarnings />} />
 <Route path="/admin/revenue" element={<AdminRevenue />} />
+<Route
+  path="/creator"
+  element={<CreatorDashboard />}
+/>
+
+<Route
+  path="/creator/earnings"
+  element={<CreatorEarnings />}
+/>
+
+<Route
+  path="/creator/apply"
+  element={<ApplyMonetization />}
+/>
+
+<Route
+  path="/ads"
+  element={<AdvertiserDashboard />}
+/>
+
+<Route
+  path="/ads/apply"
+  element={<ApplyAdvertiser />}
+/>
+
+<Route
+  path="/ads/create"
+  element={<CreateCampaign />}
+/>
+
+<Route
+  path="/ads/campaigns"
+  element={<MyCampaigns />}
+/>
 
 
 
