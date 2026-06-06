@@ -208,7 +208,7 @@ const AdminVerifications = () => {
 
   </div>
 )}
-              )}
+              
 
             </div>
           )
