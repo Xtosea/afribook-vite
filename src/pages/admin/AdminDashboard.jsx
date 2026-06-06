@@ -69,39 +69,21 @@ const AdminDashboard = () => {
 
       <div className="grid grid-cols-2 gap-4 mb-8">
 
-        <StatCard
-          icon={<Users />}
-          title="Users"
-          value={stats?.users || 0}
-        />
+  <StatCard icon={<Users />} title="Users" value={stats?.users || 0} />
 
-        <StatCard
-          icon={<BadgeCheck />}
-          title="Creators"
-          value={stats?.creators || 0}
-        />
+  <StatCard icon={<BadgeCheck />} title="Creators" value={stats?.creators || 0} />
 
-        <StatCard
-          icon={<Megaphone />}
-          title="Advertisers"
-          value={stats?.advertisers || 0}
-        />
+  <StatCard icon={<Megaphone />} title="Advertisers" value={stats?.advertisers || 0} />
 
-        <StatCard
-          icon={<BarChart3 />}
-          title="Campaigns"
-          value={stats?.campaigns || 0}
-        />
+  <StatCard icon={<BarChart3 />} title="Campaigns" value={stats?.campaigns || 0} />
 
-        <StatCard
-          icon={<Wallet />}
-          title="Withdrawals"
-          value={
-            stats?.pendingWithdrawals || 0
-          }
-        />
+  <StatCard icon={<Wallet />} title="Withdrawals" value={stats?.pendingWithdrawals || 0} />
 
-      </div>
+  <StatCard icon={<Shield />} title="Pending Earnings" value={stats?.pendingEarnings || 0} />
+
+  <StatCard icon={<BarChart3 />} title="Revenue" value={`₦${stats?.revenue?.toLocaleString() || 0}`} />
+
+</div>
 
       <div className="grid grid-cols-2 gap-4">
 
