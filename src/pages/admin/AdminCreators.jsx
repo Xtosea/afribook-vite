@@ -42,7 +42,7 @@ const AdminCreators = () => {
         const data =
           await res.json();
 
-        setCreators(data);
+        setCreators(data.creators || data.data || data || []);
 
       } catch (err) {
 
@@ -112,8 +112,8 @@ const AdminCreators = () => {
 
       <div className="space-y-4">
 
-        {creators.map(
-          creator => (
+        {Array.isArray(creators) &&
+  creators.map(creator => (
 
             <div
               key={creator._id}
@@ -154,8 +154,7 @@ const AdminCreators = () => {
 
               </p>
 
-              {creator.monetizationStatus ===
-                "pending" && (
+              creator.monetizationStatus?.toLowerCase() === "pending" && (
 
                 <div className="flex gap-3 mt-4">
 
