@@ -436,53 +436,7 @@ const closeComposer = () => {
   };
 
 
-if (!expanded) {
-  return (
-    <div
-      onClick={() => setExpanded(true)}
-      className="
-        bg-white
-        rounded-2xl
-        shadow
-        border
-        p-4
-        cursor-pointer
-      "
-    >
-      <div className="flex items-center gap-3">
 
-        <img
-          src={
-            currentUser?.profilePic ||
-            "/default-avatar.png"
-          }
-          alt="Profile"
-          className="
-            w-12
-            h-12
-            rounded-full
-            object-cover
-          "
-        />
-
-        <div
-          className="
-            flex-1
-            bg-gray-100
-            rounded-full
-            px-4
-            py-3
-            text-gray-500
-          "
-        >
-          What's on your mind,
-          {currentUser?.name || "User"}?
-        </div>
-
-      </div>
-    </div>
-  );
-}
 
 
   return (
@@ -512,7 +466,7 @@ if (!expanded) {
       <form
         onSubmit={handleSubmitPost}
         className="
-          w-full
+          w-screen
           max-w-2xl
           bg-white
           rounded-3xl
