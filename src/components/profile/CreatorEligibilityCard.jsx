@@ -23,11 +23,57 @@ const CreatorEligibilityCard = ({
     );
 
   return (
-    <div className="bg-gray-900 text-white p-4 rounded-2xl">
+  <div className="bg-gray-900 text-white p-4 rounded-2xl">
 
-      <h3 className="font-bold text-lg mb-4">
-        AfricSocial Partner Program
-      </h3>
+    <h3 className="font-bold text-lg mb-4">
+      AfricSocial Partner Program
+    </h3>
+
+    {/* Followers Progress */}
+
+    {/* Views Progress */}
+
+    {/* Account Age */}
+
+    {/* Violations */}
+
+    {/* Apply Button */}
+
+    {/* POLICY SECTION */}
+    <div className="mt-6 border-t border-gray-700 pt-4">
+
+      <h4 className="font-bold mb-2">
+        Partner Rules
+      </h4>
+
+      <ul className="list-disc ml-5 text-sm text-gray-300 space-y-1">
+
+        <li>
+          No fake engagement
+        </li>
+
+        <li>
+          No spam content
+        </li>
+
+        <li>
+          No copyright violations
+        </li>
+
+        <li>
+          No adult content
+        </li>
+
+        <li>
+          No misleading ads
+        </li>
+
+      </ul>
+
+    </div>
+
+  </div>
+);
 
       <p>
         Followers:
