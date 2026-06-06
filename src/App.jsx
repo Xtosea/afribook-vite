@@ -53,7 +53,10 @@ import AdminCampaigns
 from "./pages/admin/AdminCampaigns";
 import AdminFraud
 from "./pages/admin/AdminFraud";
-
+import AdminRevenue
+from "./pages/admin/AdminRevenue";
+import AdminEarnings
+from "./pages/admin/AdminEarnings";
 
 
 
@@ -139,6 +142,10 @@ function App() {
   path="/admin/fraud"
   element={<AdminFraud />}
 />
+
+
+<Route path="/admin/earnings" element={<AdminEarnings />} />
+<Route path="/admin/revenue" element={<AdminRevenue />} />
 
 
 
