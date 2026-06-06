@@ -442,7 +442,7 @@ const PostComposer = ({
         justify-between
       "
     >
-      <butto         type="button"
+      <button         type="button"
         onClick={() => {
           setExpanded(false);
           setNewPost("");
@@ -484,20 +484,6 @@ const PostComposer = ({
     </div>
 
     <div className="p-5 space-y-4">
-
-    onSubmit={handleSubmitPost}
-    className="
-      bg-white
-      p-5
-      rounded-3xl
-      shadow-lg
-      border
-      border-gray-100
-      space-y-4
-    "
-  >
-
-
 
  <div className="flex items-center gap-3 mb-3">
   <img
@@ -558,7 +544,16 @@ const PostComposer = ({
   `}
 />
 
-<div className="flex justify-between pt-2 border-t">
+<div
+  className="
+    flex
+    gap-4
+    overflow-x-auto
+    pt-2
+    border-t
+    pb-2
+  "
+>
   <button
     type="button"
     className="flex items-center gap-2 text-red-500"
@@ -735,15 +730,13 @@ const PostComposer = ({
 
           {/* MEDIA */}
 
-          <MediaUpload
-            mediaFiles={mediaFiles}
-            setMediaFiles={
-              setMediaFiles
-            }
-            setSelectedFile={
-              setSelectedFile
-            }
-          />
+          <div className="max-h-40 overflow-hidden">
+  <MediaUpload
+    mediaFiles={mediaFiles}
+    setMediaFiles={setMediaFiles}
+    setSelectedFile={setSelectedFile}
+  />
+</div>
 
           {/* AI BUTTON */}
 
@@ -951,18 +944,13 @@ const PostComposer = ({
               >
                 🏷 Tag
               </button>
-
-            </div>
-
-            
-          </div>
-
         </div>
+        
+    </div>
+  </div>
+  )}
 </div>
-
-      )}
-
-    </form>
+</form>
   );
 };
 
