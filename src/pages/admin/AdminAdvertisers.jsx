@@ -45,7 +45,7 @@ const AdminAdvertisers = () => {
         const data =
           await res.json();
 
-        setAdvertisers(data);
+        setAdvertisers(data.advertisers || data.data || data || []);
 
       } catch (err) {
 
@@ -116,8 +116,8 @@ const AdminAdvertisers = () => {
 
       <div className="space-y-4">
 
-        {advertisers.map(
-          advertiser => (
+        {Array.isArray(advertisers) &&
+  advertisers.map(advertiser => (
 
             <div
               key={advertiser._id}
@@ -127,12 +127,9 @@ const AdminAdvertisers = () => {
               <div className="flex gap-3 items-center">
 
                 <img
-                  src={
-                    advertiser.profilePic
-                  }
-                  alt=""
-                  className="w-12 h-12 rounded-full"
-                />
+  src={advertiser.profilePic || "/default-avatar.png"}
+  className="w-12 h-12 rounded-full"
+/>
 
                 <div>
 
