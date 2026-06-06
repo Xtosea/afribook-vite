@@ -404,7 +404,7 @@ const PostCard = ({
 
   }, [media]);
 
-console.log(post.user);
+
   // ================= RENDER =================
 
 return (
