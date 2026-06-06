@@ -539,9 +539,7 @@ if (!expanded) {
   onClick={closeComposer}
   className="text-red-500 font-medium"
 >
-  Cancel
-</button>
-        Cancel
+      Cancel
       </button>
 
       <h2 className="font-bold text-lg">
@@ -1026,7 +1024,7 @@ if (!expanded) {
   )}
 </div>
 </form>
-
+</div>
 </>
   );
 };
