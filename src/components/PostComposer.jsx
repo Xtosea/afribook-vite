@@ -76,13 +76,34 @@ const PostComposer = ({
   // =========================
 
   const [textColor, setTextColor] =
-    useState("#000000");
+  useState("#000000");
 
-  const [backgroundStyle, setBackgroundStyle] =
-    useState("white");
+const [backgroundStyle, setBackgroundStyle] =
+  useState("white");
 
-  const [fontStyle, setFontStyle] =
-    useState("font-sans");
+const [fontStyle, setFontStyle] =
+  useState("font-sans");
+
+const closeComposer = () => {
+  setExpanded(false);
+  setNewPost("");
+  setMediaFiles([]);
+  setSelectedFile(null);
+  setLocation("");
+  setLocationSuggestions([]);
+  setFeeling("");
+  setTagInput("");
+  setTaggedFriends([]);
+
+  setTextColor("#000000");
+  setBackgroundStyle("white");
+  setFontStyle("font-sans");
+
+  setShowEmoji(false);
+  setShowLocation(false);
+  setShowFeeling(false);
+  setShowTag(false);
+};
 
   // =========================
   // CLOUDINARY
@@ -415,23 +436,94 @@ const PostComposer = ({
   };
 
 
+if (!expanded) {
+  return (
+    <div
+      onClick={() => setExpanded(true)}
+      className="
+        bg-white
+        rounded-2xl
+        shadow
+        border
+        p-4
+        cursor-pointer
+      "
+    >
+      <div className="flex items-center gap-3">
+
+        <img
+          src={
+            currentUser?.profilePic ||
+            "/default-avatar.png"
+          }
+          alt="Profile"
+          className="
+            w-12
+            h-12
+            rounded-full
+            object-cover
+          "
+        />
+
+        <div
+          className="
+            flex-1
+            bg-gray-100
+            rounded-full
+            px-4
+            py-3
+            text-gray-500
+          "
+        >
+          What's on your mind,
+          {currentUser?.name || "User"}?
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
 
   return (
-  <form
-    onSubmit={handleSubmitPost}
-    className="
-      fixed
-      inset-0
-      bg-white
-      overflow-y-auto
-      z-50
-    "
-  >
+  <>
+    <div
+  className="
+    fixed
+    inset-0
+    bg-black/50
+    z-40
+  "
+  onClick={closeComposer}
+/>
 
     <div
       className="
-        sticky
-        top-0
+        fixed
+        inset-0
+        z-50
+        flex
+        items-start
+        justify-center
+        p-4
+        overflow-y-auto
+      "
+    >
+      <form
+        onSubmit={handleSubmitPost}
+        className="
+          w-full
+          max-w-2xl
+          bg-white
+          rounded-3xl
+          shadow-2xl
+          max-h-[90vh]
+          overflow-y-auto
+        "
+      >
+    <div
+      className="
+        sticky top-0 bg-white z-10
         z-50
         bg-white
         border-b
@@ -442,20 +534,13 @@ const PostComposer = ({
         justify-between
       "
     >
-      <button         type="button"
-        onClick={() => {
-          setExpanded(false);
-          setNewPost("");
-          setMediaFiles([]);
-          setSelectedFile(null);
-          setLocation("");
-          setLocationSuggestions([]);
-          setFeeling("");
-          setTagInput("");
-          setTaggedFriends([]);
-        }}
-        className="text-red-500 font-medium"
-      >
+      <button
+  type="button"
+  onClick={closeComposer}
+  className="text-red-500 font-medium"
+>
+  Cancel
+</button>
         Cancel
       </button>
 
@@ -516,9 +601,6 @@ const PostComposer = ({
   onChange={(e) =>
     setNewPost(e.target.value)
   }
-  onClick={() =>
-  setExpanded(true)
-}
   placeholder={`Share a photo, video or thought... ${
     currentUser?.name || "Friend"
   }?`}
@@ -532,13 +614,6 @@ const PostComposer = ({
     rounded-2xl
     border
     resize-none
-    transition-all
-    duration-200
-    focus:outline-none
-    focus:ring-2
-    focus:ring-blue-400
-    relative
-    z-0
     min-h-[250px]
     ${fontStyle}
   `}
