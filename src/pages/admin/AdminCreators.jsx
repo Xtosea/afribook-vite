@@ -145,18 +145,12 @@ const AdminCreators = () => {
               </div>
 
               <p className="mt-3">
+  Status: {creator.monetizationStatus}
+</p>
 
-                Status:
-                {" "}
-                {
-                  creator.monetizationStatus
-                }
+{creator.monetizationStatus?.toLowerCase() === "pending" && (
 
-              </p>
-
-              creator.monetizationStatus?.toLowerCase() === "pending" && (
-
-                <div className="flex gap-3 mt-4">
+  <div className="flex gap-3 mt-4">
 
                   <button
                     onClick={() =>
