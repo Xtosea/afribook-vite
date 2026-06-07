@@ -78,6 +78,9 @@ from "./pages/ads/CreateCampaign";
 import MyCampaigns
 from "./pages/ads/MyCampaigns";
 
+import PostComposer
+from "./components/PostComposer";
+
 
 
 
@@ -199,6 +202,16 @@ function App() {
 <Route
   path="/ads/campaigns"
   element={<MyCampaigns />}
+/>
+<Route
+  path="/create-post"
+  element={
+    <PostComposer
+      token={token}
+      currentUser={currentUser}
+      onPostCreated={handlePostCreated}
+    />
+  }
 />
 
 
