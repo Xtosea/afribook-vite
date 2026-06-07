@@ -499,9 +499,7 @@ const EmojiPicker = lazy(() =>
 
 
 
- 
-  
-<div className="border-b pb-3"></div>
+ <div className="border-b pb-3"></div>
 
       {/* TEXTAREA */}
 
@@ -538,16 +536,6 @@ const EmojiPicker = lazy(() =>
     ${fontStyle}
   `}
 />
-
-
-
-  <button
-    type="button"
-    className="flex items-center gap-2 text-blue-500"
-  >
-    😊 Feeling
-  </button>
-
 
 
       {/* EXPANDED */}
