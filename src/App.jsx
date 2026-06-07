@@ -208,11 +208,9 @@ function App() {
   path="/create-post"
   element={
     <PostComposer
-      token={localStorage.getItem("token")}
-      currentUser={currentUser}
-      onPostCreated={handlePostCreated}
-    />
-  }
+      
+    />}
+  
 />
 
 
