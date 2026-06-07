@@ -452,7 +452,7 @@ const EmojiPicker = lazy(() =>
       <button
   type="button"
   onClick={() => {
-    setExpanded(true);
+    
     setNewPost("");
     setMediaFiles([]);
     setSelectedFile(null);
@@ -502,7 +502,7 @@ const EmojiPicker = lazy(() =>
       {/* TEXTAREA */}
 
       <textarea
-  rows={expanded ? 4 : 1}
+  rows={4}
   value={newPost}
   onChange={(e) =>
     setNewPost(e.target.value)
@@ -530,7 +530,7 @@ const EmojiPicker = lazy(() =>
     focus:ring-blue-400
     relative
     z-0
-    ${expanded ? "h-28" : "h-12"}
+    h-28
     ${fontStyle}
   `}
 />
@@ -538,7 +538,7 @@ const EmojiPicker = lazy(() =>
 
       {/* EXPANDED */}
 
-      {true && (
+      {(
 
         <div className="space-y-4">
 
