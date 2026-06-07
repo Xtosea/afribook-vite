@@ -510,7 +510,7 @@ const EmojiPicker = lazy(() =>
     setNewPost(e.target.value)
   }
   onFocus={() =>
-    setExpanded(true)
+    setExpanded(false)
   }
   placeholder={`Share a photo, video or thought... ${
     currentUser?.name || "User"
