@@ -13,16 +13,19 @@ import { useR2Upload } from "../hooks/useR2Upload";
 import { useAIEnhance } from "../hooks/useAIEnhance";
 
 import validateVideoDuration from "../utils/validateVideoDuration";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+
+const PostComposer = () => {
+  const navigate = useNavigate();
+  const { token, currentUser } = useAuth();
+
 
 const EmojiPicker = lazy(() =>
   import("emoji-picker-react")
 );
 
-const PostComposer = ({
-  token,
-  currentUser,
-  onPostCreated,
-}) => {
+
 
   const [expanded, setExpanded] =
     useState(false);
@@ -338,7 +341,16 @@ const PostComposer = ({
       // UPDATE FEED
       // =========================
 
+      if (!res.ok) {
+  throw new Error(data.error || "Post        failed");
+}
+
+      // success block
       onPostCreated?.(data.post);
+
+      // 👇 THIS IS THE IMPORTANT LINE
+       navigate("/");
+      
 
       // =========================
       // RESET
@@ -448,9 +460,7 @@ const PostComposer = ({
     >
       <button
         type="button"
-        onClick={() => {
-          setExpanded(false);
-          setNewPost("");
+        onClick={() => navigate("/")}
           setMediaFiles([]);
           setSelectedFile(null);
           setLocation("");
@@ -527,7 +537,7 @@ const PostComposer = ({
     setExpanded(true)
   }
   placeholder={`Share a photo, video or thought... ${
-    currentUser?.name || "Friend"
+    currentUser?.name || "User"
   }?`}
   style={{
     color: textColor,
