@@ -203,11 +203,12 @@ function App() {
   path="/ads/campaigns"
   element={<MyCampaigns />}
 />
+
 <Route
   path="/create-post"
   element={
     <PostComposer
-      token={token}
+      token={localStorage.getItem("token")}
       currentUser={currentUser}
       onPostCreated={handlePostCreated}
     />
