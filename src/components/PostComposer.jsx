@@ -528,7 +528,7 @@ const EmojiPicker = lazy(() =>
     color: textColor,
     ...getBackgroundStyle(),
   }}
-  className="
+  className={`
     w-full
     p-4
     rounded-2xl
@@ -539,8 +539,11 @@ const EmojiPicker = lazy(() =>
     focus:outline-none
     focus:ring-2
     focus:ring-blue-400
+    relative
+    z-0
     h-28
-  "
+    ${fontStyle}
+  `}
 />
 
 
