@@ -943,7 +943,7 @@ const PostComposer = ({
 
             </div>
 
-            
+            </div>
 
           </div>
 
