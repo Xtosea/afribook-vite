@@ -98,46 +98,20 @@ const observer = useRef(null);
 
   let mounted = true;
 
-  const fetchFeed = async () => {
+  const fetchPosts = async () => {
     try {
       setLoadingPosts(true);
 
-      const [
-        postsData,
-        storiesRes,
-        reelsRes,
-      ] = await Promise.all([
-        fetchWithToken(
-          `${API_BASE}/api/posts?page=${page}&limit=10`,
-          token
-        ),
-
-        fetch(
-          `${API_BASE}/api/stories?limit=10`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        ),
-
-        fetch(
-          `${API_BASE}/api/posts/reels`
-        ),
-      ]);
-
-      const storiesData =
-        await storiesRes.json();
-
-      const reelsData =
-        await reelsRes.json();
+      const postsData = await fetchWithToken(
+        `${API_BASE}/api/posts?page=${page}&limit=5`,
+        token
+      );
 
       if (!mounted) return;
 
-      const newPosts =
-        Array.isArray(postsData)
-          ? postsData
-          : [];
+      const newPosts = Array.isArray(postsData)
+        ? postsData
+        : [];
 
       setPosts((prev) =>
         page === 1
@@ -148,19 +122,8 @@ const observer = useRef(null);
       if (newPosts.length < 10) {
         setHasMore(false);
       }
-
-      setStories(
-        storiesData?.stories || []
-      );
-
-      setReels(
-        Array.isArray(reelsData)
-          ? reelsData
-          : reelsData?.reels || []
-      );
-
     } catch (err) {
-      console.error(err);
+      console.error("Posts error:", err);
     } finally {
       if (mounted) {
         setLoadingPosts(false);
@@ -168,13 +131,62 @@ const observer = useRef(null);
     }
   };
 
-  fetchFeed();
+  fetchPosts();
 
   return () => {
     mounted = false;
   };
-
 }, [token, page]);
+
+
+useEffect(() => {
+  if (!token) return;
+
+  const fetchStories = async () => {
+    try {
+      const res = await fetch(
+        `${API_BASE}/api/stories?limit=10`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await res.json();
+
+      setStories(data?.stories || []);
+    } catch (err) {
+      console.error("Stories error:", err);
+    }
+  };
+
+  fetchStories();
+}, [token]);
+
+
+useEffect(() => {
+  const fetchReels = async () => {
+    try {
+      const res = await fetch(
+        `${API_BASE}/api/posts/reels`
+      );
+
+      const data = await res.json();
+
+      setReels(
+        Array.isArray(data)
+          ? data
+          : data?.reels || []
+      );
+    } catch (err) {
+      console.error("Reels error:", err);
+    }
+  };
+
+  fetchReels();
+}, []);
+
 
   // ================= SOCKET =================
 
