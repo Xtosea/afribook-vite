@@ -453,19 +453,26 @@ const EmojiPicker = lazy(() =>
     >
       <button
         type="button"
-        onClick={() => {
-  setExpanded(false);
-  setNewPost("");
-  setMediaFiles([]);
-  setSelectedFile(null);
-  setLocation("");
-  setLocationSuggestions([]);
-  setFeeling("");
-  setTagInput("");
-  setTaggedFriends([]);
+        <button
+  type="button"
+  onClick={() => {
+    setExpanded(false);
+    setNewPost("");
+    setMediaFiles([]);
+    setSelectedFile(null);
+    setLocation("");
+    setLocationSuggestions([]);
+    setFeeling("");
+    setTagInput("");
+    setTaggedFriends([]);
 
-  navigate("/");
-}}
+    navigate("/");
+  }}
+>
+  Cancel
+</button>
+
+
         className="text-red-500 font-medium"
       >
         Cancel
