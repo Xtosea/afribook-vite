@@ -14,7 +14,7 @@ import { useAIEnhance } from "../hooks/useAIEnhance";
 
 import validateVideoDuration from "../utils/validateVideoDuration";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../authcontext/AuthContext";
+import { useAuth } from "../context/AuthContext";
 
 const PostComposer = () => {
   const navigate = useNavigate();
