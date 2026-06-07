@@ -69,21 +69,17 @@ const MediaUpload = ({
           DROP AREA (FACEBOOK STYLE)
       ========================= */}
       <input
-        ref={fileInputRef}
-        <input
+  ref={fileInputRef}
   id={inputId}
   type="file"
   accept="image/*,video/*"
   multiple
   hidden
-        multiple
-        accept="image/*,video/*"
-        onChange={(e) => {
-          handleFiles(e.target.files);
-          e.target.value = null;
-        }}
-        className="hidden"
-      />
+  onChange={(e) => {
+    handleFiles(e.target.files);
+    e.target.value = null;
+  }}
+/>
 
       <div
         onClick={() => fileInputRef.current?.click()}
