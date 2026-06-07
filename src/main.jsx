@@ -10,20 +10,6 @@ import { registerSW } from "virtual:pwa-register";
 
 registerSW({
   immediate: true,
-
-  onRegistered(registration) {
-    console.log(
-      "✅ Service Worker Registered:",
-      registration
-    );
-  },
-
-  onRegisterError(error) {
-    console.log(
-      "❌ SW registration error:",
-      error
-    );
-  },
 });
 
 ReactDOM.createRoot(
