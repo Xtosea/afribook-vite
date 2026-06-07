@@ -751,6 +751,8 @@ const EmojiPicker = lazy(() =>
 
 </div>
 
+</div>
+
           {/* AI BUTTON */}
 
           <button
