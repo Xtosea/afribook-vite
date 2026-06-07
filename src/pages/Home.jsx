@@ -284,18 +284,37 @@ const lastPostRef = useCallback(
         {/* POST COMPOSER */}
 
        
-<div
-  onClick={() => navigate("/create-post")}
-  className="
-    bg-white
-    p-3
-    rounded-full
-    border
-    cursor-pointer
-    text-gray-500
-  "
->
-  Share a photo, video or thought...
+
+
+  <div className="bg-white rounded-2xl p-4 shadow">
+  <div className="flex items-center gap-3">
+
+    <img
+      src={
+        currentUser?.profilePic ||
+        "/default-avatar.png"
+      }
+      alt=""
+      className="w-12 h-12 rounded-full"
+    />
+
+    <textarea
+      placeholder="Share a photo, video or thought..."
+      onFocus={() => setExpanded(true)}
+      className="
+        flex-1
+        bg-gray-100
+        rounded-full
+        px-4
+        py-3
+      "
+    />
+
+  </div>
+
+  {expanded && (
+    <PostComposer />
+  )}
 </div>
 
 {/* POSTS */}
