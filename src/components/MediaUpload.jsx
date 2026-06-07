@@ -6,9 +6,10 @@ import { FiUpload } from "react-icons/fi";
 const MAX_FILES = 5;
 
 const MediaUpload = ({
-  mediaFiles = [],
-  setMediaFiles = () => {},
-  uploadProgress = [],
+  inputId,
+  mediaFiles,
+  setMediaFiles,
+  setSelectedFile,
 }) => {
   const fileInputRef = useRef(null);
   const [dragging, setDragging] = useState(false);
@@ -69,7 +70,12 @@ const MediaUpload = ({
       ========================= */}
       <input
         ref={fileInputRef}
-        type="file"
+        <input
+  id={inputId}
+  type="file"
+  accept="image/*,video/*"
+  multiple
+  hidden
         multiple
         accept="image/*,video/*"
         onChange={(e) => {
