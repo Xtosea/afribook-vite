@@ -275,9 +275,8 @@ const lastPostRef = useCallback(
 
          {/* POST COMPOSER */}
 
-<div className="bg-white rounded-2xl p-4 shadow">
+<div className="bg-white p-4 rounded-2xl shadow">
   <div className="flex items-center gap-3">
-
     <img
       src={
         currentUser?.profilePic ||
@@ -289,21 +288,19 @@ const lastPostRef = useCallback(
 
     <textarea
       placeholder="Share a photo, video or thought..."
-      onFocus={() => setExpanded(true)}
+      onFocus={() => navigate("/create-post")}
+      readOnly
       className="
         flex-1
         bg-gray-100
         rounded-full
         px-4
         py-3
+        resize-none
+        cursor-pointer
       "
     />
-
   </div>
-
-  {expanded && (
-    <PostComposer />
-  )}
 </div>
 
        {/* STORIES */}
