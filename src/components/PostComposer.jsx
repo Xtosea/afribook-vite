@@ -454,7 +454,7 @@ const EmojiPicker = lazy(() =>
       <button
   type="button"
   onClick={() => {
-    setExpanded(false);
+    setExpanded(true);
     setNewPost("");
     setMediaFiles([]);
     setSelectedFile(null);
