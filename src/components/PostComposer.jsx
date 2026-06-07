@@ -15,6 +15,14 @@ import { useAIEnhance } from "../hooks/useAIEnhance";
 import validateVideoDuration from "../utils/validateVideoDuration";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import {
+  ImagePlus,
+  MapPin,
+  Smile,
+  Tag,
+  Sparkles,
+} from "lucide-react";
+
 
 const PostComposer = () => {
   const navigate = useNavigate();
@@ -493,8 +501,14 @@ const EmojiPicker = lazy(() =>
       </button>
     </div>
 
-    <div className="p-5 space-y-4">
-
+    <div
+  className="
+    p-5
+    space-y-4
+    max-h-[75vh]
+    overflow-y-auto
+  "
+>
 
 
  <div className="border-b pb-3"></div>
@@ -502,13 +516,11 @@ const EmojiPicker = lazy(() =>
       {/* TEXTAREA */}
 
       <textarea
+  <textarea
   rows={4}
   value={newPost}
   onChange={(e) =>
     setNewPost(e.target.value)
-  }
-  onFocus={() =>
-    setExpanded(true)
   }
   placeholder={`Share a photo, video or thought... ${
     currentUser?.name || "User"
@@ -689,15 +701,56 @@ const EmojiPicker = lazy(() =>
 
           {/* MEDIA */}
 
-          <MediaUpload
-            mediaFiles={mediaFiles}
-            setMediaFiles={
-              setMediaFiles
-            }
-            setSelectedFile={
-              setSelectedFile
-            }
-          />
+          <div className="space-y-3">
+
+  <label
+    htmlFor="media-upload"
+    className="
+      w-full
+      flex
+      items-center
+      gap-3
+      p-3
+      border
+      rounded-xl
+      cursor-pointer
+      hover:bg-gray-50
+    "
+  >
+    <ImagePlus size={22} />
+    Add Photos & Videos
+  </label>
+
+  <div className="space-y-3">
+
+  <label
+    htmlFor="media-upload"
+    className="
+      w-full
+      flex
+      items-center
+      gap-3
+      p-3
+      border
+      rounded-xl
+      cursor-pointer
+      hover:bg-gray-50
+    "
+  >
+    <ImagePlus size={22} />
+    Add Photos & Videos
+  </label>
+
+  <MediaUpload
+    inputId="media-upload"
+    mediaFiles={mediaFiles}
+    setMediaFiles={setMediaFiles}
+    setSelectedFile={setSelectedFile}
+  />
+
+</div>
+
+</div>
 
           {/* AI BUTTON */}
 
@@ -854,65 +907,89 @@ const EmojiPicker = lazy(() =>
 
           {/* ACTIONS */}
 
-          <div className="flex justify-between items-center flex-wrap gap-2">
+          
+ <div className="space-y-3">
 
-            <div className="flex gap-2 flex-wrap">
+  <button
+    type="button"
+    onClick={() =>
+      setShowEmoji(!showEmoji)
+    }
+    className="
+      w-full
+      flex
+      items-center
+      gap-3
+      p-3
+      border
+      rounded-xl
+    "
+  >
+    <Smile size={20} />
+    Add Emoji
+  </button>
 
-              <button
-                type="button"
-                onClick={() =>
-                  setShowEmoji(
-                    !showEmoji
-                  )
-                }
-                className="px-3 py-1.5 rounded-full bg-yellow-100 text-yellow-700 text-sm"
-              >
-                😊 Emoji
-              </button>
+  <button
+    type="button"
+    onClick={() =>
+      setShowLocation(!showLocation)
+    }
+    className="
+      w-full
+      flex
+      items-center
+      gap-3
+      p-3
+      border
+      rounded-xl
+    "
+  >
+    <MapPin size={20} />
+    Add Location
+  </button>
 
-              <button
-                type="button"
-                onClick={() =>
-                  setShowLocation(
-                    !showLocation
-                  )
-                }
-                className="px-3 py-1.5 rounded-full bg-blue-100 text-blue-700 text-sm"
-              >
-                📍 Location
-              </button>
+  <button
+    type="button"
+    onClick={() =>
+      setShowFeeling(!showFeeling)
+    }
+    className="
+      w-full
+      flex
+      items-center
+      gap-3
+      p-3
+      border
+      rounded-xl
+    "
+  >
+    <Smile size={20} />
+    Feeling / Activity
+  </button>
 
-              <button
-                type="button"
-                onClick={() =>
-                  setShowFeeling(
-                    !showFeeling
-                  )
-                }
-                className="px-3 py-1.5 rounded-full bg-green-100 text-green-700 text-sm"
-              >
-                😊 Feeling
-              </button>
+  <button
+    type="button"
+    onClick={() =>
+      setShowTag(!showTag)
+    }
+    className="
+      w-full
+      flex
+      items-center
+      gap-3
+      p-3
+      border
+      rounded-xl
+    "
+  >
+    <Tag size={20} />
+    Tag Friends
+  </button>
 
-              <button
-                type="button"
-                onClick={() =>
-                  setShowTag(
-                    !showTag
-                  )
-                }
-                className="px-3 py-1.5 rounded-full bg-purple-100 text-purple-700 text-sm"
-              >
-                🏷 Tag
-              </button>
-
-            </div>
-
-            </div>
-
+</div>
           
 
-        </div>
+  </div>
 
       )}
 </div>
