@@ -27,9 +27,7 @@ const EmojiPicker = lazy(() =>
 
 
 
-  const [expanded, setExpanded] =
-    useState(false);
-
+  
   const [posting, setPosting] =
     useState(false);
 
@@ -510,7 +508,7 @@ const EmojiPicker = lazy(() =>
     setNewPost(e.target.value)
   }
   onFocus={() =>
-    setExpanded(false)
+    setExpanded(true)
   }
   placeholder={`Share a photo, video or thought... ${
     currentUser?.name || "User"
@@ -540,7 +538,7 @@ const EmojiPicker = lazy(() =>
 
       {/* EXPANDED */}
 
-      {expanded && (
+      {true && (
 
         <div className="space-y-4">
 
