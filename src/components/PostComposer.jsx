@@ -547,7 +547,7 @@ const EmojiPicker = lazy(() =>
   >
     😊 Feeling
   </button>
-</div>
+
 
 
       {/* EXPANDED */}
