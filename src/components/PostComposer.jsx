@@ -720,32 +720,14 @@ const EmojiPicker = lazy(() =>
     Add Photos & Videos
   </label>
 
-  <div className="space-y-3">
-
-  <label
-    htmlFor="media-upload"
-    className="
-      w-full
-      flex
-      items-center
-      gap-3
-      p-3
-      border
-      rounded-xl
-      cursor-pointer
-      hover:bg-gray-50
-    "
-  >
-    <ImagePlus size={22} />
-    Add Photos & Videos
-  </label>
-
   <MediaUpload
     inputId="media-upload"
     mediaFiles={mediaFiles}
     setMediaFiles={setMediaFiles}
     setSelectedFile={setSelectedFile}
   />
+
+</div>
 
 </div>
 
