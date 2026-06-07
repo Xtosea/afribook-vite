@@ -499,27 +499,8 @@ const EmojiPicker = lazy(() =>
 
 
 
- <div className="flex items-center gap-3 mb-3">
-  <img
-  src={
-    currentUser?.profilePic ||
-    "/default-avatar.png"
-  }
-  alt="Profile"
-  className="w-12 h-12 rounded-full object-cover"
-/>
-
-  <div>
-    <h3 className="font-bold text-xl text-gray-900">
-      What's happening today?
-    </h3>
-
-    <p className="text-sm text-gray-500">
-      Share photos, videos and updates with friends
-    </p>
-  </div>
-</div>
-
+ 
+  
 <div className="border-b pb-3"></div>
 
       {/* TEXTAREA */}
@@ -558,20 +539,7 @@ const EmojiPicker = lazy(() =>
   `}
 />
 
-<div className="flex justify-between pt-2 border-t">
-  <button
-    type="button"
-    className="flex items-center gap-2 text-red-500"
-  >
-    🎥 Video
-  </button>
 
-  <button
-    type="button"
-    className="flex items-center gap-2 text-green-500"
-  >
-    📷 Photo
-  </button>
 
   <button
     type="button"
