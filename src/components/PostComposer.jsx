@@ -76,34 +76,13 @@ const PostComposer = ({
   // =========================
 
   const [textColor, setTextColor] =
-  useState("#000000");
+    useState("#000000");
 
-const [backgroundStyle, setBackgroundStyle] =
-  useState("white");
+  const [backgroundStyle, setBackgroundStyle] =
+    useState("white");
 
-const [fontStyle, setFontStyle] =
-  useState("font-sans");
-
-const closeComposer = () => {
-  setExpanded(false);
-  setNewPost("");
-  setMediaFiles([]);
-  setSelectedFile(null);
-  setLocation("");
-  setLocationSuggestions([]);
-  setFeeling("");
-  setTagInput("");
-  setTaggedFriends([]);
-
-  setTextColor("#000000");
-  setBackgroundStyle("white");
-  setFontStyle("font-sans");
-
-  setShowEmoji(false);
-  setShowLocation(false);
-  setShowFeeling(false);
-  setShowTag(false);
-};
+  const [fontStyle, setFontStyle] =
+    useState("font-sans");
 
   // =========================
   // CLOUDINARY
@@ -437,47 +416,22 @@ const closeComposer = () => {
 
 
 
-
-
   return (
-  <>
-    <div
-  className="
-    fixed
-    inset-0
-    bg-black/50
-    z-40
-  "
-  onClick={closeComposer}
-/>
+  <form
+    onSubmit={handleSubmitPost}
+    className="
+      fixed
+      inset-0
+      bg-white
+      overflow-y-auto
+      z-50
+    "
+  >
 
     <div
       className="
-        fixed
-        inset-0
-        z-50
-        flex
-        items-start
-        justify-center
-        p-4
-        overflow-y-auto
-      "
-    >
-      <form
-        onSubmit={handleSubmitPost}
-        className="
-          w-screen
-          max-w-2xl
-          bg-white
-          rounded-3xl
-          shadow-2xl
-          max-h-[90vh]
-          overflow-y-auto
-        "
-      >
-    <div
-      className="
-        sticky top-0 bg-white z-10
+        sticky
+        top-0
         z-50
         bg-white
         border-b
@@ -489,11 +443,21 @@ const closeComposer = () => {
       "
     >
       <button
-  type="button"
-  onClick={closeComposer}
-  className="text-red-500 font-medium"
->
-      Cancel
+        type="button"
+        onClick={() => {
+          setExpanded(false);
+          setNewPost("");
+          setMediaFiles([]);
+          setSelectedFile(null);
+          setLocation("");
+          setLocationSuggestions([]);
+          setFeeling("");
+          setTagInput("");
+          setTaggedFriends([]);
+        }}
+        className="text-red-500 font-medium"
+      >
+        Cancel
       </button>
 
       <h2 className="font-bold text-lg">
@@ -522,6 +486,8 @@ const closeComposer = () => {
 
     <div className="p-5 space-y-4">
 
+
+
  <div className="flex items-center gap-3 mb-3">
   <img
   src={
@@ -548,10 +514,13 @@ const closeComposer = () => {
       {/* TEXTAREA */}
 
       <textarea
-  rows={10}
+  rows={expanded ? 4 : 1}
   value={newPost}
   onChange={(e) =>
     setNewPost(e.target.value)
+  }
+  onFocus={() =>
+    setExpanded(true)
   }
   placeholder={`Share a photo, video or thought... ${
     currentUser?.name || "Friend"
@@ -566,21 +535,19 @@ const closeComposer = () => {
     rounded-2xl
     border
     resize-none
-    min-h-[250px]
+    transition-all
+    duration-200
+    focus:outline-none
+    focus:ring-2
+    focus:ring-blue-400
+    relative
+    z-0
+    ${expanded ? "h-28" : "h-12"}
     ${fontStyle}
   `}
 />
 
-<div
-  className="
-    flex
-    gap-4
-    overflow-x-auto
-    pt-2
-    border-t
-    pb-2
-  "
->
+<div className="flex justify-between pt-2 border-t">
   <button
     type="button"
     className="flex items-center gap-2 text-red-500"
@@ -757,13 +724,15 @@ const closeComposer = () => {
 
           {/* MEDIA */}
 
-          <div className="max-h-40 overflow-hidden">
-  <MediaUpload
-    mediaFiles={mediaFiles}
-    setMediaFiles={setMediaFiles}
-    setSelectedFile={setSelectedFile}
-  />
-</div>
+          <MediaUpload
+            mediaFiles={mediaFiles}
+            setMediaFiles={
+              setMediaFiles
+            }
+            setSelectedFile={
+              setSelectedFile
+            }
+          />
 
           {/* AI BUTTON */}
 
@@ -971,16 +940,18 @@ const closeComposer = () => {
               >
                 🏷 Tag
               </button>
+
+            </div>
+
+            
+
+          </div>
+
         </div>
- </div>
-        
-    </div>
-  
-  )}
-</div>
-</form>
-</div>
-</>
+
+      )}
+
+    </form>
   );
 };
 
