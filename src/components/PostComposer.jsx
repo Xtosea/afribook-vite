@@ -1,3 +1,441 @@
+31merror during build:
+[31mBuild failed with 1 error:
+
+[plugin vite-plugin-pwa:build]
+Error: Build failed with 1 error:
+
+[31m[builtin:vite-transform] Error:[0m Expected , or ) but found {
+[38;5;246m╭[0m[38;5;246m─[0m[38;5;246m[[0m src/components/PostComposer.jsx:756:11 [38;5;246m][0m
+[38;5;246m│[0m
+[38;5;246m552 │[0m [38;5;249m [0m
+
+import React, {
+useState,
+lazy,
+Suspense,
+} from "react";
+
+import MediaUpload from "./MediaUpload";
+
+import { API_BASE } from "../api/api";
+
+import { useCloudinaryUpload } from "../hooks/useCloudinaryUpload";
+import { useR2Upload } from "../hooks/useR2Upload";
+import { useAIEnhance } from "../hooks/useAIEnhance";
+
+import validateVideoDuration from "../utils/validateVideoDuration";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import {
+ImagePlus,
+MapPin,
+Smile,
+Tag,
+Sparkles,
+} from "lucide-react";
+
+const PostComposer = () => {
+const navigate = useNavigate();
+const { token, currentUser } = useAuth();
+
+const EmojiPicker = lazy(() =>
+import("emoji-picker-react")
+);
+
+const [posting, setPosting] =
+useState(false);
+
+const [loading, setLoading] =
+useState(false);
+
+const [newPost, setNewPost] =
+useState("");
+
+const [mediaFiles, setMediaFiles] =
+useState([]);
+
+const [selectedFile, setSelectedFile] =
+useState(null);
+
+const [showEmoji, setShowEmoji] =
+useState(false);
+
+const [showLocation, setShowLocation] =
+useState(false);
+
+const [showFeeling, setShowFeeling] =
+useState(false);
+
+const [showTag, setShowTag] =
+useState(false);
+
+const [location, setLocation] =
+useState("");
+
+const [feeling, setFeeling] =
+useState("");
+
+const [tagInput, setTagInput] =
+useState("");
+
+const [taggedFriends, setTaggedFriends] =
+useState([]);
+
+const [
+locationSuggestions,
+setLocationSuggestions,
+] = useState([]);
+
+// =========================
+// TEXT STYLE STATES
+// =========================
+
+const [textColor, setTextColor] =
+useState("#000000");
+
+const [backgroundStyle, setBackgroundStyle] =
+useState("white");
+
+const [fontStyle, setFontStyle] =
+useState("font-sans");
+
+// =========================
+// CLOUDINARY
+// =========================
+
+const { uploadImage } =
+useCloudinaryUpload();
+
+// =========================
+// R2 VIDEO
+// =========================
+
+const { uploadVideo } =
+useR2Upload();
+
+// =========================
+// AI ENHANCE
+// =========================
+
+const { enhanceImage } =
+useAIEnhance();
+
+// =========================
+// TAG FRIENDS
+// =========================
+
+const handleTagFriends = (value) => {
+
+setTagInput(value);  
+
+setTaggedFriends(  
+  value  
+    .split(",")  
+    .map((f) => f.trim())  
+    .filter(Boolean)  
+);
+
+};
+
+// =========================
+// AI ENHANCE
+// =========================
+
+const handleEnhance = async () => {
+
+try {  
+
+  // find first image  
+  const image = mediaFiles.find(  
+    (f) =>  
+      f.type &&  
+      f.type.startsWith("image")  
+  );  
+
+  if (!image) {  
+
+    alert(  
+      "Please upload an image first"  
+    );  
+
+    return;  
+  }  
+
+  setLoading(true);  
+
+  let imageUrl = image.url;  
+
+  // if not uploaded yet → upload first  
+  if (!imageUrl && image instanceof File) {  
+
+    imageUrl =  
+      await uploadImage(image);  
+  }  
+
+  if (!imageUrl) {  
+
+    alert(  
+      "Image upload failed"  
+    );  
+
+    return;  
+  }  
+
+  // send URL to AI  
+  const enhancedUrl =  
+    await enhanceImage(imageUrl);  
+
+  // replace image  
+  setMediaFiles((prev) => [  
+
+    ...prev.filter(  
+      (f) => f !== image  
+    ),  
+
+    {  
+      url: enhancedUrl,  
+      type: "image",  
+      enhanced: true,  
+    },  
+  ]);  
+
+  alert("Image enhanced!");  
+
+} catch (err) {  
+
+  console.error(err);  
+
+  alert(  
+    err.message ||  
+    "Enhance failed"  
+  );  
+
+} finally {  
+
+  setLoading(false);  
+
+}
+
+};
+
+// =========================
+// SUBMIT POST
+// =========================
+
+const handleSubmitPost = async (e) => {
+
+e.preventDefault();  
+
+if (  
+  !newPost &&  
+  mediaFiles.length === 0  
+) {  
+  return;  
+}  
+
+setPosting(true);  
+
+try {  
+
+  const uploadedMedia = [];  
+
+  // =========================  
+  // UPLOAD FILES  
+  // =========================  
+
+  for (let file of mediaFiles) {
+
+if (file.enhanced && file.url) {
+uploadedMedia.push({
+url: file.url,
+type: "image",
+});
+continue;
+}
+
+const type =
+file.type?.startsWith("image")
+? "image"
+: "video";
+
+if (type === "image") {
+
+const url =  
+  await uploadImage(file);  
+
+uploadedMedia.push({  
+  url,  
+  type: "image",  
+});  
+
+continue;
+
+}
+
+await validateVideoDuration(
+file,
+180
+);
+
+const {
+videoUrl,
+thumbnailBlob,
+} = await uploadVideo(file);
+
+const thumbnailFile =
+new File(
+[thumbnailBlob],
+"thumbnail.jpg",
+{
+type: "image/jpeg",
+}
+);
+
+const thumbnailUrl =
+await uploadImage(
+thumbnailFile
+);
+
+uploadedMedia.push({
+url: videoUrl,
+type: "video",
+thumbnailUrl,
+});
+}
+// =========================
+// CREATE POST
+// =========================
+
+const res = await fetch(  
+    `${API_BASE}/api/posts`,  
+    {  
+      method: "POST",  
+
+      headers: {  
+        Authorization:  
+          `Bearer ${token}`,  
+
+        "Content-Type":  
+          "application/json",  
+      },  
+
+      body: JSON.stringify({  
+        content: newPost,  
+
+        media: uploadedMedia,  
+
+        location,  
+
+        feeling,  
+
+        taggedFriends,  
+
+        textColor,  
+
+        backgroundStyle,  
+
+        fontStyle,  
+      }),  
+    }  
+  );  
+
+  const data =  
+    await res.json();  
+
+  if (!res.ok) {  
+
+    throw new Error(  
+      data.error ||  
+      "Post failed"  
+    );  
+  }  
+
+  // =========================  
+  // UPDATE FEED  
+  // =========================  
+
+
+  // success block  
+   navigate("/");  
+
+   // =========================  
+  // RESET  
+  // =========================  
+
+  setNewPost("");  
+
+  setMediaFiles([]);  
+
+  setSelectedFile(null);  
+
+  setLocation("");  
+
+  setFeeling("");  
+
+  setTagInput("");  
+
+  setTaggedFriends([]);  
+
+  setLocationSuggestions([]);  
+
+  setExpanded(false);  
+
+  setTextColor("#000000");  
+
+  setBackgroundStyle("white");  
+
+  setFontStyle("font-sans");  
+
+} catch (err) {  
+
+  console.error(err);  
+
+  alert(  
+    err.message ||  
+    "Post failed"  
+  );  
+
+} finally {  
+
+  setPosting(false);  
+
+}
+
+};
+
+// =========================
+// BACKGROUND STYLES
+// =========================
+
+const getBackgroundStyle = () => {
+
+switch (backgroundStyle) {  
+
+  case "gradient-purple":  
+    return {  
+      background:  
+        "linear-gradient(to right, #ec4899, #8b5cf6)",  
+    };  
+
+  case "gradient-blue":  
+    return {  
+      background:  
+        "linear-gradient(to right, #3b82f6, #06b6d4)",  
+    };  
+
+  case "dark":  
+    return {  
+      background: "#111827",  
+    };  
+
+  default:  
+    return {  
+      background: "#ffffff",  
+    };  
+}
+
+};
+
 return (
 
   <form  
@@ -291,14 +729,32 @@ overflow-y-auto
     Add Photos & Videos  
   </label>  
   
+  <div className="space-y-3">  
+  
+  <label  
+    htmlFor="media-upload"  
+    className="  
+      w-full  
+      flex  
+      items-center  
+      gap-3  
+      p-3  
+      border  
+      rounded-xl  
+      cursor-pointer  
+      hover:bg-gray-50  
+    "  
+  >  
+    <ImagePlus size={22} />  
+    Add Photos & Videos  
+  </label>  
+  
   <MediaUpload  
     inputId="media-upload"  
     mediaFiles={mediaFiles}  
     setMediaFiles={setMediaFiles}  
     setSelectedFile={setSelectedFile}  
   />  
-  
-</div>  
   
 </div>  
   
@@ -552,5 +1008,4 @@ overflow-y-auto
   );  
 };  
   
-export default PostComposer;  
-  
+export default PostComposer;
