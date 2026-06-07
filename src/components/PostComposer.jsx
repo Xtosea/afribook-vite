@@ -63,6 +63,8 @@ const PostComposer = ({
   const [tagInput, setTagInput] =
     useState("");
 
+
+
   const [taggedFriends, setTaggedFriends] =
     useState([]);
 
@@ -420,11 +422,13 @@ const PostComposer = ({
   <form
     onSubmit={handleSubmitPost}
     className="
-      fixed
-      inset-0
       bg-white
-      overflow-y-auto
-      z-50
+      p-5
+      rounded-3xl
+      shadow-lg
+      border
+      border-gray-100
+      space-y-4
     "
   >
 
