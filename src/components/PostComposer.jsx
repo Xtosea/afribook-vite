@@ -13,19 +13,20 @@ import { useR2Upload } from "../hooks/useR2Upload";
 import { useAIEnhance } from "../hooks/useAIEnhance";
 
 import validateVideoDuration from "../utils/validateVideoDuration";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+
+const PostComposer = () => {
+  const navigate = useNavigate();
+  const { token, currentUser } = useAuth();
+
 
 const EmojiPicker = lazy(() =>
   import("emoji-picker-react")
 );
 
-const PostComposer = ({
-  token,
-  currentUser,
-  onPostCreated,
-}) => {
 
-  const [expanded, setExpanded] =
-    useState(false);
+
 
   const [posting, setPosting] =
     useState(false);
@@ -63,6 +64,8 @@ const PostComposer = ({
   const [tagInput, setTagInput] =
     useState("");
 
+
+
   const [taggedFriends, setTaggedFriends] =
     useState([]);
 
@@ -76,34 +79,13 @@ const PostComposer = ({
   // =========================
 
   const [textColor, setTextColor] =
-  useState("#000000");
+    useState("#000000");
 
-const [backgroundStyle, setBackgroundStyle] =
-  useState("white");
+  const [backgroundStyle, setBackgroundStyle] =
+    useState("white");
 
-const [fontStyle, setFontStyle] =
-  useState("font-sans");
-
-const closeComposer = () => {
-  setExpanded(false);
-  setNewPost("");
-  setMediaFiles([]);
-  setSelectedFile(null);
-  setLocation("");
-  setLocationSuggestions([]);
-  setFeeling("");
-  setTagInput("");
-  setTaggedFriends([]);
-
-  setTextColor("#000000");
-  setBackgroundStyle("white");
-  setFontStyle("font-sans");
-
-  setShowEmoji(false);
-  setShowLocation(false);
-  setShowFeeling(false);
-  setShowTag(false);
-};
+  const [fontStyle, setFontStyle] =
+    useState("font-sans");
 
   // =========================
   // CLOUDINARY
@@ -357,9 +339,11 @@ const closeComposer = () => {
       // UPDATE FEED
       // =========================
 
-      onPostCreated?.(data.post);
 
-      // =========================
+      // success block
+       navigate("/");
+
+       // =========================
       // RESET
       // =========================
 
@@ -436,94 +420,25 @@ const closeComposer = () => {
   };
 
 
-if (!expanded) {
-  return (
-    <div
-      onClick={() => setExpanded(true)}
-      className="
-        bg-white
-        rounded-2xl
-        shadow
-        border
-        p-4
-        cursor-pointer
-      "
-    >
-      <div className="flex items-center gap-3">
-
-        <img
-          src={
-            currentUser?.profilePic ||
-            "/default-avatar.png"
-          }
-          alt="Profile"
-          className="
-            w-12
-            h-12
-            rounded-full
-            object-cover
-          "
-        />
-
-        <div
-          className="
-            flex-1
-            bg-gray-100
-            rounded-full
-            px-4
-            py-3
-            text-gray-500
-          "
-        >
-          What's on your mind,
-          {currentUser?.name || "User"}?
-        </div>
-
-      </div>
-    </div>
-  );
-}
-
 
   return (
-  <>
-    <div
-  className="
-    fixed
-    inset-0
-    bg-black/50
-    z-40
-  "
-  onClick={closeComposer}
-/>
+  <form
+    onSubmit={handleSubmitPost}
+    className="
+      bg-white
+      p-5
+      rounded-3xl
+      shadow-lg
+      border
+      border-gray-100
+      space-y-4
+    "
+  >
 
     <div
       className="
-        fixed
-        inset-0
-        z-50
-        flex
-        items-start
-        justify-center
-        p-4
-        overflow-y-auto
-      "
-    >
-      <form
-        onSubmit={handleSubmitPost}
-        className="
-          w-screen
-          max-w-2xl
-          bg-white
-          rounded-3xl
-          shadow-2xl
-          max-h-[90vh]
-          overflow-y-auto
-        "
-      >
-    <div
-      className="
-        sticky top-0 bg-white z-10
+        sticky
+        top-0
         z-50
         bg-white
         border-b
@@ -536,11 +451,23 @@ if (!expanded) {
     >
       <button
   type="button"
-  onClick={closeComposer}
+  onClick={() => {
+
+    setNewPost("");
+    setMediaFiles([]);
+    setSelectedFile(null);
+    setLocation("");
+    setLocationSuggestions([]);
+    setFeeling("");
+    setTagInput("");
+    setTaggedFriends([]);
+
+    navigate("/");
+  }}
   className="text-red-500 font-medium"
 >
-      Cancel
-      </button>
+  Cancel
+</button>
 
       <h2 className="font-bold text-lg">
         Create Post
@@ -568,39 +495,23 @@ if (!expanded) {
 
     <div className="p-5 space-y-4">
 
- <div className="flex items-center gap-3 mb-3">
-  <img
-  src={
-    currentUser?.profilePic ||
-    "/default-avatar.png"
-  }
-  alt="Profile"
-  className="w-12 h-12 rounded-full object-cover"
-/>
 
-  <div>
-    <h3 className="font-bold text-xl text-gray-900">
-      What's happening today?
-    </h3>
 
-    <p className="text-sm text-gray-500">
-      Share photos, videos and updates with friends
-    </p>
-  </div>
-</div>
-
-<div className="border-b pb-3"></div>
+ <div className="border-b pb-3"></div>
 
       {/* TEXTAREA */}
 
       <textarea
-  rows={10}
+  rows={4}
   value={newPost}
   onChange={(e) =>
     setNewPost(e.target.value)
   }
+  onFocus={() =>
+    setExpanded(true)
+  }
   placeholder={`Share a photo, video or thought... ${
-    currentUser?.name || "Friend"
+    currentUser?.name || "User"
   }?`}
   style={{
     color: textColor,
@@ -612,47 +523,22 @@ if (!expanded) {
     rounded-2xl
     border
     resize-none
-    min-h-[250px]
+    transition-all
+    duration-200
+    focus:outline-none
+    focus:ring-2
+    focus:ring-blue-400
+    relative
+    z-0
+    h-28
     ${fontStyle}
   `}
 />
 
-<div
-  className="
-    flex
-    gap-4
-    overflow-x-auto
-    pt-2
-    border-t
-    pb-2
-  "
->
-  <button
-    type="button"
-    className="flex items-center gap-2 text-red-500"
-  >
-    🎥 Video
-  </button>
-
-  <button
-    type="button"
-    className="flex items-center gap-2 text-green-500"
-  >
-    📷 Photo
-  </button>
-
-  <button
-    type="button"
-    className="flex items-center gap-2 text-blue-500"
-  >
-    😊 Feeling
-  </button>
-</div>
-
 
       {/* EXPANDED */}
 
-      {expanded && (
+      {(
 
         <div className="space-y-4">
 
@@ -803,13 +689,15 @@ if (!expanded) {
 
           {/* MEDIA */}
 
-          <div className="max-h-40 overflow-hidden">
-  <MediaUpload
-    mediaFiles={mediaFiles}
-    setMediaFiles={setMediaFiles}
-    setSelectedFile={setSelectedFile}
-  />
-</div>
+          <MediaUpload
+            mediaFiles={mediaFiles}
+            setMediaFiles={
+              setMediaFiles
+            }
+            setSelectedFile={
+              setSelectedFile
+            }
+          />
 
           {/* AI BUTTON */}
 
@@ -1017,16 +905,19 @@ if (!expanded) {
               >
                 🏷 Tag
               </button>
+
+            </div>
+
+            </div>
+
+
+
         </div>
- </div>
-        
-    </div>
-  
-  )}
+
+      )}
 </div>
-</form>
-</div>
-</>
+
+    </form>
   );
 };
 
