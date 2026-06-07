@@ -275,8 +275,7 @@ const lastPostRef = useCallback(
 
          {/* POST COMPOSER */}
 
-
-        <div className="bg-white rounded-2xl p-4 shadow">
+<div className="bg-white rounded-2xl p-4 shadow">
   <div className="flex items-center gap-3">
 
     <img
@@ -307,10 +306,7 @@ const lastPostRef = useCallback(
   )}
 </div>
 
-       
-
-
-          {/* STORIES */}
+       {/* STORIES */}
 
            <StoryBar
           user={currentUser}
