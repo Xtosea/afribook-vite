@@ -229,6 +229,7 @@ const observer = useRef(null);
     };
   }, [token]);
 
+const navigate = useNavigate();
 
 // ================= INFINITE SCROLL =================
 
@@ -283,16 +284,20 @@ const lastPostRef = useCallback(
 
         {/* POST COMPOSER */}
 
-        <PostComposer
-          token={token}
-          currentUser={currentUser}
-          onPostCreated={(post) => {
-            setPosts((prev) => [
-              post,
-              ...prev,
-            ]);
-          }}
-        />
+       
+<div
+  onClick={() => navigate("/create-post")}
+  className="
+    bg-white
+    p-3
+    rounded-full
+    border
+    cursor-pointer
+    text-gray-500
+  "
+>
+  Share a photo, video or thought...
+</div>
 
 {/* POSTS */}
 
