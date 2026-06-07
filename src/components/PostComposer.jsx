@@ -452,8 +452,6 @@ const EmojiPicker = lazy(() =>
       "
     >
       <button
-        type="button"
-        <button
   type="button"
   onClick={() => {
     setExpanded(false);
@@ -468,15 +466,10 @@ const EmojiPicker = lazy(() =>
 
     navigate("/");
   }}
+  className="text-red-500 font-medium"
 >
   Cancel
 </button>
-
-
-        className="text-red-500 font-medium"
-      >
-        Cancel
-      </button>
 
       <h2 className="font-bold text-lg">
         Create Post
