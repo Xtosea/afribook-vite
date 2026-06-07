@@ -341,18 +341,11 @@ const EmojiPicker = lazy(() =>
       // UPDATE FEED
       // =========================
 
-      if (!res.ok) {
-  throw new Error(data.error || "Post        failed");
-}
-
-      // success block
-      onPostCreated?.(data.post);
-
-      // 👇 THIS IS THE IMPORTANT LINE
-       navigate("/");
       
+      // success block
+       navigate("/");
 
-      // =========================
+       // =========================
       // RESET
       // =========================
 
@@ -460,15 +453,19 @@ const EmojiPicker = lazy(() =>
     >
       <button
         type="button"
-        onClick={() => navigate("/")}
-          setMediaFiles([]);
-          setSelectedFile(null);
-          setLocation("");
-          setLocationSuggestions([]);
-          setFeeling("");
-          setTagInput("");
-          setTaggedFriends([]);
-        }}
+        onClick={() => {
+  setExpanded(false);
+  setNewPost("");
+  setMediaFiles([]);
+  setSelectedFile(null);
+  setLocation("");
+  setLocationSuggestions([]);
+  setFeeling("");
+  setTagInput("");
+  setTaggedFriends([]);
+
+  navigate("/");
+}}
         className="text-red-500 font-medium"
       >
         Cancel
