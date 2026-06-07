@@ -21,7 +21,7 @@ import {
   connectSocket,
 } from "../socket";
 
-import PostComposer from "../components/PostComposer";
+
 import Adsterra from "../components/Adsterra.jsx";
 
 import SuggestedFriends from "../components/friends/SuggestedFriends";
