@@ -273,20 +273,10 @@ const lastPostRef = useCallback(
 
       <main className="md:col-span-2 space-y-4">
 
-        {/* STORIES */}
+         {/* POST COMPOSER */}
 
 
-        <StoryBar
-          user={currentUser}
-          stories={stories}
-        />
-
-        {/* POST COMPOSER */}
-
-       
-
-
-  <div className="bg-white rounded-2xl p-4 shadow">
+        <div className="bg-white rounded-2xl p-4 shadow">
   <div className="flex items-center gap-3">
 
     <img
@@ -317,6 +307,17 @@ const lastPostRef = useCallback(
   )}
 </div>
 
+       
+
+
+          {/* STORIES */}
+
+           <StoryBar
+          user={currentUser}
+          stories={stories}
+        />
+
+        
 {/* POSTS */}
 
 <div
