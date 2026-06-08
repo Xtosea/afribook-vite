@@ -41,12 +41,16 @@ export function useStoryUpload() {
       // =========================
 
       const signedRes = await fetch(
-        `${API_BASE}/api/r2/signed-url?contentType=${encodeURIComponent(
-          file.type
-        )}`
-      );
+  `${API_BASE}/api/storyR2/signed-url?contentType=${encodeURIComponent(file.type)}`
+);
 
-      const signedData = await signedRes.json();
+console.log("STATUS:", signedRes.status);
+console.log("URL HIT:", signedRes.url);
+
+const text = await signedRes.text();
+console.log("RAW RESPONSE:", text);
+
+const signedData = JSON.parse(text);
 
       if (!signedData.uploadUrl) {
         throw new Error(
