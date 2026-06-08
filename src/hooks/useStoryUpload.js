@@ -10,26 +10,49 @@ export function useStoryUpload() {
 
   const [error, setError] = useState(null);
 
-  const uploadStory = async (file) => {
+  const uploadStory = async ({
+    file,
+    text,
+    music,
+    stickers,
+    backgroundColor,
+  }) => {
     try {
+      if (!file) {
+        throw new Error("No file selected");
+      }
+
       setLoading(true);
-
       setProgress(0);
-
       setError(null);
+
+      // Only allow video and audio
+      if (
+        !file.type.startsWith("video/") &&
+        !file.type.startsWith("audio/")
+      ) {
+        throw new Error(
+          "Only video and audio files are allowed"
+        );
+      }
 
       // =========================
       // GET SIGNED URL
       // =========================
 
       const signedRes = await fetch(
-        `${API_BASE}/api/r2/signed-url?contentType=${file.type}`
+        `${API_BASE}/api/r2/signed-url?contentType=${encodeURIComponent(
+          file.type
+        )}`
       );
 
       const signedData = await signedRes.json();
 
       if (!signedData.uploadUrl) {
-        throw new Error("Failed to generate signed URL");
+        throw new Error(
+          signedData.error ||
+            "Failed to generate signed URL"
+        );
       }
 
       // =========================
@@ -46,7 +69,8 @@ export function useStoryUpload() {
 
           onUploadProgress: (event) => {
             const percent = Math.round(
-              (event.loaded * 100) / event.total
+              (event.loaded * 100) /
+                event.total
             );
 
             setProgress(percent);
@@ -55,10 +79,23 @@ export function useStoryUpload() {
       );
 
       // =========================
+      // DETERMINE MEDIA TYPE
+      // =========================
+
+      let mediaType = "video";
+
+      if (
+        file.type.startsWith("audio/")
+      ) {
+        mediaType = "audio";
+      }
+
+      // =========================
       // SAVE STORY TO DATABASE
       // =========================
 
-      const token = localStorage.getItem("token");
+      const token =
+        localStorage.getItem("token");
 
       const res = await fetch(
         `${API_BASE}/api/storyr2`,
@@ -66,41 +103,57 @@ export function useStoryUpload() {
           method: "POST",
 
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type":
+              "application/json",
 
-            Authorization: `Bearer ${token}`,
+            Authorization:
+              `Bearer ${token}`,
           },
 
           body: JSON.stringify({
+            text,
+            music,
+            stickers,
+            backgroundColor,
+
             media: [
               {
-                url: signedData.fileUrl,
-
-                type: file.type.startsWith("video")
-                  ? "video"
-                  : "image",
+                url:
+                  signedData.fileUrl,
+                type: mediaType,
               },
             ],
           }),
         }
       );
 
-      const story = await res.json();
+      const story =
+        await res.json();
+
+      if (!res.ok) {
+        throw new Error(
+          story.error ||
+            "Failed to save story"
+        );
+      }
 
       return story;
 
     } catch (err) {
+      console.error(
+        "Story Upload Error:",
+        err
+      );
 
-      console.error("Story Upload Error:", err);
-
-      setError(err.message);
+      setError(
+        err.message ||
+          "Story upload failed"
+      );
 
       throw err;
 
     } finally {
-
       setLoading(false);
-
     }
   };
 
