@@ -127,6 +127,13 @@ const signedData = JSON.parse(text);
   }
 );
 
+console.log("SAVE STORY STATUS:", res.status);
+
+const raw = await res.text();
+
+console.log("SAVE STORY RAW:", raw);
+
+
       const story =
         await res.json();
 
