@@ -359,13 +359,12 @@ useEffect(() => {
   </div>
 
   <input
-    type="file"
-    ref={fileRef}
-    className="hidden"
-    accept="image/*,video/*"
-    onChange={handleUpload}
-  />
-</div>
+  type="file"
+  ref={fileRef}
+  className="hidden"
+  accept="image/*,video/*,audio/*"
+  onChange={handleUpload}
+/>
 
 
         {/* STORIES */}
