@@ -362,7 +362,7 @@ useEffect(() => {
   type="file"
   ref={fileRef}
   className="hidden"
-  accept="image/*,video/*,audio/*"
+  accept="video/*,audio/*"
   onChange={handleUpload}
 />
 </div>
