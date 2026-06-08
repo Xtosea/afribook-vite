@@ -295,7 +295,7 @@ const lastPostRef = useCallback(
         "/default-avatar.png"
       }
       alt=""
-      className="w-12 h-12 rounded-full"
+      className="w-16 h-16 rounded-full"
     />
 
     <textarea
