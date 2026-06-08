@@ -1,4 +1,4 @@
-import { useState } from "react";
+impor { useState } from "react";
 import axios from "axios";
 import { compressStoryMedia } from "../utils/compressStoryMedia";
 
