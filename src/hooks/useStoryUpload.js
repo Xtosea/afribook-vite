@@ -102,7 +102,7 @@ const signedData = JSON.parse(text);
         localStorage.getItem("token");
 
       const res = await fetch(
-        `${API_BASE}/api/storyr2`,
+        `${API_BASE}/api/storyR2/signed-url
         {
           method: "POST",
 
