@@ -12,7 +12,7 @@ import { useStoryUpload } from "../../hooks/useStoryUpload";
 
 import { getSocket } from "../../socket";
 import StoryCreator from "./StoryCreator";
-import useCloudnaryStory from "../../hooks/useCloudnaryStory";
+
 
 
 
@@ -364,8 +364,19 @@ useEffect(() => {
   type="file"
   ref={fileRef}
   className="hidden"
-  accept="video/*,audio/*"
-  onChange={handleUpload}
+  accept="image/*,video/*,audio/*"
+  onChange={(e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    handleUpload({
+      file,
+      text: "",
+      music: null,
+      stickers: [],
+      backgroundColor: "#000000",
+    });
+  }}
 />
 </div>
 
