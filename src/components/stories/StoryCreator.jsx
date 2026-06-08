@@ -250,11 +250,12 @@ useEffect(() => {
         </button>
 
         {/* HIDDEN FILE INPUT */}
+
         <input
   type="file"
   ref={fileRef}
   className="hidden"
-  accept=video/*,audio/*"
+  accept="video/*,audio/*"
   onChange={handleFile}
 />
       </div>
