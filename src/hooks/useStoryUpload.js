@@ -127,11 +127,11 @@ const signedData = JSON.parse(text);
   }
 );
 
-console.log("SAVE STORY STATUS:", res.status);
+const signedRaw = await signedRes.text();
 
-const raw = await res.text();
+console.log("RAW RESPONSE:", signedRaw);
 
-console.log("SAVE STORY RAW:", raw);
+const signedData = JSON.parse(signedRaw);
 
 
       const story =
