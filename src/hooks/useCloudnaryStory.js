@@ -1,33 +1,42 @@
 import { useState } from "react";
 
-export const useCloudinaryUpload = () => {
+const API_BASE = import.meta.env.VITE_API_BASE;
+
+export const useCloudinaryStoryUpload = () => {
   const [loading, setLoading] = useState(false);
 
-  const uploadImage = async (file) => {
-    setLoading(true);
-
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET);
-
+  const uploadStoryMedia = async (file) => {
     try {
+      setLoading(true);
+
+      const formData = new FormData();
+
+      // IMPORTANT: must match multer.single("image")
+      formData.append("image", file);
+
       const res = await fetch(
-        import.meta.env.VITE_CLOUDINARY_UPLOAD_URL,
+        `${API_BASE}/api/storyCloudnary/upload`,
         {
           method: "POST",
           body: formData,
         }
       );
 
-      const data = await res.json();
-      return data.secure_url;
+      const raw = await res.text();
+      const data = JSON.parse(raw);
+
+      if (!res.ok) {
+        throw new Error(data.error || "Upload failed");
+      }
+
+      return data.url; // Cloudinary URL
     } catch (err) {
-      console.error(err);
+      console.error("Cloudinary upload error:", err);
       return null;
     } finally {
       setLoading(false);
     }
   };
 
-  return { uploadImage, loading };
+  return { uploadStoryMedia, loading };
 };
