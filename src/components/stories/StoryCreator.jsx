@@ -96,17 +96,24 @@ useEffect(() => {
           <div className="relative mb-3 rounded-xl overflow-hidden max-h-[300px] flex items-center justify-center bg-black">
 
             {media?.type?.startsWith("video") ? (
-              <video
-  src={preview}
-  controls
-  className="max-h-[300px] w-auto object-contain"
-/>
-            ) : (
-              <img
-  src={preview}
-  className="max-h-[300px] w-auto object-contain"
-/>
-            )}
+  <video
+    src={preview}
+    controls
+    className="max-h-[300px] w-auto object-contain"
+  />
+) : media?.type?.startsWith("audio") ? (
+  <audio
+    controls
+    src={preview}
+    className="w-full"
+  />
+) : (
+  <img
+    src={preview}
+    alt=""
+    className="max-h-[300px] w-auto object-contain"
+  />
+)}
 
             {/* TEXT OVERLAY */}
             {text && (
@@ -244,12 +251,12 @@ useEffect(() => {
 
         {/* HIDDEN FILE INPUT */}
         <input
-          type="file"
-          ref={fileRef}
-          className="hidden"
-          accept="image/*,video/*"
-          onChange={handleFile}
-        />
+  type="file"
+  ref={fileRef}
+  className="hidden"
+  accept="image/*,video/*,audio/*"
+  onChange={handleFile}
+/>
       </div>
     </div>
   );
