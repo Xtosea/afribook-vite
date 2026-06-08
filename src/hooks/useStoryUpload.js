@@ -102,34 +102,30 @@ const signedData = JSON.parse(text);
         localStorage.getItem("token");
 
       const res = await fetch(
-        `${API_BASE}/api/storyR2/signed-url
+  `${API_BASE}/api/storyR2`,
+  {
+    method: "POST",
+
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+
+    body: JSON.stringify({
+      text,
+      music,
+      stickers,
+      backgroundColor,
+
+      media: [
         {
-          method: "POST",
-
-          headers: {
-            "Content-Type":
-              "application/json",
-
-            Authorization:
-              `Bearer ${token}`,
-          },
-
-          body: JSON.stringify({
-            text,
-            music,
-            stickers,
-            backgroundColor,
-
-            media: [
-              {
-                url:
-                  signedData.fileUrl,
-                type: mediaType,
-              },
-            ],
-          }),
-        }
-      );
+          url: signedData.fileUrl,
+          type: mediaType,
+        },
+      ],
+    }),
+  }
+);
 
       const story =
         await res.json();
