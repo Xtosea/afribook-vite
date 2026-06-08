@@ -5,9 +5,7 @@ const API_BASE = import.meta.env.VITE_API_BASE;
 
 export function useStoryUpload() {
   const [loading, setLoading] = useState(false);
-
   const [progress, setProgress] = useState(0);
-
   const [error, setError] = useState(null);
 
   const uploadStory = async ({
@@ -26,7 +24,6 @@ export function useStoryUpload() {
       setProgress(0);
       setError(null);
 
-      // Only allow video and audio
       if (
         !file.type.startsWith("video/") &&
         !file.type.startsWith("audio/")
@@ -36,21 +33,31 @@ export function useStoryUpload() {
         );
       }
 
-      // =========================
-      // GET SIGNED URL
-      // =========================
+      /* =========================
+         GET SIGNED URL
+      ========================= */
 
       const signedRes = await fetch(
-  `${API_BASE}/api/storyR2/signed-url?contentType=${encodeURIComponent(file.type)}`
-);
+        `${API_BASE}/api/storyR2/signed-url?contentType=${encodeURIComponent(
+          file.type
+        )}`
+      );
 
-console.log("STATUS:", signedRes.status);
-console.log("URL HIT:", signedRes.url);
+      console.log(
+        "SIGNED URL STATUS:",
+        signedRes.status
+      );
 
-const text = await signedRes.text();
-console.log("RAW RESPONSE:", text);
+      const signedRaw =
+        await signedRes.text();
 
-const signedData = JSON.parse(text);
+      console.log(
+        "SIGNED URL RESPONSE:",
+        signedRaw
+      );
+
+      const signedData =
+        JSON.parse(signedRaw);
 
       if (!signedData.uploadUrl) {
         throw new Error(
@@ -59,9 +66,9 @@ const signedData = JSON.parse(text);
         );
       }
 
-      // =========================
-      // UPLOAD DIRECTLY TO R2
-      // =========================
+      /* =========================
+         UPLOAD TO R2
+      ========================= */
 
       await axios.put(
         signedData.uploadUrl,
@@ -82,9 +89,9 @@ const signedData = JSON.parse(text);
         }
       );
 
-      // =========================
-      // DETERMINE MEDIA TYPE
-      // =========================
+      /* =========================
+         DETERMINE MEDIA TYPE
+      ========================= */
 
       let mediaType = "video";
 
@@ -94,48 +101,56 @@ const signedData = JSON.parse(text);
         mediaType = "audio";
       }
 
-      // =========================
-      // SAVE STORY TO DATABASE
-      // =========================
+      /* =========================
+         SAVE STORY
+      ========================= */
 
       const token =
         localStorage.getItem("token");
 
       const res = await fetch(
-  `${API_BASE}/api/storyR2`,
-  {
-    method: "POST",
-
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-
-    body: JSON.stringify({
-      text,
-      music,
-      stickers,
-      backgroundColor,
-
-      media: [
+        `${API_BASE}/api/storyR2`,
         {
-          url: signedData.fileUrl,
-          type: mediaType,
-        },
-      ],
-    }),
-  }
-);
+          method: "POST",
 
-const signedRaw = await signedRes.text();
+          headers: {
+            "Content-Type":
+              "application/json",
 
-console.log("RAW RESPONSE:", signedRaw);
+            Authorization:
+              `Bearer ${token}`,
+          },
 
-const signedData = JSON.parse(signedRaw);
+          body: JSON.stringify({
+            text,
+            music,
+            stickers,
+            backgroundColor,
 
+            media: [
+              {
+                url:
+                  signedData.fileUrl,
+                type: mediaType,
+              },
+            ],
+          }),
+        }
+      );
 
-      const story =
-        await res.json();
+      console.log(
+        "SAVE STORY STATUS:",
+        res.status
+      );
+
+      const raw = await res.text();
+
+      console.log(
+        "SAVE STORY RAW:",
+        raw
+      );
+
+      const story = JSON.parse(raw);
 
       if (!res.ok) {
         throw new Error(
