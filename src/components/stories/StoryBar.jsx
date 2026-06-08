@@ -365,7 +365,7 @@ useEffect(() => {
   accept="image/*,video/*,audio/*"
   onChange={handleUpload}
 />
-
+</div>
 
         {/* STORIES */}
         {activeStories.map((story) => (
