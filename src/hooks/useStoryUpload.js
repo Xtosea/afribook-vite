@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import { compressVideo } from "../utils/compressVideo";
 
 const API_BASE = import.meta.env.VITE_API_BASE;
 
@@ -25,7 +26,9 @@ export function useStoryUpload() {
       setError(null);
 
       if (
-        !file.type.startsWith("video/") &&
+        if (file.size > 10 * 1024 * 1024 && file.type.startsWith("video/")) {
+  file = await compressVideo(file);
+} &&
         !file.type.startsWith("audio/")
       ) {
         throw new Error(
