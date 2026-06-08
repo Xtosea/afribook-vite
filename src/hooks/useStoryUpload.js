@@ -1,6 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
-import { compressVideo } from "../utils/compressVideo";
+import { compressStoryMedia } from "../utils/compressStoryMedia";
 
 const API_BASE = import.meta.env.VITE_API_BASE;
 
@@ -25,158 +25,118 @@ export function useStoryUpload() {
       setProgress(0);
       setError(null);
 
+      /* =========================
+         VALIDATION
+      ========================= */
       if (
-        if (file.size > 10 * 1024 * 1024 && file.type.startsWith("video/")) {
-  file = await compressVideo(file);
-} &&
-        !file.type.startsWith("audio/")
+        !file.type.startsWith("video/") &&
+        !file.type.startsWith("audio/") &&
+        !file.type.startsWith("image/")
       ) {
-        throw new Error(
-          "Only video and audio files are allowed"
-        );
+        throw new Error("Unsupported file type");
       }
+
+      /* =========================
+         COMPRESSION (IMPORTANT)
+      ========================= */
+      file = await compressStoryMedia(file);
 
       /* =========================
          GET SIGNED URL
       ========================= */
-
       const signedRes = await fetch(
-        `${API_BASE}/api/storyR2/signed-url?contentType=${encodeURIComponent(
+        `${API_BASE}/api/r2/signed-url?contentType=${encodeURIComponent(
           file.type
         )}`
       );
 
-      console.log(
-        "SIGNED URL STATUS:",
-        signedRes.status
-      );
+      const signedRaw = await signedRes.text();
 
-      const signedRaw =
-        await signedRes.text();
+      console.log("SIGNED URL RESPONSE:", signedRaw);
 
-      console.log(
-        "SIGNED URL RESPONSE:",
-        signedRaw
-      );
+      const signedData = JSON.parse(signedRaw);
 
-      const signedData =
-        JSON.parse(signedRaw);
-
-      if (!signedData.uploadUrl) {
+      if (!signedRes.ok || !signedData.uploadUrl) {
         throw new Error(
-          signedData.error ||
-            "Failed to generate signed URL"
+          signedData.error || "Failed to generate signed URL"
         );
       }
 
       /* =========================
          UPLOAD TO R2
       ========================= */
+      await axios.put(signedData.uploadUrl, file, {
+        headers: {
+          "Content-Type": file.type,
+        },
 
-      await axios.put(
-        signedData.uploadUrl,
-        file,
-        {
-          headers: {
-            "Content-Type": file.type,
-          },
-
-          onUploadProgress: (event) => {
-            const percent = Math.round(
-              (event.loaded * 100) /
-                event.total
-            );
-
-            setProgress(percent);
-          },
-        }
-      );
+        onUploadProgress: (event) => {
+          const percent = Math.round(
+            (event.loaded * 100) / event.total
+          );
+          setProgress(percent);
+        },
+      });
 
       /* =========================
-         DETERMINE MEDIA TYPE
+         MEDIA TYPE
       ========================= */
-
       let mediaType = "video";
 
-      if (
-        file.type.startsWith("audio/")
-      ) {
+      if (file.type.startsWith("audio/")) {
         mediaType = "audio";
+      }
+
+      if (file.type.startsWith("image/")) {
+        mediaType = "image";
       }
 
       /* =========================
          SAVE STORY
       ========================= */
+      const token = localStorage.getItem("token");
 
-      const token =
-        localStorage.getItem("token");
-
-      const res = await fetch(
-        `${API_BASE}/api/storyR2`,
-        {
-          method: "POST",
-
-          headers: {
-            "Content-Type":
-              "application/json",
-
-            Authorization:
-              `Bearer ${token}`,
-          },
-
-          body: JSON.stringify({
-            text,
-            music,
-            stickers,
-            backgroundColor,
-
-            media: [
-              {
-                url:
-                  signedData.fileUrl,
-                type: mediaType,
-              },
-            ],
-          }),
-        }
-      );
-
-      console.log(
-        "SAVE STORY STATUS:",
-        res.status
-      );
+      const res = await fetch(`${API_BASE}/api/storyR2`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          text,
+          music,
+          stickers,
+          backgroundColor,
+          media: [
+            {
+              url: signedData.fileUrl,
+              type: mediaType,
+            },
+          ],
+        }),
+      });
 
       const raw = await res.text();
 
-      console.log(
-        "SAVE STORY RAW:",
-        raw
-      );
+      console.log("SAVE STORY RESPONSE:", raw);
 
-      const story = JSON.parse(raw);
+      let story;
+      try {
+        story = JSON.parse(raw);
+      } catch (e) {
+        throw new Error("Invalid JSON response from server");
+      }
 
       if (!res.ok) {
-        throw new Error(
-          story.error ||
-            "Failed to save story"
-        );
+        throw new Error(story.error || "Failed to save story");
       }
 
       return story;
-
     } catch (err) {
-      console.error(
-        "Story Upload Error:",
-        err
-      );
+      console.error("Story Upload Error:", err);
 
-      setError(
-        err.message ||
-          "Story upload failed"
-      );
-
+      setError(err.message || "Story upload failed");
       throw err;
-
     } finally {
       setLoading(false);
     }
