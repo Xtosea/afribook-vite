@@ -94,17 +94,22 @@ if (!signedRes.ok || !signedData.uploadUrl) {
          UPLOAD TO R2
       ========================= */
       await axios.put(signedData.uploadUrl, file, {
-        headers: {
-          "Content-Type": file.type,
-        },
+  timeout: 60000,
 
-        onUploadProgress: (event) => {
-          const percent = Math.round(
-            (event.loaded * 100) / event.total
-          );
-          setProgress(percent);
-        },
-      });
+  headers: {
+    "Content-Type": file.type,
+  },
+
+  onUploadProgress: (event) => {
+    if (!event.total) return;
+
+    const percent = Math.round(
+      (event.loaded * 100) / event.total
+    );
+
+    setProgress(percent);
+  },
+});
 
       /* =========================
          MEDIA TYPE
