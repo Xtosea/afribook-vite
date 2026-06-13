@@ -52,15 +52,43 @@ export function useStoryUpload() {
 
       const signedRaw = await signedRes.text();
 
-      console.log("SIGNED URL RESPONSE:", signedRaw);
+console.log(
+  "SIGNED URL STATUS:",
+  signedRes.status
+);
 
-      const signedData = JSON.parse(signedRaw);
+console.log(
+  "SIGNED URL RESPONSE:",
+  signedRaw
+);
 
-      if (!signedRes.ok || !signedData.uploadUrl) {
-        throw new Error(
-          signedData.error || "Failed to generate signed URL"
-        );
-      }
+if (!signedRaw) {
+  throw new Error(
+    "Empty response from signed URL endpoint"
+  );
+}
+
+let signedData;
+
+try {
+  signedData = JSON.parse(signedRaw);
+} catch (err) {
+  console.error(
+    "Invalid JSON from signed URL endpoint:",
+    signedRaw
+  );
+
+  throw new Error(
+    "Server returned invalid JSON"
+  );
+}
+
+if (!signedRes.ok || !signedData.uploadUrl) {
+  throw new Error(
+    signedData.error ||
+      "Failed to generate signed URL"
+  );
+}
 
       /* =========================
          UPLOAD TO R2
