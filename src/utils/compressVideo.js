@@ -47,4 +47,5 @@ const compressVideo = async (file) => {
   );
 };
 
+export { compressVideo };
 export default compressVideo;
