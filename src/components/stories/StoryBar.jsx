@@ -142,6 +142,7 @@ const [showCreator, setShowCreator] =
 };
 
   /* ================= UPLOAD STORY ================= */
+/* ================= UPLOAD STORY ================= */
 const handleUpload = async ({
   file,
   text,
@@ -150,103 +151,27 @@ const handleUpload = async ({
   backgroundColor,
 }) => {
   try {
-    if (!file) return;
-
-    setLoading(true);
-
-    let mediaUrl = "";
-    let mediaType = "";
-
-    /* =========================
-       1. IMAGE → CLOUDINARY
-    ========================= */
-    if (file.type.startsWith("image/")) {
-      const formData = new FormData();
-      formData.append("image", file);
-
-      const res = await fetch(
-        `${API_BASE}/api/storyCloudnary/upload`,
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-
-      const data = await res.json();
-
-      if (!data.url) {
-        throw new Error("Image upload failed");
-      }
-
-      mediaUrl = data.url;
-      mediaType = "image";
-    }
-
-    /* =========================
-       2. VIDEO / AUDIO → R2
-    ========================= */
-    else if (
-      file.type.startsWith("video/") ||
-      file.type.startsWith("audio/")
-    ) {
-      // STEP 1: get signed URL
-      const signedRes = await fetch(
-        `${API_BASE}/api/storyR2/signed-url?contentType=${encodeURIComponent(file.type)}`
-      );
-
-      const signedData = await signedRes.json();
-
-      if (!signedData.uploadUrl) {
-        throw new Error("R2 signed URL failed");
-      }
-
-      // STEP 2: upload to R2
-      await axios.put(signedData.uploadUrl, file, {
-        headers: {
-          "Content-Type": file.type,
-        },
-      });
-
-      mediaUrl = signedData.fileUrl;
-      mediaType = file.type.startsWith("video/")
-        ? "video"
-        : "audio";
-    }
-
-    /* =========================
-       3. SAVE STORY TO DB
-    ========================= */
-    const token = localStorage.getItem("token");
-
-    const res = await fetch(`${API_BASE}/api/storyR2`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        text,
-        music,
-        stickers,
-        backgroundColor,
-        media: [
-          {
-            url: mediaUrl,
-            type: mediaType,
-          },
-        ],
-      }),
+    const story = await uploadStory({
+      file,
+      text,
+      music,
+      stickers,
+      backgroundColor,
     });
 
-    const story = await res.json();
-
-    setActiveStories((prev) => [story, ...prev]);
+    if (story) {
+      setActiveStories((prev) => [
+        story,
+        ...prev,
+      ]);
+    }
 
     return story;
   } catch (err) {
-    console.error("Upload story error:", err);
-  } finally {
-    setLoading(false);
+    console.error(
+      "Upload story error:",
+      err
+    );
   }
 };
 
