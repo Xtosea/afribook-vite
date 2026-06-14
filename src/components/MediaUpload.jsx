@@ -14,6 +14,10 @@ const MediaUpload = ({
   const fileInputRef = useRef(null);
   const [dragging, setDragging] = useState(false);
   const [previewUrls, setPreviewUrls] = useState([]);
+const [uploadProgress, setUploadProgress] =
+  useState({});
+
+
 
   // =========================
   // Generate Preview URLs
