@@ -27,7 +27,7 @@ const EmojiPicker = lazy(() =>
 
 
 
-
+const [expanded, setExpanded] = useState(false);
   const [posting, setPosting] =
     useState(false);
 
