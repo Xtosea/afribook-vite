@@ -1,7 +1,9 @@
 // src/socket.js
 
 import { io } from "socket.io-client";
-import { API_BASE } from "./api/api";
+
+const SOCKET_URL =
+  "https://afribook-backend.onrender.com";
 
 let socket = null;
 
@@ -14,7 +16,7 @@ export const connectSocket = () => {
   }
 
   if (!socket) {
-    socket = io(API_BASE, {
+    socket = io(SOCKET_URL, {
       auth: {
         token,
       },
