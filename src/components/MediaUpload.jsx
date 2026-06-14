@@ -12,6 +12,7 @@ const MediaUpload = ({
   setSelectedFile,
 }) => {
   const fileInputRef = useRef(null);
+  const objectUrlsRef = useRef([]);
 
   const [previewUrls, setPreviewUrls] = useState([]);
   const [uploadProgress] = useState({});
@@ -20,9 +21,23 @@ const MediaUpload = ({
   // Generate Preview URLs
   // =========================
   useEffect(() => {
-    const urls = (mediaFiles || []).map((file) => {
+    // Cleanup old blob URLs first
+    objectUrlsRef.current.forEach((url) => {
+      URL.revokeObjectURL(url);
+    });
+
+    objectUrlsRef.current = [];
+
+    if (!mediaFiles || mediaFiles.length === 0) {
+      setPreviewUrls([]);
+      return;
+    }
+
+    const urls = mediaFiles.map((file) => {
       if (file instanceof File) {
-        return URL.createObjectURL(file);
+        const url = URL.createObjectURL(file);
+        objectUrlsRef.current.push(url);
+        return url;
       }
 
       return file?.url || null;
@@ -31,11 +46,11 @@ const MediaUpload = ({
     setPreviewUrls(urls);
 
     return () => {
-      urls.forEach((url) => {
-        if (url && url.startsWith("blob:")) {
-          URL.revokeObjectURL(url);
-        }
+      objectUrlsRef.current.forEach((url) => {
+        URL.revokeObjectURL(url);
       });
+
+      objectUrlsRef.current = [];
     };
   }, [mediaFiles]);
 
@@ -105,17 +120,18 @@ const MediaUpload = ({
         hidden
         onChange={(e) => {
           handleFiles(e.target.files);
-          e.target.value = null;
+
+          // reset input so same file can be selected again
+          e.target.value = "";
         }}
       />
 
       {/* Upload Tile */}
-      
-        <div
-  onClick={() => {
-    console.log("UPLOAD TILE CLICKED");
-    fileInputRef.current?.click();
-  }}
+      <div
+        onClick={() => {
+          console.log("UPLOAD TILE CLICKED");
+          fileInputRef.current?.click();
+        }}
         className="
           cursor-pointer
           border
@@ -154,7 +170,7 @@ const MediaUpload = ({
 
             return (
               <div
-                key={i}
+                key={`${i}-${preview}`}
                 className="
                   relative
                   group
@@ -185,7 +201,7 @@ const MediaUpload = ({
                 </button>
 
                 {/* Image Preview */}
-                {isImage && (
+                {isImage && preview && (
                   <img
                     src={preview}
                     alt=""
@@ -194,7 +210,7 @@ const MediaUpload = ({
                 )}
 
                 {/* Video Preview */}
-                {isVideo && (
+                {isVideo && preview && (
                   <video
                     src={preview}
                     controls
