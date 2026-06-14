@@ -239,161 +239,131 @@ useEffect(() => {
 
 useEffect(() => {
   console.log("CURRENT URL:", window.location.pathname);
-});
+}, []);
 
 
 
 useEffect(() => {
-  window.addEventListener("beforeunload", () => {
+  const handler = () => {
     console.log("PAGE RELOAD DETECTED");
-  });
+  };
+
+  window.addEventListener("beforeunload", handler);
+
+  return () => {
+    window.removeEventListener("beforeunload", handler);
+  };
 }, []);
 
 
 
 
   const handleSubmitPost = async (e) => {
+  console.log("HANDLE SUBMIT STARTED");
 
-    e.preventDefault();
+  e.preventDefault();
 
-    if (
-      !newPost &&
-      mediaFiles.length === 0
-    ) {
-      return;
-    }
+  if (!newPost && mediaFiles.length === 0) return;
 
-    setPosting(true);
+  setPosting(true);
 
-    try {
+  try {
+    const uploadedMedia = [];
 
-      const uploadedMedia = [];
-
-      // =========================
-      // UPLOAD FILES
-      // =========================
-
-      for (let file of mediaFiles) {
-
-  if (file.enhanced && file.url) {
-    uploadedMedia.push({
-      url: file.url,
-      type: "image",
-    });
-    continue;
-  }
-
-  const type =
-    file.type?.startsWith("image")
-      ? "image"
-      : "video";
-
-  if (type === "image") {
-
-    const url =
-      await uploadImage(file);
-
-    uploadedMedia.push({
-      url,
-      type: "image",
-    });
-
-    continue;
-  }
-
-  await validateVideoDuration(
-    file,
-    180
-  );
-
-  const {
-    videoUrl,
-    thumbnailBlob,
-  } = await uploadVideo(file);
-
-  const thumbnailFile =
-    new File(
-      [thumbnailBlob],
-      "thumbnail.jpg",
-      {
-        type: "image/jpeg",
+    for (let file of mediaFiles) {
+      if (file.enhanced && file.url) {
+        uploadedMedia.push({
+          url: file.url,
+          type: "image",
+        });
+        continue;
       }
-    );
 
-  const thumbnailUrl =
-    await uploadImage(
-      thumbnailFile
-    );
+      const type = file.type?.startsWith("image")
+        ? "image"
+        : "video";
 
-  uploadedMedia.push({
-    url: videoUrl,
-    type: "video",
-    thumbnailUrl,
-  });
-}
-      // =========================
-      // CREATE POST
-      // =========================
+      if (type === "image") {
+        const url = await uploadImage(file);
+        uploadedMedia.push({ url, type: "image" });
+        continue;
+      }
 
-      const res = await fetch(
-        `${API_BASE}/api/posts`,
-        {
-          method: "POST",
+      await validateVideoDuration(file, 180);
 
-          headers: {
-            Authorization:
-              `Bearer ${token}`,
+      const { videoUrl, thumbnailBlob } =
+        await uploadVideo(file);
 
-            "Content-Type":
-              "application/json",
-          },
-
-          body: JSON.stringify({
-            content: newPost,
-
-            media: uploadedMedia,
-
-            location,
-
-            feeling,
-
-            taggedFriends,
-
-            textColor,
-
-            backgroundStyle,
-
-            fontStyle,
-          }),
-        }
+      const thumbnailFile = new File(
+        [thumbnailBlob],
+        "thumbnail.jpg",
+        { type: "image/jpeg" }
       );
 
-      const data =
-        await res.json();
+      const thumbnailUrl = await uploadImage(thumbnailFile);
 
-      if (!res.ok) {
+      uploadedMedia.push({
+        url: videoUrl,
+        type: "video",
+        thumbnailUrl,
+      });
+    }
 
-        throw new Error(
-          data.error ||
-          "Post failed"
-        );
-      }
+    console.log("CREATING POST");
 
-      // =========================
-      // UPDATE FEED
-      // =========================
+    const res = await fetch(`${API_BASE}/api/posts`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        content: newPost,
+        media: uploadedMedia,
+        location,
+        feeling,
+        taggedFriends,
+        textColor,
+        backgroundStyle,
+        fontStyle,
+      }),
+    });
 
+    const data = await res.json();
+    console.log("POST RESPONSE:", data);
 
-      // success block
-       navigate("/");
+    if (!res.ok) throw new Error(data.error || "Post failed");
+
+    console.log("ABOUT TO NAVIGATE HOME");
+
+    // reset FIRST (safe)
+    setNewPost("");
+    setMediaFiles([]);
+    setSelectedFile(null);
+    setLocation("");
+    setFeeling("");
+    setTagInput("");
+    setTaggedFriends([]);
+    setLocationSuggestions([]);
+    setExpanded(false);
+    setTextColor("#000000");
+    setBackgroundStyle("white");
+    setFontStyle("font-sans");
+
+    navigate("/");
+  } catch (err) {
+    console.error("SUBMIT ERROR:", err);
+    alert(err.message || "Post failed");
+  } finally {
+    setPosting(false);
+  }
+};
 
        // =========================
       // RESET
       // =========================
 
-      setNewPost("");
-
-      setMediaFiles([]);
+      
 
       setSelectedFile(null);
 
@@ -417,7 +387,7 @@ useEffect(() => {
 
     } catch (err) {
 
-      console.error(err);
+      console.error("SUBMIT ERROR:", err);
 
       alert(
         err.message ||
