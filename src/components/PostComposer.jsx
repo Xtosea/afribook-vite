@@ -1,5 +1,6 @@
 import React, {
   useState,
+  useEffect,
   lazy,
   Suspense,
 } from "react";
