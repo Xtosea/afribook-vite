@@ -82,7 +82,7 @@ from "./components/PostComposer";
 
 import DiscoverFriends from "./pages/DiscoverFriends";
 
-import FriendCarousel from "./pages/friends/FriendCarousel";
+import FriendCarousel from "./components/friends/FriendCarousel";
 
 
 
