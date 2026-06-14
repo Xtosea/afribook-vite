@@ -127,33 +127,28 @@ const MediaUpload = ({
       />
 
       {/* Upload Tile */}
-      <div
-        onClick={() => {
-          console.log("UPLOAD TILE CLICKED");
-          fileInputRef.current?.click();
-        }}
-        className="
-          cursor-pointer
-          border
-          rounded-2xl
-          p-10
-          text-center
-          bg-white
-          hover:bg-gray-50
-          hover:border-blue-400
-          transition-all
-        "
-      >
-        <FiUpload className="mx-auto text-3xl mb-3 text-blue-500" />
+      <div className="flex justify-center">
+  <button
+    type="button"
+    onClick={() => fileInputRef.current?.click()}
+    className="
+      flex
+      flex-col
+      items-center
+      gap-1
+      p-3
+      rounded-xl
+      hover:bg-gray-100
+      transition
+    "
+  >
+    <FiUpload className="text-2xl text-blue-500" />
 
-        <p className="text-base font-semibold text-gray-700">
-          Add Photos or Videos
-        </p>
-
-        <p className="text-sm text-gray-400 mt-1">
-          Click to upload (max {MAX_FILES})
-        </p>
-      </div>
+    <span className="text-xs text-gray-600">
+      Photos/Videos
+    </span>
+  </button>
+</div>
 
       {/* Preview Grid */}
       {mediaFiles?.length > 0 && (
