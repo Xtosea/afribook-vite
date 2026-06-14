@@ -22,6 +22,13 @@ const PostComposer = () => {
 console.log("POST COMPOSER LOADED");
 
   const navigate = useNavigate();
+
+console.log(
+  "PATH:",
+  window.location.pathname
+);
+
+
   const { token, currentUser } = useAuth();
 
 
@@ -229,6 +236,21 @@ useEffect(() => {
   // =========================
   // SUBMIT POST
   // =========================
+
+useEffect(() => {
+  console.log("CURRENT URL:", window.location.pathname);
+});
+
+
+
+useEffect(() => {
+  window.addEventListener("beforeunload", () => {
+    console.log("PAGE RELOAD DETECTED");
+  });
+}, []);
+
+
+
 
   const handleSubmitPost = async (e) => {
 
