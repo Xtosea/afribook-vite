@@ -79,8 +79,8 @@ from "./pages/ads/MyCampaigns";
 
 import PostComposer
 from "./components/PostComposer";
-import DiscoverFriends from "./pages/friends/DiscoverFriends";
-import FriendCarousel from "./pages/friends/FriendCarousel";
+import DiscoverFriends from "./components/friends/DiscoverFriends";
+import FriendCarousel from "./components/friends/FriendCarousel";
 
 
 
