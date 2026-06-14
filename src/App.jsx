@@ -33,8 +33,7 @@ import SavedPosts from "./pages/SavedPosts";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import VerifyEmailSent from "./pages/VerifyEmailSent";
-import DiscoverFriends from "./pages/DiscoverFriends";
-import FriendCarousel from "./components/friends/FriendCarousel";
+
 import SuggestedFriends from "./components/friends/SuggestedFriends";
 import ReelsHorizontal from "./components/reels/ReelsHorizontal";
 
@@ -80,6 +79,11 @@ from "./pages/ads/MyCampaigns";
 
 import PostComposer
 from "./components/PostComposer";
+import DiscoverFriends from "./pages/friends/DiscoverFriends";
+import FriendCarousel from "./pages/friends/FriendCarousel";
+
+
+
 
 
 
@@ -88,10 +92,40 @@ from "./components/PostComposer";
 function App() {
   console.log("API:", import.meta.env.VITE_API_BASE);
 
+
+useEffect(() => {
+  const preventDrag = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    return false;
+  };
+
+  const preventDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    return false;
+  };
+
+  // Block drag everywhere
+  window.addEventListener("dragenter", preventDrag);
+  window.addEventListener("dragover", preventDrag);
+
+  // Block file opening on drop
+  window.addEventListener("drop", preventDrop);
+
+  return () => {
+    window.removeEventListener("dragenter", preventDrag);
+    window.removeEventListener("dragover", preventDrag);
+    window.removeEventListener("drop", preventDrop);
+  };
+}, []);
+
+
   return (
     <HelmetProvider>
       <Router>
         <Navbar />
+
 
         <div className="min-h-[calc(100vh-80px)] w-full">
           <Routes>
@@ -231,8 +265,7 @@ function App() {
             <Route path="/edit-profile" element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
             <Route path="/friend-requests" element={<ProtectedRoute><FriendRequests /></ProtectedRoute>} />
             <Route path="/friends" element={<ProtectedRoute><FriendsList /></ProtectedRoute>} />
-import DiscoverFriends from "./pages/friends/DiscoverFriends";
-import FriendCarousel from "./pages/friends/FriendCarousel";
+
 
 <Route
   path="/friends/discover"
