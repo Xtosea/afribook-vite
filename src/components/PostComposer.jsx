@@ -43,6 +43,24 @@ const [expanded, setExpanded] = useState(false);
   const [mediaFiles, setMediaFiles] =
     useState([]);
 
+
+useEffect(() => {
+  console.log("MEDIA FILES STATE CHANGED:", mediaFiles);
+}, [mediaFiles]);
+
+
+
+useEffect(() => {
+  console.log("POST COMPOSER MOUNTED");
+
+  return () => {
+    console.log("POST COMPOSER UNMOUNTED");
+  };
+}, []);
+
+
+
+
   const [selectedFile, setSelectedFile] =
     useState(null);
 
