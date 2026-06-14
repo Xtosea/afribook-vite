@@ -110,7 +110,7 @@ const MediaUpload = ({
       />
 
       {/* Upload Tile */}
-      <div
+      
         <div
   onClick={() => {
     console.log("UPLOAD TILE CLICKED");
