@@ -5,7 +5,7 @@ import React, {
   Suspense,
 } from "react";
 
-import MediaUpload from "./MediaUpload";
+//import MediaUpload from "./MediaUpload";
 
 import { API_BASE } from "../api/api";
 
@@ -658,7 +658,7 @@ useEffect(() => {
 
           {/* MEDIA */}
 
-          <MediaUpload
+        {/*  <MediaUpload
             mediaFiles={mediaFiles}
             setMediaFiles={
               setMediaFiles
@@ -666,7 +666,8 @@ useEffect(() => {
             setSelectedFile={
               setSelectedFile
             }
-          />
+          /> 
+        */}
 
           {/* AI BUTTON */}
 
