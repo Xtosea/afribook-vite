@@ -467,7 +467,11 @@ useEffect(() => {
 
   return (
   <form
-    onSubmit={handleSubmitPost}
+  onSubmit={(e) => {
+    console.log("FORM SUBMIT DETECTED");
+    handleSubmitPost(e);
+  }}
+>
     className="
       bg-white
       p-5
