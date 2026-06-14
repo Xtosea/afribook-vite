@@ -17,6 +17,9 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 const PostComposer = () => {
+
+console.log("POST COMPOSER LOADED");
+
   const navigate = useNavigate();
   const { token, currentUser } = useAuth();
 
