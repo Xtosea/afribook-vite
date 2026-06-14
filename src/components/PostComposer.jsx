@@ -279,9 +279,7 @@ useEffect(() => {
         continue;
       }
 
-      const type = file.type?.startsWith("image")
-        ? "image"
-        : "video";
+      const type = file.type?.startsWith("image") ? "image" : "video";
 
       if (type === "image") {
         const url = await uploadImage(file);
@@ -291,8 +289,7 @@ useEffect(() => {
 
       await validateVideoDuration(file, 180);
 
-      const { videoUrl, thumbnailBlob } =
-        await uploadVideo(file);
+      const { videoUrl, thumbnailBlob } = await uploadVideo(file);
 
       const thumbnailFile = new File(
         [thumbnailBlob],
@@ -308,8 +305,6 @@ useEffect(() => {
         thumbnailUrl,
       });
     }
-
-    console.log("CREATING POST");
 
     const res = await fetch(`${API_BASE}/api/posts`, {
       method: "POST",
@@ -334,9 +329,7 @@ useEffect(() => {
 
     if (!res.ok) throw new Error(data.error || "Post failed");
 
-    console.log("ABOUT TO NAVIGATE HOME");
-
-    // reset FIRST (safe)
+    // RESET (ONLY ONCE, INSIDE FUNCTION)
     setNewPost("");
     setMediaFiles([]);
     setSelectedFile(null);
@@ -358,48 +351,6 @@ useEffect(() => {
     setPosting(false);
   }
 };
-
-       // =========================
-      // RESET
-      // =========================
-
-      
-
-      setSelectedFile(null);
-
-      setLocation("");
-
-      setFeeling("");
-
-      setTagInput("");
-
-      setTaggedFriends([]);
-
-      setLocationSuggestions([]);
-
-      setExpanded(false);
-
-      setTextColor("#000000");
-
-      setBackgroundStyle("white");
-
-      setFontStyle("font-sans");
-
-    } catch (err) {
-
-      console.error("SUBMIT ERROR:", err);
-
-      alert(
-        err.message ||
-        "Post failed"
-      );
-
-    } finally {
-
-      setPosting(false);
-
-    }
-  };
 
   // =========================
   // BACKGROUND STYLES
