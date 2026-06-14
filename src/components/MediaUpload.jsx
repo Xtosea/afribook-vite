@@ -64,6 +64,21 @@ const MediaUpload = ({
     );
   };
 
+
+useEffect(() => {
+  const preventDrop = (e) => {
+    e.preventDefault();
+  };
+
+  window.addEventListener("dragover", preventDrop);
+  window.addEventListener("drop", preventDrop);
+
+  return () => {
+    window.removeEventListener("dragover", preventDrop);
+    window.removeEventListener("drop", preventDrop);
+  };
+}, []);
+
   return (
     <div className="space-y-4">
 
@@ -88,7 +103,7 @@ const MediaUpload = ({
       ========================= */}
       <div
         onClick={() => fileInputRef.current?.click()}
-        className="cursor-pointer border-2 border-dashed rounded-2xl p-10 text-center transition-all duration-200 hover:border-blue-400 hover:bg-gray-50"
+        className="cursor-pointer border rounded-2xl p-10 text-center transition-all duration-200 hover:border-blue-400 hover:bg-gray-50 bg-white"
       >
         <FiUpload className="mx-auto text-3xl mb-3 text-blue-500" />
 
