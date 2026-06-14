@@ -78,6 +78,9 @@ useEffect(() => {
   const [showLocation, setShowLocation] =
     useState(false);
 
+const [showCustomize, setShowCustomize] =
+  useState(false);
+
   const [showFeeling, setShowFeeling] =
     useState(false);
 
@@ -443,23 +446,25 @@ useEffect(() => {
       </h2>
 
       <button
-        type="submit"
-        disabled={posting}
-        className={`
-          px-5
-          py-2
-          rounded-full
-          text-white
-          font-medium
-          ${
-            posting
-              ? "bg-gray-400"
-              : "bg-blue-500"
-          }
-        `}
-      >
-        {posting ? "Posting..." : "Post"}
-      </button>
+  type="submit"
+  disabled={posting}
+  className={`
+    text-white
+    font-semibold
+    px-8
+    py-2.5
+    rounded-full
+    min-w-[110px]
+    transition
+    ${
+      posting
+        ? "bg-gray-400"
+        : "bg-blue-500 hover:bg-blue-600"
+    }
+  `}
+>
+  {posting ? "Posting..." : "Post"}
+</button>
     </div>
 
     <div className="p-5 space-y-4">
@@ -468,10 +473,53 @@ useEffect(() => {
 
  <div className="border-b pb-3"></div>
 
+
+<div className="flex items-center gap-3 mb-4">
+
+  <img
+    src={
+      currentUser?.profilePicture ||
+      "/default-avatar.png"
+    }
+    alt=""
+    className="
+      w-12
+      h-12
+      rounded-full
+      object-cover
+    "
+  />
+
+  <div>
+
+    <p className="font-semibold">
+      {currentUser?.name}
+    </p>
+
+    <div className="flex items-center gap-2">
+
+  <span className="
+    text-xs
+    bg-gray-100
+    px-2
+    py-1
+    rounded-full
+  ">
+    🌎 Public
+  </span>
+
+</div>
+  </div>
+
+</div>
+
+
+
+
       {/* TEXTAREA */}
 
       <textarea
-  rows={4}
+  rows={8}
   value={newPost}
   onChange={(e) =>
     setNewPost(e.target.value)
@@ -490,7 +538,7 @@ useEffect(() => {
     w-full
     p-4
     rounded-2xl
-    border
+    
     resize-none
     transition-all
     duration-200
@@ -499,7 +547,10 @@ useEffect(() => {
     focus:ring-blue-400
     relative
     z-0
-    h-28
+   min-h-[320px]
+text-lg
+border-0
+shadow-none
     ${fontStyle}
   `}
 />
@@ -658,227 +709,339 @@ useEffect(() => {
 
           {/* MEDIA */}
 
-          <MediaUpload
-            mediaFiles={mediaFiles}
-            setMediaFiles={
-              setMediaFiles
-            }
-            setSelectedFile={
-              setSelectedFile
-            }
-          /> 
+          <div className="bg-gray-50 border rounded-2xl p-4">
+  <h3 className="font-semibold mb-3">
+    Photos & Videos
+  </h3>
+
+  <MediaUpload
+    mediaFiles={mediaFiles}
+    setMediaFiles={setMediaFiles}
+    setSelectedFile={setSelectedFile}
+  />
+</div>
         
 
-          {/* AI BUTTON */}
+          <div className="border rounded-2xl p-4 bg-white shadow-sm">
 
-          <button
-            type="button"
-            onClick={handleEnhance}
-            disabled={loading}
-            className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-xl transition"
-          >
-            {loading
-              ? "Enhancing..."
-              : "✨ AI Enhance"}
-          </button>
+  <p className="text-sm font-semibold text-gray-600 mb-3">
+    AI Tools
+  </p>
+
+  <button
+    type="button"
+    onClick={handleEnhance}
+    disabled={loading}
+    className="
+      w-full
+      bg-purple-500
+      hover:bg-purple-600
+      text-white
+      py-3
+      rounded-xl
+      transition
+    "
+  >
+    {loading
+      ? "Enhancing..."
+      : "✨ AI Enhance Photo"}
+  </button>
+
+</div>
 
           {/* STYLE OPTIONS */}
 
-<div className="space-y-4 border-t pt-4 relative z-10">
+<div className="border rounded-2xl p-4 bg-white shadow-sm">
 
-  <p className="text-sm font-semibold text-gray-600">
-    Customize Post
+  <button
+    type="button"
+    onClick={() =>
+      setShowCustomize(!showCustomize)
+    }
+    className="
+      w-full
+      flex
+      justify-between
+      items-center
+      font-semibold
+      text-gray-700
+    "
+  >
+    <span>🎨 Customize Post</span>
+
+    <span>
+      {showCustomize ? "▲" : "▼"}
+    </span>
+  </button>
+
+  {showCustomize && (
+
+  <div className="mt-4 space-y-5">
+
+    {/* TEXT COLORS */}
+
+    <div>
+
+      <p className="text-sm font-medium mb-3">
+        Text Color
+      </p>
+
+      <div className="flex gap-3 flex-wrap">
+
+        <button
+          type="button"
+          onClick={() => setTextColor("#000000")}
+          className="w-10 h-10 rounded-full bg-black border-2"
+        />
+
+        <button
+          type="button"
+          onClick={() => setTextColor("#ffffff")}
+          className="w-10 h-10 rounded-full bg-white border-2"
+        />
+
+        <button
+          type="button"
+          onClick={() => setTextColor("#ef4444")}
+          className="w-10 h-10 rounded-full bg-red-500 border-2"
+        />
+
+        <button
+          type="button"
+          onClick={() => setTextColor("#3b82f6")}
+          className="w-10 h-10 rounded-full bg-blue-500 border-2"
+        />
+
+        <button
+          type="button"
+          onClick={() => setTextColor("#22c55e")}
+          className="w-10 h-10 rounded-full bg-green-500 border-2"
+        />
+
+      </div>
+
+    </div>
+
+    {/* BACKGROUND */}
+
+    <div>
+
+      <p className="text-sm font-medium mb-3">
+        Background Style
+      </p>
+
+      <div className="flex gap-2 flex-wrap">
+
+        <button
+          type="button"
+          onClick={() =>
+            setBackgroundStyle("white")
+          }
+          className="px-4 py-2 rounded-lg bg-gray-200"
+        >
+          Default
+        </button>
+
+        <button
+          type="button"
+          onClick={() =>
+            setBackgroundStyle(
+              "gradient-purple"
+            )
+          }
+          className="px-4 py-2 rounded-lg bg-purple-500 text-white"
+        >
+          Purple
+        </button>
+
+        <button
+          type="button"
+          onClick={() =>
+            setBackgroundStyle(
+              "gradient-blue"
+            )
+          }
+          className="px-4 py-2 rounded-lg bg-blue-500 text-white"
+        >
+          Blue
+        </button>
+
+        <button
+          type="button"
+          onClick={() =>
+            setBackgroundStyle("dark")
+          }
+          className="px-4 py-2 rounded-lg bg-black text-white"
+        >
+          Dark
+        </button>
+
+      </div>
+
+    </div>
+
+    {/* FONT STYLE */}
+
+    <div>
+
+      <p className="text-sm font-medium mb-3">
+        Font Style
+      </p>
+
+      <div className="flex gap-2 flex-wrap">
+
+        <button
+          type="button"
+          onClick={() =>
+            setFontStyle("font-sans")
+          }
+          className="
+            px-4
+            py-2
+            border
+            rounded-lg
+          "
+        >
+          Normal
+        </button>
+
+        <button
+          type="button"
+          onClick={() =>
+            setFontStyle("font-serif")
+          }
+          className="
+            px-4
+            py-2
+            border
+            rounded-lg
+            font-serif
+          "
+        >
+          Serif
+        </button>
+
+        <button
+          type="button"
+          onClick={() =>
+            setFontStyle("font-mono")
+          }
+          className="
+            px-4
+            py-2
+            border
+            rounded-lg
+            font-mono
+          "
+        >
+          Mono
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+)}
+
+ </div> 
+
+        {/* ACTIONS */}
+
+<div className="border rounded-2xl p-4 bg-white shadow-sm">
+
+  <p className="text-sm font-semibold text-gray-600 mb-3">
+    Add to your post
   </p>
 
-  {/* TEXT COLORS */}
-
-<div className="flex gap-3 flex-wrap relative z-50">
-
-  <button
-    type="button"
-    onClick={() => setTextColor("#000000")}
-    className="w-10 h-10 rounded-full border-2 border-gray-300 bg-black cursor-pointer"
-  />
-
-  <button
-    type="button"
-    onClick={() => setTextColor("#ffffff")}
-    className="w-10 h-10 rounded-full border-2 border-gray-300 bg-white cursor-pointer"
-  />
-
-  <button
-    type="button"
-    onClick={() => {
-      console.log("RED CLICKED");
-      setTextColor("#ef4444");
-    }}
-    className="w-10 h-10 rounded-full border-2 border-gray-300 bg-red-500 cursor-pointer relative z-50"
-  />
-
-  <button
-    type="button"
-    onClick={() => {
-      console.log("BLUE CLICKED");
-      setTextColor("#3b82f6");
-    }}
-    className="w-10 h-10 rounded-full border-2 border-gray-300 bg-blue-500 cursor-pointer relative z-50"
-  />
-
-  <button
-    type="button"
-    onClick={() => {
-      console.log("GREEN CLICKED");
-      setTextColor("#22c55e");
-    }}
-    className="w-10 h-10 rounded-full border-2 border-gray-300 bg-green-500 cursor-pointer relative z-50"
-  />
-
-</div>
-  {/* BACKGROUND OPTIONS */}
-
-  <div className="flex gap-2 flex-wrap">
+  <div className="grid grid-cols-2 gap-3">
 
     <button
       type="button"
-      onClick={() =>
-        setBackgroundStyle("white")
-      }
-      className="px-4 py-2 rounded-lg bg-gray-200 text-sm cursor-pointer"
+      onClick={() => setShowEmoji(!showEmoji)}
+      className="
+        flex
+        items-center
+        justify-center
+        gap-2
+        p-3
+        rounded-xl
+        bg-yellow-50
+        border
+        hover:bg-yellow-100
+        transition
+      "
     >
-      Default
+      😊 Emoji
     </button>
 
     <button
       type="button"
       onClick={() =>
-        setBackgroundStyle(
-          "gradient-purple"
-        )
+        setShowLocation(!showLocation)
       }
-      className="px-4 py-2 rounded-lg bg-purple-500 text-white text-sm cursor-pointer"
+      className="
+        flex
+        items-center
+        justify-center
+        gap-2
+        p-3
+        rounded-xl
+        bg-blue-50
+        border
+        hover:bg-blue-100
+        transition
+      "
     >
-      Purple
+      📍 Location
     </button>
 
     <button
       type="button"
       onClick={() =>
-        setBackgroundStyle(
-          "gradient-blue"
-        )
+        setShowFeeling(!showFeeling)
       }
-      className="px-4 py-2 rounded-lg bg-blue-500 text-white text-sm cursor-pointer"
+      className="
+        flex
+        items-center
+        justify-center
+        gap-2
+        p-3
+        rounded-xl
+        bg-green-50
+        border
+        hover:bg-green-100
+        transition
+      "
     >
-      Blue
+      😊 Feeling
     </button>
 
     <button
       type="button"
       onClick={() =>
-        setBackgroundStyle("dark")
+        setShowTag(!showTag)
       }
-      className="px-4 py-2 rounded-lg bg-black text-white text-sm cursor-pointer"
+      className="
+        flex
+        items-center
+        justify-center
+        gap-2
+        p-3
+        rounded-xl
+        bg-purple-50
+        border
+        hover:bg-purple-100
+        transition
+      "
     >
-      Dark
-    </button>
-
-  </div>
-
-  {/* FONT OPTIONS */}
-
-  <div className="flex gap-2 flex-wrap">
-
-    <button
-      type="button"
-      onClick={() =>
-        setFontStyle("font-sans")
-      }
-      className="px-4 py-2 border rounded-lg cursor-pointer"
-    >
-      Normal
-    </button>
-
-    <button
-      type="button"
-      onClick={() =>
-        setFontStyle("font-serif")
-      }
-      className="px-4 py-2 border rounded-lg font-serif cursor-pointer"
-    >
-      Serif
-    </button>
-
-    <button
-      type="button"
-      onClick={() =>
-        setFontStyle("font-mono")
-      }
-      className="px-4 py-2 border rounded-lg font-mono cursor-pointer"
-    >
-      Mono
+      🏷 Tag Friends
     </button>
 
   </div>
 
 </div>
-
-          {/* ACTIONS */}
-
-          <div className="flex justify-between items-center flex-wrap gap-2">
-
-            <div className="flex gap-2 flex-wrap">
-
-              <button
-                type="button"
-                onClick={() =>
-                  setShowEmoji(
-                    !showEmoji
-                  )
-                }
-                className="px-3 py-1.5 rounded-full bg-yellow-100 text-yellow-700 text-sm"
-              >
-                😊 Emoji
-              </button>
-
-              <button
-                type="button"
-                onClick={() =>
-                  setShowLocation(
-                    !showLocation
-                  )
-                }
-                className="px-3 py-1.5 rounded-full bg-blue-100 text-blue-700 text-sm"
-              >
-                📍 Location
-              </button>
-
-              <button
-                type="button"
-                onClick={() =>
-                  setShowFeeling(
-                    !showFeeling
-                  )
-                }
-                className="px-3 py-1.5 rounded-full bg-green-100 text-green-700 text-sm"
-              >
-                😊 Feeling
-              </button>
-
-              <button
-                type="button"
-                onClick={() =>
-                  setShowTag(
-                    !showTag
-                  )
-                }
-                className="px-3 py-1.5 rounded-full bg-purple-100 text-purple-700 text-sm"
-              >
-                🏷 Tag
-              </button>
-
-            </div>
-
-            </div>
 
 
 
