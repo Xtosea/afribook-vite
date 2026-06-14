@@ -111,7 +111,11 @@ const MediaUpload = ({
 
       {/* Upload Tile */}
       <div
-        onClick={() => fileInputRef.current?.click()}
+        <div
+  onClick={() => {
+    console.log("UPLOAD TILE CLICKED");
+    fileInputRef.current?.click();
+  }}
         className="
           cursor-pointer
           border
