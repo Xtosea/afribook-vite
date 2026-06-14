@@ -12,12 +12,8 @@ const MediaUpload = ({
   setSelectedFile,
 }) => {
   const fileInputRef = useRef(null);
-  const [dragging, setDragging] = useState(false);
   const [previewUrls, setPreviewUrls] = useState([]);
-const [uploadProgress, setUploadProgress] =
-  useState({});
-
-
+  const [uploadProgress] = useState({}); // kept for future use
 
   // =========================
   // Generate Preview URLs
@@ -27,15 +23,16 @@ const [uploadProgress, setUploadProgress] =
       if (file instanceof File) {
         return URL.createObjectURL(file);
       }
-      return null;
+      return file?.url || null; // support uploaded files too
     });
 
     setPreviewUrls(urls);
 
-    // Cleanup memory leaks
     return () => {
       urls.forEach((url) => {
-        if (url) URL.revokeObjectURL(url);
+        if (url && url.startsWith("blob:")) {
+          URL.revokeObjectURL(url);
+        }
       });
     };
   }, [mediaFiles]);
@@ -47,6 +44,7 @@ const [uploadProgress, setUploadProgress] =
     if (!files) return;
 
     const newFiles = Array.from(files);
+
     let combined = [...(mediaFiles || []), ...newFiles];
 
     if (combined.length > MAX_FILES) {
@@ -70,38 +68,27 @@ const [uploadProgress, setUploadProgress] =
     <div className="space-y-4">
 
       {/* =========================
-          DROP AREA (FACEBOOK STYLE)
+          HIDDEN FILE INPUT
       ========================= */}
       <input
-  ref={fileInputRef}
-  id={inputId}
-  type="file"
-  accept="image/*,video/*"
-  multiple
-  hidden
-  onChange={(e) => {
-    handleFiles(e.target.files);
-    e.target.value = null;
-  }}
-/>
+        ref={fileInputRef}
+        id={inputId}
+        type="file"
+        accept="image/*,video/*"
+        multiple
+        hidden
+        onChange={(e) => {
+          handleFiles(e.target.files);
+          e.target.value = null;
+        }}
+      />
 
+      {/* =========================
+          CLICKABLE UPLOAD TILE
+      ========================= */}
       <div
         onClick={() => fileInputRef.current?.click()}
-        onDrop={(e) => {
-          e.preventDefault();
-          setDragging(false);
-          handleFiles(e.dataTransfer.files);
-        }}
-        onDragOver={(e) => {
-          e.preventDefault();
-          setDragging(true);
-        }}
-        onDragLeave={() => setDragging(false)}
-        className={`cursor-pointer border-2 border-dashed rounded-2xl p-10 text-center transition-all duration-200 ${
-          dragging
-            ? "border-blue-500 bg-blue-50 scale-[1.01]"
-            : "border-gray-300 hover:border-blue-400 hover:bg-gray-50"
-        }`}
+        className="cursor-pointer border-2 border-dashed rounded-2xl p-10 text-center transition-all duration-200 hover:border-blue-400 hover:bg-gray-50"
       >
         <FiUpload className="mx-auto text-3xl mb-3 text-blue-500" />
 
@@ -110,17 +97,22 @@ const [uploadProgress, setUploadProgress] =
         </p>
 
         <p className="text-sm text-gray-400 mt-1">
-          Click or drag & drop to upload (max {MAX_FILES})
+          Click to upload (max {MAX_FILES})
         </p>
       </div>
 
       {/* =========================
-          PREVIEW GRID (BIGGER UI)
+          PREVIEW GRID
       ========================= */}
       {mediaFiles?.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
           {mediaFiles.map((file, i) => {
             const preview = previewUrls[i];
+
+            const isImage =
+              file?.type?.startsWith?.("image") ||
+              file?.url?.includes?.("image") ||
+              file instanceof File;
 
             return (
               <div
@@ -136,8 +128,8 @@ const [uploadProgress, setUploadProgress] =
                   ✕
                 </button>
 
-                {/* MEDIA */}
-                {file.type.startsWith("image") ? (
+                {/* MEDIA PREVIEW */}
+                {isImage ? (
                   <img
                     src={preview}
                     className="w-full h-40 object-cover"
@@ -151,7 +143,7 @@ const [uploadProgress, setUploadProgress] =
                   />
                 )}
 
-                {/* UPLOAD PROGRESS OVERLAY */}
+                {/* FUTURE UPLOAD PROGRESS */}
                 {uploadProgress?.[i] >= 0 && (
                   <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center text-white">
                     <div className="text-sm font-medium">
