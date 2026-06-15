@@ -37,7 +37,7 @@ const EmojiPicker = lazy(() =>
 );
 
 const [isFocused, setIsFocused] = useState(false); // textarea only
-const [hasOpened, setHasOpened] = useState(false); // keeps tools open once user starts
+
 const [toolsVisible, setToolsVisible] = useState(false);
 
 
@@ -531,13 +531,7 @@ useEffect(() => {
   rows={isFocused ? 10 : 2}
   value={newPost}
   onChange={(e) => setNewPost(e.target.value)}
-  onFocus={() => {
-    setIsFocused(true);
-    setHasOpened(true);
-  }}
-  onBlur={() => {
-    setIsFocused(false);
-  }}
+  onFocus={() => setIsFocused(true)}
   className={`
     w-full
     p-4
@@ -556,7 +550,7 @@ useEffect(() => {
 
       {/* EXPANDED */}
 
-{(hasOpened || newPost.trim()) && (
+{(isFocused || newPost.trim().length > 0) && (
   <div className="space-y-4">
 
           {/* EMOJI */}
