@@ -31,7 +31,7 @@ const EmojiPicker = lazy(() =>
 import("emoji-picker-react")
 );
 
-const [expanded, setExpanded] = useState(false);
+
 const [posting, setPosting] =
 useState(false);
 
@@ -298,7 +298,7 @@ setFeeling("");
 setTagInput("");  
 setTaggedFriends([]);  
 setLocationSuggestions([]);  
-setExpanded(false);  
+ 
 setTextColor("#000000");  
 setBackgroundStyle("white");  
 setFontStyle("font-sans");  
@@ -508,14 +508,9 @@ rounded-full
 />
 
 {/* EXPANDED */}  
-
+className="space-y-4">
    
-
-    <div className="space-y-4">
-  ...
-</div>
-     
-       {/* EMOJI */}  
+ {/* EMOJI */}  
 
       {showEmoji && (  
 
@@ -697,7 +692,10 @@ transition
   ? "Enhancing..."  
   : "✨ AI Enhance Photo"}
 
-  </button>  </div>  {/* STYLE OPTIONS */}
+  </button> 
+ </div>  
+
+{/* STYLE OPTIONS */}
 
 <div className="border rounded-2xl p-4 bg-white shadow-sm">  <button
 type="button"
