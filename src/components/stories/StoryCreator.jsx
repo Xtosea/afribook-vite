@@ -36,6 +36,9 @@ x: 50,
 y: 50,
 });
 
+const [textColor, setTextColor] = useState("#ffffff");
+const [textRotation, setTextRotation] = useState(0);
+
 // ================= HANDLE FILE =================
 const handleFile = (e) => {
 const file = e.target.files[0];
@@ -57,12 +60,13 @@ stickers.length === 0
 return;
 }
 await onSelectFile({
-file: media,
-text,
-textPosition,
-music,
-stickers,
-backgroundColor,
+  file: media,
+  text,
+  textPosition,
+  textSize: size,
+  music,
+  stickers,
+  backgroundColor,
 });
 
 onClose();
@@ -92,31 +96,7 @@ return (
       </button>  
     </div>  
 
-    {/* MEDIA PREVIEW */}  
-    {preview && (  
-      <div className="relative mb-3 rounded-xl overflow-hidden max-h-[300px] flex items-center justify-center bg-black">  
-
-        {media?.type?.startsWith("video") ? (
-
-<video  
-src={preview}  
-controls  
-className="max-h-[300px] w-auto object-contain"  
-/>
-) : media?.type?.startsWith("audio") ? (
-<audio  
-controls  
-src={preview}  
-className="w-full"  
-/>
-) : (
-<img  
-src={preview}  
-alt=""  
-className="max-h-[300px] w-auto object-contain"  
-/>
-)}
-
+    
 {/* TEXT OVERLAY */}  
         {text && (  
           <div className="absolute bottom-4 left-4 right-4 text-white text-lg font-bold">  
@@ -143,12 +123,20 @@ className="max-h-[300px] w-auto object-contain"
       ) : media?.type?.startsWith("video") ? (
         <video
           src={preview}
+          controls
           className="absolute inset-0 w-full h-full object-cover"
-          muted
         />
+      ) : media?.type?.startsWith("audio") ? (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <audio
+            controls
+            src={preview}
+            className="w-[90%]"
+          />
+        </div>
       ) : null)}
 
-    {/* DRAGGABLE STICKERS */}
+    {/* Stickers */}
     {stickers.map((sticker, index) => (
       <Draggable
         key={index}
@@ -174,7 +162,7 @@ className="max-h-[300px] w-auto object-contain"
       </Draggable>
     ))}
 
-    {/* DRAGGABLE TEXT */}
+    {/* Text */}
     {text && (
       <Draggable
         position={textPosition}
@@ -185,13 +173,47 @@ className="max-h-[300px] w-auto object-contain"
           })
         }
       >
-        <div className="absolute text-white text-2xl font-bold cursor-move">
-          {text}
-        </div>
+        
+ <div
+  className="absolute text-white font-bold cursor-move"
+  style={{
+    fontSize: `${size}px`,
+  }}
+>
+  {text}
+</div>
       </Draggable>
     )}
   </div>
 )}
+
+<div className="mb-3">
+  <p className="font-semibold">
+    Text Size
+  </p>
+
+  <input
+    type="range"
+    min="20"
+    max="120"
+    value={size}
+    onChange={(e) =>
+      setSize(Number(e.target.value))
+    }
+    className="w-full"
+  />
+
+  <p>{size}px</p>
+</div>
+
+<div
+  className="absolute cursor-move"
+  style={{
+    fontSize: `${sticker.size}px`,
+  }}
+>
+  {sticker.emoji}
+</div>
 
 
 {/* TEXT INPUT */}  
@@ -216,10 +238,11 @@ className="max-h-[300px] w-auto object-contain"
           setStickers((prev) => [
             ...prev,
             {
-              emoji,
-              x: 100,
-              y: 100,
-            },
+  emoji,
+  x: 100,
+  y: 100,
+  size: 60,
+}
           ])
         }
         className="text-3xl"
