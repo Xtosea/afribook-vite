@@ -533,11 +533,7 @@ useEffect(() => {
     setIsFocused(true);
     setHasOpened(true);
   }}
-  onBlur={() => {
-    if (!newPost.trim()) {
-      setIsFocused(false);
-    }
-  }}
+  
   className={`
     w-full
     p-4
