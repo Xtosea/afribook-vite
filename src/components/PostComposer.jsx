@@ -30,6 +30,7 @@ const auth = useAuth();
 
 console.log("AUTH CONTEXT:", auth);
   console.log("CURRENT USER:", auth?.currentUser);
+console.log("TOKEN:", token);
 
 
 const EmojiPicker = lazy(() =>
@@ -244,24 +245,6 @@ const [showCustomize, setShowCustomize] =
   // =========================
   // SUBMIT POST
   // =========================
-
-useEffect(() => {
-  console.log("CURRENT URL:", window.location.pathname);
-}, []);
-
-
-
-useEffect(() => {
-  const handler = () => {
-    console.log("PAGE RELOAD DETECTED");
-  };
-
-  window.addEventListener("beforeunload", handler);
-
-  return () => {
-    window.removeEventListener("beforeunload", handler);
-  };
-}, []);
 
 
 
