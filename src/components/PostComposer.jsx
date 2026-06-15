@@ -390,6 +390,8 @@ useEffect(() => {
 
 
   return (
+
+<>
   <form
   onSubmit={(e) => {
     console.log("FORM SUBMIT DETECTED");
@@ -476,19 +478,21 @@ useEffect(() => {
 
 <div className="flex items-center gap-3 mb-4">
 
-  <img
-    src={
-      currentUser?.profilePicture ||
-      "/default-avatar.png"
-    }
-    alt=""
-    className="
-      w-12
-      h-12
-      rounded-full
-      object-cover
-    "
-  />
+  
+<img
+  src={
+    currentUser?.profilePic ||
+    currentUser?.profilePicture ||
+    "/default-avatar.png"
+  }
+  alt={currentUser?.name}
+  className="
+    w-12
+    h-12
+    rounded-full
+    object-cover
+  "
+/>
 
   <div>
 
@@ -519,7 +523,7 @@ useEffect(() => {
       {/* TEXTAREA */}
 
       <textarea
-  rows={8}
+  rows={expanded ? 10 : 2}
   value={newPost}
   onChange={(e) =>
     setNewPost(e.target.value)
@@ -527,6 +531,11 @@ useEffect(() => {
   onFocus={() =>
     setExpanded(true)
   }
+  onBlur={() => {
+    if (!newPost.trim()) {
+      setExpanded(false);
+    }
+  }}
   placeholder={`Share a photo, video or thought... ${
     currentUser?.name || "User"
   }?`}
@@ -535,24 +544,23 @@ useEffect(() => {
     ...getBackgroundStyle(),
   }}
   className={`
-    w-full
-    p-4
-    rounded-2xl
-    
-    resize-none
-    transition-all
-    duration-200
-    focus:outline-none
-    focus:ring-2
-    focus:ring-blue-400
-    relative
-    z-0
-   min-h-[320px]
-text-lg
-border-0
-shadow-none
-    ${fontStyle}
-  `}
+  w-full
+  p-4
+  rounded-2xl
+  resize-none
+  transition-all
+  duration-300
+  focus:outline-none
+  focus:ring-2
+  focus:ring-blue-400
+  relative
+  z-0
+  ${expanded ? "min-h-[320px]" : "min-h-[60px]"}
+  text-lg
+  border-0
+  shadow-none
+  ${fontStyle}
+`}
 />
 
 
@@ -560,7 +568,8 @@ shadow-none
 
       {(
 
-        <div className="space-y-4">
+        {expanded && (
+  <div className="space-y-4">
 
           {/* EMOJI */}
 
@@ -1052,6 +1061,8 @@ shadow-none
 
     </form>
   );
+
+</>
 };
 
 export default PostComposer;
