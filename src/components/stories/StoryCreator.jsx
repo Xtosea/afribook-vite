@@ -38,6 +38,8 @@ y: 50,
 
 const [textColor, setTextColor] = useState("#ffffff");
 const [textRotation, setTextRotation] = useState(0);
+const [size, setSize] = useState(60);
+
 
 // ================= HANDLE FILE =================
 const handleFile = (e) => {
@@ -78,6 +80,9 @@ useEffect(() => {
     .then(setMusicList);
 }, []);
 
+
+const [size, setSize] = useState(60);
+
 // ================= UI =================
 return (
 <div className="fixed inset-0 z-[9999] bg-black/90 flex items-center justify-center">
@@ -96,15 +101,7 @@ return (
       </button>  
     </div>  
 
-    
-{/* TEXT OVERLAY */}  
-        {text && (  
-          <div className="absolute bottom-4 left-4 right-4 text-white text-lg font-bold">  
-            {text}  
-          </div>  
-        )}  
-      </div>  
-    )}  
+ 
 
 
    {/* DRAGGABLE PREVIEW AREA */}
@@ -156,9 +153,15 @@ return (
           setStickers(updated);
         }}
       >
-        <div className="absolute text-4xl cursor-move">
-          {sticker.emoji}
-        </div>
+        <div
+  className="absolute cursor-move"
+  style={{
+    fontSize: `${sticker.size || 60}px`,
+  }}
+>
+  {sticker.emoji}
+</div>
+
       </Draggable>
     ))}
 
@@ -174,14 +177,17 @@ return (
         }
       >
         
- <div
-  className="absolute text-white font-bold cursor-move"
+<div
+  className="absolute font-bold cursor-move"
   style={{
     fontSize: `${size}px`,
+    color: textColor,
+    transform: `rotate(${textRotation}deg)`,
   }}
 >
   {text}
 </div>
+
       </Draggable>
     )}
   </div>
