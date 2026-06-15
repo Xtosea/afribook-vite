@@ -69,11 +69,9 @@ onClose();
 };
 
 useEffect(() => {
-fetch(
-${API_BASE}/api/story-music
-)
-.then((res) => res.json())
-.then(setMusicList);
+  fetch(`${API_BASE}/api/story-music`)
+    .then((res) => res.json())
+    .then(setMusicList);
 }, []);
 
 // ================= UI =================
@@ -233,18 +231,22 @@ className="max-h-[300px] w-auto object-contain"
 </div>
 
 
- <div className="mb-3">  
-  <p className="font-semibold">  
-    Background Color  
-  </p>  <input
-type="color"
-value={backgroundColor}
-onChange={(e) =>
-setBackgroundColor(e.target.value)
-}
-/>
+ <div className="mb-3">
+  <p className="font-semibold">
+    Background Color
+  </p>
 
-</div>  <div className="mb-3">
+  <input
+    type="color"
+    value={backgroundColor}
+    onChange={(e) =>
+      setBackgroundColor(e.target.value)
+    }
+  />
+</div> 
+
+
+<div className="mb-3">
 
   <p className="font-semibold mb-2">  
     Music Library  
@@ -276,17 +278,17 @@ setBackgroundColor(e.target.value)
     />  
 
     {music && (
-
-<audio
-controls
-src={
-music instanceof File
-? URL.createObjectURL(music)
-: music.audioUrl
-}
-className="w-full mb-3"
-/>
+  <audio
+    controls
+    src={
+      music instanceof File
+        ? URL.createObjectURL(music)
+        : music.audioUrl
+    }
+    className="w-full mb-3"
+  />
 )}
+
 
 {/* MEDIA PICKER BUTTON */}  
     <button  
