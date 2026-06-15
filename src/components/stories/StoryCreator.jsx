@@ -5,6 +5,8 @@ import React, {
 } from "react";
 
 import { API_BASE } from "../../api/api";
+import Draggable from "react-draggable";
+
 
 const emojiList = [
   "🔥",
@@ -30,6 +32,11 @@ const [musicList, setMusicList] = useState([]);
 const [stickers, setStickers] = useState([]);
 const [backgroundColor, setBackgroundColor] =
   useState("#000000");
+const [textPosition, setTextPosition] =
+  useState({
+    x: 50,
+    y: 50,
+  });
 
 
   // ================= HANDLE FILE =================
@@ -44,21 +51,21 @@ const [backgroundColor, setBackgroundColor] =
   // ================= POST STORY =================
 const handlePost = async () => {
   if (
-    !media &&
-    !text &&
-    !music &&
-    stickers.length === 0
-  ) {
-    return;
-  }
-
+  !media &&
+  !text &&
+  !music &&
+  stickers.length === 0
+) {
+  return;
+}
   await onSelectFile({
-    file: media,
-    text,
-    music,
-    stickers,
-    backgroundColor,
-  });
+  file: media,
+  text,
+  textPosition,
+  music,
+  stickers,
+  backgroundColor,
+});
 
   onClose();
 };
@@ -125,19 +132,72 @@ useEffect(() => {
         )}
 
 
-       {/* STICKERS PREVIEW */}
-{stickers.length > 0 && (
-  <div className="absolute top-4 left-4 flex flex-wrap gap-2">
+       {/* DRAGGABLE PREVIEW AREA */}
+{(preview || stickers.length > 0 || text) && (
+  <div
+    className="relative mb-3 h-[300px] rounded-xl overflow-hidden bg-black"
+    style={{ backgroundColor }}
+  >
+    {preview &&
+      (media?.type?.startsWith("image") ? (
+        <img
+          src={preview}
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      ) : media?.type?.startsWith("video") ? (
+        <video
+          src={preview}
+          className="absolute inset-0 w-full h-full object-cover"
+          muted
+        />
+      ) : null)}
+
+    {/* DRAGGABLE STICKERS */}
     {stickers.map((sticker, index) => (
-      <span
+      <Draggable
         key={index}
-        className="text-3xl"
+        position={{
+          x: sticker.x,
+          y: sticker.y,
+        }}
+        onStop={(e, data) => {
+          const updated = [...stickers];
+
+          updated[index] = {
+            ...updated[index],
+            x: data.x,
+            y: data.y,
+          };
+
+          setStickers(updated);
+        }}
       >
-        {sticker}
-      </span>
+        <div className="absolute text-4xl cursor-move">
+          {sticker.emoji}
+        </div>
+      <Draggable
+  position={textPosition}
+  onStop={(e, data) =>
+    setTextPosition({
+      x: data.x,
+      y: data.y,
+    })
+  }
+>
     ))}
+
+    {/* DRAGGABLE TEXT */}
+    {text && (
+      <Draggable>
+        <div className="absolute text-white text-2xl font-bold cursor-move">
+          {text}
+        </div>
+      </Draggable>
+    )}
   </div>
 )}
+
 
         {/* TEXT INPUT */}
         <input
@@ -154,6 +214,12 @@ useEffect(() => {
     Stickers
   </p>
 
+
+<div className="mb-3">
+  <p className="font-semibold">
+    Stickers
+  </p>
+
   <div className="flex gap-2 flex-wrap">
     {emojiList.map((emoji) => (
       <button
@@ -161,7 +227,11 @@ useEffect(() => {
         onClick={() =>
           setStickers((prev) => [
             ...prev,
-            emoji,
+            {
+              emoji,
+              x: 100,
+              y: 100,
+            },
           ])
         }
         className="text-3xl"
@@ -172,6 +242,7 @@ useEffect(() => {
   </div>
 </div>
 
+  
 
 <div className="mb-3">
   <p className="font-semibold">
