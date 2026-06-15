@@ -380,17 +380,21 @@ return (
   onSubmit={(e) => {  
     console.log("FORM SUBMIT DETECTED");  
     handleSubmitPost(e);  
-  }}  className="  
-  bg-white  
-  p-5  
-  rounded-3xl  
-  shadow-lg  
-  border  
-  border-gray-100  
-  space-y-4  
+  }}  
+<form
+  className="
+    bg-white
+    p-5
+    rounded-3xl
+    shadow-lg
+    border
+    border-gray-100
+    space-y-4
+    w-full
+    max-w-4xl
+    mx-auto
 "
-
-> 
+>
 
 <div  
   className="  
@@ -495,45 +499,40 @@ rounded-full
   </div>  
 </div>  
 
-{/* TEXTAREA */}  
 
-  <textarea
-
-rows={8}
-value={newPost}
-onChange={(e) =>
-setNewPost(e.target.value)
-}
-onFocus={() =>
-setExpanded(true)
-}
-placeholder={`Share a photo, video or thought... ${
-  currentUser?.name || "User"
-}?`}
-style={{
-color: textColor,
-...getBackgroundStyle(),
-}}
-className={`
-w-full
-p-4
-rounded-2xl
-
-resize-none  
-transition-all  
-duration-200  
-focus:outline-none  
-focus:ring-2  
-focus:ring-blue-400  
-relative  
-z-0
-
-min-h-[200px]
-text-lg
-border-0
-shadow-none
-${fontStyle}
-`}
+{/* TEXTAREA */}
+<textarea
+  rows={10}
+  value={newPost}
+  onChange={(e) => setNewPost(e.target.value)}
+  onFocus={() => setExpanded(true)}
+  onInput={(e) => {
+    e.target.style.height = "auto";
+    e.target.style.height = `${e.target.scrollHeight}px`;
+  }}
+  placeholder={`Share a photo, video or thought... ${
+    currentUser?.name || "User"
+  }?`}
+  style={{
+    color: textColor,
+    ...getBackgroundStyle(),
+  }}
+  className={`
+    w-full
+    p-5
+    rounded-2xl
+    resize-y
+    transition-all
+    duration-200
+    focus:outline-none
+    focus:ring-2
+    focus:ring-blue-400
+    min-h-[350px]
+    text-lg
+    border-0
+    shadow-none
+    ${fontStyle}
+  `}
 />
 
 {/* EXPANDED */}  
