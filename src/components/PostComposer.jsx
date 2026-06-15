@@ -381,7 +381,7 @@ return (
     console.log("FORM SUBMIT DETECTED");  
     handleSubmitPost(e);  
   }}  
-<form
+
   className="
     bg-white
     p-5
