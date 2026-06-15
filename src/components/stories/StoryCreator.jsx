@@ -176,20 +176,20 @@ useEffect(() => {
         <div className="absolute text-4xl cursor-move">
           {sticker.emoji}
         </div>
-      <Draggable
-  position={textPosition}
-  onStop={(e, data) =>
-    setTextPosition({
-      x: data.x,
-      y: data.y,
-    })
-  }
->
-   
+      </Draggable>
+    ))}
 
     {/* DRAGGABLE TEXT */}
     {text && (
-      <Draggable>
+      <Draggable
+        position={textPosition}
+        onStop={(e, data) =>
+          setTextPosition({
+            x: data.x,
+            y: data.y,
+          })
+        }
+      >
         <div className="absolute text-white text-2xl font-bold cursor-move">
           {text}
         </div>
@@ -198,7 +198,7 @@ useEffect(() => {
   </div>
 )}
 
-);
+
         {/* TEXT INPUT */}
         <input
           type="text"
@@ -207,12 +207,6 @@ useEffect(() => {
           onChange={(e) => setText(e.target.value)}
           className="w-full p-2 border rounded mb-3"
         />
-
-
-<div className="mb-3">
-  <p className="font-semibold">
-    Stickers
-  </p>
 
 
 <div className="mb-3">
@@ -241,7 +235,6 @@ useEffect(() => {
     ))}
   </div>
 </div>
-
   
 
 <div className="mb-3">
