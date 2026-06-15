@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { compressStoryMedia } from "../utils/compressStoryMedia";
-import { uploadMusic } from "./r2StoryMusic";
+import useR2StoryMusic from "./r2StoryMusic";
 
 const API_BASE = import.meta.env.VITE_API_BASE;
 
@@ -9,6 +9,10 @@ export function useStoryUpload() {
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState(null);
+
+const {
+    uploadMusic,
+  } = useR2StoryMusic();
 
   const uploadStory = async ({
   file,
