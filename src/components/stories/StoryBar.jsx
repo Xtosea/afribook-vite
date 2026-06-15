@@ -9,18 +9,11 @@ import StoryViewer from "./StoryViewer";
 
 import { API_BASE } from "../../api/api";
 import { useStoryUpload } from "../../hooks/useStoryUpload";
-
 import { getSocket } from "../../socket";
 import StoryCreator from "./StoryCreator";
-import r2StoryMusic from "../../hooks/r2StoryMusic";
-
-
-
 
 const StoryBar = ({ user }) => {
-
   const socket = getSocket();
-
   const fileRef = useRef();
 
   const {
@@ -29,180 +22,101 @@ const StoryBar = ({ user }) => {
     progress,
   } = useStoryUpload();
 
-  const [selectedStory, setSelectedStory] =
-    useState(null);
-
-  const [viewedStories, setViewedStories] =
-    useState([]);
-
-  const [activeStories, setActiveStories] =
-    useState([]);
-
-const [opening, setOpening] = useState(false);
-
-const [showCreator, setShowCreator] =
-  useState(false);
-
-
-
+  const [selectedStory, setSelectedStory] = useState(null);
+  const [viewedStories, setViewedStories] = useState([]);
+  const [activeStories, setActiveStories] = useState([]);
+  const [opening, setOpening] = useState(false);
+  const [showCreator, setShowCreator] = useState(false);
 
   /* ================= FETCH STORIES ================= */
   const fetchStories = async () => {
-  try {
-    const token = localStorage.getItem("token");
+    try {
+      const token = localStorage.getItem("token");
 
-    const res = await fetch(`${API_BASE}/api/stories`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+      const res = await fetch(`${API_BASE}/api/stories`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-    const data = await res.json();
+      const data = await res.json();
+      const sorted = Array.isArray(data) ? data : [];
 
-    const sorted = Array.isArray(data) ? data : [];
+      const myStories = sorted.filter(
+        (s) => s.user?._id === user?._id
+      );
 
-    const myStories = sorted.filter(
-      (s) => s.user?._id === user?._id
-    );
+      const others = sorted.filter(
+        (s) => s.user?._id !== user?._id
+      );
 
-    const others = sorted.filter(
-      (s) => s.user?._id !== user?._id
-    );
-
-    setActiveStories([...myStories, ...others]);
-
-  } catch (err) {
-    console.error("Fetch stories error:", err);
-  }
-};
-
+      setActiveStories([...myStories, ...others]);
+    } catch (err) {
+      console.error("Fetch stories error:", err);
+    }
+  };
 
   useEffect(() => {
     fetchStories();
   }, []);
 
-  /* ================= SOCKET: VIEWS + REACTIONS ================= */
+  /* ================= SOCKET ================= */
   useEffect(() => {
     if (!socket) return;
 
-    const handleViewUpdate = ({
-      storyId,
-      viewsCount,
-    }) => {
+    socket.on("story-view", ({ storyId, viewsCount }) => {
       setActiveStories((prev) =>
-        prev.map((story) =>
-          story._id === storyId
-            ? { ...story, viewsCount }
-            : story
+        prev.map((s) =>
+          s._id === storyId ? { ...s, viewsCount } : s
         )
       );
+    });
 
-      setSelectedStory((prev) => {
-        if (!prev) return prev;
-        if (prev._id === storyId) {
-          return { ...prev, viewsCount };
-        }
-        return prev;
-      });
-    };
-
-    const handleReaction = ({
-      storyId,
-      reactions,
-    }) => {
+    socket.on("story-reacted", ({ storyId, reactions }) => {
       setActiveStories((prev) =>
-        prev.map((story) =>
-          story._id === storyId
-            ? { ...story, reactions }
-            : story
+        prev.map((s) =>
+          s._id === storyId ? { ...s, reactions } : s
         )
       );
-
-      setSelectedStory((prev) => {
-        if (!prev) return prev;
-        if (prev._id === storyId) {
-          return { ...prev, reactions };
-        }
-        return prev;
-      });
-    };
-
-    socket.on("story-view", handleViewUpdate);
-    socket.on("story-reacted", handleReaction);
+    });
 
     return () => {
-      socket.off("story-view", handleViewUpdate);
-      socket.off("story-reacted", handleReaction);
+      socket.off("story-view");
+      socket.off("story-reacted");
     };
-
   }, [socket]);
 
   /* ================= CREATE STORY ================= */
   const handleCreateStory = () => {
-  setShowCreator(true);
-};
+    setShowCreator(true);
+  };
 
-  
-/* ================= UPLOAD STORY ================= */
-const handleUpload = async ({
-  file,
-  text,
-  music,
-  stickers,
-  backgroundColor,
-}) => {
-  try {
-    const story = await uploadStory({
-      file,
-      text,
-      music,
-      stickers,
-      backgroundColor,
-    });
+  /* ================= UPLOAD STORY ================= */
+  const handleUpload = async (formData) => {
+    try {
+      const story = await uploadStory(formData);
 
-    if (story) {
-      setActiveStories((prev) => [
-        story,
-        ...prev,
-      ]);
+      if (story) {
+        setActiveStories((prev) => [story, ...prev]);
+      }
+
+      return story;
+    } catch (err) {
+      console.error("Upload story error:", err);
     }
-
-    return story;
-  } catch (err) {
-    console.error(
-      "Upload story error:",
-      err
-    );
-  }
-};
+  };
 
   /* ================= OPEN STORY ================= */
   const openStory = (story) => {
-  setOpening(true);
-  setSelectedStory(story);
+    setOpening(true);
+    setSelectedStory(story);
+    setTimeout(() => setOpening(false), 200);
 
-  setTimeout(() => setOpening(false), 200);
+    if (!viewedStories.includes(story._id)) {
+      setViewedStories((prev) => [...prev, story._id]);
+    }
+  };
 
-  if (!viewedStories.includes(story._id)) {
-    setViewedStories((prev) => [...prev, story._id]);
-  }
-};
-
-
-let musicData = null;
-
-if (music instanceof File) {
-  musicData = await uploadMusic(music);
-} else if (music) {
-  musicData = music;
-}
-
-body: JSON.stringify({
-  text,
-  music: musicData,
-  stickers,
-  backgroundColor,
-})
   /* ================= LIKE ================= */
   const handleLike = async (story) => {
     try {
@@ -212,16 +126,13 @@ body: JSON.stringify({
         `${API_BASE}/api/stories/like/${story._id}`,
         {
           method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
     } catch (err) {
       console.error("Like story error:", err);
     }
   };
-
 
   /* ================= SHARE ================= */
   const handleShare = async (story) => {
@@ -230,152 +141,89 @@ body: JSON.stringify({
       if (!url) return;
 
       if (navigator.share) {
-        await navigator.share({
-          title: "Story",
-          url,
-        });
+        await navigator.share({ title: "Story", url });
       } else {
         await navigator.clipboard.writeText(url);
         alert("Link copied");
       }
-
     } catch (err) {
-      if (err.name !== "AbortError") {
-        console.error("Share error:", err);
-      }
+      console.error("Share error:", err);
     }
   };
 
-const nextStory = () => {
-  if (!selectedStory) return;
+  /* ================= NEXT STORY ================= */
+  const nextStory = () => {
+    if (!selectedStory) return;
 
-  const currentIndex = activeStories.findIndex(
-    (s) => s._id === selectedStory._id
-  );
-
-  const next = activeStories.find(
-    (s, i) => i > currentIndex && !viewedStories.includes(s._id)
-  );
-
-  if (next) {
-    setSelectedStory(next);
-
-    setViewedStories((prev) =>
-      prev.includes(next._id)
-        ? prev
-        : [...prev, next._id]
+    const currentIndex = activeStories.findIndex(
+      (s) => s._id === selectedStory._id
     );
-  } else {
-    setSelectedStory(null);
-  }
-};
 
+    const next = activeStories.find(
+      (s, i) =>
+        i > currentIndex && !viewedStories.includes(s._id)
+    );
 
-useEffect(() => {
-  window.nextStory = nextStory;
-
-  return () => {
-    delete window.nextStory;
+    if (next) {
+      setSelectedStory(next);
+      setViewedStories((prev) => [...prev, next._id]);
+    } else {
+      setSelectedStory(null);
+    }
   };
-}, [selectedStory, activeStories]);
 
-
-
+  useEffect(() => {
+    window.nextStory = nextStory;
+    return () => delete window.nextStory;
+  }, [selectedStory, activeStories]);
 
   return (
     <>
       <div className="flex gap-4 overflow-x-auto py-3 px-3 scrollbar-hide">
 
         {/* CREATE STORY */}
-<div
-  onClick={handleCreateStory}
-  className="
-    relative
-    min-w-[110px]
-    h-[190px]
-    rounded-2xl
-    overflow-hidden
-    cursor-pointer
-    shadow-lg
-    bg-black
-  "
->
-  {/* PROFILE IMAGE */}
-  <img
-  src={
-    user?.profilePic ||
-    localStorage.getItem("profilePic") ||
-    "/default-avatar.png"
-  }
-  alt="profile"
-  className="w-full h-[140px] object-cover"
-/>
+        <div
+          onClick={handleCreateStory}
+          className="relative min-w-[110px] h-[190px] rounded-2xl overflow-hidden cursor-pointer shadow-lg bg-black"
+        >
+          <img
+            src={
+              user?.profilePic ||
+              localStorage.getItem("profilePic") ||
+              "/default-avatar.png"
+            }
+            className="w-full h-[140px] object-cover"
+          />
 
-  {/* PLUS BUTTON */}
-  <div
-    className="
-      absolute
-      top-[120px]
-      left-1/2
-      -translate-x-1/2
-      w-10
-      h-10
-      rounded-full
-      bg-blue-600
-      border-4
-      border-white
-      flex
-      items-center
-      justify-center
-      text-white
-      text-2xl
-      font-bold
-    "
-  >
-    +
-  </div>
+          <div className="absolute top-[120px] left-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-blue-600 border-4 border-white flex items-center justify-center text-white text-2xl font-bold">
+            +
+          </div>
 
-  {/* BOTTOM AREA */}
-  <div
-    className="
-      absolute
-      bottom-0
-      left-0
-      right-0
-      h-[30px]
-      bg-white
-      flex
-      items-end
-      justify-center
-      pb-2
-    "
-  >
-    <p className="text-black text-xs font-semibold">
-      {loading
-        ? `Uploading ${progress}%`
-        : "Create Story"}
-    </p>
-  </div>
+          <div className="absolute bottom-0 left-0 right-0 h-[30px] bg-white flex items-end justify-center pb-2">
+            <p className="text-black text-xs font-semibold">
+              {loading ? `Uploading ${progress}%` : "Create Story"}
+            </p>
+          </div>
 
-  <input
-  type="file"
-  ref={fileRef}
-  className="hidden"
-  accept="image/*,video/*,audio/*"
-  onChange={(e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+          <input
+            type="file"
+            ref={fileRef}
+            className="hidden"
+            accept="image/*,video/*,audio/*"
+            onChange={(e) => {
+              const file = e.target.files[0];
+              if (!file) return;
 
-    handleUpload({
-      file,
-      text: "",
-      music: null,
-      stickers: [],
-      backgroundColor: "#000000",
-    });
-  }}
-/>
-</div>
+              handleUpload({
+                file,
+                text: "",
+                music: null,
+                stickers: [],
+                backgroundColor: "#000000",
+              });
+            }}
+          />
+        </div>
 
         {/* STORIES */}
         {activeStories.map((story) => (
@@ -386,23 +234,15 @@ useEffect(() => {
             onOpen={openStory}
           />
         ))}
-
       </div>
 
+      {showCreator && (
+        <StoryCreator
+          onClose={() => setShowCreator(false)}
+          onSelectFile={handleUpload}
+        />
+      )}
 
-{showCreator && (
-  <StoryCreator
-    onClose={() =>
-      setShowCreator(false)
-    }
-    onSelectFile={(formData) => {
-  handleUpload(formData);
-}}
-  />
-)}
-
-
-      {/* STORY VIEWER */}
       {selectedStory && (
         <StoryViewer
           story={selectedStory}
