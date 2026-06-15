@@ -17,6 +17,7 @@ const emojiList = [
   "💯",
 ];
 
+
 function DraggableText({ item, updateText }) {
   const [editing, setEditing] = useState(false);
 
