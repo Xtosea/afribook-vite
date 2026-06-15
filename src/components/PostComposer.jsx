@@ -1059,6 +1059,8 @@ useEffect(() => {
 
   </form>
 </>
+
+);
 };
 
 export default PostComposer;
