@@ -463,7 +463,7 @@ className={`
 
  <div className="border-b pb-3"></div>  <div className="flex items-center gap-3 mb-4">  <img
 src={
-currentUser?.profilePicture ||
+currentUser?.profilePic ||
 "/default-avatar.png"
 }
 alt=""
