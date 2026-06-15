@@ -43,7 +43,7 @@ const [toolsVisible, setToolsVisible] = useState(false);
 
 
 
-const [expanded, setExpanded] = useState(false);
+
   const [posting, setPosting] =
     useState(false);
 
