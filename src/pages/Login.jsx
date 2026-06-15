@@ -23,6 +23,19 @@ export default function Login() {
       const data = await res.json();
 console.log("FULL LOGIN DATA:", data);
 
+console.log("FULL LOGIN DATA:", data);
+console.log("USER BEFORE SAVE:", data.user);
+
+localStorage.setItem(
+  "user",
+  JSON.stringify(data.user)
+);
+
+console.log(
+  "USER AFTER SAVE:",
+  localStorage.getItem("user")
+);
+
       console.log("LOGIN RESPONSE:", data, "STATUS:", res.status);
 
       if (!res.ok) {
