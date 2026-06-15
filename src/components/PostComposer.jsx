@@ -32,7 +32,7 @@ import("emoji-picker-react")
 );
 
 
-const [showTextArea, setShowTextArea] = useState(false);
+const [showTextArea, setShowTextArea] = useState(true);
 const [posting, setPosting] =
 useState(false);
 
