@@ -36,6 +36,9 @@ const EmojiPicker = lazy(() =>
   import("emoji-picker-react")
 );
 
+const [isFocused, setIsFocused] = useState(false); // textarea only
+const [hasOpened, setHasOpened] = useState(false); // keeps tools open once user starts
+
 
 
 const [expanded, setExpanded] = useState(false);
@@ -523,44 +526,31 @@ useEffect(() => {
       {/* TEXTAREA */}
 
       <textarea
-  rows={expanded ? 10 : 2}
+  rows={isFocused ? 10 : 2}
   value={newPost}
-  onChange={(e) =>
-    setNewPost(e.target.value)
-  }
-  onFocus={() =>
-    setExpanded(true)
-  }
+  onChange={(e) => setNewPost(e.target.value)}
+  onFocus={() => {
+    setIsFocused(true);
+    setHasOpened(true);
+  }}
   onBlur={() => {
     if (!newPost.trim()) {
-      setExpanded(false);
+      setIsFocused(false);
     }
   }}
-  placeholder={`Share a photo, video or thought... ${
-    currentUser?.name || "User"
-  }?`}
-  style={{
-    color: textColor,
-    ...getBackgroundStyle(),
-  }}
   className={`
-  w-full
-  p-4
-  rounded-2xl
-  resize-none
-  transition-all
-  duration-300
-  focus:outline-none
-  focus:ring-2
-  focus:ring-blue-400
-  relative
-  z-0
-  ${expanded ? "min-h-[320px]" : "min-h-[60px]"}
-  text-lg
-  border-0
-  shadow-none
-  ${fontStyle}
-`}
+    w-full
+    p-4
+    rounded-2xl
+    resize-none
+    transition-all
+    duration-300
+    focus:outline-none
+    focus:ring-2
+    focus:ring-blue-400
+    ${isFocused ? "min-h-[320px]" : "min-h-[60px]"}
+    text-lg
+  `}
 />
 
 
