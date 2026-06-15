@@ -566,9 +566,7 @@ useEffect(() => {
 
       {/* EXPANDED */}
 
-      {(
-
-        {expanded && (
+{expanded && (
   <div className="space-y-4">
 
           {/* EMOJI */}
@@ -1057,7 +1055,7 @@ useEffect(() => {
         </div>
 
       )}
-</div>
+
 
     </form>
   );
