@@ -38,6 +38,8 @@ const EmojiPicker = lazy(() =>
 
 const [isFocused, setIsFocused] = useState(false); // textarea only
 const [hasOpened, setHasOpened] = useState(false); // keeps tools open once user starts
+const [toolsVisible, setToolsVisible] = useState(false);
+
 
 
 
@@ -552,8 +554,7 @@ useEffect(() => {
 
       {/* EXPANDED */}
 
-{hasOpened && (
-  <div className="space-y-4">
+<div className="space-y-4">
 
           {/* EMOJI */}
 
