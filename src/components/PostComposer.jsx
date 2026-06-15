@@ -538,7 +538,7 @@ ${fontStyle}
 
 {/* EXPANDED */}  
 
-  {(  
+   
 
     {expanded && (
   <div className="space-y-4">  
@@ -700,7 +700,8 @@ setMediaFiles={setMediaFiles}
 setSelectedFile={setSelectedFile}  
 />
 
-</div>  <div className="border rounded-2xl p-4 bg-white shadow-sm">
+</div>  
+<div className="border rounded-2xl p-4 bg-white shadow-sm">
 
   <p className="text-sm font-semibold text-gray-600 mb-3">  
     AI Tools  
@@ -915,7 +916,8 @@ text-gray-700
 
   </div>  )}
 
- </div>   {/* ACTIONS */}
+ </div>   
+{/* ACTIONS */}
 
 <div className="border rounded-2xl p-4 bg-white shadow-sm">    <p className="text-sm font-semibold text-gray-600 mb-3">  
     Add to your post  
@@ -1001,11 +1003,14 @@ text-gray-700
   🏷 Tag Friends  
 </button>
 
-  </div>  </div>  </div>  
+  </div> 
+ </div>  
+</div>  
 
   )}
 
-</div>  </form>
+</div> 
+ </form>
 
 );
 };
