@@ -1052,14 +1052,12 @@ useEffect(() => {
 
 
 
-        </div>
-
+       </div>
       )}
 
-    </div>
-    </form>
-  
+    </div> {/* closes p-5 space-y-4 */}
 
+  </form>
 </>
 };
 
