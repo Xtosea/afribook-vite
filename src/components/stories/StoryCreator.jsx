@@ -274,7 +274,7 @@ useEffect(() => {
     updateText={updateText}
   />
 ))}
-</div
+</div>
 
 
         className="text-3xl"
