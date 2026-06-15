@@ -507,9 +507,9 @@ rounded-full
   `}
 />
 
-{/* EXPANDED */}  
-className="space-y-4">
-   
+{/* EXPANDED */}
+<div className="space-y-4">
+
  {/* EMOJI */}  
 
       {showEmoji && (  
