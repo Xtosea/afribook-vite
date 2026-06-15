@@ -19,14 +19,11 @@ import { useAuth } from "../context/AuthContext";
 
 const PostComposer = () => {
 
-console.log("POST COMPOSER LOADED");
+
 
 const navigate = useNavigate();
 
-console.log(
-"PATH:",
-window.location.pathname
-);
+
 
 const { token, currentUser } = useAuth();
 
@@ -47,17 +44,6 @@ useState("");
 const [mediaFiles, setMediaFiles] =
 useState([]);
 
-useEffect(() => {
-console.log("MEDIA FILES STATE CHANGED:", mediaFiles);
-}, [mediaFiles]);
-
-useEffect(() => {
-console.log("POST COMPOSER MOUNTED");
-
-return () => {
-console.log("POST COMPOSER UNMOUNTED");
-};
-}, []);
 
 const [selectedFile, setSelectedFile] =
 useState(null);
@@ -230,21 +216,7 @@ try {
 // SUBMIT POST
 // =========================
 
-useEffect(() => {
-console.log("CURRENT URL:", window.location.pathname);
-}, []);
 
-useEffect(() => {
-const handler = () => {
-console.log("PAGE RELOAD DETECTED");
-};
-
-window.addEventListener("beforeunload", handler);
-
-return () => {
-window.removeEventListener("beforeunload", handler);
-};
-}, []);
 
 const handleSubmitPost = async (e) => {
 console.log("HANDLE SUBMIT STARTED");
@@ -505,7 +477,7 @@ rounded-full
   rows={10}
   value={newPost}
   onChange={(e) => setNewPost(e.target.value)}
-  onFocus={() => setExpanded(true)}
+  
   onInput={(e) => {
     e.target.style.height = "auto";
     e.target.style.height = `${e.target.scrollHeight}px`;
@@ -539,10 +511,11 @@ rounded-full
 
    
 
-    {expanded && (
-  <div className="space-y-4">  
-
-      {/* EMOJI */}  
+    <div className="space-y-4">
+  ...
+</div>
+     
+       {/* EMOJI */}  
 
       {showEmoji && (  
 
