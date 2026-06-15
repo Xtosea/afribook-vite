@@ -31,7 +31,8 @@ console.log(
 
   const { token, currentUser } = useAuth();
 
-console.log(currentUser);
+console.log("AUTH CONTEXT:", auth);
+  console.log("CURRENT USER:", auth?.currentUser);
 
 
 const EmojiPicker = lazy(() =>
