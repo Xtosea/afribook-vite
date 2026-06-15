@@ -474,7 +474,7 @@ const [showCustomize, setShowCustomize] =
     "/default-avatar.png"
   }
   alt={currentUser?.name}
-  className="w-25 h-25 rounded-full object-cover object-center"
+  className="w-18 h-18 rounded-full object-cover object-center"
   
 />
 
