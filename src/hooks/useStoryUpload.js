@@ -17,9 +17,7 @@ export function useStoryUpload() {
     backgroundColor,
   }) => {
     try {
-      if (!file) {
-        throw new Error("No file selected");
-      }
+      
 
       setLoading(true);
       setProgress(0);
