@@ -438,7 +438,20 @@ Cancel
 
 type="submit"
 disabled={posting}
-className={  text-white   font-semibold   px-8   py-2.5   rounded-full   min-w-[110px]   transition   ${   posting   ? "bg-gray-400"   : "bg-blue-500 hover:bg-blue-600"   }  }
+className={`
+  text-white
+  font-semibold
+  px-8
+  py-2.5
+  rounded-full
+  min-w-[110px]
+  transition
+  ${
+    posting
+      ? "bg-gray-400"
+      : "bg-blue-500 hover:bg-blue-600"
+  }
+`}
 
 > 
 
@@ -455,8 +468,8 @@ currentUser?.profilePicture ||
 }
 alt=""
 className="
-w-12
-h-12
+w-14
+h-14
 rounded-full
 object-cover
 "
@@ -479,7 +492,10 @@ rounded-full
 </span>
 
 </div>  
-  </div>  </div>  {/* TEXTAREA */}  
+  </div>  
+</div>  
+
+{/* TEXTAREA */}  
 
   <textarea
 
@@ -491,7 +507,9 @@ setNewPost(e.target.value)
 onFocus={() =>
 setExpanded(true)
 }
-placeholder={Share a photo, video or thought... ${   currentUser?.name || "User"   }?}
+placeholder={`Share a photo, video or thought... ${
+  currentUser?.name || "User"
+}?`}
 style={{
 color: textColor,
 ...getBackgroundStyle(),
@@ -510,7 +528,7 @@ focus:ring-blue-400
 relative  
 z-0
 
-min-h-[320px]
+min-h-[200px]
 text-lg
 border-0
 shadow-none
@@ -522,7 +540,8 @@ ${fontStyle}
 
   {(  
 
-    <div className="space-y-4">  
+    {expanded && (
+  <div className="space-y-4">  
 
       {/* EMOJI */}  
 
