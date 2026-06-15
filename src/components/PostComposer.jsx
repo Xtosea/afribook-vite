@@ -382,7 +382,7 @@ const [showCustomize, setShowCustomize] =
 <>
   <form
   onSubmit={(e) => {
-    console.log("FORM SUBMIT DETECTED");
+    
     handleSubmitPost(e);
   }}
 
@@ -474,7 +474,7 @@ const [showCustomize, setShowCustomize] =
     "/default-avatar.png"
   }
   alt={currentUser?.name}
-  className="w-12 h-12 rounded-full object-cover object-center"
+  className="w-25 h-25 rounded-full object-cover object-center"
   
 />
 
@@ -515,7 +515,7 @@ const [showCustomize, setShowCustomize] =
   setToolsVisible(true);
 }}
   className={`
-    w-full
+    w-screen
     p-4
     rounded-2xl
     resize-none
@@ -524,7 +524,7 @@ const [showCustomize, setShowCustomize] =
     focus:outline-none
     focus:ring-2
     focus:ring-blue-400
-    ${isFocused ? "min-h-[320px]" : "min-h-[60px]"}
+    ${isFocused ? "min-h-[250px]" : "min-h-[60px]"}
     text-lg
   `}
 />
