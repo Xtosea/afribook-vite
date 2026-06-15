@@ -185,7 +185,7 @@ useEffect(() => {
     })
   }
 >
-    ))}
+   
 
     {/* DRAGGABLE TEXT */}
     {text && (
