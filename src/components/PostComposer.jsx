@@ -515,7 +515,7 @@ const [showCustomize, setShowCustomize] =
   setToolsVisible(true);
 }}
   className={`
-    w-screen
+    w-full
     p-4
     rounded-2xl
     resize-none
