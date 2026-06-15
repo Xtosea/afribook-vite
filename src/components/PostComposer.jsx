@@ -476,17 +476,9 @@ rounded-full
 <button
   type="button"
   onClick={() => setShowTextArea(!showTextArea)}
-  className="
-    w-full
-    p-3
-    rounded-xl
-    border
-    bg-gray-50
-    hover:bg-gray-100
-    font-medium
-  "
+  className="text-blue-500 text-sm font-medium"
 >
-  {showTextArea ? "📝 Hide Text Area" : "📝 Show Text Area"}
+  {showTextArea ? "Hide text post" : "Write something"}
 </button>
 
 
