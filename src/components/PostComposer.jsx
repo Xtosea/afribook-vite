@@ -556,7 +556,7 @@ useEffect(() => {
 
       {/* EXPANDED */}
 
-{expanded && (
+{hasOpened && (
   <div className="space-y-4">
 
           {/* EMOJI */}
