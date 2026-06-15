@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { compressStoryMedia } from "../utils/compressStoryMedia";
+import { uploadMusic } from "./r2StoryMusic";
 
 const API_BASE = import.meta.env.VITE_API_BASE;
 
@@ -10,21 +11,50 @@ export function useStoryUpload() {
   const [error, setError] = useState(null);
 
   const uploadStory = async ({
-    file,
-    text,
-    music,
-    stickers,
-    backgroundColor,
-  }) => {
-    try {
-      
+  file,
+  text,
+  music,
+  stickers,
+  backgroundColor,
+}) => {
+  try {
+    setLoading(true);
+    setProgress(0);
+    setError(null);
 
-      setLoading(true);
-      setProgress(0);
-      setError(null);
+    /* =========================
+       VALIDATE CONTENT
+    ========================= */
+    const hasContent =
+      file ||
+      text?.trim() ||
+      music ||
+      stickers?.length > 0 ||
+      backgroundColor;
 
+    if (!hasContent) {
+      throw new Error("Story content required");
+    }
+
+    /* =========================
+       UPLOAD MUSIC (IF ANY)
+    ========================= */
+    let musicData = null;
+
+    if (music instanceof File) {
+      musicData = await uploadMusic(music);
+    } else if (music) {
+      musicData = music;
+    }
+
+    /* =========================
+       MEDIA ARRAY
+    ========================= */
+    let media = [];
+
+    if (file) {
       /* =========================
-         VALIDATION
+         FILE VALIDATION
       ========================= */
       if (
         !file.type.startsWith("video/") &&
@@ -35,7 +65,7 @@ export function useStoryUpload() {
       }
 
       /* =========================
-         COMPRESSION (IMPORTANT)
+         COMPRESSION
       ========================= */
       file = await compressStoryMedia(file);
 
@@ -50,64 +80,69 @@ export function useStoryUpload() {
 
       const signedRaw = await signedRes.text();
 
-console.log(
-  "SIGNED URL STATUS:",
-  signedRes.status
-);
+      console.log(
+        "SIGNED URL STATUS:",
+        signedRes.status
+      );
 
-console.log(
-  "SIGNED URL RESPONSE:",
-  signedRaw
-);
+      console.log(
+        "SIGNED URL RESPONSE:",
+        signedRaw
+      );
 
-if (!signedRaw) {
-  throw new Error(
-    "Empty response from signed URL endpoint"
-  );
-}
+      if (!signedRaw) {
+        throw new Error(
+          "Empty response from signed URL endpoint"
+        );
+      }
 
-let signedData;
+      let signedData;
 
-try {
-  signedData = JSON.parse(signedRaw);
-} catch (err) {
-  console.error(
-    "Invalid JSON from signed URL endpoint:",
-    signedRaw
-  );
+      try {
+        signedData = JSON.parse(signedRaw);
+      } catch (err) {
+        console.error(
+          "Invalid JSON from signed URL endpoint:",
+          signedRaw
+        );
 
-  throw new Error(
-    "Server returned invalid JSON"
-  );
-}
+        throw new Error(
+          "Server returned invalid JSON"
+        );
+      }
 
-if (!signedRes.ok || !signedData.uploadUrl) {
-  throw new Error(
-    signedData.error ||
-      "Failed to generate signed URL"
-  );
-}
+      if (!signedRes.ok || !signedData.uploadUrl) {
+        throw new Error(
+          signedData.error ||
+            "Failed to generate signed URL"
+        );
+      }
 
       /* =========================
          UPLOAD TO R2
       ========================= */
-      await axios.put(signedData.uploadUrl, file, {
-  timeout: 60000,
+      await axios.put(
+        signedData.uploadUrl,
+        file,
+        {
+          timeout: 60000,
 
-  headers: {
-    "Content-Type": file.type,
-  },
+          headers: {
+            "Content-Type": file.type,
+          },
 
-  onUploadProgress: (event) => {
-    if (!event.total) return;
+          onUploadProgress: (event) => {
+            if (!event.total) return;
 
-    const percent = Math.round(
-      (event.loaded * 100) / event.total
-    );
+            const percent = Math.round(
+              (event.loaded * 100) /
+                event.total
+            );
 
-    setProgress(percent);
-  },
-});
+            setProgress(percent);
+          },
+        }
+      );
 
       /* =========================
          MEDIA TYPE
@@ -122,61 +157,75 @@ if (!signedRes.ok || !signedData.uploadUrl) {
         mediaType = "image";
       }
 
-      /* =========================
-         SAVE STORY
-      ========================= */
-      const token = localStorage.getItem("token");
+      media.push({
+        url: signedData.fileUrl,
+        type: mediaType,
+      });
+    }
 
-      const res = await fetch(`${API_BASE}/api/storyR2`, {
+    /* =========================
+       SAVE STORY
+    ========================= */
+    const token =
+      localStorage.getItem("token");
+
+    const res = await fetch(
+      `${API_BASE}/api/storyR2`,
+      {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type":
+            "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           text,
-          music,
+          music: musicData,
           stickers,
           backgroundColor,
-          media: [
-            {
-              url: signedData.fileUrl,
-              type: mediaType,
-            },
-          ],
+          media,
         }),
-      });
-
-      const raw = await res.text();
-
-      console.log("SAVE STORY RESPONSE:", raw);
-
-      let story;
-      try {
-        story = JSON.parse(raw);
-      } catch (e) {
-        throw new Error("Invalid JSON response from server");
       }
+    );
 
-      if (!res.ok) {
-        throw new Error(story.error || "Failed to save story");
-      }
+    const raw = await res.text();
 
-      return story;
-    } catch (err) {
-      console.error("Story Upload Error:", err);
+    console.log(
+      "SAVE STORY RESPONSE:",
+      raw
+    );
 
-      setError(err.message || "Story upload failed");
-      throw err;
-    } finally {
-      setLoading(false);
+    let story;
+
+    try {
+      story = JSON.parse(raw);
+    } catch (e) {
+      throw new Error(
+        "Invalid JSON response from server"
+      );
     }
-  };
 
-  return {
-    uploadStory,
-    loading,
-    progress,
-    error,
-  };
-}
+    if (!res.ok) {
+      throw new Error(
+        story.error ||
+          "Failed to save story"
+      );
+    }
+
+    return story;
+  } catch (err) {
+    console.error(
+      "Story Upload Error:",
+      err
+    );
+
+    setError(
+      err.message ||
+        "Story upload failed"
+    );
+
+    throw err;
+  } finally {
+    setLoading(false);
+  }
+};
