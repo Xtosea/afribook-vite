@@ -535,7 +535,9 @@ useEffect(() => {
     setIsFocused(true);
     setHasOpened(true);
   }}
-  
+  onBlur={() => {
+    setIsFocused(false);
+  }}
   className={`
     w-full
     p-4
@@ -554,7 +556,8 @@ useEffect(() => {
 
       {/* EXPANDED */}
 
-<div className="space-y-4">
+{(hasOpened || newPost.trim()) && (
+  <div className="space-y-4">
 
           {/* EMOJI */}
 
