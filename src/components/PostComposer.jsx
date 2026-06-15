@@ -474,7 +474,7 @@ const [showCustomize, setShowCustomize] =
     "/default-avatar.png"
   }
   alt={currentUser?.name}
-  className="w-12 h-12 rounded-full object-cover object-center"
+  className="w-14 h-14 rounded-full object-cover object-center"
   
 />
 
@@ -515,7 +515,7 @@ const [showCustomize, setShowCustomize] =
   setToolsVisible(true);
 }}
   className={`
-    w-screen
+    w-full
     p-4
     rounded-2xl
     resize-none
@@ -524,7 +524,7 @@ const [showCustomize, setShowCustomize] =
     focus:outline-none
     focus:ring-2
     focus:ring-blue-400
-    ${isFocused ? "min-h-[250px]" : "min-h-[60px]"}
+    ${isFocused ? "min-h-[200px]" : "min-h-[60px]"}
     text-lg
   `}
 />
