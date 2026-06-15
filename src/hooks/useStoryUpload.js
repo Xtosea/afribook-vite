@@ -229,3 +229,11 @@ export function useStoryUpload() {
     setLoading(false);
   }
 };
+
+return {
+  uploadStory,
+  loading,
+  progress,
+  error,
+};
+}
