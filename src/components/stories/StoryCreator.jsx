@@ -17,6 +17,54 @@ const emojiList = [
   "💯",
 ];
 
+function DraggableText({ item, updateText }) {
+  const [editing, setEditing] = useState(false);
+
+  return (
+    <Draggable
+      position={{ x: item.x, y: item.y }}
+      onStop={(e, data) => {
+        updateText(item.id, { x: data.x, y: data.y });
+      }}
+    >
+      <div
+        style={{
+          position: "absolute",
+          color: item.color,
+          fontSize: item.fontSize,
+          fontWeight: item.fontWeight,
+          cursor: "move",
+          userSelect: "none",
+        }}
+        onDoubleClick={() => setEditing(true)}
+      >
+        {editing ? (
+          <input
+            autoFocus
+            value={item.text}
+            onChange={(e) =>
+              updateText(item.id, { text: e.target.value })
+            }
+            onBlur={() => setEditing(false)}
+            style={{
+              background: "transparent",
+              border: "none",
+              color: item.color,
+              outline: "none",
+              fontSize: item.fontSize,
+            }}
+          />
+        ) : (
+          item.text
+        )}
+      </div>
+    </Draggable>
+  );
+}
+
+
+
+
 
 const StoryCreator = ({ onClose, onSelectFile }) => {
   const fileRef = useRef();
@@ -25,19 +73,15 @@ const StoryCreator = ({ onClose, onSelectFile }) => {
   const [media, setMedia] = useState(null);
 const [preview, setPreview] = useState(null);
 
-const [text, setText] = useState("");
+
 const [music, setMusic] = useState(null);
 
 const [musicList, setMusicList] = useState([]);
 const [stickers, setStickers] = useState([]);
 const [backgroundColor, setBackgroundColor] =
   useState("#000000");
-const [textPosition, setTextPosition] =
-  useState({
-    x: 50,
-    y: 50,
-  });
 
+ const [texts, setTexts] = useState([]);
 
   // ================= HANDLE FILE =================
   const handleFile = (e) => {
@@ -48,28 +92,34 @@ const [textPosition, setTextPosition] =
     setPreview(URL.createObjectURL(file));
   };
 
+const updateText = (id, changes) => {
+  setTexts((prev) =>
+    prev.map((t) => (t.id === id ? { ...t, ...changes } : t))
+  );
+};
+
   // ================= POST STORY =================
 const handlePost = async () => {
+  const handlePost = async () => {
   if (
-  !media &&
-  !text &&
-  !music &&
-  stickers.length === 0
-) {
-  return;
-}
+    !media &&
+    !music &&
+    stickers.length === 0 &&
+    texts.length === 0
+  ) {
+    return;
+  }
+
   await onSelectFile({
-  file: media,
-  text,
-  textPosition,
-  music,
-  stickers,
-  backgroundColor,
-});
+    file: media,
+    music,
+    stickers,
+    texts,
+    backgroundColor,
+  });
 
   onClose();
 };
-
 
 useEffect(() => {
   fetch(
@@ -122,18 +172,30 @@ useEffect(() => {
   />
 )}
 
-            {/* TEXT OVERLAY */}
-            {text && (
-              <div className="absolute bottom-4 left-4 right-4 text-white text-lg font-bold">
-                {text}
-              </div>
-            )}
-          </div>
-        )}
+            
+<button
+  onClick={() =>
+    setTexts((prev) => [
+      ...prev,
+      {
+        id: Date.now(),
+        text: "Tap to edit",
+        x: 100,
+        y: 100,
+        color: "#fff",
+        fontSize: 24,
+        fontWeight: "bold",
+      },
+    ])
+  }
+  className="w-full bg-purple-600 text-white p-2 rounded mb-3"
+>
+  ✏️ Add Text
+</button>
 
 
        {/* DRAGGABLE PREVIEW AREA */}
-{(preview || stickers.length > 0 || text) && (
+{(preview || stickers.length > 0 || texts.length > 0) && (
   <div
     className="relative mb-3 h-[300px] rounded-xl overflow-hidden bg-black"
     style={{ backgroundColor }}
@@ -153,7 +215,7 @@ useEffect(() => {
         />
       ) : null)}
 
-    {/* DRAGGABLE STICKERS */}
+  {/* DRAGGABLE STICKERS */}
     {stickers.map((sticker, index) => (
       <Draggable
         key={index}
@@ -179,36 +241,8 @@ useEffect(() => {
       </Draggable>
     ))}
 
-    {/* DRAGGABLE TEXT */}
-    {text && (
-      <Draggable
-        position={textPosition}
-        onStop={(e, data) =>
-          setTextPosition({
-            x: data.x,
-            y: data.y,
-          })
-        }
-      >
-        <div className="absolute text-white text-2xl font-bold cursor-move">
-          {text}
-        </div>
-      </Draggable>
-    )}
-  </div>
-)}
 
-
-        {/* TEXT INPUT */}
-        <input
-          type="text"
-          placeholder="Add text to story..."
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          className="w-full p-2 border rounded mb-3"
-        />
-
-
+        
 <div className="mb-3">
   <p className="font-semibold">
     Stickers
@@ -228,6 +262,21 @@ useEffect(() => {
             },
           ])
         }
+
+<div
+  className="relative mb-3 h-[300px] rounded-xl overflow-hidden bg-black"
+>
+
+{texts.map((t) => (
+  <DraggableText
+    key={t.id}
+    item={t}
+    updateText={updateText}
+  />
+))}
+</div
+
+
         className="text-3xl"
       >
         {emoji}
