@@ -531,7 +531,7 @@ useEffect(() => {
   rows={isFocused ? 10 : 2}
   value={newPost}
   onChange={(e) => setNewPost(e.target.value)}
-  onFocus={() => setIsFocused(true)}
+  onFocus={() => setIsFocused(false)}
   className={`
     w-full
     p-4
