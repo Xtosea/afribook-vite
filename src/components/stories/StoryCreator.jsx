@@ -198,7 +198,7 @@ useEffect(() => {
   </div>
 )}
 
-
+);
         {/* TEXT INPUT */}
         <input
           type="text"
