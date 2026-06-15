@@ -1,98 +1,86 @@
+import { useState } from "react";
+import axios from "axios";
 import { API_BASE } from "../api/api";
-import generateThumbnail from "../utils/generateThumbnail";
 
-export const useR2Upload = () => {
+/**
+ * Upload music/audio files directly to R2
+ * Returns clean music object for Story DB
+ */
 
-  const uploadVideo = async (file) => {
+const useR2StoryMusic = () => {
+  const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [error, setError] = useState(null);
 
-    // ================= FILE SIZE LIMIT =================
-    if (file.size > 200 * 1024 * 1024) {
-      throw new Error(
-        "Video too large. Max 200MB"
+  const uploadMusic = async (file) => {
+    try {
+      if (!file) {
+        throw new Error("No music file selected");
+      }
+
+      if (!file.type.startsWith("audio/")) {
+        throw new Error("Only audio files are allowed");
+      }
+
+      setLoading(true);
+      setProgress(0);
+      setError(null);
+
+      // ================= GET SIGNED URL =================
+      const signedRes = await fetch(
+        `${API_BASE}/api/r2storymusic/signed-url?contentType=${encodeURIComponent(
+          file.type
+        )}`
       );
-    }
 
-    // ================= GET SIGNED URL =================
-    const res = await fetch(
-      `${API_BASE}/api/r2storymusic/signed-url?contentType=${encodeURIComponent(file.type)}`
-    );
+      const signedData = await signedRes.json();
 
-    const data = await res.json();
+      if (!signedRes.ok || !signedData.uploadUrl) {
+        throw new Error(
+          signedData.error || "Failed to get upload URL"
+        );
+      }
 
-    // ================= UPLOAD TO R2 =================
-    const uploadRes = await fetch(
-      data.uploadUrl,
-      {
-        method: "PUT",
-        body: file,
+      // ================= UPLOAD TO R2 =================
+      await axios.put(signedData.uploadUrl, file, {
         headers: {
           "Content-Type": file.type,
         },
-      }
-    );
+        onUploadProgress: (event) => {
+          if (!event.total) return;
 
-    if (!uploadRes.ok) {
-      throw new Error(
-        "R2 upload failed"
-      );
+          const percent = Math.round(
+            (event.loaded * 100) / event.total
+          );
+
+          setProgress(percent);
+        },
+      });
+
+      // ================= RETURN CLEAN MUSIC OBJECT =================
+      const musicData = {
+        title: file.name || "Unknown",
+        artist: "",
+        audioUrl: signedData.fileUrl,
+        coverUrl: "",
+      };
+
+      return musicData;
+    } catch (err) {
+      console.error("Music upload error:", err);
+      setError(err.message || "Upload failed");
+      return null;
+    } finally {
+      setLoading(false);
     }
-
-    // ================= GENERATE THUMBNAIL =================
-    const thumbnailBlob =
-      await generateThumbnail(file);
-
-const uploadToR2 = async (file) => {
-  const signedRes = await fetch(
-    `${API_BASE}/api/r2storymusic/signed-url?contentType=${encodeURIComponent(
-      file.type
-    )}`
-  );
-
-  const signedData = await signedRes.json();
-
-  await axios.put(
-    signedData.uploadUrl,
-    file,
-    {
-      headers: {
-        "Content-Type": file.type,
-      },
-    }
-  );
-
-  return signedData.fileUrl;
-};
-
-
-let musicData = null;
-
-if (music instanceof File) {
-  const musicUrl = await uploadToR2(music);
-
-  musicData = {
-    title: music.name,
-    artist: "",
-    audioUrl: musicUrl,
-  };
-}
-else if (music) {
-  musicData = music;
-}
-
-body: JSON.stringify({
-  text,
-  stickers,
-  backgroundColor,
-  music: musicData,
-  media,
-})
-
-    // ================= RETURN VIDEO + THUMB =================
-    return {
-      videoUrl: data.fileUrl,
-      thumbnailBlob,
-    };
   };
 
-  return { uploadVideo };
+  return {
+    uploadMusic,
+    loading,
+    progress,
+    error,
+  };
 };
+
+export default useR2StoryMusic;
