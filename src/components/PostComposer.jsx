@@ -31,6 +31,8 @@ console.log(
 
   const { token, currentUser } = useAuth();
 
+console.log(currentUser);
+
 
 const EmojiPicker = lazy(() =>
   import("emoji-picker-react")
@@ -491,12 +493,8 @@ useEffect(() => {
     "/default-avatar.png"
   }
   alt={currentUser?.name}
-  className="
-    w-12
-    h-12
-    rounded-full
-    object-cover
-  "
+  className="w-12 h-12 rounded-full object-cover object-center"
+  
 />
 
   <div>
@@ -531,7 +529,10 @@ useEffect(() => {
   rows={isFocused ? 10 : 2}
   value={newPost}
   onChange={(e) => setNewPost(e.target.value)}
-  onFocus={() => setIsFocused(true)}
+  onFocus={() => {
+  setIsFocused(true);
+  setToolsVisible(true);
+}}
   className={`
     w-full
     p-4
@@ -550,7 +551,7 @@ useEffect(() => {
 
       {/* EXPANDED */}
 
-{(isFocused || newPost.trim().length > 0) && (
+{toolsVisible && (
   <div className="space-y-4">
 
           {/* EMOJI */}
