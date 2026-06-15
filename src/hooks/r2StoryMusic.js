@@ -41,6 +41,52 @@ export const useR2Upload = () => {
     const thumbnailBlob =
       await generateThumbnail(file);
 
+const uploadToR2 = async (file) => {
+  const signedRes = await fetch(
+    `${API_BASE}/api/r2storymusic/signed-url?contentType=${encodeURIComponent(
+      file.type
+    )}`
+  );
+
+  const signedData = await signedRes.json();
+
+  await axios.put(
+    signedData.uploadUrl,
+    file,
+    {
+      headers: {
+        "Content-Type": file.type,
+      },
+    }
+  );
+
+  return signedData.fileUrl;
+};
+
+
+let musicData = null;
+
+if (music instanceof File) {
+  const musicUrl = await uploadToR2(music);
+
+  musicData = {
+    title: music.name,
+    artist: "",
+    audioUrl: musicUrl,
+  };
+}
+else if (music) {
+  musicData = music;
+}
+
+body: JSON.stringify({
+  text,
+  stickers,
+  backgroundColor,
+  music: musicData,
+  media,
+})
+
     // ================= RETURN VIDEO + THUMB =================
     return {
       videoUrl: data.fileUrl,
