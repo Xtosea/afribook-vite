@@ -32,6 +32,7 @@ import("emoji-picker-react")
 );
 
 
+const [showTextArea, setShowTextArea] = useState(true);
 const [posting, setPosting] =
 useState(false);
 
@@ -472,40 +473,58 @@ rounded-full
 </div>  
 
 
-{/* TEXTAREA */}
-<textarea
-  rows={14}
-  value={newPost}
-  onChange={(e) => setNewPost(e.target.value)}
-  
-  onInput={(e) => {
-    e.target.style.height = "auto";
-    e.target.style.height = `${e.target.scrollHeight}px`;
-  }}
-  placeholder={`Share a photo, video or thought... ${
-    currentUser?.name || "User"
-  }?`}
-  style={{
-    color: textColor,
-    ...getBackgroundStyle(),
-  }}
-  className={`
+<button
+  type="button"
+  onClick={() => setShowTextArea(!showTextArea)}
+  className="
     w-full
-    p-6
-    rounded-2xl
-    resize-y
-    transition-all
-    duration-200
-    focus:outline-none
-    focus:ring-2
-    focus:ring-blue-400
-    min-h-[200px]
-    text-lg
-    border-0
-    shadow-none
-    ${fontStyle}
-  `}
-/>
+    p-3
+    rounded-xl
+    border
+    bg-gray-50
+    hover:bg-gray-100
+    font-medium
+  "
+>
+  {showTextArea ? "📝 Hide Text Area" : "📝 Show Text Area"}
+</button>
+
+
+{/* TEXTAREA */}
+{showTextArea && (
+  <textarea
+    rows={14}
+    value={newPost}
+    onChange={(e) => setNewPost(e.target.value)}
+    onInput={(e) => {
+      e.target.style.height = "auto";
+      e.target.style.height = `${e.target.scrollHeight}px`;
+    }}
+    placeholder={`Share a photo, video or thought... ${
+      currentUser?.name || "User"
+    }?`}
+    style={{
+      color: textColor,
+      ...getBackgroundStyle(),
+    }}
+    className={`
+      w-full
+      p-6
+      rounded-2xl
+      resize-y
+      transition-all
+      duration-200
+      focus:outline-none
+      focus:ring-2
+      focus:ring-blue-400
+      min-h-[200px]
+      text-lg
+      border-0
+      shadow-none
+      ${fontStyle}
+    `}
+  />
+)}
 
 {/* EXPANDED */}
 <div className="space-y-4">
