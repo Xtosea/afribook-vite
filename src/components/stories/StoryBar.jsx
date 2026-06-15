@@ -142,7 +142,7 @@ const [showCreator, setShowCreator] =
   setShowCreator(true);
 };
 
-  /* ================= UPLOAD STORY ================= */
+  
 /* ================= UPLOAD STORY ================= */
 const handleUpload = async ({
   file,
@@ -188,6 +188,21 @@ const handleUpload = async ({
   }
 };
 
+
+let musicData = null;
+
+if (music instanceof File) {
+  musicData = await uploadMusic(music);
+} else if (music) {
+  musicData = music;
+}
+
+body: JSON.stringify({
+  text,
+  music: musicData,
+  stickers,
+  backgroundColor,
+})
   /* ================= LIKE ================= */
   const handleLike = async (story) => {
     try {
