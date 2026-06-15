@@ -474,7 +474,7 @@ rounded-full
 
 {/* TEXTAREA */}
 <textarea
-  rows={10}
+  rows={14}
   value={newPost}
   onChange={(e) => setNewPost(e.target.value)}
   
@@ -491,7 +491,7 @@ rounded-full
   }}
   className={`
     w-full
-    p-5
+    p-6
     rounded-2xl
     resize-y
     transition-all
@@ -499,7 +499,7 @@ rounded-full
     focus:outline-none
     focus:ring-2
     focus:ring-blue-400
-    min-h-[350px]
+    min-h-[200px]
     text-lg
     border-0
     shadow-none
