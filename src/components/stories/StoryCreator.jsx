@@ -137,6 +137,20 @@ return (
 
  
 
+
+
+
+
+   {/* DRAGGABLE PREVIEW AREA */}
+{(preview || stickers.length > 0 || text) && (
+  <div
+    className="relative mb-3 h-[40vh] rounded-xl overflow-hidden bg-black"
+    style={{ backgroundColor }}
+  >
+    {/* Media Preview */}
+
+
+
 <div
   className="absolute top-3 right-3 flex flex-col gap-2 z-50"
 >
@@ -169,23 +183,7 @@ return (
   </button>
 </div>
 
-<button
-  onClick={() =>
-    setShowColorTools(!showColorTools)
-  }
-  className="bg-black/60 text-white p-2 rounded-full"
->
-  🎨
-</button>
 
-
-   {/* DRAGGABLE PREVIEW AREA */}
-{(preview || stickers.length > 0 || text) && (
-  <div
-    className="relative mb-3 h-[40vh] rounded-xl overflow-hidden bg-black"
-    style={{ backgroundColor }}
-  >
-    {/* Media Preview */}
     {preview &&
       (media?.type?.startsWith("image") ? (
         <img
@@ -256,6 +254,15 @@ return (
   </div>
 )}
 
+
+<button
+  onClick={() =>
+    setShowColorTools(!showColorTools)
+  }
+  className="bg-black/60 text-white p-2 rounded-full"
+>
+  🎨
+</button>
 
 
 {showStickerTools && (
