@@ -17,7 +17,7 @@ const emojiList = [
 ];
 
 const StoryCreator = ({ onClose, onSelectFile }) => {
-const fileRef = useRef();
+
 
 const fileRef = useRef();
 const audioRef = useRef();
@@ -48,6 +48,15 @@ const [textRotation, setTextRotation] =
   useState(0);
 const [selectedSticker, setSelectedSticker] =
   useState(null);
+
+const [showTextTools, setShowTextTools] =
+  useState(false);
+
+const [showStickerTools, setShowStickerTools] =
+  useState(false);
+
+const [showMusicTools, setShowMusicTools] =
+  useState(false);
 
 
 
@@ -445,6 +454,8 @@ return (
     </div>
   </div>
 ))}
+</div>
+</div>
 
 {/* MUSIC INPUT */}  
     <input  
@@ -503,6 +514,7 @@ return (
   </div>
 )}
 
+
 {/* MEDIA PICKER BUTTON */}  
     <button  
       onClick={() => fileRef.current?.click()}  
@@ -529,10 +541,10 @@ className="hidden"
 accept="video/*,image/*,audio/*"
 onChange={handleFile}
 />
-</div>
-</div>
 
+</div>
+</div>
+);
 };
-)
 
 export default StoryCreator;
