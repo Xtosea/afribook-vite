@@ -39,6 +39,13 @@ y: 50,
 const [textColor, setTextColor] = useState("#ffffff");
 const [textRotation, setTextRotation] = useState(0);
 const [size, setSize] = useState(60);
+const [textColor, setTextColor] =
+  useState("#ffffff");
+const [textRotation, setTextRotation] =
+  useState(0);
+const [selectedSticker, setSelectedSticker] =
+  useState(null);
+
 
 
 // ================= HANDLE FILE =================
@@ -66,6 +73,8 @@ await onSelectFile({
   text,
   textPosition,
   textSize: size,
+  textColor,
+  textRotation,
   music,
   stickers,
   backgroundColor,
@@ -87,7 +96,17 @@ useEffect(() => {
 return (
 <div className="fixed inset-0 z-[9999] bg-black/90 flex items-center justify-center">
 
-<div className="bg-white w-screen max-w-md rounded-2xl p-4 max-h-[90vh] overflow-y-auto">  
+<div
+  className="
+    bg-white
+    w-full
+    h-full
+    max-w-none
+    rounded-none
+    p-4
+    overflow-y-auto
+  "
+>
 
     {/* HEADER */}  
     <div className="flex justify-between items-center mb-3">  
@@ -133,6 +152,7 @@ return (
         </div>
       ) : null)}
 
+
     {/* Stickers */}
     {stickers.map((sticker, index) => (
       <Draggable
@@ -153,10 +173,16 @@ return (
           setStickers(updated);
         }}
       >
+
         <div
+  onClick={() => setSelectedSticker(index)}
   className="absolute cursor-move"
   style={{
     fontSize: `${sticker.size || 60}px`,
+    border:
+      selectedSticker === index
+        ? "2px solid white"
+        : "none",
   }}
 >
   {sticker.emoji}
@@ -188,6 +214,20 @@ return (
   {text}
 </div>
 
+<div className="mb-3">
+  <p className="font-semibold">
+    Text Color
+  </p>
+
+  <input
+    type="color"
+    value={textColor}
+    onChange={(e) =>
+      setTextColor(e.target.value)
+    }
+  />
+</div>
+
       </Draggable>
     )}
   </div>
@@ -212,6 +252,25 @@ return (
   <p>{size}px</p>
 </div>
 
+
+<div className="mb-3">
+  <p className="font-semibold">
+    Text Rotation
+  </p>
+
+  <input
+    type="range"
+    min="-180"
+    max="180"
+    value={textRotation}
+    onChange={(e) =>
+      setTextRotation(Number(e.target.value))
+    }
+    className="w-full"
+  />
+
+  <p>{textRotation}°</p>
+</div>
 
 
 
@@ -251,6 +310,81 @@ return (
     ))}
   </div>
 </div>
+
+
+{stickers.map((sticker, index) => (
+  <div key={index}>
+    <Draggable
+      position={{
+        x: sticker.x,
+        y: sticker.y,
+      }}
+      onStop={(e, data) => {
+        const updated = [...stickers];
+
+        updated[index] = {
+          ...updated[index],
+          x: data.x,
+          y: data.y,
+        };
+
+        setStickers(updated);
+      }}
+    >
+      <div
+        className="absolute cursor-move"
+        style={{
+          fontSize: `${sticker.size}px`,
+        }}
+      >
+        {sticker.emoji}
+      </div>
+    </Draggable>
+
+    <input
+      type="range"
+      min="30"
+      max="200"
+      value={sticker.size}
+      onChange={(e) => {
+        const updated = [...stickers];
+
+        updated[index] = {
+          ...updated[index],
+          size: Number(e.target.value),
+        };
+
+        setStickers(updated);
+      }}
+      className="w-full"
+    />
+  </div>
+))}
+
+
+{selectedSticker !== null && (
+  <div className="mb-3">
+    <p>Sticker Size</p>
+
+    <input
+      type="range"
+      min="30"
+      max="200"
+      value={
+        stickers[selectedSticker]?.size || 60
+      }
+      onChange={(e) => {
+        const updated = [...stickers];
+
+        updated[selectedSticker].size =
+          Number(e.target.value);
+
+        setStickers(updated);
+      }}
+      className="w-full"
+    />
+  </div>
+)}
 
 
  <div className="mb-3">
