@@ -36,8 +36,8 @@ x: 50,
 y: 50,
 });
 
-const [textColor, setTextColor] = useState("#ffffff");
-const [textRotation, setTextRotation] = useState(0);
+
+
 const [size, setSize] = useState(60);
 const [textColor, setTextColor] =
   useState("#ffffff");
