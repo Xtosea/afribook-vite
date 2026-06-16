@@ -158,7 +158,7 @@ return (
     className="bg-black/60 text-white p-2 rounded-full"
   >
     Aa
-  /button>
+  </button>
 
 <button
   onClick={() => setActiveTool(null)}
