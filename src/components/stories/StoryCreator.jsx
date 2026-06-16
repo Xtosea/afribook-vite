@@ -128,11 +128,7 @@ return (
 
  
 
-
-
-
-
-   {/* DRAGGABLE PREVIEW AREA */}
+{/* DRAGGABLE PREVIEW AREA */}
 {(preview || stickers.length > 0 || text) && (
   <div
     className="relative mb-3 h-[40vh] rounded-xl overflow-hidden bg-black"
@@ -142,9 +138,8 @@ return (
 
 
 
-<div
-  className="absolute top-3 right-3 flex flex-col gap-2 z-50"
->
+<div className="absolute top-3 right-3 flex flex-col gap-2 z-50">
+
   <button
     onClick={() => fileRef.current?.click()}
     className="bg-black/60 text-white p-2 rounded-full"
@@ -152,86 +147,42 @@ return (
     📷
   </button>
 
-
- <button
-    onClick={() => setShowTextTools(!showTextTools)}
+  <button
+    onClick={() => setActiveTool("text")}
     className="bg-black/60 text-white p-2 rounded-full"
   >
     Aa
   </button>
 
-<button
-  onClick={() => setActiveTool(null)}
-  className="bg-green-600 text-white px-3 py-1 rounded"
->
-  Done
-</button>
-
-
+  <button
+    onClick={() => setActiveTool("sticker")}
+    className="bg-black/60 text-white p-2 rounded-full"
+  >
+    😀
+  </button>
 
   <button
-  key={emoji}
-  className="text-3xl"
-  onClick={() => {
-    setStickers((prev) => [
-      ...prev,
-      {
-        emoji,
-        x: 100,
-        y: 100,
-        size: 60,
-      },
-    ]);
-
-    setActiveTool(null);
-  }}
->
-😀
-  {emoji}
-</button>
-
-<button
-  onClick={() => setActiveTool(null)}
-  className="absolute top-2 right-2 text-white"
->
-  ✕
-</button>
-
-
-
-  <button
-    onClick={() => {
-  setMusic(song);
-  setActiveTool(null);
-}}
- className="bg-black/60 text-white p-2 rounded-full"
+    onClick={() => setActiveTool("music")}
+    className="bg-black/60 text-white p-2 rounded-full"
   >
     🎵
   </button>
+
+  <button
+    onClick={() => setActiveTool("color")}
+    className="bg-black/60 text-white p-2 rounded-full"
+  >
+    🎨
+  </button>
+
+
+<button
+  onClick={() => setActiveTool(null)}
+  className="absolute top-2 right-2 text-white"
+>
+  ✕
+</button>
 </div>
-<button
-  onClick={() => setActiveTool(null)}
-  className="absolute top-2 right-2 text-white"
->
-  ✕
-</button>
-
-
-<button
-  onChange={(e) => {
-  setBackgroundColor(e.target.value);
-  setActiveTool(null);
-}}
-  className="bg-black/60 text-white p-2 rounded-full"
->
-  🎨
-</button>
-<button
-  onClick={() => setActiveTool(null)}
-  className="absolute top-2 right-2 text-white"
->
-  ✕
-</button>
 
 
     {preview &&
@@ -260,7 +211,7 @@ return (
 
 
        {/* TEXT TOOLS */}
-{showTextTools && (
+{activeTool === "text" && (
   <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-3 z-50">
     <input
       type="text"
@@ -305,34 +256,28 @@ return (
 )}
 
 
-<button
-  onClick={() =>
-    setShowColorTools(!showColorTools)
-  }
-  className="bg-black/60 text-white p-2 rounded-full"
->
-  🎨
-</button>
 
 
-{showStickerTools && (
+{activeTool === "sticker" && (
   <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-3 z-50">
     <div className="flex gap-3 flex-wrap">
       {emojiList.map((emoji) => (
         <button
           key={emoji}
           className="text-3xl"
-          onClick={() =>
-            setStickers((prev) => [
-              ...prev,
-              {
-                emoji,
-                x: 100,
-                y: 100,
-                size: 60,
-              },
-            ])
-          }
+          onClick={() => {
+  setStickers((prev) => [
+    ...prev,
+    {
+      emoji,
+      x: 100,
+      y: 100,
+      size: 60,
+    },
+  ]);
+
+  setActiveTool(null);
+}}
         >
           {emoji}
         </button>
@@ -366,7 +311,7 @@ return (
 
 
 
-{showMusicTools && (
+{activeTool === "music" && (
   <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-3 z-50 max-h-60 overflow-y-auto">
     {musicList.map((song) => (
       <div
@@ -403,7 +348,7 @@ return (
 
 
 
-{showColorTools && (
+{activeTool === "color" && (
   <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-3 z-50">
     <input
       type="color"
