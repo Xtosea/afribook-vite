@@ -320,25 +320,24 @@ return (
 </div>
 
 
- <div className="absolute cursor-move"
-        style={{
-          fontSize: `${sticker.size}px`,
-        }}
-      >
-        {sticker.emoji}
-      </div>
-    </Draggable>
+{selectedSticker !== null && (
+  <div className="mb-3">
+    <p className="font-semibold">
+      Sticker Size
+    </p>
 
-   <div <input
+    <input
       type="range"
       min="30"
       max="200"
-      value={sticker.size}
+      value={
+        stickers[selectedSticker]?.size || 60
+      }
       onChange={(e) => {
         const updated = [...stickers];
 
-        updated[index] = {
-          ...updated[index],
+        updated[selectedSticker] = {
+          ...updated[selectedSticker],
           size: Number(e.target.value),
         };
 
@@ -347,7 +346,7 @@ return (
       className="w-full"
     />
   </div>
-))}
+)}
 
 
 {selectedSticker !== null && (
