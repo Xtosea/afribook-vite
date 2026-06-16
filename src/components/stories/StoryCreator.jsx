@@ -126,9 +126,10 @@ return (
    {/* DRAGGABLE PREVIEW AREA */}
 {(preview || stickers.length > 0 || text) && (
   <div
-    className="relative mb-3 h-[300px] rounded-xl overflow-hidden bg-black"
+    className="relative mb-3 h-[70vh] rounded-xl overflow-hidden bg-black"
     style={{ backgroundColor }}
   >
+    {/* Media Preview */}
     {preview &&
       (media?.type?.startsWith("image") ? (
         <img
@@ -152,7 +153,6 @@ return (
         </div>
       ) : null)}
 
-
     {/* Stickers */}
     {stickers.map((sticker, index) => (
       <Draggable
@@ -173,25 +173,26 @@ return (
           setStickers(updated);
         }}
       >
-
         <div
-  onClick={() => setSelectedSticker(index)}
-  className="absolute cursor-move"
-  style={{
-    fontSize: `${sticker.size || 60}px`,
-    border:
-      selectedSticker === index
-        ? "2px solid white"
-        : "none",
-  }}
->
-  {sticker.emoji}
-</div>
-
+          onClick={() =>
+            setSelectedSticker(index)
+          }
+          className="absolute cursor-move select-none"
+          style={{
+            fontSize: `${sticker.size || 60}px`,
+            border:
+              selectedSticker === index
+                ? "2px solid white"
+                : "none",
+            borderRadius: "8px",
+          }}
+        >
+          {sticker.emoji}
+        </div>
       </Draggable>
     ))}
 
-    {/* Text */}
+    {/* Text Overlay */}
     {text && (
       <Draggable
         position={textPosition}
@@ -202,18 +203,36 @@ return (
           })
         }
       >
-        
-<div
-  className="absolute font-bold cursor-move"
-  style={{
-    fontSize: `${size}px`,
-    color: textColor,
-    transform: `rotate(${textRotation}deg)`,
-  }}
->
-  {text}
-</div>
+        <div
+          className="absolute font-bold cursor-move select-none"
+          style={{
+            fontSize: `${size}px`,
+            color: textColor,
+            transform: `rotate(${textRotation}deg)`,
+            textShadow:
+              "0 2px 6px rgba(0,0,0,0.8)",
+          }}
+        >
+          {text}
+        </div>
+      </Draggable>
+    )}
+  </div>
+)}
 
+
+  {/* TEXT INPUT */}
+<input
+  type="text"
+  placeholder="Add text to story..."
+  value={text}
+  onChange={(e) =>
+    setText(e.target.value)
+  }
+  className="w-full p-2 border rounded mb-3"
+/>
+
+{/* TEXT COLOR */}
 <div className="mb-3">
   <p className="font-semibold">
     Text Color
@@ -228,11 +247,7 @@ return (
   />
 </div>
 
-      </Draggable>
-    )}
-  </div>
-)}
-
+{/* TEXT SIZE */}
 <div className="mb-3">
   <p className="font-semibold">
     Text Size
@@ -252,7 +267,7 @@ return (
   <p>{size}px</p>
 </div>
 
-
+{/* TEXT ROTATION */}
 <div className="mb-3">
   <p className="font-semibold">
     Text Rotation
@@ -264,7 +279,9 @@ return (
     max="180"
     value={textRotation}
     onChange={(e) =>
-      setTextRotation(Number(e.target.value))
+      setTextRotation(
+        Number(e.target.value)
+      )
     }
     className="w-full"
   />
@@ -273,16 +290,7 @@ return (
 </div>
 
 
-
-{/* TEXT INPUT */}  
-    <input  
-      type="text"  
-      placeholder="Add text to story..."  
-      value={text}  
-      onChange={(e) => setText(e.target.value)}  
-      className="w-full p-2 border rounded mb-3"  
-    />
-
+   {/* Stickers */}
 <div className="mb-3">
   <p className="font-semibold">
     Stickers
@@ -312,26 +320,7 @@ return (
 </div>
 
 
-{stickers.map((sticker, index) => (
-  <div key={index}>
-    <Draggable
-      position={{
-        x: sticker.x,
-        y: sticker.y,
-      }}
-      onStop={(e, data) => {
-        const updated = [...stickers];
-
-        updated[index] = {
-          ...updated[index],
-          x: data.x,
-          y: data.y,
-        };
-
-        setStickers(updated);
-      }}
-    >
-      <div
+ <div
         className="absolute cursor-move"
         style={{
           fontSize: `${sticker.size}px`,
@@ -364,20 +353,25 @@ return (
 
 {selectedSticker !== null && (
   <div className="mb-3">
-    <p>Sticker Size</p>
+    <p className="font-semibold">
+      Sticker Size
+    </p>
 
     <input
       type="range"
       min="30"
       max="200"
       value={
-        stickers[selectedSticker]?.size || 60
+        stickers[selectedSticker]?.size ||
+        60
       }
       onChange={(e) => {
         const updated = [...stickers];
 
-        updated[selectedSticker].size =
-          Number(e.target.value);
+        updated[selectedSticker] = {
+          ...updated[selectedSticker],
+          size: Number(e.target.value),
+        };
 
         setStickers(updated);
       }}
@@ -402,28 +396,35 @@ return (
 </div> 
 
 
-<div className="mb-3">
+<div className="mb-4">
+  <h3 className="font-semibold mb-2">
+    Music Library
+  </h3>
 
-  <p className="font-semibold mb-2">  
-    Music Library  
-  </p>    <div className="max-h-40 overflow-y-auto border rounded">  
-    {musicList.map((song) => (  
-      <div  
-        key={song._id}  
-        onClick={() => setMusic(song)}  
-        className="  
-          p-2  
-          border-b  
-          cursor-pointer  
-          hover:bg-gray-100  
-        "  
-      >  
-        🎵 {song.title}  
-        {song.artist && ` - ${song.artist}`}  
-      </div>  
-    ))}  
-  </div>  
-</div>  
+  <div className="border rounded max-h-60 overflow-y-auto">
+    {musicList.map((song) => (
+      <div
+        key={song._id}
+        className="p-2 border-b"
+      >
+        <button
+          onClick={() => setMusic(song)}
+          className="font-medium"
+        >
+          🎵 {song.title}
+        </button>
+
+        {song.audioUrl && (
+          <audio
+            controls
+            src={song.audioUrl}
+            className="w-full mt-2"
+          />
+        )}
+      </div>
+    ))}
+  </div>
+</div>
 
 {/* MUSIC INPUT */}  
     <input  
