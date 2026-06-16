@@ -48,6 +48,7 @@ const [selectedSticker, setSelectedSticker] =
 
 
 
+
 // ================= HANDLE FILE =================
 const handleFile = (e) => {
 const file = e.target.files[0];
@@ -204,15 +205,16 @@ return (
         }
       >
         <div
-          className="absolute font-bold cursor-move select-none"
-          style={{
-            fontSize: `${size}px`,
-            color: textColor,
-            transform: `rotate(${textRotation}deg)`,
-            textShadow:
-              "0 2px 6px rgba(0,0,0,0.8)",
-          }}
-        >
+          <div
+  className="font-bold cursor-move select-none"
+  style={{
+    fontSize: `${size}px`,
+    color: textColor,
+    rotate: `${textRotation}deg`,
+    textShadow:
+      "0 2px 6px rgba(0,0,0,0.8)",
+  }}
+>
           {text}
         </div>
       </Draggable>
@@ -349,34 +351,6 @@ return (
 )}
 
 
-{selectedSticker !== null && (
-  <div className="mb-3">
-    <p className="font-semibold">
-      Sticker Size
-    </p>
-
-    <input
-      type="range"
-      min="30"
-      max="200"
-      value={
-        stickers[selectedSticker]?.size ||
-        60
-      }
-      onChange={(e) => {
-        const updated = [...stickers];
-
-        updated[selectedSticker] = {
-          ...updated[selectedSticker],
-          size: Number(e.target.value),
-        };
-
-        setStickers(updated);
-      }}
-      className="w-full"
-    />
-  </div>
-)}
 
 
  <div className="mb-3">
@@ -432,18 +406,41 @@ return (
       className="w-full mb-3"  
     />  
 
-    {music && (
-  <audio
-    controls
-    src={
-      music instanceof File
-        ? URL.createObjectURL(music)
-        : music.audioUrl
-    }
-    className="w-full mb-3"
-  />
-)}
+   {music && (
+  <div className="mb-3">
+    <audio
+      ref={audioRef}
+      src={
+        music instanceof File
+          ? URL.createObjectURL(music)
+          : music.audioUrl
+      }
+    />
 
+    <div className="flex gap-2 mt-2">
+      <button
+        onClick={() =>
+          audioRef.current?.play()
+        }
+        className="px-4 py-2 bg-green-600 text-white rounded"
+      >
+        ▶ Play
+      </button>
+
+      <button
+        onClick={() => {
+          if (audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current.currentTime = 0;
+          }
+        }}
+        className="px-4 py-2 bg-red-600 text-white rounded"
+      >
+        ■ Stop
+      </button>
+    </div>
+  </div>
+)}
 
 {/* MEDIA PICKER BUTTON */}  
     <button  
