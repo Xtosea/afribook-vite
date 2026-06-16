@@ -126,6 +126,38 @@ return (
 
  
 
+<div
+  className="absolute top-3 right-3 flex flex-col gap-2 z-50"
+>
+  <button
+    onClick={() => fileRef.current?.click()}
+    className="bg-black/60 text-white p-2 rounded-full"
+  >
+    📷
+  </button>
+
+  <button
+    onClick={() => setShowTextTools(!showTextTools)}
+    className="bg-black/60 text-white p-2 rounded-full"
+  >
+    Aa
+  </button>
+
+  <button
+    onClick={() => setShowStickerTools(!showStickerTools)}
+    className="bg-black/60 text-white p-2 rounded-full"
+  >
+    😀
+  </button>
+
+  <button
+    onClick={() => setShowMusicTools(!showMusicTools)}
+    className="bg-black/60 text-white p-2 rounded-full"
+  >
+    🎵
+  </button>
+</div>
+
 
    {/* DRAGGABLE PREVIEW AREA */}
 {(preview || stickers.length > 0 || text) && (
