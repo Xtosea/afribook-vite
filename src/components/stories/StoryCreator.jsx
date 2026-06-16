@@ -110,18 +110,17 @@ return (
     max-w-none
     rounded-none
     p-4
-    overflow-y-auto
+    overflow-y-auto "
+>
 
-
-         {/* POST BUTTON */}  
+{/* POST BUTTON */}  
     <button  
       onClick={handlePost}  
       className="w-full bg-black text-white p-3 rounded-xl"  
     >  
       Post Story  
     </button>  
-  "
->
+
 
     {/* HEADER */}  
     <div className="flex justify-between items-center mb-3">  
