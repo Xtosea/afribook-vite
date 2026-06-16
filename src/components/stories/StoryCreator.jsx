@@ -532,7 +532,7 @@ onChange={handleFile}
 </div>
 </div>
 }
-
+</div>
 };
 
 export default StoryCreator;
