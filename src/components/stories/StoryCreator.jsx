@@ -19,6 +19,9 @@ const emojiList = [
 const StoryCreator = ({ onClose, onSelectFile }) => {
 const fileRef = useRef();
 
+const fileRef = useRef();
+const audioRef = useRef();
+
 // ================= STATES =================
 const [media, setMedia] = useState(null);
 const [preview, setPreview] = useState(null);
@@ -175,9 +178,12 @@ return (
         }}
       >
         <div
-          onClick={() =>
-            setSelectedSticker(index)
-          }
+          onMouseDown={() =>
+          setSelectedSticker(index)
+      }
+          onTouchStart={() =>
+          setSelectedSticker(index)
+      }
           className="absolute cursor-move select-none"
           style={{
             fontSize: `${sticker.size || 60}px`,
@@ -195,29 +201,30 @@ return (
 
     {/* Text Overlay */}
     {text && (
-      <Draggable
-        position={textPosition}
-        onStop={(e, data) =>
-          setTextPosition({
-            x: data.x,
-            y: data.y,
-          })
-        }
-      >
-        
-
-<div className="font-bold cursor-move select-none"
-  style={{
-    fontSize: `${size}px`,
-    color: textColor,
-    rotate: `${textRotation}deg`,
-    textShadow:
-      "0 2px 6px rgba(0,0,0,0.8)",
-  }}
+    <Draggable
+  position={textPosition}
+  onStop={(e, data) =>
+    setTextPosition({
+      x: data.x,
+      y: data.y,
+    })
+  }
 >
-          {text}
-        </div>
-      </Draggable>
+  <div>
+    <div
+      className="font-bold select-none"
+      style={{
+        fontSize: `${size}px`,
+        color: textColor,
+        transform: `rotate(${textRotation}deg)`,
+        textShadow:
+          "0 2px 6px rgba(0,0,0,0.8)",
+      }}
+    >
+      {text}
+    </div>
+  </div>
+</Draggable>
     )}
   </div>
 )}
@@ -375,29 +382,37 @@ return (
 
   <div className="border rounded max-h-60 overflow-y-auto">
     {musicList.map((song) => (
-      <div
-        key={song._id}
-        className="p-2 border-b"
-      >
-        <button
-          onClick={() => setMusic(song)}
-          className="font-medium"
-        >
-          🎵 {song.title}
-                   {song.artist && ` - ${song.artist}`}
-        </button>
+  <div
+    key={song._id}
+    className="p-3 border-b"
+  >
+    <div className="font-medium mb-2">
+      🎵 {song.title}
+      {song.artist &&
+        ` - ${song.artist}`}
+    </div>
 
-        {song.audioUrl && (
-          <audio
-            controls
-            src={song.audioUrl}
-            className="w-full mt-2"
-          />
-        )}
-      </div>
-    ))}
+    <div className="flex gap-2">
+      <button
+        onClick={() => setMusic(song)}
+        className="px-3 py-1 bg-blue-600 text-white rounded"
+      >
+        Select
+      </button>
+
+      <button
+        onClick={() => {
+          const audio =
+            new Audio(song.audioUrl);
+          audio.play();
+        }}
+        className="px-3 py-1 bg-green-600 text-white rounded"
+      >
+        ▶ Play
+      </button>
+    </div>
   </div>
-</div>
+))}
 
 {/* MUSIC INPUT */}  
     <input  
@@ -408,7 +423,11 @@ return (
     />  
 
    {music && (
-  <div className="mb-3">
+  <div className="mb-4 border rounded p-3">
+    <p className="font-semibold mb-2">
+      Selected Music
+    </p>
+
     <audio
       ref={audioRef}
       src={
@@ -418,7 +437,7 @@ return (
       }
     />
 
-    <div className="flex gap-2 mt-2">
+    <div className="flex gap-2">
       <button
         onClick={() =>
           audioRef.current?.play()
@@ -426,6 +445,15 @@ return (
         className="px-4 py-2 bg-green-600 text-white rounded"
       >
         ▶ Play
+      </button>
+
+      <button
+        onClick={() =>
+          audioRef.current?.pause()
+        }
+        className="px-4 py-2 bg-yellow-600 text-white rounded"
+      >
+        ⏸ Pause
       </button>
 
       <button
