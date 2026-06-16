@@ -81,7 +81,7 @@ useEffect(() => {
 }, []);
 
 
-const [size, setSize] = useState(60);
+
 
 // ================= UI =================
 return (
@@ -212,14 +212,7 @@ return (
   <p>{size}px</p>
 </div>
 
-<div
-  className="absolute cursor-move"
-  style={{
-    fontSize: `${sticker.size}px`,
-  }}
->
-  {sticker.emoji}
-</div>
+
 
 
 {/* TEXT INPUT */}  
