@@ -126,7 +126,7 @@ return (
    {/* DRAGGABLE PREVIEW AREA */}
 {(preview || stickers.length > 0 || text) && (
   <div
-    className="relative mb-3 h-[70vh] rounded-xl overflow-hidden bg-black"
+    className="relative mb-3 h-[40vh] rounded-xl overflow-hidden bg-black"
     style={{ backgroundColor }}
   >
     {/* Media Preview */}
