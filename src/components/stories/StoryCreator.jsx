@@ -49,16 +49,7 @@ const [textRotation, setTextRotation] =
 const [selectedSticker, setSelectedSticker] =
   useState(null);
 
-const [showTextTools, setShowTextTools] =
-  useState(false);
-
-const [showStickerTools, setShowStickerTools] =
-  useState(false);
-
-const [showMusicTools, setShowMusicTools] =
-  useState(false);
-const [showColorTools, setShowColorTools] =
-  useState(false);
+const [activeTool, setActiveTool] = useState(null);
 
 
 
@@ -161,27 +152,86 @@ return (
     📷
   </button>
 
-  <button
+
+ <button
     onClick={() => setShowTextTools(!showTextTools)}
     className="bg-black/60 text-white p-2 rounded-full"
   >
     Aa
-  </button>
+  /button>
+
+<button
+  onClick={() => setActiveTool(null)}
+  className="bg-green-600 text-white px-3 py-1 rounded"
+>
+  Done
+</button>
+
+
 
   <button
-    onClick={() => setShowStickerTools(!showStickerTools)}
-    className="bg-black/60 text-white p-2 rounded-full"
-  >
-    😀
-  </button>
+  key={emoji}
+  className="text-3xl"
+  onClick={() => {
+    setStickers((prev) => [
+      ...prev,
+      {
+        emoji,
+        x: 100,
+        y: 100,
+        size: 60,
+      },
+    ]);
+
+    setActiveTool(null);
+  }}
+>
+😀
+  {emoji}
+</button>
+
+<button
+  onClick={() => setActiveTool(null)}
+  className="absolute top-2 right-2 text-white"
+>
+  ✕
+</button>
+
+
 
   <button
-    onClick={() => setShowMusicTools(!showMusicTools)}
-    className="bg-black/60 text-white p-2 rounded-full"
+    onClick={() => {
+  setMusic(song);
+  setActiveTool(null);
+}}
+ className="bg-black/60 text-white p-2 rounded-full"
   >
     🎵
   </button>
 </div>
+<button
+  onClick={() => setActiveTool(null)}
+  className="absolute top-2 right-2 text-white"
+>
+  ✕
+</button>
+
+
+<button
+  onChange={(e) => {
+  setBackgroundColor(e.target.value);
+  setActiveTool(null);
+}}
+  className="bg-black/60 text-white p-2 rounded-full"
+>
+  🎨
+</button>
+<button
+  onClick={() => setActiveTool(null)}
+  className="absolute top-2 right-2 text-white"
+>
+  ✕
+</button>
 
 
     {preview &&
