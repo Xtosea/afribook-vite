@@ -700,7 +700,7 @@ return (
 {/* MEDIA PICKER BUTTON */}  
     <button  
       onClick={() => fileRef.current?.click()}  
-      className="sticky bottom-0 w-50 left-1/2 bg-blue-600 text-white p-3 rounded-xl mb-3"  
+      className="sticky bottom-0 w-50  ml-10 bg-blue-600 text-white p-3 rounded-xl mb-3"  
     >  
       📷 Add Photo / Video  
     </button>  
