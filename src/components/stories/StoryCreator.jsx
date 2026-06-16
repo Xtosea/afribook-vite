@@ -384,6 +384,7 @@ return (
           className="font-medium"
         >
           🎵 {song.title}
+                   {song.artist && ` - ${song.artist}`}
         </button>
 
         {song.audioUrl && (
