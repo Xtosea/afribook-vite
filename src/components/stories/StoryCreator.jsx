@@ -57,6 +57,8 @@ const [showStickerTools, setShowStickerTools] =
 
 const [showMusicTools, setShowMusicTools] =
   useState(false);
+const [showColorTools, setShowColorTools] =
+  useState(false);
 
 
 
@@ -167,6 +169,15 @@ return (
   </button>
 </div>
 
+<button
+  onClick={() =>
+    setShowColorTools(!showColorTools)
+  }
+  className="bg-black/60 text-white p-2 rounded-full"
+>
+  🎨
+</button>
+
 
    {/* DRAGGABLE PREVIEW AREA */}
 {(preview || stickers.length > 0 || text) && (
@@ -197,6 +208,167 @@ return (
           />
         </div>
       ) : null)}
+
+
+
+       {/* TEXT TOOLS */}
+{showTextTools && (
+  <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-3 z-50">
+    <input
+      type="text"
+      placeholder="Add text..."
+      value={text}
+      onChange={(e) => setText(e.target.value)}
+      className="w-full p-2 rounded mb-2"
+    />
+
+    <input
+      type="color"
+      value={textColor}
+      onChange={(e) =>
+        setTextColor(e.target.value)
+      }
+    />
+
+    <input
+      type="range"
+      min="20"
+      max="120"
+      value={size}
+      onChange={(e) =>
+        setSize(Number(e.target.value))
+      }
+      className="w-full"
+    />
+
+    <input
+      type="range"
+      min="-180"
+      max="180"
+      value={textRotation}
+      onChange={(e) =>
+        setTextRotation(
+          Number(e.target.value)
+        )
+      }
+      className="w-full"
+    />
+  </div>
+)}
+
+
+
+{showStickerTools && (
+  <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-3 z-50">
+    <div className="flex gap-3 flex-wrap">
+      {emojiList.map((emoji) => (
+        <button
+          key={emoji}
+          className="text-3xl"
+          onClick={() =>
+            setStickers((prev) => [
+              ...prev,
+              {
+                emoji,
+                x: 100,
+                y: 100,
+                size: 60,
+              },
+            ])
+          }
+        >
+          {emoji}
+        </button>
+      ))}
+    </div>
+
+    {selectedSticker !== null && (
+      <input
+        type="range"
+        min="30"
+        max="200"
+        value={
+          stickers[selectedSticker]?.size ||
+          60
+        }
+        onChange={(e) => {
+          const updated = [...stickers];
+
+          updated[selectedSticker] = {
+            ...updated[selectedSticker],
+            size: Number(e.target.value),
+          };
+
+          setStickers(updated);
+        }}
+        className="w-full mt-3"
+      />
+    )}
+  </div>
+)}
+
+
+
+{showMusicTools && (
+  <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-3 z-50 max-h-60 overflow-y-auto">
+    {musicList.map((song) => (
+      <div
+        key={song._id}
+        className="flex justify-between items-center border-b border-white/20 py-2"
+      >
+        <span className="text-white">
+          {song.title}
+        </span>
+
+        <div className="flex gap-2">
+          <button
+            onClick={() => setMusic(song)}
+            className="bg-blue-600 text-white px-2 py-1 rounded"
+          >
+            Select
+          </button>
+
+          <button
+            onClick={() => {
+              audioRef.current.src =
+                song.audioUrl;
+              audioRef.current.play();
+            }}
+            className="bg-green-600 text-white px-2 py-1 rounded"
+          >
+            ▶
+          </button>
+        </div>
+      </div>
+    ))}
+  </div>
+)}
+
+
+
+{showColorTools && (
+  <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-3 z-50">
+    <input
+      type="color"
+      value={backgroundColor}
+      onChange={(e) =>
+        setBackgroundColor(e.target.value)
+      }
+    />
+  </div>
+)}
+
+
+{music && (
+  <div className="absolute top-3 left-3 bg-black/70 text-white px-3 py-1 rounded-full z-40">
+    🎵 {music.title || "Custom Music"}
+  </div>
+)}
+
+
+
+
+
 
     {/* Stickers */}
     {stickers.map((sticker, index) => (
