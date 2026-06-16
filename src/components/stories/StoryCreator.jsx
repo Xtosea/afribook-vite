@@ -206,7 +206,7 @@ return (
       >
         
 
-<divclassName="font-bold cursor-move select-none"
+<div className="font-bold cursor-move select-none"
   style={{
     fontSize: `${size}px`,
     color: textColor,
