@@ -531,7 +531,7 @@ onChange={handleFile}
 />
 </div>
 </div>
-}}
+}
 );
 };
 
