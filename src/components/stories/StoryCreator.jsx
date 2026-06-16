@@ -320,8 +320,7 @@ return (
 </div>
 
 
- <div
-        className="absolute cursor-move"
+ <div className="absolute cursor-move"
         style={{
           fontSize: `${sticker.size}px`,
         }}
@@ -330,7 +329,7 @@ return (
       </div>
     </Draggable>
 
-    <input
+   <div <input
       type="range"
       min="30"
       max="200"
