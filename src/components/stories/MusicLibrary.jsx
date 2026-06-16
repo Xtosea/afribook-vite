@@ -5,14 +5,27 @@ const MusicLibrary = ({
   onSelect,
 }) => {
   return (
-    <div>
+    <div className="space-y-3">
       {songs.map((song) => (
-        <button
+        <div
           key={song._id}
-          onClick={() => onSelect(song)}
+          className="border rounded p-2"
         >
-          🎵 {song.title}
-        </button>
+          <button
+            onClick={() => onSelect(song)}
+            className="font-medium"
+          >
+            🎵 {song.title}
+          </button>
+
+          {song.audioUrl && (
+            <audio
+              controls
+              src={song.audioUrl}
+              className="w-full mt-2"
+            />
+          )}
+        </div>
       ))}
     </div>
   );
