@@ -111,6 +111,15 @@ return (
     rounded-none
     p-4
     overflow-y-auto
+
+
+         {/* POST BUTTON */}  
+    <button  
+      onClick={handlePost}  
+      className="w-full bg-black text-white p-3 rounded-xl"  
+    >  
+      Post Story  
+    </button>  
   "
 >
 
@@ -697,13 +706,7 @@ return (
       📷 Add Photo / Video  
     </button>  
 
-    {/* POST BUTTON */}  
-    <button  
-      onClick={handlePost}  
-      className="w-full bg-black text-white p-3 rounded-xl"  
-    >  
-      Post Story  
-    </button>  
+    
 
     {/* HIDDEN FILE INPUT */}  
 
