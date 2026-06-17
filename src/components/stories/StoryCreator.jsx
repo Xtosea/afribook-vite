@@ -554,6 +554,100 @@ return (
 )}
 
 
+{activeTool === "ai" && (
+  <div
+    className="
+      absolute
+      bottom-0
+      left-0
+      right-0
+      bg-black/90
+      p-3
+      z-50
+    "
+  >
+    <div className="grid grid-cols-2 gap-2">
+
+      <button
+        onClick={() => applyAI("enhance")}
+        className="bg-blue-600 text-white p-2 rounded"
+      >
+        ✨ Enhance
+      </button>
+
+      <button
+        onClick={() => applyAI("beauty")}
+        className="bg-pink-600 text-white p-2 rounded"
+      >
+        💄 Beauty
+      </button>
+
+      <button
+        onClick={() => applyAI("queen")}
+        className="bg-purple-600 text-white p-2 rounded"
+      >
+        👑 Queen
+      </button>
+
+      <button
+        onClick={() => applyAI("ceo")}
+        className="bg-gray-700 text-white p-2 rounded"
+      >
+        💼 CEO
+      </button>
+
+      <button
+        onClick={() => applyAI("gamer")}
+        className="bg-green-600 text-white p-2 rounded"
+      >
+        🎮 Gamer
+      </button>
+
+      <button
+        onClick={() => applyAI("afroglow")}
+        className="bg-orange-600 text-white p-2 rounded"
+      >
+        🌍 Afro Glow
+      </button>
+
+      <button
+        onClick={() => applyAI("naijavibes")}
+        className="bg-red-600 text-white p-2 rounded"
+      >
+        🔥 Naija Vibes
+      </button>
+
+      <button
+        onClick={() => applyAI("festival")}
+        className="bg-yellow-600 text-white p-2 rounded"
+      >
+        ✨ Festival
+      </button>
+
+      <button
+        onClick={() => applyAI("studio")}
+        className="bg-slate-600 text-white p-2 rounded"
+      >
+        📸 Studio Portrait
+      </button>
+
+      <button
+        onClick={() => applyAI("goldenhour")}
+        className="bg-amber-600 text-white p-2 rounded"
+      >
+        🌅 Golden Hour
+      </button>
+
+    </div>
+
+    {aiLoading && (
+      <div className="text-center text-white mt-3">
+        Processing...
+      </div>
+    )}
+  </div>
+)}
+
 
     {/* Stickers */}
     {stickers.map((sticker, index) => (
