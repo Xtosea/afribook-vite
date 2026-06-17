@@ -8,7 +8,7 @@ import { API_BASE } from "../../api/api";
 import Draggable from "react-draggable";
 import {
   useAIEffects,
-} from "../../hooks/useAIEnhance";
+} from "../../hooks/useAIEffects";
 
 
 const emojiList = [
