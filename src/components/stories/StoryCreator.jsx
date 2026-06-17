@@ -10,7 +10,7 @@ import {
   useAIEffects,
 } from "../../hooks/useAIEffects";
 import {
-  useCloudinaryStory,
+  useCloudinaryStoryUpload,
 } from "../../hooks/useCloudinaryStory";
 
 
@@ -32,7 +32,7 @@ const audioRef = useRef();
 
 const {
   uploadStoryMedia,
-} = useCloudinaryStory();
+} = useCloudinaryStoryUpload();
 
 // ================= STATES =================
 const [media, setMedia] = useState(null);
