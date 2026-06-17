@@ -858,7 +858,7 @@ className="hidden"
 accept="video/*,image/*,audio/*"
 onChange={handleFile}
 />
-
+</div>
 </div>
 </div>
 );
