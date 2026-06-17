@@ -10,9 +10,8 @@ import {
   useAIEffects,
 } from "../../hooks/useAIEffects";
 import {
-  useCloudinaryStoryUpload,
-} from "../../hooks/useCloudinaryStory";
-
+  import { uploadToCloudinary }
+from "../../utils/uploadToCloudinary";
 
 const emojiList = [
 "🔥",
@@ -87,12 +86,30 @@ const handleFile = async (e) => {
 
     if (file.type.startsWith("image/")) {
 
-      const url = await uploadStoryMedia(file);
+  try {
 
-      if (url) {
-        setCloudinaryUrl(url);
-        setPreview(url);
-      }
+    const url =
+      await uploadToCloudinary(file);
+
+
+    setCloudinaryUrl(url);
+
+    setPreview(url);
+
+
+  } catch(err) {
+
+    console.error(
+      "Cloudinary upload failed",
+      err
+    );
+
+    alert(
+      "Image upload failed"
+    );
+  }
+
+}
 
     } else {
 
