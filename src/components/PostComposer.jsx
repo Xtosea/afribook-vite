@@ -145,6 +145,9 @@ const [backgroundColor, setBackgroundColor] =
   useState("#000000");
 const [activeTool, setActiveTool] =
   useState(null);
+const [music, setMusic] = useState(null);
+const [musicList, setMusicList] = useState([]);
+
 
 // =========================
 // TAG FRIENDS
@@ -164,9 +167,15 @@ setTaggedFriends(
 };
 
 // =========================
-// AI ENHANCE
+// POSTEDITOR USE EFFECTS 
 // =========================
 
+useEffect(() => {
+  fetch(`${API_BASE}/api/story-music`)
+    .then((res) => res.json())
+    .then(setMusicList)
+    .catch(console.error);
+}, []);
 
 
 // =========================
@@ -643,16 +652,25 @@ rounded-full
 {/* POSTEDITOR */}
 
 <PostEditor
-  preview={...}
+  preview={
+    mediaFiles[0]
+      ? URL.createObjectURL(mediaFiles[0])
+      : null
+  }
   media={mediaFiles[0]}
   text={newPost}
 
-  music={music}
-  setMusic={setMusic}
+  textPosition={textPosition}
+  setTextPosition={setTextPosition}
 
-  musicList={musicList}
-  activeTool={activeTool}
-  setActiveTool={setActiveTool}
+  textColor={textColor}
+  setTextColor={setTextColor}
+
+  textRotation={textRotation}
+  setTextRotation={setTextRotation}
+
+  size={size}
+  setSize={setSize}
 
   stickers={stickers}
   setStickers={setStickers}
@@ -660,13 +678,16 @@ rounded-full
   selectedSticker={selectedSticker}
   setSelectedSticker={setSelectedSticker}
 
-  textPosition={textPosition}
-  setTextPosition={setTextPosition}
-
-  textRotation={textRotation}
-  size={size}
-
   backgroundColor={backgroundColor}
+  setBackgroundColor={setBackgroundColor}
+
+  music={music}
+  setMusic={setMusic}
+
+  musicList={musicList}
+
+  activeTool={activeTool}
+  setActiveTool={setActiveTool}
 />
 
 
