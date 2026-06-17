@@ -691,62 +691,7 @@ rounded-full
 />
 
 
-<div className="border rounded-xl p-4 space-y-4">
 
-  <h3 className="font-bold">
-    Editor Tools
-  </h3>
-
-  {/* TEXT SIZE */}
-  <div>
-    <p>Text Size</p>
-
-    <input
-      type="range"
-      min="20"
-      max="120"
-      value={size}
-      onChange={(e) =>
-        setSize(Number(e.target.value))
-      }
-      className="w-full"
-    />
-  </div>
-
-  {/* TEXT ROTATION */}
-  <div>
-    <p>Text Rotation</p>
-
-    <input
-      type="range"
-      min="-180"
-      max="180"
-      value={textRotation}
-      onChange={(e) =>
-        setTextRotation(
-          Number(e.target.value)
-        )
-      }
-      className="w-full"
-    />
-  </div>
-
-  {/* BACKGROUND */}
-  <div>
-    <p>Background Color</p>
-
-    <input
-      type="color"
-      value={backgroundColor}
-      onChange={(e) =>
-        setBackgroundColor(
-          e.target.value
-        )
-      }
-    />
-  </div>
-
-</div>
 
 
 
