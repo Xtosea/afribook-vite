@@ -660,6 +660,9 @@ rounded-full
   selectedSticker={selectedSticker}
   setSelectedSticker={setSelectedSticker}
   backgroundColor={backgroundColor}
+
+  activeTool={activeTool}
+  setActiveTool={setActiveTool}
 />
 
 
