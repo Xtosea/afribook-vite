@@ -16,7 +16,7 @@ import { useR2Upload } from "../hooks/useR2Upload";
 import validateVideoDuration from "../utils/validateVideoDuration";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import PostEditor from "../editor/PostEditor";
+import PostEditor from "../../editor/PostEditor";
 
 
 
