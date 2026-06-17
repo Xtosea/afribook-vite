@@ -16,6 +16,8 @@ import { useR2Upload } from "../hooks/useR2Upload";
 import validateVideoDuration from "../utils/validateVideoDuration";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import PostEditor from "../editor/PostEditor";
+
 
 
 const PostComposer = () => {
@@ -112,6 +114,24 @@ useR2Upload();
 // =========================
 // AI ENHANCE
 // =========================
+const [stickers, setStickers] = useState([]);
+
+const [selectedSticker, setSelectedSticker] =
+  useState(null);
+
+const [textPosition, setTextPosition] =
+  useState({
+    x: 50,
+    y: 50,
+  });
+
+const [textRotation, setTextRotation] =
+  useState(0);
+
+const [size, setSize] = useState(60);
+
+const [backgroundColor, setBackgroundColor] =
+  useState("#000000");
 
 
 // =========================
@@ -197,16 +217,26 @@ const res = await fetch(`${API_BASE}/api/posts`, {
     Authorization: `Bearer ${token}`,  
     "Content-Type": "application/json",  
   },  
-  body: JSON.stringify({  
-    content: newPost,  
-    media: uploadedMedia,  
-    location,  
-    feeling,  
-    taggedFriends,  
-    textColor,  
-    backgroundStyle,  
-    fontStyle,  
-  }),  
+  body: JSON.stringify({
+  content: newPost,
+  media: uploadedMedia,
+
+  editor: {
+    textPosition,
+    textRotation,
+    textSize: size,
+    textColor,
+    backgroundColor,
+    stickers,
+  },
+
+  location,
+  feeling,
+  taggedFriends,
+  textColor,
+  backgroundStyle,
+  fontStyle,
+}),
 });  
 
 const data = await res.json();  
@@ -597,6 +627,29 @@ rounded-full
           className="w-full border p-2 rounded-lg"  
         />  
       )}  
+
+{/* POSTEDITOR */}
+
+<PostEditor
+  preview={
+    mediaFiles[0]
+      ? URL.createObjectURL(mediaFiles[0])
+      : null
+  }
+  media={mediaFiles[0]}
+  text={newPost}
+  textPosition={textPosition}
+  setTextPosition={setTextPosition}
+  textColor={textColor}
+  textRotation={textRotation}
+  size={size}
+  stickers={stickers}
+  setStickers={setStickers}
+  selectedSticker={selectedSticker}
+  setSelectedSticker={setSelectedSticker}
+  backgroundColor={backgroundColor}
+/>
+
 
       {/* MEDIA */}  
 
