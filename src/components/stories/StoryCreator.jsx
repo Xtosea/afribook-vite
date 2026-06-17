@@ -283,26 +283,27 @@ return (
 
 {activeTool === "sticker" && (
   <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-3 z-50">
+
     <div className="flex gap-3 flex-wrap">
       {emojiList.map((emoji) => (
         <button
           key={emoji}
           className="text-3xl"
           onClick={() => {
-  const newSticker = {
-    emoji,
-    x: 100,
-    y: 100,
-    size: 60,
-  };
+            const newSticker = {
+              emoji,
+              x: 100,
+              y: 100,
+              size: 60,
+            };
 
-  setStickers((prev) => [
-    ...prev,
-    newSticker,
-  ]);
+            setStickers((prev) => [
+              ...prev,
+              newSticker,
+            ]);
 
-  setSelectedSticker(stickers.length);
-}}
+            setSelectedSticker(stickers.length);
+          }}
         >
           {emoji}
         </button>
@@ -310,44 +311,40 @@ return (
     </div>
 
     {selectedSticker !== null && (
-  <div className="mt-4">
-    <p className="text-white mb-2">
-      Sticker Size
-    </p>
+      <div className="mt-4">
+        <p className="text-white mb-2">
+          Sticker Size
+        </p>
 
-    <input
-      type="range"
-      min="30"
-      max="200"
-      value={
-        stickers[selectedSticker]?.size || 60
-      }
-      onChange={(e) => {
-        const updated = [...stickers];
+        <input
+          type="range"
+          min="30"
+          max="200"
+          value={
+            stickers[selectedSticker]?.size || 60
+          }
+          onChange={(e) => {
+            const updated = [...stickers];
 
-        updated[selectedSticker] = {
-          ...updated[selectedSticker],
-          size: Number(e.target.value),
-        };
+            updated[selectedSticker] = {
+              ...updated[selectedSticker],
+              size: Number(e.target.value),
+            };
 
-        setStickers(updated);
-      }}
-      className="w-full"
-    />
+            setStickers(updated);
+          }}
+          className="w-full"
+        />
 
-    <button
-      onClick={() => setActiveTool(null)}
-      className="
-        mt-3
-        bg-green-600
-        text-white
-        px-3
-        py-2
-        rounded
-      "
-    >
-      Done
-    </button>
+        <button
+          onClick={() => setActiveTool(null)}
+          className="mt-3 bg-green-600 text-white px-3 py-2 rounded"
+        >
+          Done
+        </button>
+      </div>
+    )}
+
   </div>
 )}
 
