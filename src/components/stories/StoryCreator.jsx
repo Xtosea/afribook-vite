@@ -77,42 +77,47 @@ const [cloudinaryUrl, setCloudinaryUrl] = useState(null);
 
 // ================= HANDLE FILE =================
 const handleFile = async (e) => {
-
   const file = e.target.files[0];
 
   if (!file) return;
 
-
   setMedia(file);
 
+  try {
 
-  // IMAGE → CLOUDINARY
-  if (file.type.startsWith("image/")) {
+    if (file.type.startsWith("image/")) {
 
-    const url =
-      await uploadStoryMedia(file);
+      const url = await uploadStoryMedia(file);
 
+      if (url) {
+        setCloudinaryUrl(url);
+        setPreview(url);
+      }
 
-    if (url) {
+    } else {
 
-      setCloudinaryUrl(url);
+      setCloudinaryUrl(null);
 
-      setPreview(url);
+      setPreview(
+        URL.createObjectURL(file)
+      );
 
     }
 
-  } 
-  // VIDEO/AUDIO → LOCAL PREVIEW
-  else {
+  } catch (error) {
+    console.error("IMAGE UPLOAD FAILED:", error);
 
+    setPreview(null);
     setCloudinaryUrl(null);
 
-    setPreview(
-      URL.createObjectURL(file)
+    alert(
+      "Image upload failed. Check backend console."
     );
-
   }
 
+
+  // allow selecting same image again
+  e.target.value = "";
 };
 
 // ================= POST STORY =================
