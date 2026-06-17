@@ -70,30 +70,49 @@ const {
 const [aiLoading,
 setAiLoading] =
 useState(false);
-if (cloudinaryUrl) {
-  setPreview(cloudinaryUrl);
-}
+
+const [cloudinaryUrl, setCloudinaryUrl] = useState(null);
 
 
 
 // ================= HANDLE FILE =================
 const handleFile = async (e) => {
+
   const file = e.target.files[0];
+
   if (!file) return;
+
 
   setMedia(file);
 
-  if (file.type.startsWith("image")) {
-    const cloudinaryUrl =
+
+  // IMAGE → CLOUDINARY
+  if (file.type.startsWith("image/")) {
+
+    const url =
       await uploadStoryMedia(file);
 
-    if (cloudinaryUrl) {
-  setPreview(cloudinaryUrl);
-  setCloudinaryUrl(cloudinaryUrl);
-}
-  } else {
-    setPreview(URL.createObjectURL(file));
+
+    if (url) {
+
+      setCloudinaryUrl(url);
+
+      setPreview(url);
+
+    }
+
+  } 
+  // VIDEO/AUDIO → LOCAL PREVIEW
+  else {
+
+    setCloudinaryUrl(null);
+
+    setPreview(
+      URL.createObjectURL(file)
+    );
+
   }
+
 };
 
 // ================= POST STORY =================
@@ -496,68 +515,7 @@ return (
 )}
 
 
-{activeTool === "ai" && (
-  <div
-    className="
-      absolute
-      bottom-0
-      left-0
-      right-0
-      bg-black/90
-      p-3
-      z-50
-    "
-  >
-    <div className="grid grid-cols-2 gap-2">
 
-      <button
-        onClick={() =>
-          applyAI("enhance")
-        }
-        className="bg-blue-600 text-white p-2 rounded"
-      >
-        ✨ Enhance
-      </button>
-
-      <button
-        onClick={() =>
-          applyAI("beauty")
-        }
-        className="bg-pink-600 text-white p-2 rounded"
-      >
-        💄 Beauty
-      </button>
-
-      <button
-        onClick={() =>
-          applyAI("queen")
-        }
-        className="bg-purple-600 text-white p-2 rounded"
-      >
-        👑 Queen
-      </button>
-
-      <button
-        onClick={() =>
-          applyAI("ceo")
-        }
-        className="bg-gray-700 text-white p-2 rounded"
-      >
-        💼 CEO
-      </button>
-
-      <button
-        onClick={() =>
-          applyAI("gamer")
-        }
-        className="bg-green-600 text-white p-2 rounded"
-      >
-        🎮 Gamer
-      </button>
-
-    </div>
-  </div>
-)}
 
 
 {activeTool === "ai" && (
