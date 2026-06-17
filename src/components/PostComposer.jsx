@@ -16,6 +16,7 @@ import { useR2Upload } from "../hooks/useR2Upload";
 import validateVideoDuration from "../utils/validateVideoDuration";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useAIEnhance } from "../hooks/useAIEnhance";
 
 const PostComposer = () => {
 
@@ -111,7 +112,8 @@ useR2Upload();
 // =========================
 // AI ENHANCE
 // =========================
-
+const { enhanceImage } =
+    useAIEnhance();
 
 // =========================
 // TAG FRIENDS
@@ -134,7 +136,81 @@ setTaggedFriends(
 // AI ENHANCE
 // =========================
 
+const handleEnhance = async () => {
 
+    try {
+
+      // find first image
+      const image = mediaFiles.find(
+        (f) =>
+          f.type &&
+          f.type.startsWith("image")
+      );
+
+      if (!image) {
+
+        alert(
+          "Please upload an image first"
+        );
+
+        return;
+      }
+
+      setLoading(true);
+
+      let imageUrl = image.url;
+
+      // if not uploaded yet → upload first
+      if (!imageUrl && image instanceof File) {
+
+        imageUrl =
+          await uploadImage(image);
+      }
+
+      if (!imageUrl) {
+
+        alert(
+          "Image upload failed"
+        );
+
+        return;
+      }
+
+      // send URL to AI
+      const enhancedUrl =
+        await enhanceImage(imageUrl);
+
+      // replace image
+      setMediaFiles((prev) => [
+
+        ...prev.filter(
+          (f) => f !== image
+        ),
+
+        {
+          url: enhancedUrl,
+          type: "image",
+          enhanced: true,
+        },
+      ]);
+
+      alert("Image enhanced!");
+
+    } catch (err) {
+
+      console.error(err);
+
+      alert(
+        err.message ||
+        "Enhance failed"
+      );
+
+    } finally {
+
+      setLoading(false);
+
+    }
+  };
 
 // =========================
 // SUBMIT POST
@@ -153,7 +229,14 @@ setPosting(true);
 
 try {
 const uploadedMedia = [];
-
+for (let file of mediaFiles) {
+      if (file.enhanced && file.url) {
+        uploadedMedia.push({
+          url: file.url,
+          type: "image",
+        });
+        continue;
+      }
 
 
   const type = file.type?.startsWith("image") ? "image" : "video";  
