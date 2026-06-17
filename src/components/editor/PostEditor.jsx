@@ -16,7 +16,11 @@ const PostEditor = ({
   setSelectedSticker,
   backgroundColor,
   music,
+
+  activeTool,
+  setActiveTool,
 }) => {
+
   return (
     <div
       className="
