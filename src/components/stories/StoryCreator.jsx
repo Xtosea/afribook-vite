@@ -223,9 +223,9 @@ return (
 
 <button
   onClick={() => setActiveTool(null)}
-  className="absolute top-2 right-8 text-white"
+  className="absolute top-2 right-100 text-Red"
 >
-  ✕
+  ❌
 </button>
 </div>
 
@@ -856,11 +856,12 @@ return (
 )}
 
 
-{/* MEDIA PICKER BUTTON */}  
+{/* MEDIA PICKER BUTTON */} 
+<div className="flex justify-end">
     <button  
       onClick={() => fileRef.current?.click()}  
       className="sticky bottom-0 w-50  ml-10 bg-blue-600 text-white p-3 rounded-xl mb-3"  
-    >  
+</div>  
       📷 Add Photo / Video  
     </button>  
 
