@@ -151,12 +151,14 @@ return (
 >
 
 {/* POST BUTTON */}  
-    <button
-  onClick={handlePost}
-  className="fixed top-4 right-4 bg-black text-white px-6 py-3 rounded-xl shadow-lg z-50"
->
-  Post Story
-</button>
+    <div className="sticky top-0 bg-white z-50 p-3">
+  <button
+    onClick={handlePost}
+    className="w-full bg-black text-white p-3 rounded-xl"
+  >
+    Post Story
+  </button>
+</div>
 
 
     {/* HEADER */}  
@@ -860,7 +862,7 @@ return (
 
     <button  
       onClick={() => fileRef.current?.click()}  
-      className="sticky bottom-0 w-50 left-15 bg-blue-600 text-white p-3 rounded-xl mb-3">  
+      className="sticky bottom-0 w-50 right-15 bg-blue-600 text-white p-3 rounded-xl mb-3">  
   
       📷 Add Photo / Video  
     </button>  
