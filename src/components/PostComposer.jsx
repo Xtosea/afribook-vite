@@ -154,14 +154,7 @@ setPosting(true);
 try {
 const uploadedMedia = [];
 
-for (let file of mediaFiles) {  
-  if (file.enhanced && file.url) {  
-    uploadedMedia.push({  
-      url: file.url,  
-      type: "image",  
-    });  
-    continue;  
-  }  
+
 
   const type = file.type?.startsWith("image") ? "image" : "video";  
 
