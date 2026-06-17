@@ -860,7 +860,7 @@ return (
 <div className="flex justify-end">
     <button  
       onClick={() => fileRef.current?.click()}  
-      className="sticky bottom-0 w-50  bg-blue-600 text-white p-3 rounded-xl mb-3"  
+      className="sticky bottom-0 w-50  bg-blue-600 text-white p-3 rounded-xl mb-3">  
   
       📷 Add Photo / Video  
     </button>  
