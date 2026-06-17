@@ -724,7 +724,7 @@ return (
 </Draggable>
     )}
   </div>
-)}
+
 
 
   {/* TEXT INPUT */}
