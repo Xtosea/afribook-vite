@@ -101,7 +101,7 @@ const handleFile = async (e) => {
   e.target.value = "";
 };
 
-// ================= aPPLYAI =================
+// ================= APPLY AI =================
 const applyAI = (effect) => {
   if (!cloudinaryUrl) {
     alert("Please select an image first");
@@ -112,43 +112,73 @@ const applyAI = (effect) => {
 
   switch (effect) {
     case "enhance":
-      ...
+      newUrl = cloudinaryUrl.replace(
+        "/upload/",
+        "/upload/e_enhance/"
+      );
       break;
 
     case "beauty":
-      ...
+      newUrl = cloudinaryUrl.replace(
+        "/upload/",
+        "/upload/e_improve/"
+      );
       break;
 
     case "queen":
-      ...
+      newUrl = cloudinaryUrl.replace(
+        "/upload/",
+        "/upload/e_improve/co_rgb:1f0933/"
+      );
       break;
 
     case "ceo":
-      ...
+      newUrl = cloudinaryUrl.replace(
+        "/upload/",
+        "/upload/e_sharpen,e_improve/"
+      );
       break;
 
     case "gamer":
-      ...
+      newUrl = cloudinaryUrl.replace(
+        "/upload/",
+        "/upload/e_vibrance:80,e_sharpen/"
+      );
       break;
 
     case "afroglow":
-      ...
+      newUrl = cloudinaryUrl.replace(
+        "/upload/",
+        "/upload/e_vibrance:50,e_improve/"
+      );
       break;
 
     case "naijavibes":
-      ...
+      newUrl = cloudinaryUrl.replace(
+        "/upload/",
+        "/upload/e_saturation:60,e_contrast:40/"
+      );
       break;
 
     case "festival":
-      ...
+      newUrl = cloudinaryUrl.replace(
+        "/upload/",
+        "/upload/e_vibrance:100/"
+      );
       break;
 
     case "studio":
-      ...
+      newUrl = cloudinaryUrl.replace(
+        "/upload/",
+        "/upload/e_sharpen,e_improve/"
+      );
       break;
 
     case "goldenhour":
-      ...
+      newUrl = cloudinaryUrl.replace(
+        "/upload/",
+        "/upload/e_auto_brightness,e_auto_color/"
+      );
       break;
 
     default:
