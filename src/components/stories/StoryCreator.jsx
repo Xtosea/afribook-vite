@@ -861,10 +861,10 @@ return (
     <button  
       onClick={() => fileRef.current?.click()}  
       className="sticky bottom-0 w-50  bg-blue-600 text-white p-3 rounded-xl mb-3"  
-</div>  
+  
       📷 Add Photo / Video  
     </button>  
-
+</div>  
     
 
     {/* HIDDEN FILE INPUT */}  
