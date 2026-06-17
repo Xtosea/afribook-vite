@@ -6,11 +6,7 @@ useEffect,
 
 import { API_BASE } from "../../api/api";
 import Draggable from "react-draggable";
-import {
-  useAIEffects,
-} from "../../hooks/useAIEffects";
-import {
-  import { uploadToCloudinary }
+import { uploadToCloudinary }
 from "../../utils/uploadToCloudinary";
 
 const emojiList = [
