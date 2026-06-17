@@ -8,9 +8,9 @@ import { API_BASE } from "../../api/api";
 import Draggable from "react-draggable";
 import { uploadToCloudinary }
 from "../../utils/uploadToCloudinary";
-import {
-  useAIEffects,
-} from "../../hooks/useAIEffects";
+
+
+
 
 const emojiList = [
 "🔥",
@@ -59,14 +59,6 @@ const [selectedSticker, setSelectedSticker] =
 
 const [activeTool, setActiveTool] = useState(null);
 
-const {
-  applyEffect,
-} = useAIEffects();
-
-const [aiLoading,
-setAiLoading] =
-useState(false);
-
 const [cloudinaryUrl, setCloudinaryUrl] = useState(null);
 
 
@@ -109,6 +101,64 @@ const handleFile = async (e) => {
   e.target.value = "";
 };
 
+// ================= aPPLYAI =================
+const applyAI = (effect) => {
+  if (!cloudinaryUrl) {
+    alert("Please select an image first");
+    return;
+  }
+
+  let newUrl = cloudinaryUrl;
+
+  switch (effect) {
+    case "enhance":
+      ...
+      break;
+
+    case "beauty":
+      ...
+      break;
+
+    case "queen":
+      ...
+      break;
+
+    case "ceo":
+      ...
+      break;
+
+    case "gamer":
+      ...
+      break;
+
+    case "afroglow":
+      ...
+      break;
+
+    case "naijavibes":
+      ...
+      break;
+
+    case "festival":
+      ...
+      break;
+
+    case "studio":
+      ...
+      break;
+
+    case "goldenhour":
+      ...
+      break;
+
+    default:
+      return;
+  }
+
+  setPreview(newUrl);
+  setCloudinaryUrl(newUrl);
+  
+};
 // ================= POST STORY =================
 const handlePost = async () => {
 if (
@@ -143,35 +193,6 @@ useEffect(() => {
 
 
 
-const applyAI = async (effect) => {
-  try {
-    if (!preview) return;
-
-    if (!preview.includes("cloudinary.com")) {
-      alert("Please select an image first");
-      return;
-    }
-
-    setAiLoading(true);
-
-    const newUrl = await applyEffect(
-      preview,
-      effect
-    );
-
-    setPreview(newUrl);
-    setCloudinaryUrl(newUrl);
-
-    // Close panel after success
-    setActiveTool(null);
-
-  } catch (err) {
-    console.error(err);
-    alert("AI effect failed");
-  } finally {
-    setAiLoading(false);
-  }
-};
 
 
 // ================= UI =================
@@ -213,11 +234,11 @@ return (
  
 
 {/* DRAGGABLE PREVIEW AREA */}
-{(preview || stickers.length > 0 || text) && (
-  <div
-    className="relative mb-3 h-[70vh] rounded-xl overflow-hidden bg-black"
-    style={{ backgroundColor }}
-  >
+<div
+  className="relative mb-3 h-[70vh] rounded-xl overflow-hidden bg-black"
+  style={{ backgroundColor }}
+>
+  
     {/* Media Preview */}
 
 
@@ -260,15 +281,15 @@ return (
   </button>
 
 
-</button>
-
   {/* AI BUTTON */}
+  {media?.type?.startsWith("image") && (
   <button
     onClick={() => setActiveTool("ai")}
     className="bg-black/60 text-white p-3 rounded-full"
   >
     🤖
   </button>
+)}
 
 
 <button
@@ -597,13 +618,8 @@ return (
       </button>
 
     </div>
-
-    {aiLoading && (
-      <div className="text-center text-white mt-3">
-        Processing...
-      </div>
-    )}
-  </div>
+ </div>
+</div>
 )}
 
 
