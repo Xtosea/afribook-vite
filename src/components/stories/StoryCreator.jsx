@@ -25,9 +25,7 @@ const StoryCreator = ({ onClose, onSelectFile }) => {
 const fileRef = useRef();
 const audioRef = useRef();
 
-const {
-  uploadStoryMedia,
-} = useCloudinaryStoryUpload();
+
 
 // ================= STATES =================
 const [media, setMedia] = useState(null);
@@ -79,57 +77,32 @@ const handleFile = async (e) => {
   setMedia(file);
 
   try {
-
     if (file.type.startsWith("image/")) {
+      const url = await uploadToCloudinary(file);
 
-  try {
-
-    const url =
-      await uploadToCloudinary(file);
-
-
-    setCloudinaryUrl(url);
-
-    setPreview(url);
-
-
-  } catch(err) {
-
-    console.error(
-      "Cloudinary upload failed",
-      err
-    );
-
-    alert(
-      "Image upload failed"
-    );
-  }
-
-}
-
+      setCloudinaryUrl(url);
+      setPreview(url);
     } else {
-
+      // video/audio local preview
       setCloudinaryUrl(null);
 
       setPreview(
         URL.createObjectURL(file)
       );
-
     }
-
   } catch (error) {
-    console.error("IMAGE UPLOAD FAILED:", error);
+    console.error(
+      "IMAGE UPLOAD FAILED:",
+      error
+    );
 
     setPreview(null);
     setCloudinaryUrl(null);
 
-    alert(
-      "Image upload failed. Check backend console."
-    );
+    alert("Image upload failed");
   }
 
-
-  // allow selecting same image again
+  // allow selecting same file again
   e.target.value = "";
 };
 
