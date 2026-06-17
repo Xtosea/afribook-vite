@@ -153,7 +153,7 @@ return (
 {/* POST BUTTON */}  
     <button
   onClick={handlePost}
-  className="fixed top-4 left-1/4 -translate-x-1/4 bg-black text-white px-4 py-3 rounded-xl shadow-lg z-50"
+  className="fixed top-4 left-1/1 -translate-x-1/1 bg-black text-white px-4 py-3 rounded-xl shadow-lg z-50"
 >
   Post Story
 </button>
