@@ -160,10 +160,14 @@ const applyAI = async (effect) => {
     );
 
     setPreview(newUrl);
-setCloudinaryUrl(newUrl);
+    setCloudinaryUrl(newUrl);
+
+    // Close panel after success
+    setActiveTool(null);
 
   } catch (err) {
     console.error(err);
+    alert("AI effect failed");
   } finally {
     setAiLoading(false);
   }
@@ -253,6 +257,17 @@ return (
     className="bg-black/60 text-white p-2 rounded-full"
   >
     🎨
+  </button>
+
+
+</button>
+
+  {/* AI BUTTON */}
+  <button
+    onClick={() => setActiveTool("ai")}
+    className="bg-black/60 text-white p-3 rounded-full"
+  >
+    🤖
   </button>
 
 
@@ -349,21 +364,6 @@ return (
 
   </div>
 )}
-
-
-<button
-  onClick={() =>
-    setActiveTool("ai")
-  }
-  className="
-    bg-black/60
-    text-white
-    p-2
-    rounded-full
-  "
->
-  🤖
-</button>
 
 
 
