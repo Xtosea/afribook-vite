@@ -126,20 +126,21 @@ useEffect(() => {
 
 
 
-const applyAI = async (
-  effect
-) => {
+const applyAI = async (effect) => {
   try {
-
     if (!preview) return;
+
+    if (!preview.includes("cloudinary.com")) {
+      alert("Please select an image first");
+      return;
+    }
 
     setAiLoading(true);
 
-    const newUrl =
-      await applyEffect(
-        preview,
-        effect
-      );
+    const newUrl = await applyEffect(
+      preview,
+      effect
+    );
 
     setPreview(newUrl);
 
