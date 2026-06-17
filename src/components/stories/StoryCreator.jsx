@@ -153,7 +153,7 @@ return (
 {/* POST BUTTON */}  
     <button  
       onClick={handlePost}  
-      className="sticky-top-0 w-full bg-black text-white p-3 rounded-xl"  
+      className="fixed w-full bg-black text-white p-3 rounded-xl"  
     >  
       Post Story  
     </button>  
@@ -223,7 +223,7 @@ return (
 
 <button
   onClick={() => setActiveTool(null)}
-  className="absolute top-2 right-100 text-Red"
+  className="absolute top-2 right-12 text-Red"
 >
   ❌
 </button>
@@ -857,14 +857,14 @@ return (
 
 
 {/* MEDIA PICKER BUTTON */} 
-<div className="flex justify-end">
+
     <button  
       onClick={() => fileRef.current?.click()}  
-      className="sticky bottom-0 w-50  bg-blue-600 text-white p-3 rounded-xl mb-3">  
+      className="sticky bottom-0 w-50 flex justify-end bg-blue-600 text-white p-3 rounded-xl mb-3">  
   
       📷 Add Photo / Video  
     </button>  
-</div>  
+ 
     
 
     {/* HIDDEN FILE INPUT */}  
