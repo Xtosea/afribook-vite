@@ -6,238 +6,236 @@ import useR2StoryMusic from "./r2StoryMusic";
 const API_BASE = import.meta.env.VITE_API_BASE;
 
 export function useStoryUpload() {
+
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState(null);
 
-const {
+  const {
     uploadMusic,
   } = useR2StoryMusic();
 
+
   const uploadStory = async ({
-  file,
-  text,
-  music,
-  stickers,
-  backgroundColor,
-}) => {
-  try {
-    setLoading(true);
-    setProgress(0);
-    setError(null);
+    file,
+    cloudinaryUrl,
+    text,
+    music,
+    stickers,
+    backgroundColor,
+  }) => {
 
-    /* =========================
-       VALIDATE CONTENT
-    ========================= */
-    const hasContent =
-      file ||
-      text?.trim() ||
-      music ||
-      stickers?.length > 0 ||
-      backgroundColor;
+    try {
 
-    if (!hasContent) {
-      throw new Error("Story content required");
-    }
+      setLoading(true);
+      setProgress(0);
+      setError(null);
 
-    /* =========================
-       UPLOAD MUSIC (IF ANY)
-    ========================= */
-    let musicData = null;
 
-    if (music instanceof File) {
-      musicData = await uploadMusic(music);
-    } else if (music) {
-      musicData = music;
-    }
+      let musicData = null;
 
-    /* =========================
-       MEDIA ARRAY
-    ========================= */
-    let media = [];
 
-    if (file) {
-      /* =========================
-         FILE VALIDATION
-      ========================= */
-      if (
-        !file.type.startsWith("video/") &&
-        !file.type.startsWith("audio/") &&
-        !file.type.startsWith("image/")
-      ) {
-        throw new Error("Unsupported file type");
+      // MUSIC → R2
+      if (music instanceof File) {
+        musicData = await uploadMusic(music);
+      } 
+      else if (music) {
+        musicData = music;
       }
 
-      /* =========================
-         COMPRESSION
-      ========================= */
-      file = await compressStoryMedia(file);
 
-      /* =========================
-         GET SIGNED URL
-      ========================= */
-      const signedRes = await fetch(
-        `${API_BASE}/api/r2/signed-url?contentType=${encodeURIComponent(
-          file.type
-        )}`
-      );
 
-      const signedRaw = await signedRes.text();
+      let media = [];
 
-      console.log(
-        "SIGNED URL STATUS:",
-        signedRes.status
-      );
 
-      console.log(
-        "SIGNED URL RESPONSE:",
-        signedRaw
-      );
 
-      if (!signedRaw) {
-        throw new Error(
-          "Empty response from signed URL endpoint"
-        );
+      // =========================
+      // IMAGE FROM CLOUDINARY
+      // =========================
+
+      if (cloudinaryUrl) {
+
+        media.push({
+          url: cloudinaryUrl,
+          type: "image",
+        });
+
       }
 
-      let signedData;
 
-      try {
-        signedData = JSON.parse(signedRaw);
-      } catch (err) {
-        console.error(
-          "Invalid JSON from signed URL endpoint:",
-          signedRaw
+
+      // =========================
+      // VIDEO / AUDIO TO R2
+      // =========================
+
+      else if (file) {
+
+
+        if (
+          !file.type.startsWith("video/") &&
+          !file.type.startsWith("audio/")
+        ) {
+          throw new Error(
+            "Images must use Cloudinary"
+          );
+        }
+
+
+
+        file = await compressStoryMedia(file);
+
+
+
+        const signedRes = await fetch(
+          `${API_BASE}/api/r2/signed-url?contentType=${encodeURIComponent(
+            file.type
+          )}`
         );
 
-        throw new Error(
-          "Server returned invalid JSON"
+
+        const signedData =
+          await signedRes.json();
+
+
+
+        if(
+          !signedRes.ok ||
+          !signedData.uploadUrl
+        ){
+          throw new Error(
+            signedData.error ||
+            "Failed R2 upload"
+          );
+        }
+
+
+
+        await axios.put(
+          signedData.uploadUrl,
+          file,
+          {
+            headers:{
+              "Content-Type": file.type
+            },
+
+            onUploadProgress:(event)=>{
+
+              if(!event.total) return;
+
+              setProgress(
+                Math.round(
+                  event.loaded * 100 /
+                  event.total
+                )
+              );
+
+            }
+          }
         );
+
+
+
+        media.push({
+
+          url: signedData.fileUrl,
+
+          type:
+            file.type.startsWith("audio/")
+            ? "audio"
+            : "video"
+
+        });
+
       }
 
-      if (!signedRes.ok || !signedData.uploadUrl) {
-        throw new Error(
-          signedData.error ||
-            "Failed to generate signed URL"
-        );
-      }
 
-      /* =========================
-         UPLOAD TO R2
-      ========================= */
-      await axios.put(
-        signedData.uploadUrl,
-        file,
+
+
+      // =========================
+      // SAVE STORY
+      // =========================
+
+      const token =
+        localStorage.getItem("token");
+
+
+
+      const res = await fetch(
+        `${API_BASE}/api/storyR2`,
         {
-          timeout: 60000,
+          method:"POST",
 
-          headers: {
-            "Content-Type": file.type,
+          headers:{
+            "Content-Type":"application/json",
+
+            Authorization:
+              `Bearer ${token}`
           },
 
-          onUploadProgress: (event) => {
-            if (!event.total) return;
+          body:JSON.stringify({
 
-            const percent = Math.round(
-              (event.loaded * 100) /
-                event.total
-            );
+            text,
 
-            setProgress(percent);
-          },
+            music: musicData,
+
+            stickers,
+
+            backgroundColor,
+
+            media
+
+          })
         }
       );
 
-      /* =========================
-         MEDIA TYPE
-      ========================= */
-      let mediaType = "video";
 
-      if (file.type.startsWith("audio/")) {
-        mediaType = "audio";
+
+      const story =
+        await res.json();
+
+
+
+      if(!res.ok){
+
+        throw new Error(
+          story.error ||
+          "Failed saving story"
+        );
+
       }
 
-      if (file.type.startsWith("image/")) {
-        mediaType = "image";
-      }
 
-      media.push({
-        url: signedData.fileUrl,
-        type: mediaType,
-      });
-    }
+      return story;
 
-    /* =========================
-       SAVE STORY
-    ========================= */
-    const token =
-      localStorage.getItem("token");
 
-    const res = await fetch(
-      `${API_BASE}/api/storyR2`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type":
-            "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          text,
-          music: musicData,
-          stickers,
-          backgroundColor,
-          media,
-        }),
-      }
-    );
 
-    const raw = await res.text();
+    } catch(err){
 
-    console.log(
-      "SAVE STORY RESPONSE:",
-      raw
-    );
-
-    let story;
-
-    try {
-      story = JSON.parse(raw);
-    } catch (e) {
-      throw new Error(
-        "Invalid JSON response from server"
+      console.error(
+        "Story Upload Error:",
+        err
       );
+
+      setError(err.message);
+
+      throw err;
+
+
+    } finally {
+
+      setLoading(false);
+
     }
 
-    if (!res.ok) {
-      throw new Error(
-        story.error ||
-          "Failed to save story"
-      );
-    }
+  };
 
-    return story;
-  } catch (err) {
-    console.error(
-      "Story Upload Error:",
-      err
-    );
 
-    setError(
-      err.message ||
-        "Story upload failed"
-    );
 
-    throw err;
-  } finally {
-    setLoading(false);
-  }
-};
+  return {
+    uploadStory,
+    loading,
+    progress,
+    error,
+  };
 
-return {
-  uploadStory,
-  loading,
-  progress,
-  error,
-};
 }
