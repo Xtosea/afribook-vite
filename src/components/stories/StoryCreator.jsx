@@ -860,7 +860,7 @@ return (
 
     <button
   onClick={() => fileRef.current?.click()}
-  className="fixed bottom-35 right-4 bg-green-600 text-white p-2 rounded-xl shadow-lg z-50"
+  className="fixed bottom-25 right-4 bg-green-600 text-white p-2 rounded-xl shadow-lg z-50"
 >
   📷 Add Photo / Video
 </button>
