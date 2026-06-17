@@ -643,26 +643,30 @@ rounded-full
 {/* POSTEDITOR */}
 
 <PostEditor
-  preview={
-    mediaFiles[0]
-      ? URL.createObjectURL(mediaFiles[0])
-      : null
-  }
+  preview={...}
   media={mediaFiles[0]}
   text={newPost}
-  textPosition={textPosition}
-  setTextPosition={setTextPosition}
-  textColor={textColor}
-  textRotation={textRotation}
-  size={size}
-  stickers={stickers}
-  setStickers={setStickers}
-  selectedSticker={selectedSticker}
-  setSelectedSticker={setSelectedSticker}
-  backgroundColor={backgroundColor}
 
+  music={music}
+  setMusic={setMusic}
+
+  musicList={musicList}
   activeTool={activeTool}
   setActiveTool={setActiveTool}
+
+  stickers={stickers}
+  setStickers={setStickers}
+
+  selectedSticker={selectedSticker}
+  setSelectedSticker={setSelectedSticker}
+
+  textPosition={textPosition}
+  setTextPosition={setTextPosition}
+
+  textRotation={textRotation}
+  size={size}
+
+  backgroundColor={backgroundColor}
 />
 
 
