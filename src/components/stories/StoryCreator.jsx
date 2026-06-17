@@ -153,7 +153,7 @@ return (
 {/* POST BUTTON */}  
     <button
   onClick={handlePost}
-  className="fixed top-4 left-1/1 -translate-x-1/1 bg-blue 600 text-white px-4 py-3 rounded-xl shadow-lg z-50"
+  className="fixed top-4 left-1/1 -translate-x-1/1 bg-blue-600 text-white px-4 py-3 rounded-xl shadow-lg z-50"
 >
   Post Story
 </button>
@@ -860,7 +860,7 @@ return (
 
     <button
   onClick={() => fileRef.current?.click()}
-  className="fixed bottom-20 right-4 bg-green 600 text-white p-2 rounded-xl shadow-lg z-50"
+  className="fixed bottom-35 right-4 bg-green-600 text-white p-2 rounded-xl shadow-lg z-50"
 >
   📷 Add Photo / Video
 </button>
