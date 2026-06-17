@@ -691,69 +691,7 @@ rounded-full
 />
 
 
-
-
-
-
-<div>
-  <p>Stickers</p>
-
-  <div className="flex gap-2 flex-wrap">
-    {emojiList.map((emoji) => (
-      <button
-        key={emoji}
-        type="button"
-        className="text-3xl"
-        onClick={() =>
-          setStickers((prev) => [
-            ...prev,
-            {
-              emoji,
-              x: 100,
-              y: 100,
-              size: 60,
-            },
-          ])
-        }
-      >
-        {emoji}
-      </button>
-    ))}
-  </div>
-</div>
-
-
-
-{selectedSticker !== null && (
-  <div>
-    <p>Sticker Size</p>
-
-    <input
-      type="range"
-      min="30"
-      max="200"
-      value={
-        stickers[selectedSticker]?.size || 60
-      }
-      onChange={(e) => {
-        const updated = [...stickers];
-
-        updated[selectedSticker] = {
-          ...updated[selectedSticker],
-          size: Number(e.target.value),
-        };
-
-        setStickers(updated);
-      }}
-      className="w-full"
-    />
-  </div>
-)}
-
-
-
-
-      {/* MEDIA */}  
+        {/* MEDIA */}  
 
       <div className="bg-gray-50 border rounded-2xl p-4">
 
