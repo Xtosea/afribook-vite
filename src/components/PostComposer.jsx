@@ -468,7 +468,7 @@ rounded-full
 {/* TEXTAREA */}
 {showTextArea && (
   <textarea
-    rows={14}
+    rows={4}
     value={newPost}
     onChange={(e) => setNewPost(e.target.value)}
     onInput={(e) => {
@@ -492,7 +492,7 @@ rounded-full
       focus:outline-none
       focus:ring-2
       focus:ring-blue-400
-      min-h-[200px]
+      min-h-[20px]
       text-lg
       border-0
       shadow-none
