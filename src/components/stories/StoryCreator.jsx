@@ -11,7 +11,7 @@ import {
 } from "../../hooks/useAIEffects";
 import {
   useCloudinaryStoryUpload,
-} from "../../hooks/useCloudinaryStoryUpload";
+} from "../../hooks/useCloudinaryStory";
 
 
 const emojiList = [
