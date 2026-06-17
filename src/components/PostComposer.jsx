@@ -123,7 +123,7 @@ const { uploadVideo } =
 useR2Upload();
 
 // =========================
-// AI ENHANCE
+// POSTEDITOR 
 // =========================
 const [stickers, setStickers] = useState([]);
 
@@ -143,7 +143,8 @@ const [size, setSize] = useState(60);
 
 const [backgroundColor, setBackgroundColor] =
   useState("#000000");
-
+const [activeTool, setActiveTool] =
+  useState(null);
 
 // =========================
 // TAG FRIENDS
