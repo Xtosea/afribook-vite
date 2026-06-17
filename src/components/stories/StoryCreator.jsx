@@ -283,7 +283,7 @@ return (
 />
 
 
-         {/* TEXT INPUT */
+         {/* TEXT INPUT */}
 <input
   type="text"
   placeholder="Add text to story..."
