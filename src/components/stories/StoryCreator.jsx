@@ -363,6 +363,11 @@ return (
       overflow-y-auto
     "
   >
+    {musicList.map((song) => (
+      <div
+        key={song._id}
+        className="flex justify-between items-center border-b border-white/20 py-2"
+      >
         <span className="text-white">
           {song.title}
         </span>
@@ -370,9 +375,9 @@ return (
         <div className="flex gap-2">
           <button
             onClick={() => {
-  setMusic(song);
-  setActiveTool(null);
-}}
+              setMusic(song);
+              setActiveTool(null);
+            }}
             className="bg-blue-600 text-white px-2 py-1 rounded"
           >
             Select
@@ -380,9 +385,11 @@ return (
 
           <button
             onClick={() => {
-              audioRef.current.src =
-                song.audioUrl;
-              audioRef.current.play();
+              if (audioRef.current) {
+                audioRef.current.src =
+                  song.audioUrl;
+                audioRef.current.play();
+              }
             }}
             className="bg-green-600 text-white px-2 py-1 rounded"
           >
@@ -393,7 +400,6 @@ return (
     ))}
   </div>
 )}
-
 
 
 {activeTool === "color" && (
