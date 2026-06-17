@@ -1,23 +1,44 @@
-import { API_BASE } from "../api/api";
+import express from "express";
+import { getEffectUrl }
+from "../utils/cloudinaryEffects.js";
 
-export const useAIEnhance = () => {
-  const enhanceImage = async (imageUrl) => {
-    const res = await fetch(`${API_BASE}/api/ai/enhance`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ imageUrl }),
-    });
+const router = express.Router();
 
-    const data = await res.json();
+router.post(
+  "/effect",
+  async (req, res) => {
+    try {
+      const {
+        imageUrl,
+        effect,
+      } = req.body;
 
-    if (!res.ok) {
-      throw new Error(data.error || "Enhance failed");
+      if (!imageUrl) {
+        return res.status(400).json({
+          error:
+            "No image URL provided",
+        });
+      }
+
+      const processedUrl =
+        getEffectUrl(
+          imageUrl,
+          effect
+        );
+
+      res.json({
+        success: true,
+        processedUrl,
+      });
+    } catch (err) {
+      console.error(err);
+
+      res.status(500).json({
+        error:
+          "AI effect failed",
+      });
     }
+  }
+);
 
-    return data.enhancedUrl;
-  };
-
-  return { enhanceImage };
-};
+export default router;
