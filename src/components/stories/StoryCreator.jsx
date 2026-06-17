@@ -9,6 +9,9 @@ import Draggable from "react-draggable";
 import {
   useAIEffects,
 } from "../../hooks/useAIEffects";
+import {
+  useCloudinaryStoryUpload,
+} from "../../hooks/useCloudinaryStoryUpload";
 
 
 const emojiList = [
@@ -26,6 +29,10 @@ const StoryCreator = ({ onClose, onSelectFile }) => {
 
 const fileRef = useRef();
 const audioRef = useRef();
+
+const {
+  uploadStoryMedia,
+} = useCloudinaryStoryUpload();
 
 // ================= STATES =================
 const [media, setMedia] = useState(null);
@@ -68,13 +75,22 @@ useState(false);
 
 
 // ================= HANDLE FILE =================
-const handleFile = (e) => {
-const file = e.target.files[0];
-if (!file) return;
+const handleFile = async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
 
-setMedia(file);  
-setPreview(URL.createObjectURL(file));
+  setMedia(file);
 
+  if (file.type.startsWith("image")) {
+    const cloudinaryUrl =
+      await uploadStoryMedia(file);
+
+    if (cloudinaryUrl) {
+      setPreview(cloudinaryUrl);
+    }
+  } else {
+    setPreview(URL.createObjectURL(file));
+  }
 };
 
 // ================= POST STORY =================
