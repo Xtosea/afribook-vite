@@ -70,7 +70,9 @@ const {
 const [aiLoading,
 setAiLoading] =
 useState(false);
-
+if (cloudinaryUrl) {
+  setPreview(cloudinaryUrl);
+}
 
 
 
@@ -86,8 +88,9 @@ const handleFile = async (e) => {
       await uploadStoryMedia(file);
 
     if (cloudinaryUrl) {
-      setPreview(cloudinaryUrl);
-    }
+  setPreview(cloudinaryUrl);
+  setCloudinaryUrl(cloudinaryUrl);
+}
   } else {
     setPreview(URL.createObjectURL(file));
   }
@@ -105,6 +108,7 @@ return;
 }
 await onSelectFile({
   file: media,
+  cloudinaryUrl,
   text,
   textPosition,
   textSize: size,
@@ -143,6 +147,7 @@ const applyAI = async (effect) => {
     );
 
     setPreview(newUrl);
+setCloudinaryUrl(newUrl);
 
   } catch (err) {
     console.error(err);
