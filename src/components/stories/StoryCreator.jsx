@@ -151,12 +151,12 @@ return (
 >
 
 {/* POST BUTTON */}  
-    <button  
-      onClick={handlePost}  
-      className="w-full bg-black text-white p-3 rounded-xl"  
-    >  
-      Post Story  
-    </button>  
+    <button
+  onClick={handlePost}
+  className="fixed top-4 right-4 bg-black text-white px-6 py-3 rounded-xl shadow-lg z-50"
+>
+  Post Story
+</button>
 
 
     {/* HEADER */}  
