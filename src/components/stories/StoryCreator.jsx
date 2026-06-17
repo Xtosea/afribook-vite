@@ -186,7 +186,7 @@ return (
 
 <button
   onClick={() => setActiveTool(null)}
-  className="absolute top-2 right-2 text-white"
+  className="absolute top-2 right-8 text-white"
 >
   ✕
 </button>
@@ -260,6 +260,21 @@ return (
       }
       className="w-full"
     />
+
+     <button
+  onClick={() => setActiveTool(null)}
+  className="
+    mt-3
+    bg-green-600
+    text-white
+    px-3
+    py-2
+    rounded
+  "
+>
+  Done
+</button>
+
   </div>
 )}
 
@@ -274,17 +289,19 @@ return (
           key={emoji}
           className="text-3xl"
           onClick={() => {
+  const newSticker = {
+    emoji,
+    x: 100,
+    y: 100,
+    size: 60,
+  };
+
   setStickers((prev) => [
     ...prev,
-    {
-      emoji,
-      x: 100,
-      y: 100,
-      size: 60,
-    },
+    newSticker,
   ]);
 
-  setActiveTool(null);
+  setSelectedSticker(stickers.length);
 }}
         >
           {emoji}
@@ -293,46 +310,72 @@ return (
     </div>
 
     {selectedSticker !== null && (
-      <input
-        type="range"
-        min="30"
-        max="200"
-        value={
-          stickers[selectedSticker]?.size ||
-          60
-        }
-        onChange={(e) => {
-          const updated = [...stickers];
+  <div className="mt-4">
+    <p className="text-white mb-2">
+      Sticker Size
+    </p>
 
-          updated[selectedSticker] = {
-            ...updated[selectedSticker],
-            size: Number(e.target.value),
-          };
+    <input
+      type="range"
+      min="30"
+      max="200"
+      value={
+        stickers[selectedSticker]?.size || 60
+      }
+      onChange={(e) => {
+        const updated = [...stickers];
 
-          setStickers(updated);
-        }}
-        className="w-full mt-3"
-      />
-    )}
+        updated[selectedSticker] = {
+          ...updated[selectedSticker],
+          size: Number(e.target.value),
+        };
+
+        setStickers(updated);
+      }}
+      className="w-full"
+    />
+
+    <button
+      onClick={() => setActiveTool(null)}
+      className="
+        mt-3
+        bg-green-600
+        text-white
+        px-3
+        py-2
+        rounded
+      "
+    >
+      Done
+    </button>
   </div>
 )}
 
 
-
 {activeTool === "music" && (
-  <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-3 z-50 max-h-60 overflow-y-auto">
-    {musicList.map((song) => (
-      <div
-        key={song._id}
-        className="flex justify-between items-center border-b border-white/20 py-2"
-      >
+  <div
+    className="
+      absolute
+      bottom-0
+      left-0
+      right-0
+      bg-black/90
+      p-3
+      z-50
+      h-[50%]
+      overflow-y-auto
+    "
+  >
         <span className="text-white">
           {song.title}
         </span>
 
         <div className="flex gap-2">
           <button
-            onClick={() => setMusic(song)}
+            onClick={() => {
+  setMusic(song);
+  setActiveTool(null);
+}}
             className="bg-blue-600 text-white px-2 py-1 rounded"
           >
             Select
@@ -361,9 +404,10 @@ return (
     <input
       type="color"
       value={backgroundColor}
-      onChange={(e) =>
-        setBackgroundColor(e.target.value)
-      }
+      onChange={(e) => {
+  setBackgroundColor(e.target.value);
+  setActiveTool(null);
+}}
     />
   </div>
 )}
