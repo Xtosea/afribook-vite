@@ -153,7 +153,7 @@ return (
 {/* POST BUTTON */}  
     <button  
       onClick={handlePost}  
-      className="w-full bg-black text-white p-3 rounded-xl"  
+      className="sticky-top-0 w-full bg-black text-white p-3 rounded-xl"  
     >  
       Post Story  
     </button>  
@@ -860,7 +860,7 @@ return (
 <div className="flex justify-end">
     <button  
       onClick={() => fileRef.current?.click()}  
-      className="sticky bottom-0 w-50  ml-10 bg-blue-600 text-white p-3 rounded-xl mb-3"  
+      className="sticky bottom-0 w-50  bg-blue-600 text-white p-3 rounded-xl mb-3"  
 </div>  
       📷 Add Photo / Video  
     </button>  
