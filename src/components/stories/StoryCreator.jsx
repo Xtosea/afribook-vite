@@ -6,6 +6,10 @@ useEffect,
 
 import { API_BASE } from "../../api/api";
 import Draggable from "react-draggable";
+import {
+  useAIEffects,
+} from "../../hooks/useAIEffects";
+
 
 const emojiList = [
 "🔥",
@@ -50,6 +54,14 @@ const [selectedSticker, setSelectedSticker] =
   useState(null);
 
 const [activeTool, setActiveTool] = useState(null);
+
+const {
+  applyEffect,
+} = useAIEffects();
+
+const [aiLoading,
+setAiLoading] =
+useState(false);
 
 
 
@@ -96,6 +108,30 @@ useEffect(() => {
 }, []);
 
 
+
+const applyAI = async (
+  effect
+) => {
+  try {
+
+    if (!preview) return;
+
+    setAiLoading(true);
+
+    const newUrl =
+      await applyEffect(
+        preview,
+        effect
+      );
+
+    setPreview(newUrl);
+
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setAiLoading(false);
+  }
+};
 
 
 // ================= UI =================
@@ -279,6 +315,20 @@ return (
 )}
 
 
+<button
+  onClick={() =>
+    setActiveTool("ai")
+  }
+  className="
+    bg-black/60
+    text-white
+    p-2
+    rounded-full
+  "
+>
+  🤖
+</button>
+
 
 
 {activeTool === "sticker" && (
@@ -423,7 +473,68 @@ return (
 )}
 
 
+{activeTool === "ai" && (
+  <div
+    className="
+      absolute
+      bottom-0
+      left-0
+      right-0
+      bg-black/90
+      p-3
+      z-50
+    "
+  >
+    <div className="grid grid-cols-2 gap-2">
 
+      <button
+        onClick={() =>
+          applyAI("enhance")
+        }
+        className="bg-blue-600 text-white p-2 rounded"
+      >
+        ✨ Enhance
+      </button>
+
+      <button
+        onClick={() =>
+          applyAI("beauty")
+        }
+        className="bg-pink-600 text-white p-2 rounded"
+      >
+        💄 Beauty
+      </button>
+
+      <button
+        onClick={() =>
+          applyAI("queen")
+        }
+        className="bg-purple-600 text-white p-2 rounded"
+      >
+        👑 Queen
+      </button>
+
+      <button
+        onClick={() =>
+          applyAI("ceo")
+        }
+        className="bg-gray-700 text-white p-2 rounded"
+      >
+        💼 CEO
+      </button>
+
+      <button
+        onClick={() =>
+          applyAI("gamer")
+        }
+        className="bg-green-600 text-white p-2 rounded"
+      >
+        🎮 Gamer
+      </button>
+
+    </div>
+  </div>
+)}
 
 
 
