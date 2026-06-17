@@ -1,6 +1,12 @@
 import React from "react";
 import Draggable from "react-draggable";
 
+
+
+const [musicList, setMusicList] = useState([]);
+const [music, setMusic] = useState(null);
+
+
 const PostEditor = ({
   preview,
   media,
