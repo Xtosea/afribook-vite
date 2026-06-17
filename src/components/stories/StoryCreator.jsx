@@ -151,14 +151,12 @@ return (
 >
 
 {/* POST BUTTON */}  
-    <div className="sticky top-0 bg-white z-50 p-3">
-  <button
-    onClick={handlePost}
-    className="w-full bg-black text-white p-3 rounded-xl"
-  >
-    Post Story
-  </button>
-</div>
+    <button
+  onClick={handlePost}
+  className="fixed top-4 left-1/2 -translate-x-1/2 bg-black text-white px-6 py-3 rounded-xl shadow-lg z-50"
+>
+  Post Story
+</button>
 
 
     {/* HEADER */}  
@@ -860,12 +858,12 @@ return (
 
 {/* MEDIA PICKER BUTTON */} 
 
-    <button  
-      onClick={() => fileRef.current?.click()}  
-      className="sticky bottom-0 w-50 right-15 bg-blue-600 text-white p-3 rounded-xl mb-3">  
-  
-      📷 Add Photo / Video  
-    </button>  
+    <button
+  onClick={() => fileRef.current?.click()}
+  className="fixed bottom-4 right-4 bg-blue-600 text-white p-3 rounded-xl shadow-lg z-50"
+>
+  📷 Add Photo / Video
+</button>
  
     
 
