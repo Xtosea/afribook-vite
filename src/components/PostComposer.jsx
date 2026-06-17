@@ -35,6 +35,17 @@ import("emoji-picker-react")
 );
 
 
+
+const emojiList = [
+  "🔥",
+  "❤️",
+  "😂",
+  "😎",
+  "🎉",
+  "💯",
+];
+
+
 const [showTextArea, setShowTextArea] = useState(false);
 const [posting, setPosting] =
 useState(false);
@@ -649,6 +660,123 @@ rounded-full
   setSelectedSticker={setSelectedSticker}
   backgroundColor={backgroundColor}
 />
+
+
+<div className="border rounded-xl p-4 space-y-4">
+
+  <h3 className="font-bold">
+    Editor Tools
+  </h3>
+
+  {/* TEXT SIZE */}
+  <div>
+    <p>Text Size</p>
+
+    <input
+      type="range"
+      min="20"
+      max="120"
+      value={size}
+      onChange={(e) =>
+        setSize(Number(e.target.value))
+      }
+      className="w-full"
+    />
+  </div>
+
+  {/* TEXT ROTATION */}
+  <div>
+    <p>Text Rotation</p>
+
+    <input
+      type="range"
+      min="-180"
+      max="180"
+      value={textRotation}
+      onChange={(e) =>
+        setTextRotation(
+          Number(e.target.value)
+        )
+      }
+      className="w-full"
+    />
+  </div>
+
+  {/* BACKGROUND */}
+  <div>
+    <p>Background Color</p>
+
+    <input
+      type="color"
+      value={backgroundColor}
+      onChange={(e) =>
+        setBackgroundColor(
+          e.target.value
+        )
+      }
+    />
+  </div>
+
+</div>
+
+
+
+<div>
+  <p>Stickers</p>
+
+  <div className="flex gap-2 flex-wrap">
+    {emojiList.map((emoji) => (
+      <button
+        key={emoji}
+        type="button"
+        className="text-3xl"
+        onClick={() =>
+          setStickers((prev) => [
+            ...prev,
+            {
+              emoji,
+              x: 100,
+              y: 100,
+              size: 60,
+            },
+          ])
+        }
+      >
+        {emoji}
+      </button>
+    ))}
+  </div>
+</div>
+
+
+
+{selectedSticker !== null && (
+  <div>
+    <p>Sticker Size</p>
+
+    <input
+      type="range"
+      min="30"
+      max="200"
+      value={
+        stickers[selectedSticker]?.size || 60
+      }
+      onChange={(e) => {
+        const updated = [...stickers];
+
+        updated[selectedSticker] = {
+          ...updated[selectedSticker],
+          size: Number(e.target.value),
+        };
+
+        setStickers(updated);
+      }}
+      className="w-full"
+    />
+  </div>
+)}
+
+
 
 
       {/* MEDIA */}  
