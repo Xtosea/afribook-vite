@@ -8,6 +8,9 @@ import { API_BASE } from "../../api/api";
 import Draggable from "react-draggable";
 import { uploadToCloudinary }
 from "../../utils/uploadToCloudinary";
+import {
+  useAIEffects,
+} from "../../hooks/useAIEffects";
 
 const emojiList = [
 "🔥",
