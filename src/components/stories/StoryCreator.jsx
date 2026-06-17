@@ -32,7 +32,7 @@ const audioRef = useRef();
 
 const {
   uploadStoryMedia,
-} = useCloudinaryStoryUpload();
+} = useCloudinaryStory();
 
 // ================= STATES =================
 const [media, setMedia] = useState(null);
