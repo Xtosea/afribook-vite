@@ -10,8 +10,8 @@ import {
   useAIEffects,
 } from "../../hooks/useAIEffects";
 import {
-  useCloudinaryStoryUpload,
-} from "../../hooks/useCloudnaryStory";
+  useCloudinaryStory,
+} from "../../hooks/useCloudinaryStory";
 
 
 const emojiList = [
