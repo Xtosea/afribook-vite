@@ -6,6 +6,8 @@ import MediaUpload from "../MediaUpload";
 
 
 const PostEditor = ({
+currentUser,
+
   preview,
   media,
   text,
@@ -105,6 +107,56 @@ useEffect(() => {
 >
   ✕ Cancel
 </button>
+
+
+<div
+  className="
+    absolute
+    top-16
+    left-4
+    z-40
+    flex
+    items-center
+    gap-3
+    bg-black/40
+    backdrop-blur-sm
+    px-3
+    py-2
+    rounded-xl
+  "
+>
+  <img
+    src={
+      currentUser?.profilePic ||
+      "/default-avatar.png"
+    }
+    alt=""
+    className="
+      w-10
+      h-10
+      rounded-full
+      object-cover
+      border
+      border-white
+    "
+  />
+
+  <div>
+    <p className="text-white font-semibold text-sm">
+      {currentUser?.name}
+    </p>
+
+    <span
+      className="
+        text-xs
+        text-white/80
+      "
+    >
+      🌎 Public
+    </span>
+  </div>
+</div>
+
 
 <button
   type="button"
