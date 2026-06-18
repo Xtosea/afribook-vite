@@ -466,10 +466,7 @@ rounded-full
     placeholder={`Share a photo, video or thought... ${
       currentUser?.name || "User"
     }?`}
-    style={{
-      color: textColor,
-      ...getBackgroundStyle(),
-    }}
+    
     className={`
       w-full
       p-6
