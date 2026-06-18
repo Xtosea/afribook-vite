@@ -318,58 +318,7 @@ return (
 "
 >
 
-<div className="p-5 space-y-4">
 
- <div className="border-b pb-3"></div>  <div className="flex items-center gap-3 mb-4">  <img
-src={
-currentUser?.profilePic ||
-"/default-avatar.png"
-}
-alt=""
-className="
-w-14
-h-14
-rounded-full
-object-cover
-"
-/>
-
-  <div>  <p className="font-semibold">  
-  {currentUser?.name}  
-</p>  
-
-<div className="flex items-center gap-2">
-
-<span className="  
-text-xs  
-bg-gray-100  
-px-2  
-py-1  
-rounded-full  
-">
-🌎 Public
-</span>
-
-</div>  
-  </div>  
-</div>  
-
-
-<button
-  type="button"
-  onClick={() => setShowTextArea(!showTextArea)}
-  className="
-    w-full
-    p-3
-    rounded-xl
-    border
-    bg-gray-50
-    hover:bg-gray-100
-    font-medium
-  "
->
-  {showTextArea ? "📝 Close Text Area" : "📝 Open Text Area"}
-</button>
 
 
 {/* TEXTAREA */}
