@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from "react";
 import Draggable from "react-draggable";
-
+import MediaUpload from "../MediaUpload";
 
 
 
@@ -551,6 +551,24 @@ backdrop-blur-md
     preload="metadata"
   />
 )}
+
+
+div
+‎  className="
+‎    absolute
+‎    bottom-4
+‎    left-1/2
+‎    -translate-x-1/2
+‎    z-50
+‎  "
+‎>
+‎  <MediaUpload
+‎    mediaFiles={mediaFiles}
+‎    setMediaFiles={setMediaFiles}
+‎  />
+‎</div>
+‎
+‎
 
 
     </div>
