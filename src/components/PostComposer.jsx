@@ -243,13 +243,22 @@ const res = await fetch(`${API_BASE}/api/posts`, {
   media: uploadedMedia,
 
   editor: {
-    textPosition,
-    textRotation,
-    textSize: size,
-    textColor,
-    backgroundColor,
-    stickers,
-  },
+    editor: {
+  textPosition,
+  textRotation,
+  textSize: size,
+  textColor,
+  backgroundColor,
+  stickers,
+
+  music: music
+    ? {
+        _id: music._id,
+        title: music.title,
+        url: music.url,
+      }
+    : null,
+},
 
   location,
   feeling,
@@ -274,10 +283,19 @@ setFeeling("");
 setTagInput("");  
 setTaggedFriends([]);  
 setLocationSuggestions([]);  
- 
+
 setTextColor("#000000");  
 setBackgroundStyle("white");  
 setFontStyle("font-sans");  
+
+setMusic(null);
+setStickers([]);
+setSelectedSticker(null);
+setTextRotation(0);
+setTextPosition({ x: 50, y: 50 });
+setSize(60);
+setBackgroundColor("#000000");
+setActiveTool(null);
 
 navigate("/");
 
@@ -371,6 +389,16 @@ setLocationSuggestions([]);
 setFeeling("");  
 setTagInput("");  
 setTaggedFriends([]);  
+
+setMusic(null);
+setStickers([]);
+setSelectedSticker(null);
+setTextRotation(0);
+setTextPosition({ x: 50, y: 50 });
+setSize(60);
+setBackgroundColor("#000000");
+setActiveTool(null);
+
 
 navigate("/");
 
