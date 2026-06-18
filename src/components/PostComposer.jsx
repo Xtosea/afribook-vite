@@ -404,6 +404,9 @@ currentUser={currentUser}
 
   text={newPost}
 
+showTextArea={showTextArea}
+ setShowTextArea={setShowTextArea}
+
   textPosition={textPosition}
   setTextPosition={setTextPosition}
 
