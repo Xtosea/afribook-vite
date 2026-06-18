@@ -715,7 +715,28 @@ rounded-full
 
   activeTool={activeTool}
   setActiveTool={setActiveTool}
+
+location={location}
+setLocation={setLocation}
+
+feeling={feeling}
+setFeeling={setFeeling}
+
+tagInput={tagInput}
+setTagInput={setTagInput}
+
+handleTagFriends={handleTagFriends}
+
+handleSubmitPost={handleSubmitPost}
+
+onCancel={handleCancel}
+
+mediaFiles={mediaFiles}
+setMediaFiles={setMediaFiles}
+
 />
+
+
 
 
         {/* MEDIA */}  
