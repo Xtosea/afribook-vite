@@ -54,8 +54,7 @@ const PostEditor = ({
 
   onCancel,
 
-  mediaFiles,
-  setMediaFiles,
+  
 }) => {
 
 
