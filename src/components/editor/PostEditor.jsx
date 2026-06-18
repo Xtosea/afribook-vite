@@ -85,7 +85,7 @@ useEffect(() => {
     style={{ backgroundColor }}
   >
 
-button
+<button
   type="button"
   onClick={() => fileInputRef.current?.click()}
 >
