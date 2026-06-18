@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from "react";
 import Draggable from "react-draggable";
+import MediaUpload from "../MediaUpload";
 
 
 
@@ -76,20 +77,8 @@ useEffect(() => {
 <button
   type="button"
   onClick={() => fileInputRef.current?.click()}
-  className="
-    absolute
-    bottom-4
-    left-1/2
-    -translate-x-1/2
-    z-50
-    bg-green-500
-    text-white
-    px-5
-    py-3
-    rounded-full
-  "
 >
-  📷 Add Media
+  📷 Add Post
 </button>
 
 
@@ -578,21 +567,24 @@ backdrop-blur-md
 <button
   type="button"
   onClick={() => fileInputRef.current?.click()}
+>
+  📷 Add Post
+</button>
+
+<div
   className="
     absolute
     bottom-4
     left-1/2
     -translate-x-1/2
     z-50
-    bg-green-500
-    text-white
-    px-5
-    py-3
-    rounded-full
   "
 >
-  📷 post
-</button>
+  <MediaUpload
+    mediaFiles={mediaFiles}
+    setMediaFiles={setMediaFiles}
+  />
+</div>
 
     </div>
   );
