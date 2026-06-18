@@ -117,7 +117,7 @@ useEffect(() => {
   className="
     absolute
     top-16
-    left-4
+    left-2
     z-40
     flex
     items-center
@@ -174,6 +174,7 @@ useEffect(() => {
     px-4
     py-2
     rounded-full
+    fixed 
   "
 >
   📝 Text
@@ -198,21 +199,7 @@ useEffect(() => {
   Post
 </button>
 
-{/* IMAGE */}
-{preview &&
-  media?.type?.startsWith("image") && (
-    <img
-      src={preview}
-      alt=""
-      className="
-        absolute
-        inset-0
-        w-full
-        h-full
-        object-cover
-      "
-    />
-)}
+
 
 {/* VIDEO */}
 {preview &&
