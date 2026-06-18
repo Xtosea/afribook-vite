@@ -553,20 +553,20 @@ backdrop-blur-md
 )}
 
 
-<div
-‎  className= "
-‎    absolute
-‎    bottom-4
-‎    left-1/2
-‎    -translate-x-1/2
-‎    z-50
-‎  "
-‎>
-‎  <MediaUpload
-‎    mediaFiles={mediaFiles}
-‎    setMediaFiles={setMediaFiles}
-‎  />
-‎</div>
+<div  
+  className="  
+    absolute  
+    bottom-4  
+    left-1/2  
+    -translate-x-1/2  
+    z-50  
+  "  
+>  
+  <MediaUpload  
+    mediaFiles={mediaFiles}  
+    setMediaFiles={setMediaFiles}  
+  />  
+</div>
 ‎
 ‎
 
