@@ -75,7 +75,8 @@ const [taggedFriends, setTaggedFriends] = useState([]);
 // =========================
 // TEXT STYLE STATES
 // =========================
-
+const [textColor, setTextColor] =
+  useState("#ffffff");
 
 
 // =========================
