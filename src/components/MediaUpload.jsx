@@ -150,102 +150,127 @@ const MediaUpload = ({
   </button>
 </div>
 
-      {/* Preview Grid */}
-      {mediaFiles?.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
+      {/* Preview Section */}
+{mediaFiles?.length > 0 && (
+  mediaFiles.length === 1 ? (
+    <div className="mt-4">
+      {(() => {
+        const file = mediaFiles[0];
+        const preview = previewUrls[0];
 
-          {mediaFiles.map((file, i) => {
-            const preview = previewUrls[i];
+        const isImage =
+          file?.type?.startsWith?.("image");
 
-            const isImage =
-              file?.type?.startsWith?.("image");
+        const isVideo =
+          file?.type?.startsWith?.("video");
 
-            const isVideo =
-              file?.type?.startsWith?.("video");
+        return (
+          <div className="relative rounded-xl overflow-hidden shadow-md bg-black">
+            <button
+              type="button"
+              onClick={() => removeFile(0)}
+              className="
+                absolute
+                top-2
+                right-2
+                z-10
+                bg-black/70
+                text-white
+                w-8
+                h-8
+                rounded-full
+              "
+            >
+              ✕
+            </button>
 
-            return (
-              <div
-                key={`${i}-${preview}`}
-                className="
-                  relative
-                  group
-                  rounded-xl
-                  overflow-hidden
-                  shadow-md
-                  bg-black
-                "
-              >
-                {/* Remove Button */}
-                <button
-                  type="button"
-                  onClick={() => removeFile(i)}
-                  className="
-                    absolute
-                    top-2
-                    right-2
-                    z-10
-                    bg-black/70
-                    text-white
-                    w-7
-                    h-7
-                    rounded-full
-                    text-sm
-                  "
-                >
-                  ✕
-                </button>
+            {isImage && preview && (
+              <img
+                src={preview}
+                alt=""
+                className="w-full max-h-[500px] object-cover"
+              />
+            )}
 
-                {/* Image Preview */}
-                {isImage && preview && (
-                  <img
-                    src={preview}
-                    alt=""
-                    className="w-full h-40 object-cover"
-                  />
-                )}
-
-                {/* Video Preview */}
-                {isVideo && preview && (
-                  <video
-                    src={preview}
-                    controls
-                    muted
-                    className="w-full h-40 object-cover"
-                  />
-                )}
-
-                {/* Upload Progress */}
-                {uploadProgress?.[i] >= 0 && (
-                  <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center text-white">
-
-                    <div className="text-sm font-medium">
-                      Uploading...
-                    </div>
-
-                    <div className="w-3/4 h-2 bg-gray-700 rounded mt-2 overflow-hidden">
-                      <div
-                        className="h-full bg-blue-500"
-                        style={{
-                          width: `${uploadProgress[i] || 0}%`,
-                        }}
-                      />
-                    </div>
-
-                    <div className="text-xs mt-1">
-                      {uploadProgress[i] || 0}%
-                    </div>
-
-                  </div>
-                )}
-              </div>
-            );
-          })}
-
-        </div>
-      )}
-
+            {isVideo && preview && (
+              <video
+                src={preview}
+                controls
+                muted
+                className="w-full max-h-[500px] object-cover"
+              />
+            )}
+          </div>
+        );
+      })()}
     </div>
+  ) : (
+    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
+      {mediaFiles.map((file, i) => {
+        const preview = previewUrls[i];
+
+        const isImage =
+          file?.type?.startsWith?.("image");
+
+        const isVideo =
+          file?.type?.startsWith?.("video");
+
+        return (
+          <div
+            key={`${i}-${preview}`}
+            className="
+              relative
+              group
+              rounded-xl
+              overflow-hidden
+              shadow-md
+              bg-black
+            "
+          >
+            <button
+              type="button"
+              onClick={() => removeFile(i)}
+              className="
+                absolute
+                top-2
+                right-2
+                z-10
+                bg-black/70
+                text-white
+                w-7
+                h-7
+                rounded-full
+                text-sm
+              "
+            >
+              ✕
+            </button>
+
+            {isImage && preview && (
+              <img
+                src={preview}
+                alt=""
+                className="w-full h-40 object-cover"
+              />
+            )}
+
+            {isVideo && preview && (
+              <video
+                src={preview}
+                controls
+                muted
+                className="w-full h-40 object-cover"
+              />
+            )}
+          </div>
+        );
+      })}
+    </div>
+  )
+)}
+</div>
   );
 };
+
 
 export default MediaUpload;
