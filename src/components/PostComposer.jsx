@@ -453,8 +453,7 @@ setMediaFiles={setMediaFiles}
 
 />
 
-          
-</div>  
+         
 
   
 
