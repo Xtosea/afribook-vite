@@ -1,4 +1,5 @@
 import React from "react";
+import React, { useRef, useEffect } from "react";
 import Draggable from "react-draggable";
 
 
@@ -40,6 +41,16 @@ const PostEditor = ({
   activeTool,
   setActiveTool,
 }) => {
+
+const audioRef = useRef(null);
+
+useEffect(() => {
+  if (audioRef.current) {
+    audioRef.current.load();
+  }
+}, [music]);
+
+
   return (
     <div
       className="
@@ -87,7 +98,7 @@ top-16
         )}
 
       {/* MUSIC LABEL */}
-      {music && (
+{music && (
   <div
     className="
       absolute
@@ -95,7 +106,7 @@ top-16
       left-3
       bg-black/70
       text-white
-      px-4
+      px-3
       py-2
       rounded-full
       z-50
@@ -104,12 +115,40 @@ top-16
       gap-2
     "
   >
-    🎵
-    <span className="truncate max-w-[180px]">
-      {music.title}
+    <span>
+      🎵 {music.title || "Music"}
     </span>
+
+    <button
+      type="button"
+      onClick={() => audioRef.current?.play()}
+      className="
+        bg-green-500
+        px-2
+        py-1
+        rounded-full
+        text-xs
+      "
+    >
+      ▶
+    </button>
+
+    <button
+      type="button"
+      onClick={() => audioRef.current?.pause()}
+      className="
+        bg-red-500
+        px-2
+        py-1
+        rounded-full
+        text-xs
+      "
+    >
+      ⏸
+    </button>
   </div>
 )}
+
 
       {/* STICKERS */}
       {stickers.map((sticker, index) => (
@@ -441,18 +480,49 @@ backdrop-blur-md
 
 <div className="space-y-3">
   {music && (
-    <audio
-      controls
-      src={music.url}
-      className="w-full"
-    />
+    <div className="flex gap-2">
+  <button
+    type="button"
+    onClick={() => audioRef.current?.play()}
+    className="
+      px-4
+      py-2
+      rounded-lg
+      bg-green-500
+      text-white
+    "
+  >
+    ▶ Play
+  </button>
+
+  <button
+    type="button"
+    onClick={() => audioRef.current?.pause()}
+    className="
+      px-4
+      py-2
+      rounded-lg
+      bg-red-500
+      text-white
+    "
+  >
+    ⏸ Pause
+  </button>
+</div>
   )}
 
   <div className="max-h-40 overflow-y-auto">
     {musicList?.map((song) => (
       <button
         key={song._id}
-        onClick={() => setMusic(song)}
+        onClick={() => {
+  if (audioRef.current) {
+    audioRef.current.pause();
+    audioRef.current.currentTime = 0;
+  }
+
+  setMusic(song);
+}}
         className="
           block
           w-full
@@ -471,7 +541,13 @@ backdrop-blur-md
 </div>
 
 
-
+{music?.url && (
+  <audio
+    ref={audioRef}
+    src={music.url}
+    preload="metadata"
+  />
+)}
 
     </div>
   );
