@@ -188,22 +188,18 @@ const MediaUpload = ({
               <img
                 src={preview}
                 alt=""
-                {isImage && preview && (
-  <img
-    src={preview}
-    alt=""
-    className="w-full h-[70vh] object-cover"
-  />
-)}
+                className="w-full max-h-[500px] object-cover"
+              />
+            )}
 
             {isVideo && preview && (
-  <video
-    src={preview}
-    controls
-    muted
-    className="w-full h-[70vh] object-cover"
-  />
-)}
+              <video
+                src={preview}
+                controls
+                muted
+                className="w-full max-h-[500px] object-cover"
+              />
+            )}
           </div>
         );
       })()}
@@ -254,8 +250,9 @@ const MediaUpload = ({
               <img
                 src={preview}
                 alt=""
-                className="w-full h-40 object-cover"
-              />
+                className="w-full h-[70vh] object-cover"
+  />
+              
             )}
 
             {isVideo && preview && (
@@ -263,7 +260,7 @@ const MediaUpload = ({
                 src={preview}
                 controls
                 muted
-                className="w-full h-40 object-cover"
+                className="w-full h-[70vh] object-cover"
               />
             )}
           </div>
