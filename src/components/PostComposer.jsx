@@ -36,32 +36,20 @@ import("emoji-picker-react")
 
 
 
-const emojiList = [
-  "🔥",
-  "❤️",
-  "😂",
-  "😎",
-  "🎉",
-  "💯",
-];
+
 
 
 const [showTextArea, setShowTextArea] = useState(false);
 const [posting, setPosting] =
 useState(false);
 
-const [loading, setLoading] =
-useState(false);
+
 
 const [newPost, setNewPost] =
 useState("");
 
 const [mediaFiles, setMediaFiles] =
 useState([]);
-
-
-const [selectedFile, setSelectedFile] =
-useState(null);
 
 const [showEmoji, setShowEmoji] =
 useState(false);
@@ -267,8 +255,8 @@ const res = await fetch(`${API_BASE}/api/posts`, {
   feeling,
   taggedFriends,
   textColor,
-  backgroundStyle,
-  fontStyle,
+  
+  ,
 }),
 });  
 
@@ -282,7 +270,7 @@ setNewPost("");
 setMediaFiles([]);  
 setSelectedFile(null);  
   
-setLocationSuggestions([]);  
+  
 setMusic(null);
 setStickers([]);
 setSelectedSticker(null);
@@ -351,10 +339,9 @@ onClick={() => {
 
 setNewPost("");  
 setMediaFiles([]);  
-setSelectedFile(null);  
   
-setLocationSuggestions([]);  
   
+
 
 setMusic(null);
 setStickers([]);
@@ -473,22 +460,21 @@ rounded-full
       currentUser?.name || "User"
     }?`}
     
-    className={`
-      w-full
-      p-6
-      rounded-2xl
-      resize-y
-      transition-all
-      duration-200
-      focus:outline-none
-      focus:ring-2
-      focus:ring-blue-400
-      min-h-[20px]
-      text-lg
-      border-0
-      shadow-none
-      ${fontStyle}
-    `}
+    className="
+  w-full
+  p-6
+  rounded-2xl
+  resize-y
+  transition-all
+  duration-200
+  focus:outline-none
+  focus:ring-2
+  focus:ring-blue-400
+  min-h-[20px]
+  text-lg
+  border-0
+  shadow-none
+"
   />
 )}
 
