@@ -265,16 +265,8 @@ if (!res.ok) throw new Error(data.error || "Post failed");
 setNewPost("");  
 setMediaFiles([]);  
 setSelectedFile(null);  
-setLocation("");  
-setFeeling("");  
-setTagInput("");  
-setTaggedFriends([]);  
+  
 setLocationSuggestions([]);  
-
-setTextColor("#000000");  
-setBackgroundStyle("white");  
-setFontStyle("font-sans");  
-
 setMusic(null);
 setStickers([]);
 setSelectedSticker(null);
@@ -344,11 +336,9 @@ onClick={() => {
 setNewPost("");  
 setMediaFiles([]);  
 setSelectedFile(null);  
-setLocation("");  
+  
 setLocationSuggestions([]);  
-setFeeling("");  
-setTagInput("");  
-setTaggedFriends([]);  
+  
 
 setMusic(null);
 setStickers([]);
