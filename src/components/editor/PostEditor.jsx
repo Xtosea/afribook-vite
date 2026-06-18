@@ -12,6 +12,10 @@ currentUser,
   media,
   text,
 
+  showTextArea,
+  setShowTextArea,
+
+
   textPosition,
   setTextPosition,
 
@@ -156,6 +160,24 @@ useEffect(() => {
     </span>
   </div>
 </div>
+
+<button
+  type="button"
+  onClick={() => setShowTextArea(!showTextArea)}
+  className="
+    absolute
+    bottom-20
+    left-4
+    z-50
+    bg-black/70
+    text-white
+    px-4
+    py-2
+    rounded-full
+  "
+>
+  📝 Text
+</button>
 
 
 <button
