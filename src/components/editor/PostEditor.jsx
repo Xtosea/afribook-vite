@@ -201,22 +201,6 @@ useEffect(() => {
 
 
 
-{/* VIDEO */}
-{preview &&
-  media?.type?.startsWith("video") && (
-    <video
-      src={preview}
-      controls
-      className="
-        absolute
-        inset-0
-        w-full
-        h-full
-        object-cover
-      "
-    />
-)}
-
           
 
       {/* MUSIC LABEL */}
