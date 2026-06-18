@@ -95,7 +95,7 @@ useEffect(() => {
 
 <button
   type="button"
-  onClick={handleCancel}
+  onClick={onCancel}
   className="
     absolute
     top-4
