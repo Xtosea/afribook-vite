@@ -38,7 +38,26 @@ const PostEditor = ({
 
   activeTool,
   setActiveTool,
+
+  location,
+  setLocation,
+
+  feeling,
+  setFeeling,
+
+  tagInput,
+  setTagInput,
+
+  handleTagFriends,
+
+  handleSubmitPost,
+
+  onCancel,
+
+  mediaFiles,
+  setMediaFiles,
 }) => {
+
 
 const audioRef = useRef(null);
 
@@ -49,7 +68,81 @@ useEffect(() => {
 }, [music]);
 
 
+const handleCancel = () => {
+  setNewPost("");
+  setMediaFiles([]);
+  setSelectedFile(null);
+
+  setLocation("");
+  setLocationSuggestions([]);
+
+  setFeeling("");
+
+  setTagInput("");
+  setTaggedFriends([]);
+
+  setMusic(null);
+  setStickers([]);
+  setSelectedSticker(null);
+
+  setTextRotation(0);
+  setTextPosition({ x: 50, y: 50 });
+
+  setSize(60);
+
+  setBackgroundColor("#000000");
+
+  setActiveTool(null);
+
+  navigate("/");
+};
+
+
   return (
+
+<PostEditor
+  preview={...}
+  media={...}
+
+  location={location}
+  setLocation={setLocation}
+
+  feeling={feeling}
+  setFeeling={setFeeling}
+
+  tagInput={tagInput}
+  setTagInput={setTagInput}
+
+  handleTagFriends={handleTagFriends}
+
+  handleSubmitPost={handleSubmitPost}
+
+  onCancel={handleCancel}
+
+  mediaFiles={mediaFiles}
+  setMediaFiles={setMediaFiles}
+/>
+
+<button
+  type="button"
+  onClick={() => fileInputRef.current?.click()}
+  className="
+    absolute
+    bottom-4
+    left-1/2
+    -translate-x-1/2
+    z-50
+    bg-green-500
+    text-white
+    px-5
+    py-3
+    rounded-full
+  "
+>
+  📷 Add Media
+</button>
+
+
     <div
       className="
 relative
@@ -62,6 +155,47 @@ sticky
 top-16
 "
       style={{ backgroundColor }}
+
+<button
+  type="button"
+  onClick={onCancel}
+  className="
+    absolute
+    top-4
+    left-4
+    z-50
+    bg-black/70
+    text-white
+    px-4
+    py-2
+    rounded-full
+  "
+>
+  ✕ Cancel
+</button>
+
+<button
+  type="button"
+  onClick={handleSubmitPost}
+  className="
+    absolute
+    top-4
+    right-4
+    z-50
+    bg-blue-500
+    text-white
+    px-5
+    py-2
+    rounded-full
+  "
+>
+  Post
+</button>
+
+
+
+
+
     >
       {/* IMAGE */}
       {preview &&
@@ -239,6 +373,31 @@ top-16
   "
 >
   <button
+    type="button"
+    onClick={() => setActiveTool("location")}
+    className="w-12 h-12 rounded-full bg-black/60 text-white"
+  >
+    📍
+  </button>
+
+  <button
+    type="button"
+    onClick={() => setActiveTool("feeling")}
+    className="w-12 h-12 rounded-full bg-black/60 text-white"
+  >
+    😊
+  </button>
+
+  <button
+    type="button"
+    onClick={() => setActiveTool("tag")}
+    className="w-12 h-12 rounded-full bg-black/60 text-white"
+  >
+    🏷
+  </button>
+
+  <button
+    type="button"
     onClick={() => setActiveTool("sticker")}
     className="w-12 h-12 rounded-full bg-black/60 text-white"
   >
@@ -246,6 +405,7 @@ top-16
   </button>
 
   <button
+    type="button"
     onClick={() => setActiveTool("music")}
     className="w-12 h-12 rounded-full bg-black/60 text-white"
   >
@@ -253,6 +413,7 @@ top-16
   </button>
 
   <button
+    type="button"
     onClick={() => setActiveTool("color")}
     className="w-12 h-12 rounded-full bg-black/60 text-white"
   >
@@ -260,6 +421,7 @@ top-16
   </button>
 
   <button
+    type="button"
     onClick={() => setActiveTool("rotate")}
     className="w-12 h-12 rounded-full bg-black/60 text-white"
   >
@@ -267,6 +429,7 @@ top-16
   </button>
 
   <button
+    type="button"
     onClick={() => setActiveTool("size")}
     className="w-12 h-12 rounded-full bg-black/60 text-white"
   >
@@ -274,12 +437,14 @@ top-16
   </button>
 
   <button
+    type="button"
     onClick={() => setActiveTool("background")}
     className="w-12 h-12 rounded-full bg-black/60 text-white"
   >
     🌈
   </button>
 </div>
+
 
     {activeTool && (
   <div
@@ -422,6 +587,36 @@ backdrop-blur-md
 </div>
 )}
 
+
+{activeTool === "location" && (
+  <input
+    value={location}
+    onChange={(e) => setLocation(e.target.value)}
+    placeholder="Add location..."
+    className="w-full p-3 rounded-lg"
+  />
+)}
+
+
+{activeTool === "feeling" && (
+  <input
+    value={feeling}
+    onChange={(e) => setFeeling(e.target.value)}
+    placeholder="How are you feeling?"
+    className="w-full p-3 rounded-lg"
+  />
+)}
+
+
+{activeTool === "tag" && (
+  <input
+    value={tagInput}
+    onChange={(e) => handleTagFriends(e.target.value)}
+    placeholder="Tag friends..."
+    className="w-full p-3 rounded-lg"
+  />
+)}
+
   
 {music?.url && (
   <audio
@@ -430,6 +625,25 @@ backdrop-blur-md
     preload="metadata"
   />
 )}
+
+<button
+  type="button"
+  onClick={() => fileInputRef.current?.click()}
+  className="
+    absolute
+    bottom-4
+    left-1/2
+    -translate-x-1/2
+    z-50
+    bg-green-500
+    text-white
+    px-5
+    py-3
+    rounded-full
+  "
+>
+  📷 post
+</button>
 
     </div>
   );
