@@ -68,60 +68,10 @@ useEffect(() => {
 }, [music]);
 
 
-const handleCancel = () => {
-  setNewPost("");
-  setMediaFiles([]);
-  setSelectedFile(null);
 
-  setLocation("");
-  setLocationSuggestions([]);
-
-  setFeeling("");
-
-  setTagInput("");
-  setTaggedFriends([]);
-
-  setMusic(null);
-  setStickers([]);
-  setSelectedSticker(null);
-
-  setTextRotation(0);
-  setTextPosition({ x: 50, y: 50 });
-
-  setSize(60);
-
-  setBackgroundColor("#000000");
-
-  setActiveTool(null);
-
-  navigate("/");
-};
 
 
   return (
-
-<PostEditor
-  preview={...}
-  media={...}
-
-  location={location}
-  setLocation={setLocation}
-
-  feeling={feeling}
-  setFeeling={setFeeling}
-
-  tagInput={tagInput}
-  setTagInput={setTagInput}
-
-  handleTagFriends={handleTagFriends}
-
-  handleSubmitPost={handleSubmitPost}
-
-  onCancel={handleCancel}
-
-  mediaFiles={mediaFiles}
-  setMediaFiles={setMediaFiles}
-/>
 
 <button
   type="button"
@@ -156,7 +106,9 @@ top-16
 "
       style={{ backgroundColor }}
 
-<button
+ >
+
+button
   type="button"
   onClick={onCancel}
   className="
@@ -193,11 +145,7 @@ top-16
 </button>
 
 
-
-
-
-    >
-      {/* IMAGE */}
+          {/* IMAGE */}
       {preview &&
         media?.type?.startsWith("image") && (
           <img
@@ -363,13 +311,14 @@ top-16
 {/* TOOLBAR */}
 <div
   className="
-    absolute
-    top-4
-    right-4
-    z-50
-    flex
-    flex-col
-    gap-3
+  absolute
+  top-20
+  right-4
+  z-50
+  flex
+  flex-col
+  gap-3
+"
   "
 >
   <button
@@ -584,10 +533,6 @@ backdrop-blur-md
   />
 )}
 
-</div>
-)}
-
-
 {activeTool === "location" && (
   <input
     value={location}
@@ -616,6 +561,10 @@ backdrop-blur-md
     className="w-full p-3 rounded-lg"
   />
 )}
+
+</div>
+)}
+
 
   
 {music?.url && (
