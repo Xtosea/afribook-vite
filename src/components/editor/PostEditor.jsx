@@ -70,11 +70,22 @@ useEffect(() => {
 
 
 
+ return (
+  <div
+    className="
+      relative
+      w-full
+      h-[80vh]
+      rounded-xl
+      overflow-hidden
+      bg-black
+      sticky
+      top-16
+    "
+    style={{ backgroundColor }}
+  >
 
-
-  return (
-
-<button
+button
   type="button"
   onClick={() => fileInputRef.current?.click()}
 >
@@ -82,22 +93,7 @@ useEffect(() => {
 </button>
 
 
-    <div
-      className="
-relative
-w-full
-h-[80vh]
-rounded-xl
-overflow-hidden
-bg-black
-sticky
-top-16
-"
-      style={{ backgroundColor }}
-
- >
-
-button
+<button
   type="button"
   onClick={onCancel}
   className="
@@ -308,7 +304,7 @@ button
   flex-col
   gap-3
 "
-  "
+  
 >
   <button
     type="button"
