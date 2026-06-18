@@ -120,6 +120,22 @@ const [music, setMusic] = useState(null);
 const [musicList, setMusicList] = useState([]);
 
 
+
+// =========================
+// HANDLE TAHFRINDS 
+// =========================
+const handleTagFriends = (value) => {
+  setTagInput(value);
+
+  setTaggedFriends(
+    value
+      .split(",")
+      .map((friend) => friend.trim())
+      .filter(Boolean)
+  );
+};
+
+
 // =========================
 // HANDLE CANCEL 
 // =========================
@@ -235,7 +251,7 @@ const res = await fetch(`${API_BASE}/api/posts`, {
     textRotation,
     textSize: size,
     textColor,
-    backgroundColor,
+    
     stickers,
 
     music: music
