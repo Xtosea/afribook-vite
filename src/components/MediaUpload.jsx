@@ -188,18 +188,16 @@ const MediaUpload = ({
               <img
                 src={preview}
                 alt=""
-                className="w-full max-h-[500px] object-cover"
-              />
-            )}
+                className="w-full h-[70vh] object-cover"
 
             {isVideo && preview && (
-              <video
-                src={preview}
-                controls
-                muted
-                className="w-full max-h-[500px] object-cover"
-              />
-            )}
+  <video
+    src={preview}
+    controls
+    muted
+    className="w-full h-[70vh] object-cover"
+  />
+)}
           </div>
         );
       })()}
