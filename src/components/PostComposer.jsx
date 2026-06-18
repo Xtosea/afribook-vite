@@ -445,6 +445,14 @@ rounded-full
       : null
   }
   media={mediaFiles[0]}
+currentUser={currentUser}
+
+  preview={
+    mediaFiles[0]
+      ? URL.createObjectURL(mediaFiles[0])
+      : null
+  }
+
   text={newPost}
 
   textPosition={textPosition}
