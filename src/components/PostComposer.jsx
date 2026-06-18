@@ -243,22 +243,21 @@ const res = await fetch(`${API_BASE}/api/posts`, {
   media: uploadedMedia,
 
   editor: {
-    editor: {
-  textPosition,
-  textRotation,
-  textSize: size,
-  textColor,
-  backgroundColor,
-  stickers,
+    textPosition,
+    textRotation,
+    textSize: size,
+    textColor,
+    backgroundColor,
+    stickers,
 
-  music: music
-    ? {
-        _id: music._id,
-        title: music.title,
-        url: music.url,
-      }
-    : null,
-},
+    music: music
+      ? {
+          _id: music._id,
+          title: music.title,
+          url: music.url,
+        }
+      : null,
+  },
 
   location,
   feeling,
