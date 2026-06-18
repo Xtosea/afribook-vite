@@ -66,47 +66,17 @@ useState(null);
 const [showEmoji, setShowEmoji] =
 useState(false);
 
-const [showLocation, setShowLocation] =
-useState(false);
+const [location, setLocation] = useState("");
+const [feeling, setFeeling] = useState("");
+const [tagInput, setTagInput] = useState("");
+const [taggedFriends, setTaggedFriends] = useState([]);
 
-const [showCustomize, setShowCustomize] =
-useState(false);
-
-const [showFeeling, setShowFeeling] =
-useState(false);
-
-const [showTag, setShowTag] =
-useState(false);
-
-const [location, setLocation] =
-useState("");
-
-const [feeling, setFeeling] =
-useState("");
-
-const [tagInput, setTagInput] =
-useState("");
-
-const [taggedFriends, setTaggedFriends] =
-useState([]);
-
-const [
-locationSuggestions,
-setLocationSuggestions,
-] = useState([]);
 
 // =========================
 // TEXT STYLE STATES
 // =========================
 
-const [textColor, setTextColor] =
-useState("#000000");
 
-const [backgroundStyle, setBackgroundStyle] =
-useState("white");
-
-const [fontStyle, setFontStyle] =
-useState("font-sans");
 
 // =========================
 // CLOUDINARY
@@ -150,19 +120,36 @@ const [musicList, setMusicList] = useState([]);
 
 
 // =========================
-// TAG FRIENDS
+// HANDLE CANCEL 
 // =========================
 
-const handleTagFriends = (value) => {
+const handleCancel = () => {
 
-setTagInput(value);  
+setNewPost("");
+setMediaFiles([]);
+setSelectedFile(null);
 
-setTaggedFriends(  
-  value  
-    .split(",")  
-    .map((f) => f.trim())  
-    .filter(Boolean)  
-);
+setLocation("");
+setFeeling("");
+setTagInput("");
+setTaggedFriends([]);
+
+setMusic(null);
+setStickers([]);
+setSelectedSticker(null);
+
+setTextRotation(0);
+setTextPosition({
+ x:50,
+ y:50
+});
+
+setSize(60);
+setBackgroundColor("#000000");
+
+setActiveTool(null);
+
+navigate("/");
 
 };
 
@@ -558,123 +545,7 @@ rounded-full
 
       )}  
 
-      {/* LOCATION */}  
-
-      {showLocation && (  
-
-        <div className="relative">  
-
-          <input  
-            value={location}  
-            onChange={async (e) => {  
-
-              const value =  
-                e.target.value;  
-
-              setLocation(value);  
-
-              if (  
-                value.length < 2  
-              ) {  
-
-                setLocationSuggestions(  
-                  []  
-                );  
-
-                return;  
-              }  
-
-              try {  
-
-                const res =  
-                  await fetch(  
-                    `https://nominatim.openstreetmap.org/search?format=json&q=${value}`  
-                  );  
-
-                const data =  
-                  await res.json();  
-
-                setLocationSuggestions(  
-                  data.slice(0, 5)  
-                );  
-
-              } catch (err) {  
-
-                console.error(err);  
-
-              }  
-            }}  
-            placeholder="Add location..."  
-            className="w-full border p-2 rounded-lg"  
-          />  
-
-          {locationSuggestions.length > 0 && (  
-
-            <div className="absolute z-50 w-full bg-white border rounded-xl shadow-lg mt-1 max-h-60 overflow-y-auto">  
-
-              {locationSuggestions.map(  
-                (item) => (  
-
-                  <button  
-                    key={  
-                      item.place_id  
-                    }  
-                    type="button"  
-                    onClick={() => {  
-
-                      setLocation(  
-                        item.display_name  
-                      );  
-
-                      setLocationSuggestions(  
-                        []  
-                      );  
-                    }}  
-                    className="w-full text-left px-4 py-3 hover:bg-gray-100 text-sm"  
-                  >  
-                    📍{" "}  
-                    {  
-                      item.display_name  
-                    }  
-                  </button>  
-                )  
-              )}  
-            </div>  
-          )}  
-        </div>  
-      )}  
-
-      {/* FEELING */}  
-
-      {showFeeling && (  
-
-        <input  
-          value={feeling}  
-          onChange={(e) =>  
-            setFeeling(  
-              e.target.value  
-            )  
-          }  
-          placeholder="How are you feeling?"  
-          className="w-full border p-2 rounded-lg"  
-        />  
-      )}  
-
-      {/* TAG */}  
-
-      {showTag && (  
-
-        <input  
-          value={tagInput}  
-          onChange={(e) =>  
-            handleTagFriends(  
-              e.target.value  
-            )  
-          }  
-          placeholder="Tag friends"  
-          className="w-full border p-2 rounded-lg"  
-        />  
-      )}  
+      
 
 {/* POSTEDITOR */}
 
