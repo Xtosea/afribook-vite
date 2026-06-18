@@ -268,7 +268,7 @@ if (!res.ok) throw new Error(data.error || "Post failed");
 // RESET (ONLY ONCE, INSIDE FUNCTION)  
 setNewPost("");  
 setMediaFiles([]);  
-setSelectedFile(null);  
+  
   
   
 setMusic(null);
@@ -317,80 +317,6 @@ return (
     mx-auto
 "
 >
-
-<div  
-  className="  
-    sticky  
-    top-0  
-    z-50  
-    bg-white  
-    border-b  
-    px-4  
-    py-3  
-    flex  
-    items-center  
-    justify-between  
-  "  
->  
-  <button
-
-type="button"
-onClick={() => {
-
-setNewPost("");  
-setMediaFiles([]);  
-  
-  
-
-
-setMusic(null);
-setStickers([]);
-setSelectedSticker(null);
-setTextRotation(0);
-setTextPosition({ x: 50, y: 50 });
-setSize(60);
-setBackgroundColor("#000000");
-setActiveTool(null);
-
-
-navigate("/");
-
-}}
-className="text-red-500 font-medium"
-
-> 
-
-Cancel
-</button>
-
-<h2 className="font-bold text-lg">  
-    Create Post  
-  </h2>  
-
-  <button
-
-type="submit"
-disabled={posting}
-className={`
-  text-white
-  font-semibold
-  px-8
-  py-2.5
-  rounded-full
-  min-w-[110px]
-  transition
-  ${
-    posting
-      ? "bg-gray-400"
-      : "bg-blue-500 hover:bg-blue-600"
-  }
-`}
-
-> 
-
-{posting ? "Posting..." : "Post"}
-</button>
-</div>
 
 <div className="p-5 space-y-4">
 
@@ -449,7 +375,7 @@ rounded-full
 {/* TEXTAREA */}
 {showTextArea && (
   <textarea
-    rows={4}
+    rows={2}
     value={newPost}
     onChange={(e) => setNewPost(e.target.value)}
     onInput={(e) => {
@@ -470,7 +396,7 @@ rounded-full
   focus:outline-none
   focus:ring-2
   focus:ring-blue-400
-  min-h-[20px]
+  min-h-[10px]
   text-lg
   border-0
   shadow-none
