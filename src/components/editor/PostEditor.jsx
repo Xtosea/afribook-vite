@@ -43,13 +43,15 @@ const PostEditor = ({
   return (
     <div
       className="
-        relative
-        w-full
-        h-[70vh]
-        rounded-xl
-        overflow-hidden
-        bg-black
-      "
+relative
+w-full
+h-[80vh]
+rounded-xl
+overflow-hidden
+bg-black
+sticky
+top-16
+"
       style={{ backgroundColor }}
     >
       {/* IMAGE */}
@@ -86,22 +88,28 @@ const PostEditor = ({
 
       {/* MUSIC LABEL */}
       {music && (
-        <div
-          className="
-            absolute
-            top-3
-            left-3
-            bg-black/70
-            text-white
-            px-3
-            py-1
-            rounded-full
-            z-50
-          "
-        >
-          🎵 {music.title || "Music"}
-        </div>
-      )}
+  <div
+    className="
+      absolute
+      top-3
+      left-3
+      bg-black/70
+      text-white
+      px-4
+      py-2
+      rounded-full
+      z-50
+      flex
+      items-center
+      gap-2
+    "
+  >
+    🎵
+    <span className="truncate max-w-[180px]">
+      {music.title}
+    </span>
+  </div>
+)}
 
       {/* STICKERS */}
       {stickers.map((sticker, index) => (
@@ -243,8 +251,11 @@ const PostEditor = ({
       bottom-0
       left-0
       right-0
-      bg-black/80
-      p-4
+      bg-black/90
+p-4
+max-h-[35vh]
+overflow-y-auto
+backdrop-blur-md
       z-50
     "
   >
@@ -278,27 +289,37 @@ const PostEditor = ({
 
 
 {activeTool === "music" && (
-  <div className="space-y-2 max-h-40 overflow-y-auto">
-    {musicList?.map((song) => (
-      <button
-        key={song._id}
-        onClick={() => {
-          setMusic(song);
-          setActiveTool(null);
-        }}
-        className="
-          block
-          w-full
-          text-left
-          text-white
-          p-2
-          rounded
-          bg-white/10
-        "
-      >
-        🎵 {song.title}
-      </button>
-    ))}
+  <div className="space-y-3">
+    {/* Selected music player */}
+    {music?.url && (
+      <audio
+        controls
+        src={music.url}
+        className="w-full"
+      />
+    )}
+
+    {/* Music list */}
+    <div className="max-h-48 overflow-y-auto space-y-2">
+      {musicList?.map((song) => (
+        <button
+          key={song._id}
+          type="button"
+          onClick={() => setMusic(song)}
+          className="
+            block
+            w-full
+            text-left
+            p-3
+            rounded-lg
+            bg-white/10
+            text-white
+          "
+        >
+          🎵 {song.title}
+        </button>
+      ))}
+    </div>
   </div>
 )}
 
@@ -363,6 +384,94 @@ const PostEditor = ({
 
 </div>
 )}
+
+<>
+  <div className="flex gap-3 flex-wrap mb-4">
+    {["🔥","❤️","😂","😎","🎉","💯"].map(
+      (emoji) => (
+        <button
+          key={emoji}
+          className="text-3xl"
+          onClick={() =>
+            setStickers((prev) => [
+              ...prev,
+              {
+                emoji,
+                x: 100,
+                y: 100,
+                size: 60,
+              },
+            ])
+          }
+        >
+          {emoji}
+        </button>
+      )
+    )}
+  </div>
+
+  {selectedSticker !== null && (
+    <>
+      <p className="text-white mb-2">
+        Sticker Size
+      </p>
+
+      <input
+        type="range"
+        min="20"
+        max="250"
+        value={
+          stickers[selectedSticker]?.size || 60
+        }
+        onChange={(e) => {
+          const updated = [...stickers];
+
+          updated[selectedSticker] = {
+            ...updated[selectedSticker],
+            size: Number(e.target.value),
+          };
+
+          setStickers(updated);
+        }}
+        className="w-full"
+      />
+    </>
+  )}
+</>
+
+<div className="space-y-3">
+  {music && (
+    <audio
+      controls
+      src={music.url}
+      className="w-full"
+    />
+  )}
+
+  <div className="max-h-40 overflow-y-auto">
+    {musicList?.map((song) => (
+      <button
+        key={song._id}
+        onClick={() => setMusic(song)}
+        className="
+          block
+          w-full
+          text-left
+          text-white
+          p-2
+          rounded
+          bg-white/10
+          mb-2
+        "
+      >
+        🎵 {song.title}
+      </button>
+    ))}
+  </div>
+</div>
+
+
+
 
     </div>
   );
