@@ -256,7 +256,7 @@ const res = await fetch(`${API_BASE}/api/posts`, {
   taggedFriends,
   textColor,
   
-  ,
+  
 }),
 });  
 
