@@ -188,7 +188,13 @@ const MediaUpload = ({
               <img
                 src={preview}
                 alt=""
-                className="w-full h-[70vh] object-cover"
+                {isImage && preview && (
+  <img
+    src={preview}
+    alt=""
+    className="w-full h-[70vh] object-cover"
+  />
+)}
 
             {isVideo && preview && (
   <video
