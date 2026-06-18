@@ -297,34 +297,7 @@ setPosting(false);
 // BACKGROUND STYLES
 // =========================
 
-const getBackgroundStyle = () => {
 
-switch (backgroundStyle) {  
-
-  case "gradient-purple":  
-    return {  
-      background:  
-        "linear-gradient(to right, #ec4899, #8b5cf6)",  
-    };  
-
-  case "gradient-blue":  
-    return {  
-      background:  
-        "linear-gradient(to right, #3b82f6, #06b6d4)",  
-    };  
-
-  case "dark":  
-    return {  
-      background: "#111827",  
-    };  
-
-  default:  
-    return {  
-      background: "#ffffff",  
-    };  
-}
-
-};
 
 return (
 
