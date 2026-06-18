@@ -1,6 +1,5 @@
 import React, { useRef, useEffect } from "react";
 import Draggable from "react-draggable";
-import MediaUpload from "../MediaUpload";
 
 
 
@@ -546,8 +545,7 @@ backdrop-blur-md
 )}
 
 
-  
-{music?.url && (
+ {music?.url && (
   <audio
     ref={audioRef}
     src={music.url}
@@ -555,22 +553,6 @@ backdrop-blur-md
   />
 )}
 
-
-
-<div
-  className="
-    absolute
-    bottom-4
-    left-1/2
-    -translate-x-1/2
-    z-50
-  "
->
-  <MediaUpload
-    mediaFiles={mediaFiles}
-    setMediaFiles={setMediaFiles}
-  />
-</div>
 
     </div>
   );
