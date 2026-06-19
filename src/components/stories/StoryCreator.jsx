@@ -305,25 +305,6 @@ style={{ backgroundColor }}
   </div>
 
 
-    <div>
-  <p className="text-white font-semibold text-sm">
-    {currentUser?.name}
-  </p>
-
-  <div className="flex items-center gap-2 flex-wrap">
-    <span
-      className="
-        text-xs
-        bg-black/50
-        text-white
-        px-2
-        py-1
-        rounded-full
-      "
-    >
-      🌎 Public
-    </span>
-
     {music && (
       <span
         className="
