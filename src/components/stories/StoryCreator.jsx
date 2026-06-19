@@ -321,7 +321,7 @@ style={{ backgroundColor }}
     Post
   </button>
 )}
-
+</div>
 
 <div className="absolute top-20 right-3 flex flex-col gap-2 z-50">
 
