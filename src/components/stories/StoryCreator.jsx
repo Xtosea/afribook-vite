@@ -22,6 +22,11 @@ const emojiList = [
 ];
 
 
+const currentUser = JSON.parse(
+  localStorage.getItem("user")
+);
+
+
 const StoryCreator = ({ onClose, onSelectFile }) => {
 
 
@@ -315,44 +320,6 @@ style={{ backgroundColor }}
   </button>
 
 </div>
-
-<div
-  className="relative mb-3 h-[70vh] rounded-xl overflow-hidden bg-black"
-  style={{ backgroundColor }}
->
-
-  {/* TOP BAR */}
-  <div className="absolute top-3 left-3 right-3 z-50 flex items-center justify-between">
-
-    <div className="flex items-center gap-2">
-      <img
-        src={currentUser?.profilePicture}
-        alt=""
-        className="w-10 h-10 rounded-full object-cover"
-      />
-
-      <div>
-        <p className="text-white font-semibold">
-          {currentUser?.name}
-        </p>
-
-        <span className="text-xs text-white">
-          🌎 Public
-        </span>
-      </div>
-    </div>
-
-    <button
-      onClick={handlePost}
-      className="bg-blue-600 text-white px-4 py-2 rounded-full"
-    >
-      Post
-    </button>
-
-  </div>
-
-  </div>
-
 
 
 <div className="absolute top-3 right-3 flex flex-col gap-2 z-50">
