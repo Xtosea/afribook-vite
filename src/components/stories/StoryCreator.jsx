@@ -273,15 +273,15 @@ style={{ backgroundColor }}
 {/* TOP BAR */}
 <div className="absolute top-3 left-3 right-3 z-50 flex items-center justify-between">
 
-  {/* USER */}
   <div className="flex items-center gap-2">
+
     <img
       src={
         currentUser?.profilePicture ||
         "/default-avatar.png"
       }
       alt=""
-      className="w-10 h-10 rounded-full object-cover border-2 border-white"
+      className="w-14 h-14 rounded-full object-cover border-2 border-white"
     />
 
     <div>
@@ -302,12 +302,11 @@ style={{ backgroundColor }}
         🌎 Public
       </span>
     </div>
-  </div>
-
 
     {music && (
       <span
         className="
+          ml-2
           text-xs
           bg-green-600/80
           text-white
@@ -318,31 +317,32 @@ style={{ backgroundColor }}
           truncate
         "
       >
-        🎵 {music.title || "Music"}
+        🎵 {music.title}
       </span>
     )}
   </div>
-</div>
 
+  {(preview ||
+    text ||
+    music ||
+    stickers.length > 0 ||
+    backgroundColor !== "#000000") && (
+    <button
+      onClick={handlePost}
+      className="
+        bg-blue-600
+        text-white
+        px-5
+        py-3
+        rounded-full
+        font-semibold
+        shadow-lg
+      "
+    >
+      Post
+    </button>
+  )}
 
-
-  {/* POST BUTTON */}
-  {preview && (
-  <button
-    onClick={handlePost}
-    className="
-      bg-blue-600
-      text-white
-      px-5
-      py-3
-      rounded-full
-      font-semibold
-      shadow-lg
-    "
-  >
-    Post
-  </button>
-)}
 </div>
 
 <div className="absolute top-20 right-3 flex flex-col gap-2 z-50">
