@@ -200,38 +200,35 @@ useEffect(() => {
 </button>
 
 
-{/* IMAGE */}
-{preview &&
-  media?.type?.startsWith("image") && (
-    <img
-      src={preview}
-      alt=""
-      className="
-        absolute
-        inset-0
-        w-full
-        h-full
-        object-cover
-      "
-    />
-)}
-
-
-{/* VIDEO */}
-{preview &&
-  media?.type?.startsWith("video") && (
-    <video
-      src={preview}
-      controls
-      className="
-        absolute
-        inset-0
-        w-full
-        h-full
-        object-cover
-      "
-    />
-)}
+<div
+  className={`absolute inset-0 grid gap-1 ${
+    mediaFiles.length === 2
+      ? "grid-cols-2"
+      : mediaFiles.length >= 3
+      ? "grid-cols-2 grid-rows-2"
+      : ""
+  }`}
+>
+  {mediaFiles.map((file, index) => (
+    <div
+      key={index}
+      className="overflow-hidden"
+    >
+      {file.type.startsWith("image") ? (
+        <img
+          src={URL.createObjectURL(file)}
+          alt=""
+          className="w-full h-full object-cover"
+        />
+      ) : (
+        <video
+          src={URL.createObjectURL(file)}
+          className="w-full h-full object-cover"
+        />
+      )}
+    </div>
+  ))}
+</div>
 
           
 
