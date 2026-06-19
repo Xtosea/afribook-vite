@@ -6,12 +6,6 @@ useEffect,
 
 import { API_BASE } from "../../api/api";
 import Draggable from "react-draggable";
-import { uploadToCloudinary }
-from "../../utils/uploadToCloudinary";
-import PostEditor from "../editor/PostEditor";
-
-
-
 
 const emojiList = [
 "🔥",
@@ -22,14 +16,11 @@ const emojiList = [
 "💯",
 ];
 
-
 const StoryCreator = ({ onClose, onSelectFile }) => {
 
 
 const fileRef = useRef();
 const audioRef = useRef();
-
-
 
 // ================= STATES =================
 const [media, setMedia] = useState(null);
@@ -58,138 +49,30 @@ const [textRotation, setTextRotation] =
 const [selectedSticker, setSelectedSticker] =
   useState(null);
 
-const [activeTool, setActiveTool] = useState(null);
+const [showTextTools, setShowTextTools] =
+  useState(false);
 
-const [cloudinaryUrl, setCloudinaryUrl] = useState(null);
+const [showStickerTools, setShowStickerTools] =
+  useState(false);
+
+const [showMusicTools, setShowMusicTools] =
+  useState(false);
+const [showColorTools, setShowColorTools] =
+  useState(false);
+
 
 
 
 // ================= HANDLE FILE =================
-const handleFile = async (e) => {
-  const file = e.target.files[0];
+const handleFile = (e) => {
+const file = e.target.files[0];
+if (!file) return;
 
-  if (!file) return;
+setMedia(file);  
+setPreview(URL.createObjectURL(file));
 
-  setMedia(file);
-
-  try {
-    if (file.type.startsWith("image/")) {
-      const url = await uploadToCloudinary(file);
-
-      setCloudinaryUrl(url);
-      setPreview(url);
-    } else {
-      // video/audio local preview
-      setCloudinaryUrl(null);
-
-      setPreview(
-        URL.createObjectURL(file)
-      );
-    }
-  } catch (error) {
-    console.error(
-      "IMAGE UPLOAD FAILED:",
-      error
-    );
-
-    setPreview(null);
-    setCloudinaryUrl(null);
-
-    alert("Image upload failed");
-  }
-
-  // allow selecting same file again
-  e.target.value = "";
 };
 
-// ================= APPLY AI =================
-const applyAI = (effect) => {
-  if (!cloudinaryUrl) {
-    alert("Please select an image first");
-    return;
-  }
-
-  let newUrl = cloudinaryUrl;
-
-  switch (effect) {
-    case "enhance":
-      newUrl = cloudinaryUrl.replace(
-        "/upload/",
-        "/upload/e_enhance/"
-      );
-      break;
-
-    case "beauty":
-      newUrl = cloudinaryUrl.replace(
-        "/upload/",
-        "/upload/e_improve/"
-      );
-      break;
-
-    case "queen":
-      newUrl = cloudinaryUrl.replace(
-        "/upload/",
-        "/upload/e_improve/co_rgb:1f0933/"
-      );
-      break;
-
-    case "ceo":
-      newUrl = cloudinaryUrl.replace(
-        "/upload/",
-        "/upload/e_sharpen,e_improve/"
-      );
-      break;
-
-    case "gamer":
-      newUrl = cloudinaryUrl.replace(
-        "/upload/",
-        "/upload/e_vibrance:80,e_sharpen/"
-      );
-      break;
-
-    case "afroglow":
-      newUrl = cloudinaryUrl.replace(
-        "/upload/",
-        "/upload/e_vibrance:50,e_improve/"
-      );
-      break;
-
-    case "naijavibes":
-      newUrl = cloudinaryUrl.replace(
-        "/upload/",
-        "/upload/e_saturation:60,e_contrast:40/"
-      );
-      break;
-
-    case "festival":
-      newUrl = cloudinaryUrl.replace(
-        "/upload/",
-        "/upload/e_vibrance:100/"
-      );
-      break;
-
-    case "studio":
-      newUrl = cloudinaryUrl.replace(
-        "/upload/",
-        "/upload/e_sharpen,e_improve/"
-      );
-      break;
-
-    case "goldenhour":
-      newUrl = cloudinaryUrl.replace(
-        "/upload/",
-        "/upload/e_auto_brightness,e_auto_color/"
-      );
-      break;
-
-    default:
-      return;
-  }
-
-  setPreview(newUrl);
-  setCloudinaryUrl(newUrl);
-  
-};
 // ================= POST STORY =================
 const handlePost = async () => {
 if (
@@ -202,7 +85,6 @@ return;
 }
 await onSelectFile({
   file: media,
-  cloudinaryUrl,
   text,
   textPosition,
   textSize: size,
@@ -225,7 +107,6 @@ useEffect(() => {
 
 
 
-
 // ================= UI =================
 return (
 <div className="fixed inset-0 z-[9999] bg-black/90 flex items-center justify-center">
@@ -238,17 +119,9 @@ return (
     max-w-none
     rounded-none
     p-4
-    overflow-y-auto "
+    overflow-y-auto
+  "
 >
-
-{/* POST BUTTON */}  
-    <button
-  onClick={handlePost}
-  className="fixed top-4 left-1/1 -translate-x-1/1 bg-blue-600 text-white px-4 py-3 rounded-xl shadow-lg z-50"
->
-  Post Story
-</button>
-
 
     {/* HEADER */}  
     <div className="flex justify-between items-center mb-3">  
@@ -264,26 +137,320 @@ return (
 
  
 
-{/* DRAGGABLE PREVIEW AREA */}
-<PostEditor
-  preview={preview}
-  media={media}
-  text={text}
-  textPosition={textPosition}
-  setTextPosition={setTextPosition}
-  textColor={textColor}
-  textRotation={textRotation}
-  size={size}
-  stickers={stickers}
-  setStickers={setStickers}
-  selectedSticker={selectedSticker}
-  setSelectedSticker={setSelectedSticker}
-  backgroundColor={backgroundColor}
-  music={music}
-/>
 
 
-         {/* TEXT INPUT */}
+
+
+   {/* DRAGGABLE PREVIEW AREA */}
+{(preview || stickers.length > 0 || text) && (
+  <div
+    className="relative mb-3 h-[40vh] rounded-xl overflow-hidden bg-black"
+    style={{ backgroundColor }}
+  >
+    {/* Media Preview */}
+
+
+
+<div
+  className="absolute top-3 right-3 flex flex-col gap-2 z-50"
+>
+  <button
+    onClick={() => fileRef.current?.click()}
+    className="bg-black/60 text-white p-2 rounded-full"
+  >
+    📷
+  </button>
+
+  <button
+    onClick={() => setShowTextTools(!showTextTools)}
+    className="bg-black/60 text-white p-2 rounded-full"
+  >
+    Aa
+  </button>
+
+  <button
+    onClick={() => setShowStickerTools(!showStickerTools)}
+    className="bg-black/60 text-white p-2 rounded-full"
+  >
+    😀
+  </button>
+
+  <button
+    onClick={() => setShowMusicTools(!showMusicTools)}
+    className="bg-black/60 text-white p-2 rounded-full"
+  >
+    🎵
+  </button>
+</div>
+
+
+    {preview &&
+      (media?.type?.startsWith("image") ? (
+        <img
+          src={preview}
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      ) : media?.type?.startsWith("video") ? (
+        <video
+          src={preview}
+          controls
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      ) : media?.type?.startsWith("audio") ? (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <audio
+            controls
+            src={preview}
+            className="w-[90%]"
+          />
+        </div>
+      ) : null)}
+
+
+
+       {/* TEXT TOOLS */}
+{showTextTools && (
+  <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-3 z-50">
+    <input
+      type="text"
+      placeholder="Add text..."
+      value={text}
+      onChange={(e) => setText(e.target.value)}
+      className="w-full p-2 rounded mb-2"
+    />
+
+    <input
+      type="color"
+      value={textColor}
+      onChange={(e) =>
+        setTextColor(e.target.value)
+      }
+    />
+
+    <input
+      type="range"
+      min="20"
+      max="120"
+      value={size}
+      onChange={(e) =>
+        setSize(Number(e.target.value))
+      }
+      className="w-full"
+    />
+
+    <input
+      type="range"
+      min="-180"
+      max="180"
+      value={textRotation}
+      onChange={(e) =>
+        setTextRotation(
+          Number(e.target.value)
+        )
+      }
+      className="w-full"
+    />
+  </div>
+)}
+
+
+<button
+  onClick={() =>
+    setShowColorTools(!showColorTools)
+  }
+  className="bg-black/60 text-white p-2 rounded-full"
+>
+  🎨
+</button>
+
+
+{showStickerTools && (
+  <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-3 z-50">
+    <div className="flex gap-3 flex-wrap">
+      {emojiList.map((emoji) => (
+        <button
+          key={emoji}
+          className="text-3xl"
+          onClick={() =>
+            setStickers((prev) => [
+              ...prev,
+              {
+                emoji,
+                x: 100,
+                y: 100,
+                size: 60,
+              },
+            ])
+          }
+        >
+          {emoji}
+        </button>
+      ))}
+    </div>
+
+    {selectedSticker !== null && (
+      <input
+        type="range"
+        min="30"
+        max="200"
+        value={
+          stickers[selectedSticker]?.size ||
+          60
+        }
+        onChange={(e) => {
+          const updated = [...stickers];
+
+          updated[selectedSticker] = {
+            ...updated[selectedSticker],
+            size: Number(e.target.value),
+          };
+
+          setStickers(updated);
+        }}
+        className="w-full mt-3"
+      />
+    )}
+  </div>
+)}
+
+
+
+{showMusicTools && (
+  <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-3 z-50 max-h-60 overflow-y-auto">
+    {musicList.map((song) => (
+      <div
+        key={song._id}
+        className="flex justify-between items-center border-b border-white/20 py-2"
+      >
+        <span className="text-white">
+          {song.title}
+        </span>
+
+        <div className="flex gap-2">
+          <button
+            onClick={() => setMusic(song)}
+            className="bg-blue-600 text-white px-2 py-1 rounded"
+          >
+            Select
+          </button>
+
+          <button
+            onClick={() => {
+              audioRef.current.src =
+                song.audioUrl;
+              audioRef.current.play();
+            }}
+            className="bg-green-600 text-white px-2 py-1 rounded"
+          >
+            ▶
+          </button>
+        </div>
+      </div>
+    ))}
+  </div>
+)}
+
+
+
+{showColorTools && (
+  <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-3 z-50">
+    <input
+      type="color"
+      value={backgroundColor}
+      onChange={(e) =>
+        setBackgroundColor(e.target.value)
+      }
+    />
+  </div>
+)}
+
+
+{music && (
+  <div className="absolute top-3 left-3 bg-black/70 text-white px-3 py-1 rounded-full z-40">
+    🎵 {music.title || "Custom Music"}
+  </div>
+)}
+
+
+
+
+
+
+    {/* Stickers */}
+    {stickers.map((sticker, index) => (
+      <Draggable
+        key={index}
+        position={{
+          x: sticker.x,
+          y: sticker.y,
+        }}
+        onStop={(e, data) => {
+          const updated = [...stickers];
+
+          updated[index] = {
+            ...updated[index],
+            x: data.x,
+            y: data.y,
+          };
+
+          setStickers(updated);
+        }}
+      >
+        <div
+          onMouseDown={() =>
+          setSelectedSticker(index)
+      }
+          onTouchStart={() =>
+          setSelectedSticker(index)
+      }
+          className="absolute cursor-move select-none"
+          style={{
+            fontSize: `${sticker.size || 60}px`,
+            border:
+              selectedSticker === index
+                ? "2px solid white"
+                : "none",
+            borderRadius: "8px",
+          }}
+        >
+          {sticker.emoji}
+        </div>
+      </Draggable>
+    ))}
+
+    {/* Text Overlay */}
+    {text && (
+    <Draggable
+  position={textPosition}
+  onStop={(e, data) =>
+    setTextPosition({
+      x: data.x,
+      y: data.y,
+    })
+  }
+>
+  <div>
+    <div
+      className="font-bold select-none"
+      style={{
+        fontSize: `${size}px`,
+        color: textColor,
+        transform: `rotate(${textRotation}deg)`,
+        textShadow:
+          "0 2px 6px rgba(0,0,0,0.8)",
+      }}
+    >
+      {text}
+    </div>
+  </div>
+</Draggable>
+    )}
+  </div>
+)}
+
+
+  {/* TEXT INPUT */}
 <input
   type="text"
   placeholder="Add text to story..."
@@ -527,16 +694,21 @@ return (
 )}
 
 
-{/* MEDIA PICKER BUTTON */} 
+{/* MEDIA PICKER BUTTON */}  
+    <button  
+      onClick={() => fileRef.current?.click()}  
+      className="sticky bottom-0 w-full bg-blue-600 text-white p-3 rounded-xl mb-3"  
+    >  
+      📷 Add Photo / Video  
+    </button>  
 
-    <button
-  onClick={() => fileRef.current?.click()}
-  className="fixed bottom-20 right-4 bg-green-600 text-white p-2 rounded-xl shadow-lg z-50"
->
-  📷 Add Photo/Video
-</button>
- 
-    
+    {/* POST BUTTON */}  
+    <button  
+      onClick={handlePost}  
+      className="w-full bg-black text-white p-3 rounded-xl"  
+    >  
+      Post Story  
+    </button>  
 
     {/* HIDDEN FILE INPUT */}  
 
