@@ -335,7 +335,7 @@ return (
       currentUser?.name || "User"
     }?`}
     
-    className="
+    className="fixed
   w-full
   p-6
   rounded-2xl
