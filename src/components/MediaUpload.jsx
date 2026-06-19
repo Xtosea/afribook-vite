@@ -131,7 +131,7 @@ const MediaUpload = ({
   <button
     type="button"
     onClick={() => fileInputRef.current?.click()}
-    className="
+    className=" fixed bottom-4
       flex
       flex-col
       items-center
@@ -142,9 +142,9 @@ const MediaUpload = ({
       transition
     "
   >
-    <FiUpload className="text-2xl text-blue-500 fixed bottom-4" />
+    <FiUpload className="text-2xl text-blue-500 " />
 
-    <span className="text-xs text-gray-600">
+    <span className="fixed bottom-4 text-xs text-gray-600">
       Photos/Videos
     </span>
   </button>
