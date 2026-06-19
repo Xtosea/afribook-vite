@@ -263,7 +263,7 @@ className="text-red-500 font-bold"
 
 {/* DRAGGABLE PREVIEW AREA */}
 <div
-className="relative mb-3 h-[90vh] rounded-xl overflow-hidden bg-black"
+className="relative mb-3 h-[85vh] rounded-xl overflow-hidden bg-black"
 style={{ backgroundColor }}
 >
 
