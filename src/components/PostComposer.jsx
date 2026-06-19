@@ -335,20 +335,24 @@ return (
       currentUser?.name || "User"
     }?`}
     
-  className="fixed top-20
-  w-full
-  p-6
-  rounded-2xl
-  resize-y
-  transition-all
-  duration-200
-  focus:outline-none
-  focus:ring-2
-  focus:ring-blue-400
-  min-h-[10px]
-  text-lg
-  border-0
-  shadow-none
+  className="
+fixed
+top-20
+left-1/2
+-transform-x-1/2
+w-full
+p-6
+rounded-2xl
+resize-y
+transition-all
+duration-200
+focus:outline-none
+focus:ring-2
+focus:ring-blue-400
+min-h-[10px]
+text-lg
+border-0
+shadow-none
 "
   />
 )}
