@@ -12,7 +12,6 @@ from "../../utils/uploadToCloudinary";
 
 
 
-
 const emojiList = [
 "🔥",
 "❤️",
@@ -264,6 +263,158 @@ className="text-red-500 font-bold"
 
 
 
+{/* DRAGGABLE PREVIEW AREA */}
+<div
+className="relative mb-3 h-[70vh] rounded-xl overflow-hidden bg-black"
+style={{ backgroundColor }}
+>
+
+{/* Media Preview */}
+
+
+
+<div className="absolute top-3 right-3 flex flex-col gap-2 z-50">
+
+<button
+onClick={() => fileRef.current?.click()}
+className="bg-black/60 text-white p-2 rounded-full"
+>
+📷
+</button>
+
+<button
+onClick={() => setActiveTool("text")}
+className="bg-black/60 text-white p-2 rounded-full"
+>
+Aa
+</button>
+
+<button
+onClick={() => setActiveTool("sticker")}
+className="bg-black/60 text-white p-2 rounded-full"
+>
+😀
+</button>
+
+<button
+onClick={() => setActiveTool("music")}
+className="bg-black/60 text-white p-2 rounded-full"
+>
+🎵
+</button>
+
+<button
+onClick={() => setActiveTool("color")}
+className="bg-black/60 text-white p-2 rounded-full"
+>
+🎨
+</button>
+
+
+{/* AI BUTTON */}
+{media?.type?.startsWith("image") && (
+<button
+onClick={() => setActiveTool("ai")}
+className="bg-black/60 text-white p-3 rounded-full"
+>
+🤖
+</button>
+)}
+
+
+<button
+onClick={() => setActiveTool(null)}
+className="absolute top-2 right-12 text-Red"
+>
+❌
+</button>
+</div>
+
+
+{preview &&
+(media?.type?.startsWith("image") ? (
+<img
+src={preview}
+alt=""
+className="absolute inset-0 w-full h-full object-cover"
+/>
+) : media?.type?.startsWith("video") ? (
+<video
+src={preview}
+controls
+className="absolute inset-0 w-full h-full object-cover"
+/>
+) : media?.type?.startsWith("audio") ? (
+<div className="absolute inset-0 flex items-center justify-center">
+<audio
+controls
+src={preview}
+className="w-[90%]"
+/>
+</div>
+) : null)}
+
+
+
+{/* TEXT TOOLS */}
+{activeTool === "text" && (
+<div className="absolute bottom-0 left-0 right-0 bg-black/80 p-3 z-50">
+<input
+type="text"
+placeholder="Add text..."
+value={text}
+onChange={(e) => setText(e.target.value)}
+className="w-full p-2 rounded mb-2"
+/>
+
+<input
+type="color"
+value={textColor}
+onChange={(e) =>
+setTextColor(e.target.value)
+}
+/>
+
+<input
+type="range"
+min="20"
+max="120"
+value={size}
+onChange={(e) =>
+setSize(Number(e.target.value))
+}
+className="w-full"
+/>
+
+<input
+type="range"
+min="-180"
+max="180"
+value={textRotation}
+onChange={(e) =>
+setTextRotation(
+Number(e.target.value)
+)
+}
+className="w-full"
+/>
+
+<button
+onClick={() => setActiveTool(null)}
+className="
+   mt-3
+   bg-green-600
+   text-white
+   px-3
+   py-2
+   rounded
+ "
+>
+Done
+</button>
+
+</div>
+)}
 
 
 
@@ -573,6 +724,7 @@ textShadow:
 </Draggable>
 )}
 </div>
+)}
 
 
 
@@ -842,8 +994,7 @@ accept="video/*,image/*,audio/*"
 onChange={handleFile}
 />
 
-
-
+</div>
 </div>
 );
 };
