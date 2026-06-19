@@ -331,29 +331,37 @@ className="absolute top-2 right-12 text-Red"
 </div>
 
 
+{/* IMAGE */}
 {preview &&
-(media?.type?.startsWith("image") ? (
-<img
-src={preview}
-alt=""
-className="absolute inset-0 w-full h-full object-cover"
-/>
-) : media?.type?.startsWith("video") ? (
-<video
-src={preview}
-controls
-className="absolute inset-0 w-full h-full object-cover"
-/>
-) : media?.type?.startsWith("audio") ? (
-<div className="absolute inset-0 flex items-center justify-center">
-<audio
-controls
-src={preview}
-className="w-[90%]"
-/>
-</div>
-) : null)}
+  media?.type?.startsWith("image") && (
+    <img
+      src={preview}
+      alt=""
+      className="absolute inset-0 w-full h-full object-cover"
+    />
+)}
 
+{/* VIDEO */}
+{preview &&
+  media?.type?.startsWith("video") && (
+    <video
+      src={preview}
+      controls
+      className="absolute inset-0 w-full h-full object-cover"
+    />
+)}
+
+{/* AUDIO */}
+{preview &&
+  media?.type?.startsWith("audio") && (
+    <div className="absolute inset-0 flex items-center justify-center">
+      <audio
+        controls
+        src={preview}
+        className="w-[90%]"
+      />
+    </div>
+)}
 
 
 {/* TEXT TOOLS */}
