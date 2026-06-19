@@ -304,6 +304,47 @@ style={{ backgroundColor }}
     </div>
   </div>
 
+
+    <div>
+  <p className="text-white font-semibold text-sm">
+    {currentUser?.name}
+  </p>
+
+  <div className="flex items-center gap-2 flex-wrap">
+    <span
+      className="
+        text-xs
+        bg-black/50
+        text-white
+        px-2
+        py-1
+        rounded-full
+      "
+    >
+      🌎 Public
+    </span>
+
+    {music && (
+      <span
+        className="
+          text-xs
+          bg-green-600/80
+          text-white
+          px-2
+          py-1
+          rounded-full
+          max-w-[140px]
+          truncate
+        "
+      >
+        🎵 {music.title || "Music"}
+      </span>
+    )}
+  </div>
+</div>
+
+
+
   {/* POST BUTTON */}
   {preview && (
   <button
@@ -609,28 +650,6 @@ setActiveTool(null);
 />
 </div>
 )}
-
-
-{music && (
-  <div
-    className="
-      absolute
-      top-20
-      left-3
-      bg-black/70
-      text-white
-      px-3
-      py-2
-      rounded-full
-      z-40
-      max-w-[70%]
-    "
-  >
-    🎵 {music.title || "Custom Music"}
-  </div>
-)}
-
-
 
 
 {activeTool === "ai" && (
