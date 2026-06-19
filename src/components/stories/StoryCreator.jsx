@@ -6,6 +6,10 @@ useEffect,
 
 import { API_BASE } from "../../api/api";
 import Draggable from "react-draggable";
+import {
+  useAIEffects,
+} from "../../hooks/useAIEffects";
+
 
 const emojiList = [
 "🔥",
@@ -15,6 +19,7 @@ const emojiList = [
 "🎉",
 "💯",
 ];
+
 
 const StoryCreator = ({ onClose, onSelectFile }) => {
 
@@ -49,16 +54,15 @@ const [textRotation, setTextRotation] =
 const [selectedSticker, setSelectedSticker] =
   useState(null);
 
-const [showTextTools, setShowTextTools] =
-  useState(false);
+const [activeTool, setActiveTool] = useState(null);
 
-const [showStickerTools, setShowStickerTools] =
-  useState(false);
+const {
+  applyEffect,
+} = useAIEffects();
 
-const [showMusicTools, setShowMusicTools] =
-  useState(false);
-const [showColorTools, setShowColorTools] =
-  useState(false);
+const [aiLoading,
+setAiLoading] =
+useState(false);
 
 
 
@@ -106,6 +110,30 @@ useEffect(() => {
 
 
 
+const applyAI = async (
+  effect
+) => {
+  try {
+
+    if (!preview) return;
+
+    setAiLoading(true);
+
+    const newUrl =
+      await applyEffect(
+        preview,
+        effect
+      );
+
+    setPreview(newUrl);
+
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setAiLoading(false);
+  }
+};
+
 
 // ================= UI =================
 return (
@@ -119,9 +147,17 @@ return (
     max-w-none
     rounded-none
     p-4
-    overflow-y-auto
-  "
+    overflow-y-auto "
 >
+
+{/* POST BUTTON */}  
+    <button
+  onClick={handlePost}
+  className="fixed top-4 left-1/1 -translate-x-1/1 bg-blue-600 text-white px-4 py-3 rounded-xl shadow-lg z-50"
+>
+  Post Story
+</button>
+
 
     {/* HEADER */}  
     <div className="flex justify-between items-center mb-3">  
@@ -137,23 +173,18 @@ return (
 
  
 
-
-
-
-
-   {/* DRAGGABLE PREVIEW AREA */}
+{/* DRAGGABLE PREVIEW AREA */}
 {(preview || stickers.length > 0 || text) && (
   <div
-    className="relative mb-3 h-[40vh] rounded-xl overflow-hidden bg-black"
+    className="relative mb-3 h-[70vh] rounded-xl overflow-hidden bg-black"
     style={{ backgroundColor }}
   >
     {/* Media Preview */}
 
 
 
-<div
-  className="absolute top-3 right-3 flex flex-col gap-2 z-50"
->
+<div className="absolute top-3 right-3 flex flex-col gap-2 z-50">
+
   <button
     onClick={() => fileRef.current?.click()}
     className="bg-black/60 text-white p-2 rounded-full"
@@ -162,25 +193,40 @@ return (
   </button>
 
   <button
-    onClick={() => setShowTextTools(!showTextTools)}
+    onClick={() => setActiveTool("text")}
     className="bg-black/60 text-white p-2 rounded-full"
   >
     Aa
   </button>
 
   <button
-    onClick={() => setShowStickerTools(!showStickerTools)}
+    onClick={() => setActiveTool("sticker")}
     className="bg-black/60 text-white p-2 rounded-full"
   >
     😀
   </button>
 
   <button
-    onClick={() => setShowMusicTools(!showMusicTools)}
+    onClick={() => setActiveTool("music")}
     className="bg-black/60 text-white p-2 rounded-full"
   >
     🎵
   </button>
+
+  <button
+    onClick={() => setActiveTool("color")}
+    className="bg-black/60 text-white p-2 rounded-full"
+  >
+    🎨
+  </button>
+
+
+<button
+  onClick={() => setActiveTool(null)}
+  className="absolute top-2 right-12 text-Red"
+>
+  ❌
+</button>
 </div>
 
 
@@ -210,7 +256,7 @@ return (
 
 
        {/* TEXT TOOLS */}
-{showTextTools && (
+{activeTool === "text" && (
   <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-3 z-50">
     <input
       type="text"
@@ -251,38 +297,64 @@ return (
       }
       className="w-full"
     />
+
+     <button
+  onClick={() => setActiveTool(null)}
+  className="
+    mt-3
+    bg-green-600
+    text-white
+    px-3
+    py-2
+    rounded
+  "
+>
+  Done
+</button>
+
   </div>
 )}
 
 
 <button
   onClick={() =>
-    setShowColorTools(!showColorTools)
+    setActiveTool("ai")
   }
-  className="bg-black/60 text-white p-2 rounded-full"
+  className="
+    bg-black/60
+    text-white
+    p-2
+    rounded-full
+  "
 >
-  🎨
+  🤖
 </button>
 
 
-{showStickerTools && (
+
+{activeTool === "sticker" && (
   <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-3 z-50">
+
     <div className="flex gap-3 flex-wrap">
       {emojiList.map((emoji) => (
         <button
           key={emoji}
           className="text-3xl"
-          onClick={() =>
+          onClick={() => {
+            const newSticker = {
+              emoji,
+              x: 100,
+              y: 100,
+              size: 60,
+            };
+
             setStickers((prev) => [
               ...prev,
-              {
-                emoji,
-                x: 100,
-                y: 100,
-                size: 60,
-              },
-            ])
-          }
+              newSticker,
+            ]);
+
+            setSelectedSticker(stickers.length);
+          }}
         >
           {emoji}
         </button>
@@ -290,34 +362,58 @@ return (
     </div>
 
     {selectedSticker !== null && (
-      <input
-        type="range"
-        min="30"
-        max="200"
-        value={
-          stickers[selectedSticker]?.size ||
-          60
-        }
-        onChange={(e) => {
-          const updated = [...stickers];
+      <div className="mt-4">
+        <p className="text-white mb-2">
+          Sticker Size
+        </p>
 
-          updated[selectedSticker] = {
-            ...updated[selectedSticker],
-            size: Number(e.target.value),
-          };
+        <input
+          type="range"
+          min="30"
+          max="200"
+          value={
+            stickers[selectedSticker]?.size || 60
+          }
+          onChange={(e) => {
+            const updated = [...stickers];
 
-          setStickers(updated);
-        }}
-        className="w-full mt-3"
-      />
+            updated[selectedSticker] = {
+              ...updated[selectedSticker],
+              size: Number(e.target.value),
+            };
+
+            setStickers(updated);
+          }}
+          className="w-full"
+        />
+
+        <button
+          onClick={() => setActiveTool(null)}
+          className="mt-3 bg-green-600 text-white px-3 py-2 rounded"
+        >
+          Done
+        </button>
+      </div>
     )}
+
   </div>
 )}
 
 
-
-{showMusicTools && (
-  <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-3 z-50 max-h-60 overflow-y-auto">
+{activeTool === "music" && (
+  <div
+    className="
+      absolute
+      bottom-0
+      left-0
+      right-0
+      bg-black/90
+      p-3
+      z-50
+      h-[50%]
+      overflow-y-auto
+    "
+  >
     {musicList.map((song) => (
       <div
         key={song._id}
@@ -329,7 +425,10 @@ return (
 
         <div className="flex gap-2">
           <button
-            onClick={() => setMusic(song)}
+            onClick={() => {
+              setMusic(song);
+              setActiveTool(null);
+            }}
             className="bg-blue-600 text-white px-2 py-1 rounded"
           >
             Select
@@ -337,9 +436,11 @@ return (
 
           <button
             onClick={() => {
-              audioRef.current.src =
-                song.audioUrl;
-              audioRef.current.play();
+              if (audioRef.current) {
+                audioRef.current.src =
+                  song.audioUrl;
+                audioRef.current.play();
+              }
             }}
             className="bg-green-600 text-white px-2 py-1 rounded"
           >
@@ -352,15 +453,15 @@ return (
 )}
 
 
-
-{showColorTools && (
+{activeTool === "color" && (
   <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-3 z-50">
     <input
       type="color"
       value={backgroundColor}
-      onChange={(e) =>
-        setBackgroundColor(e.target.value)
-      }
+      onChange={(e) => {
+  setBackgroundColor(e.target.value);
+  setActiveTool(null);
+}}
     />
   </div>
 )}
@@ -373,7 +474,68 @@ return (
 )}
 
 
+{activeTool === "ai" && (
+  <div
+    className="
+      absolute
+      bottom-0
+      left-0
+      right-0
+      bg-black/90
+      p-3
+      z-50
+    "
+  >
+    <div className="grid grid-cols-2 gap-2">
 
+      <button
+        onClick={() =>
+          applyAI("enhance")
+        }
+        className="bg-blue-600 text-white p-2 rounded"
+      >
+        ✨ Enhance
+      </button>
+
+      <button
+        onClick={() =>
+          applyAI("beauty")
+        }
+        className="bg-pink-600 text-white p-2 rounded"
+      >
+        💄 Beauty
+      </button>
+
+      <button
+        onClick={() =>
+          applyAI("queen")
+        }
+        className="bg-purple-600 text-white p-2 rounded"
+      >
+        👑 Queen
+      </button>
+
+      <button
+        onClick={() =>
+          applyAI("ceo")
+        }
+        className="bg-gray-700 text-white p-2 rounded"
+      >
+        💼 CEO
+      </button>
+
+      <button
+        onClick={() =>
+          applyAI("gamer")
+        }
+        className="bg-green-600 text-white p-2 rounded"
+      >
+        🎮 Gamer
+      </button>
+
+    </div>
+  </div>
+)}
 
 
 
@@ -694,21 +856,16 @@ return (
 )}
 
 
-{/* MEDIA PICKER BUTTON */}  
-    <button  
-      onClick={() => fileRef.current?.click()}  
-      className="sticky bottom-0 w-full bg-blue-600 text-white p-3 rounded-xl mb-3"  
-    >  
-      📷 Add Photo / Video  
-    </button>  
+{/* MEDIA PICKER BUTTON */} 
 
-    {/* POST BUTTON */}  
-    <button  
-      onClick={handlePost}  
-      className="w-full bg-black text-white p-3 rounded-xl"  
-    >  
-      Post Story  
-    </button>  
+    <button
+  onClick={() => fileRef.current?.click()}
+  className="fixed bottom-20 right-4 bg-green-600 text-white p-2 rounded-xl shadow-lg z-50"
+>
+  📷 Add Photo/Video
+</button>
+ 
+    
 
     {/* HIDDEN FILE INPUT */}  
 
