@@ -264,10 +264,6 @@ style={{ backgroundColor }}
 {/* Media Preview */}
 
 
-<div
-  className="relative mb-3 h-[70vh] rounded-xl overflow-hidden bg-black"
-  style={{ backgroundColor }}
->
 {/* TOP BAR */}
 <div className="absolute top-3 left-3 right-3 z-50 flex items-center justify-between">
 
@@ -831,9 +827,9 @@ accept="video/*,image/*,audio/*"
 onChange={handleFile}
 />
 
-
+</div>
 </div>
 );
-
+};
 
 export default StoryCreator;
