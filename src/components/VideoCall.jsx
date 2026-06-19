@@ -51,45 +51,35 @@ const VideoCall = ({
   // ================= GET CAMERA + MIC =================
 
   useEffect(() => {
+  let currentStream;
 
-    const startMedia =
-      async () => {
+  const startMedia = async () => {
+    try {
+      currentStream =
+        await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: true,
+        });
 
-        try {
+      setStream(currentStream);
 
-          const currentStream =
-            await navigator.mediaDevices.getUserMedia(
-              {
-                video: true,
-                audio: true,
-              }
-            );
+      if (myVideo.current) {
+        myVideo.current.srcObject =
+          currentStream;
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
-          setStream(
-            currentStream
-          );
+  startMedia();
 
-          if (
-            myVideo.current
-          ) {
-
-            myVideo.current.srcObject =
-              currentStream;
-          }
-
-        } catch (err) {
-
-          console.log(err);
-
-          alert(
-            "Camera or microphone permission denied"
-          );
-        }
-      };
-
-    startMedia();
-
-  }, []);
+  return () => {
+    currentStream
+      ?.getTracks()
+      .forEach(track => track.stop());
+  };
+}, []);
 
   // ================= SOCKET EVENTS =================
 
