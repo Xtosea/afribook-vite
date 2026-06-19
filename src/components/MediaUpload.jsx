@@ -131,7 +131,7 @@ const MediaUpload = ({
   <button
     type="button"
     onClick={() => fileInputRef.current?.click()}
-    className=" fixed bottom
+    className=" fixed top
       flex
       flex-col
       items-center
