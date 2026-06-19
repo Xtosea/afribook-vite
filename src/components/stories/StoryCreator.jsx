@@ -240,14 +240,6 @@ className="
    overflow-y-auto "
 >
 
-{/* POST BUTTON */}  
-<button
-onClick={handlePost}
-className="fixed top-4 left-1/1 -translate-x-1/1 bg-blue-600 text-white px-4 py-3 rounded-xl shadow-lg z-50"
->
-Post Story
-</button>
-
 
 {/* HEADER */}  
 <div className="flex justify-between items-center mb-3">  
@@ -270,6 +262,100 @@ style={{ backgroundColor }}
 >
 
 {/* Media Preview */}
+
+
+<div
+  className="relative mb-3 h-[70vh] rounded-xl overflow-hidden bg-black"
+  style={{ backgroundColor }}
+>
+{/* TOP BAR */}
+<div className="absolute top-3 left-3 right-3 z-50 flex items-center justify-between">
+
+  {/* USER */}
+  <div className="flex items-center gap-2">
+    <img
+      src={
+        currentUser?.profilePicture ||
+        "/default-avatar.png"
+      }
+      alt=""
+      className="w-10 h-10 rounded-full object-cover border-2 border-white"
+    />
+
+    <div>
+      <p className="text-white font-semibold text-sm">
+        {currentUser?.name}
+      </p>
+
+      <span
+        className="
+          text-xs
+          bg-black/50
+          text-white
+          px-2
+          py-1
+          rounded-full
+        "
+      >
+        🌎 Public
+      </span>
+    </div>
+  </div>
+
+  {/* POST BUTTON */}
+  <button
+    onClick={handlePost}
+    className="
+      bg-blue-600
+      text-white
+      px-4
+      py-2
+      rounded-full
+      font-semibold
+      shadow-lg
+    "
+  >
+    Post
+  </button>
+
+</div>
+
+<div
+  className="relative mb-3 h-[70vh] rounded-xl overflow-hidden bg-black"
+  style={{ backgroundColor }}
+>
+
+  {/* TOP BAR */}
+  <div className="absolute top-3 left-3 right-3 z-50 flex items-center justify-between">
+
+    <div className="flex items-center gap-2">
+      <img
+        src={currentUser?.profilePicture}
+        alt=""
+        className="w-10 h-10 rounded-full object-cover"
+      />
+
+      <div>
+        <p className="text-white font-semibold">
+          {currentUser?.name}
+        </p>
+
+        <span className="text-xs text-white">
+          🌎 Public
+        </span>
+      </div>
+    </div>
+
+    <button
+      onClick={handlePost}
+      className="bg-blue-600 text-white px-4 py-2 rounded-full"
+    >
+      Post
+    </button>
+
+  </div>
+
+  </div>
 
 
 
@@ -732,132 +818,6 @@ textShadow:
 </Draggable>
 )}
 </div>
-
-
-
-
-{/* TEXT INPUT */}
-<input
-type="text"
-placeholder="Add text to story..."
-value={text}
-onChange={(e) =>
-setText(e.target.value)
-}
-className="w-full p-2 border rounded mb-3"
-/>
-
-
-
-
-<div className="mb-4">
-<h3 className="font-semibold mb-2">
-Music Library
-</h3>
-
-<div className="border rounded max-h-60 overflow-y-auto">
-{musicList.map((song) => (
-<div
-key={song._id}
-className="p-3 border-b"
->
-<div className="font-medium mb-2">
-🎵 {song.title}
-{song.artist &&
-` - ${song.artist}`}
-</div>
-
-<div className="flex gap-2">
-<button
-onClick={() => setMusic(song)}
-className="px-3 py-1 bg-blue-600 text-white rounded"
->
-Select
-</button>
-
-<button
-onClick={() => {
-const audio =
-new Audio(song.audioUrl);
-audio.play();
-}}
-className="px-3 py-1 bg-green-600 text-white rounded"
->
-▶ Play
-</button>
-</div>
-</div>
-))}
-</div>
-</div>
-
-{/* MUSIC INPUT */}  
-<input  
-type="file"  
-accept="audio/*"  
-onChange={(e) => setMusic(e.target.files[0])}  
-className="w-full mb-3"  
-/>  
-
-{music && (
-<div className="mb-4 border rounded p-3">
-<p className="font-semibold mb-2">
-Selected Music
-</p>
-
-<audio
-ref={audioRef}
-src={
-music instanceof File
-? URL.createObjectURL(music)
-: music.audioUrl
-}
-/>
-
-<div className="flex gap-2">
-<button
-onClick={() =>
-audioRef.current?.play()
-}
-className="px-4 py-2 bg-green-600 text-white rounded"
->
-▶ Play
-</button>
-
-<button
-onClick={() =>
-audioRef.current?.pause()
-}
-className="px-4 py-2 bg-yellow-600 text-white rounded"
->
-⏸ Pause
-</button>
-
-<button
-onClick={() => {
-if (audioRef.current) {
-audioRef.current.pause();
-audioRef.current.currentTime = 0;
-}
-}}
-className="px-4 py-2 bg-red-600 text-white rounded"
->
-■ Stop
-</button>
-</div>
-</div>
-)}
-
-
-{/* MEDIA PICKER BUTTON */} 
-
-<button
-onClick={() => fileRef.current?.click()}
-className="fixed bottom-20 right-4 bg-green-600 text-white p-2 rounded-xl shadow-lg z-50"
->
-📷 Add Photo/Video
-</button>
-
 
 
 {/* HIDDEN FILE INPUT */}  
