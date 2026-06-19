@@ -8,7 +8,7 @@ import { API_BASE } from "../../api/api";
 import Draggable from "react-draggable";
 import { uploadToCloudinary }
 from "../../utils/uploadToCloudinary";
-import PostEditor from "../editor/PostEditor";
+
 
 
 
@@ -264,23 +264,6 @@ className="text-red-500 font-bold"
 
 
 
-{/* DRAGGABLE PREVIEW AREA */}
-<PostEditor
-preview={preview}
-media={media}
-text={text}
-textPosition={textPosition}
-setTextPosition={setTextPosition}
-textColor={textColor}
-textRotation={textRotation}
-size={size}
-stickers={stickers}
-setStickers={setStickers}
-selectedSticker={selectedSticker}
-setSelectedSticker={setSelectedSticker}
-backgroundColor={backgroundColor}
-music={music}
-/>
 
 
 
