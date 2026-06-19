@@ -26,6 +26,7 @@ const currentUser = JSON.parse(
   localStorage.getItem("user")
 );
 
+console.log(currentUser);
 
 const StoryCreator = ({ onClose, onSelectFile }) => {
 
@@ -262,7 +263,7 @@ className="text-red-500 font-bold"
 
 {/* DRAGGABLE PREVIEW AREA */}
 <div
-className="relative mb-3 h-[70vh] rounded-xl overflow-hidden bg-black"
+className="relative mb-3 h-[95vh] rounded-xl overflow-hidden bg-black"
 style={{ backgroundColor }}
 >
 
@@ -304,13 +305,14 @@ style={{ backgroundColor }}
   </div>
 
   {/* POST BUTTON */}
+  {preview && (
   <button
     onClick={handlePost}
     className="
       bg-blue-600
       text-white
-      px-4
-      py-2
+      px-5
+      py-3
       rounded-full
       font-semibold
       shadow-lg
@@ -318,11 +320,10 @@ style={{ backgroundColor }}
   >
     Post
   </button>
+)}
 
-</div>
 
-
-<div className="absolute top-3 right-3 flex flex-col gap-2 z-50">
+<div className="absolute top-20 right-3 flex flex-col gap-2 z-50">
 
 <button
 onClick={() => fileRef.current?.click()}
