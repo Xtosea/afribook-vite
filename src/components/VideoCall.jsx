@@ -125,6 +125,19 @@ const VideoCall = ({
         cleanupCall();
       };
 
+  socket.on(
+  "call-ended",
+  handleCallEnded
+);
+
+socket.on(
+  "connect",
+  () => {
+    console.log(
+      "Socket ready for WebRTC"
+    );
+  }
+);
     socket.on(
       "incoming-call",
       handleIncomingCall
@@ -164,20 +177,27 @@ const VideoCall = ({
 
   const cleanupCall = () => {
 
-    connectionRef.current?.destroy();
+  if (connectionRef.current) {
+    connectionRef.current.destroy();
+    connectionRef.current = null;
+  }
 
-    if (stream) {
+  if (stream) {
+    stream
+      .getTracks()
+      .forEach(track => track.stop());
+  }
 
-      stream
-        .getTracks()
-        .forEach((track) =>
-          track.stop()
-        );
-    }
+  if (myVideo.current) {
+    myVideo.current.srcObject = null;
+  }
 
-    onClose();
-  };
+  if (userVideo.current) {
+    userVideo.current.srcObject = null;
+  }
 
+  onClose();
+};
   // ================= CALL USER =================
 
   const callUser = () => {
@@ -191,12 +211,30 @@ const VideoCall = ({
       return;
     }
 
-    const peer =
-      new Peer({
-        initiator: true,
-        trickle: false,
-        stream,
-      });
+    const peer = new Peer({
+  initiator: true,
+  trickle: false,
+  stream,
+
+  config: {
+    iceServers: [
+      {
+        urls: [
+          "stun:stun.l.google.com:19302",
+          "stun:stun1.l.google.com:19302",
+        ],
+      },
+    ],
+  },
+});
+
+peer.on("error", (err) => {
+  console.log("Peer Error:", err);
+});
+
+peer.on("close", () => {
+  console.log("Peer closed");
+});
 
     peer.on(
       "signal",
@@ -208,10 +246,7 @@ const VideoCall = ({
             to:
               selectedUser._id,
 
-            from: {
-              _id:
-                currentUser,
-            },
+            from: currentUser,
 
             signal,
 
