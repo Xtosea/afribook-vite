@@ -200,6 +200,38 @@ useEffect(() => {
 </button>
 
 
+{/* IMAGE */}
+{preview &&
+  media?.type?.startsWith("image") && (
+    <img
+      src={preview}
+      alt=""
+      className="
+        absolute
+        inset-0
+        w-full
+        h-full
+        object-cover
+      "
+    />
+)}
+
+
+{/* VIDEO */}
+{preview &&
+  media?.type?.startsWith("video") && (
+    <video
+      src={preview}
+      controls
+      className="
+        absolute
+        inset-0
+        w-full
+        h-full
+        object-cover
+      "
+    />
+)}
 
           
 
