@@ -263,7 +263,7 @@ className="text-red-500 font-bold"
 
 {/* DRAGGABLE PREVIEW AREA */}
 <div
-className="relative mb-3 h-[95vh] rounded-xl overflow-hidden bg-black"
+className="relative mb-3 h-[90vh] rounded-xl overflow-hidden bg-black"
 style={{ backgroundColor }}
 >
 
@@ -612,11 +612,23 @@ setActiveTool(null);
 
 
 {music && (
-<div className="absolute top-3 left-3 bg-black/70 text-white px-3 py-1 rounded-full z-40">
-🎵 {music.title || "Custom Music"}
-</div>
+  <div
+    className="
+      absolute
+      top-20
+      left-3
+      bg-black/70
+      text-white
+      px-3
+      py-2
+      rounded-full
+      z-40
+      max-w-[70%]
+    "
+  >
+    🎵 {music.title || "Custom Music"}
+  </div>
 )}
-
 
 
 
