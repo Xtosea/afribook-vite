@@ -339,8 +339,9 @@ return (
 fixed
 top-20
 left-1/2
--transform-x-1/2
-w-full
+-translate-x-1/2
+w-[90%]
+max-w-md
 p-6
 rounded-2xl
 resize-y
