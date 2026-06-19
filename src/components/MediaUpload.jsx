@@ -188,7 +188,7 @@ const MediaUpload = ({
               <img
                 src={preview}
                 alt=""
-                className="w-full max-h-[5px] object-cover"
+                className="w-full max-h-[1px] object-cover"
               />
             )}
 
@@ -197,7 +197,7 @@ const MediaUpload = ({
                 src={preview}
                 controls
                 muted
-                className="w-full max-h-[5px] object-cover"
+                className="w-full max-h-[1px] object-cover"
               />
             )}
           </div>
