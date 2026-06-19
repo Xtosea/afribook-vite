@@ -3,6 +3,7 @@
 import React, {
   useEffect,
   useState,
+  useRef,
 } from "react";
 
 const VoiceCall = ({
@@ -10,20 +11,19 @@ const VoiceCall = ({
   onClose,
   defaultProfile,
 }) => {
-
   const [muted, setMuted] =
     useState(false);
 
   const [speaker, setSpeaker] =
     useState(true);
 
-  useEffect(() => {
+  const localStreamRef =
+    useRef(null);
 
+  useEffect(() => {
     const startCall =
       async () => {
-
         try {
-
           const stream =
             await navigator.mediaDevices.getUserMedia(
               {
@@ -31,13 +31,14 @@ const VoiceCall = ({
               }
             );
 
+          localStreamRef.current =
+            stream;
+
           console.log(
             "Voice call started",
             stream
           );
-
         } catch (err) {
-
           console.log(err);
 
           alert(
@@ -50,7 +51,50 @@ const VoiceCall = ({
 
     startCall();
 
-  }, []);
+    return () => {
+      if (
+        localStreamRef.current
+      ) {
+        localStreamRef.current
+          .getTracks()
+          .forEach((track) =>
+            track.stop()
+          );
+      }
+    };
+  }, [onClose]);
+
+  const toggleMute = () => {
+    const newMuted =
+      !muted;
+
+    setMuted(newMuted);
+
+    if (
+      localStreamRef.current
+    ) {
+      localStreamRef.current
+        .getAudioTracks()
+        .forEach((track) => {
+          track.enabled =
+            !newMuted;
+        });
+    }
+  };
+
+  const endCall = () => {
+    if (
+      localStreamRef.current
+    ) {
+      localStreamRef.current
+        .getTracks()
+        .forEach((track) =>
+          track.stop()
+        );
+    }
+
+    onClose();
+  };
 
   return (
     <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
@@ -80,7 +124,9 @@ const VoiceCall = ({
           {/* SPEAKER */}
           <button
             onClick={() =>
-              setSpeaker(!speaker)
+              setSpeaker(
+                !speaker
+              )
             }
             className={`w-14 h-14 rounded-full text-2xl flex items-center justify-center transition ${
               speaker
@@ -88,13 +134,15 @@ const VoiceCall = ({
                 : "bg-gray-700"
             }`}
           >
-            🔊
+            {speaker
+              ? "🔊"
+              : "🔈"}
           </button>
 
           {/* MUTE */}
           <button
-            onClick={() =>
-              setMuted(!muted)
+            onClick={
+              toggleMute
             }
             className={`w-14 h-14 rounded-full text-2xl flex items-center justify-center transition ${
               muted
@@ -102,16 +150,21 @@ const VoiceCall = ({
                 : "bg-gray-700"
             }`}
           >
-            🎤
+            {muted
+              ? "🔇"
+              : "🎤"}
           </button>
 
           {/* END */}
           <button
-            onClick={onClose}
+            onClick={
+              endCall
+            }
             className="bg-red-600 hover:bg-red-700 w-14 h-14 rounded-full text-2xl flex items-center justify-center transition"
           >
             ❌
           </button>
+
         </div>
       </div>
     </div>
