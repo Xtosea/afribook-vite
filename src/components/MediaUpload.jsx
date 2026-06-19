@@ -142,7 +142,7 @@ const MediaUpload = ({
       transition
     "
   >
-    <FiUpload className="text-2xl text-blue-500 fixed" />
+    <FiUpload className="text-2xl text-blue-500 fixed bottom-4" />
 
     <span className="text-xs text-gray-600">
       Photos/Videos
