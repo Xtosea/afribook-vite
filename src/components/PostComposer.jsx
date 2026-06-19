@@ -335,7 +335,7 @@ return (
       currentUser?.name || "User"
     }?`}
     
-    className="fixed top-4
+    className="fixed top-2
   w-full
   p-6
   rounded-2xl
