@@ -834,6 +834,6 @@ onChange={handleFile}
 </div>
 </div>
 );
-};
+
 
 export default StoryCreator;
