@@ -40,6 +40,9 @@ useRef(null);
 const connectionRef =
 useRef(null);
 
+const ringtoneRef = useRef(null);
+const callingRef = useRef(null);
+
 // =========================
 // GET MICROPHONE
 // =========================
@@ -96,6 +99,8 @@ data.callType !== "voice"
 )
 return;
 
+    ringtoneRef.current?.play();
+
     setReceivingCall(true);
 
     setCaller(
@@ -139,6 +144,9 @@ setCallAccepted(true);
     }
   };
 
+callingRef.current?.pause();
+callingRef.current.currentTime = 0;
+
 socket.on(
   "call-accepted",
   handleAccepted
@@ -160,6 +168,12 @@ return () => {
 useEffect(() => {
 const handleEnded = () => {
 connectionRef.current?.destroy();
+
+ringtoneRef.current?.pause();
+callingRef.current?.pause();
+
+ringtoneRef.current.currentTime = 0;
+callingRef.current.currentTime = 0;
 
   if (
     localStreamRef.current
@@ -196,6 +210,8 @@ if (
 !localStreamRef.current
 )
 return;
+
+callingRef.current?.play();
 
 const peer =
   new Peer({
@@ -259,6 +275,9 @@ if (
 !localStreamRef.current
 )
 return;
+
+ringtoneRef.current?.pause();
+ringtoneRef.current.currentTime = 0;
 
 setCallAccepted(true);
 
@@ -326,6 +345,13 @@ to:
 selectedUser._id,
 }
 );
+
+
+ringtoneRef.current?.pause();
+callingRef.current?.pause();
+
+ringtoneRef.current.currentTime = 0;
+callingRef.current.currentTime = 0;
 
 connectionRef.current?.destroy();
 
@@ -434,6 +460,18 @@ return (
           ? "🔊"
           : "🔈"}
       </button>
+
+    <audio
+  ref={ringtoneRef}
+  src="/sounds/ringtone.mp3"
+  loop
+/>
+
+<audio
+  ref={callingRef}
+  src="/sounds/calling.mp3"
+  loop
+/>
 
       <button
         onClick={
