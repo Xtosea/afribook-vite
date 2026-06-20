@@ -47,6 +47,8 @@ const VoiceRecorder = ({
       8, 14, 10, 18, 12, 16, 9,
     ]);
 
+const isRecordingRef = useRef(false);
+
   // ================= WAVEFORM =================
 
   const startWaveform =
@@ -133,12 +135,13 @@ const VoiceRecorder = ({
 
   // ================= START RECORDING =================
 
-  const startRecording =
-    async () => {
+  const startRecording = async () => {
+  if (isRecordingRef.current) return;
 
-      try {
+  isRecordingRef.current = true;
 
-        setIsCancelling(false);
+  try {
+       setIsCancelling(false);
 
         const stream =
           await navigator.mediaDevices.getUserMedia(
@@ -315,13 +318,15 @@ const VoiceRecorder = ({
 
   // ================= STOP RECORDING =================
 
-  const stopRecording =
-    () => {
+  const stopRecording = () => {
+  if (!isRecordingRef.current) return;
 
-      mediaRecorderRef.current?.stop();
+  isRecordingRef.current = false;
 
-      setRecording(false);
-    };
+  mediaRecorderRef.current?.stop();
+
+  setRecording(false);
+};
 
   // ================= TOUCH START =================
 
