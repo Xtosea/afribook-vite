@@ -103,7 +103,7 @@ ringtoneRef.current
       err
     );
   });
-  };
+  
 
 socket.on(
   "incoming-call",
