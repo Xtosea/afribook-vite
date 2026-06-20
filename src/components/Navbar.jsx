@@ -111,6 +111,8 @@ const Navbar = () => {
         const nData = await nRes.json();
         const cData = await cRes.json();
 
+const dropdownRef = useRef(null);
+
         setNotifications(Array.isArray(nData) ? nData : []);
         setUnreadCount(cData.count || 0);
       } catch (err) {
