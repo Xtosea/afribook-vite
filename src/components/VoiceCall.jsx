@@ -1,224 +1,77 @@
-// components/VoiceCall.jsx
-
 import React, {
-  useEffect,
-  useState,
-  useRef,
+useEffect,
+useState,
+useRef,
 } from "react";
-import Peer from "simple-peer";
-import { connectSocket } from "../socket";
 
+import Peer from "simple-peer";
 
 const VoiceCall = ({
-  currentUser,
-  selectedUser,
-  socket,
-  onClose,
-  defaultProfile,
+currentUser,
+selectedUser,
+socket,
+onClose,
+defaultProfile,
 }) => {
-  const [muted, setMuted] =
-    useState(false);
+const [muted, setMuted] =
+useState(false);
 
-  const [speaker, setSpeaker] =
-    useState(true);
-
-  const localStreamRef =
-    useRef(null);
+const [speaker, setSpeaker] =
+useState(true);
 
 const [receivingCall, setReceivingCall] =
-  useState(false);
-
-const [callerSignal, setCallerSignal] =
-  useState(null);
+useState(false);
 
 const [caller, setCaller] =
-  useState(null);
+useState(null);
+
+const [callerSignal, setCallerSignal] =
+useState(null);
 
 const [callAccepted, setCallAccepted] =
-  useState(false);
+useState(false);
 
-const remoteAudioRef = useRef(null);
+const localStreamRef =
+useRef(null);
 
-const connectionRef = useRef(null);
+const remoteAudioRef =
+useRef(null);
 
-const socket = useRef(
-  connectSocket()
-).current;
+const connectionRef =
+useRef(null);
+
+// =========================
+// GET MICROPHONE
+// =========================
 
 useEffect(() => {
+const getMic = async () => {
+try {
+const stream =
+await navigator.mediaDevices.getUserMedia({
+audio: true,
+video: false,
+});
 
-  const handleIncomingCall =
-    (data) => {
+    localStreamRef.current =
+      stream;
+  } catch (err) {
+    console.error(err);
 
-      if (
-        data.callType === "voice"
-      ) {
-
-        setReceivingCall(true);
-
-        setCallerSignal(
-          data.signal
-        );
-
-        setCaller(
-          data.from
-        );
-      }
-    };
-
-  socket.on(
-    "incoming-call",
-    handleIncomingCall
-  );
-
-  return () => {
-    socket.off(
-      "incoming-call",
-      handleIncomingCall
+    alert(
+      "Microphone permission denied"
     );
-  };
 
-}, [socket]);
-
-
-const callUser = () => {
-
-  const peer =
-    new Peer({
-      initiator: true,
-      trickle: false,
-      stream:
-        localStreamRef.current,
-
-      config: {
-        iceServers: [
-          {
-            urls: [
-              "stun:stun.l.google.com:19302",
-            ],
-          },
-        ],
-      },
-    });
-
-  peer.on(
-    "signal",
-    (signal) => {
-
-      socket.emit(
-        "call-user",
-        {
-          to:
-            selectedUser._id,
-
-          from:
-            currentUser,
-
-          signal,
-
-          callType:
-            "voice",
-        }
-      );
-    }
-  );
-
-  peer.on(
-    "stream",
-    (remoteStream) => {
-
-      if (
-        remoteAudioRef.current
-      ) {
-
-        remoteAudioRef.current.srcObject =
-          remoteStream;
-      }
-    }
-  );
-
-  connectionRef.current =
-    peer;
+    onClose();
+  }
 };
 
+getMic();
 
-const answerCall = () => {
-
-  setCallAccepted(true);
-
-  const peer =
-    new Peer({
-      initiator: false,
-      trickle: false,
-      stream:
-        localStreamRef.current,
-
-      config: {
-        iceServers: [
-          {
-            urls: [
-              "stun:stun.l.google.com:19302",
-            ],
-          },
-        ],
-      },
-    });
-
-  peer.on(
-    "signal",
-    (signal) => {
-
-      socket.emit(
-        "answer-call",
-        {
-          signal,
-
-          to:
-            caller._id,
-        }
-      );
-    }
-  );
-
-  peer.on(
-    "stream",
-    (remoteStream) => {
-
-      if (
-        remoteAudioRef.current
-      ) {
-
-        remoteAudioRef.current.srcObject =
-          remoteStream;
-      }
-    }
-  );
-
-  peer.signal(
-    callerSignal
-  );
-
-  connectionRef.current =
-    peer;
-};
-
-
-const endCall = () => {
-
-  socket.emit(
-    "end-call",
-    {
-      to:
-        selectedUser._id,
-    }
-  );
-
-  connectionRef.current?.destroy();
-
+return () => {
   if (
     localStreamRef.current
   ) {
-
     localStreamRef.current
       .getTracks()
       .forEach((track) =>
@@ -226,162 +79,400 @@ const endCall = () => {
       );
   }
 
+  connectionRef.current?.destroy();
+};
+
+}, [onClose]);
+
+// =========================
+// INCOMING CALL
+// =========================
+
+useEffect(() => {
+const handleIncomingCall =
+(data) => {
+if (
+data.callType !== "voice"
+)
+return;
+
+    setReceivingCall(true);
+
+    setCaller(
+      data.from
+    );
+
+    setCallerSignal(
+      data.signal
+    );
+  };
+
+socket.on(
+  "incoming-call",
+  handleIncomingCall
+);
+
+return () => {
+  socket.off(
+    "incoming-call",
+    handleIncomingCall
+  );
+};
+
+}, [socket]);
+
+// =========================
+// CALL ACCEPTED
+// =========================
+
+useEffect(() => {
+const handleAccepted =
+(signal) => {
+setCallAccepted(true);
+
+    if (
+      connectionRef.current
+    ) {
+      connectionRef.current.signal(
+        signal
+      );
+    }
+  };
+
+socket.on(
+  "call-accepted",
+  handleAccepted
+);
+
+return () => {
+  socket.off(
+    "call-accepted",
+    handleAccepted
+  );
+};
+
+}, [socket]);
+
+// =========================
+// CALL ENDED
+// =========================
+
+useEffect(() => {
+const handleEnded = () => {
+connectionRef.current?.destroy();
+
+  if (
+    localStreamRef.current
+  ) {
+    localStreamRef.current
+      .getTracks()
+      .forEach((track) =>
+        track.stop());
+  }
+
   onClose();
 };
 
-  useEffect(() => {
-    const startCall =
-      async () => {
-        try {
-          const stream =
-  await navigator.mediaDevices.getUserMedia({
-    audio: true,
-    video: false,
+socket.on(
+  "call-ended",
+  handleEnded
+);
+
+return () => {
+  socket.off(
+    "call-ended",
+    handleEnded
+  );
+};
+
+}, [socket, onClose]);
+
+// =========================
+// START CALL
+// =========================
+
+const callUser = () => {
+if (
+!localStreamRef.current
+)
+return;
+
+const peer =
+  new Peer({
+    initiator: true,
+    trickle: false,
+    stream:
+      localStreamRef.current,
+
+    config: {
+      iceServers: [
+        {
+          urls: [
+            "stun:stun.l.google.com:19302",
+          ],
+        },
+      ],
+    },
   });
 
-localStreamRef.current =
-  stream;
-
-          console.log(
-            "Voice call started",
-            stream
-          );
-        } catch (err) {
-          console.log(err);
-
-          alert(
-            "Microphone permission denied"
-          );
-
-          onClose();
-        }
-      };
-
-    startCall();
-
-    return () => {
-      if (
-        localStreamRef.current
-      ) {
-        localStreamRef.current
-          .getTracks()
-          .forEach((track) =>
-            track.stop()
-          );
+peer.on(
+  "signal",
+  (signal) => {
+    socket.emit(
+      "call-user",
+      {
+        to:
+          selectedUser._id,
+        from:
+          currentUser,
+        signal,
+        callType:
+          "voice",
       }
-    };
-  }, [onClose]);
+    );
+  }
+);
 
-  const toggleMute = () => {
-    const newMuted =
-      !muted;
-
-    setMuted(newMuted);
-
+peer.on(
+  "stream",
+  (remoteStream) => {
     if (
-      localStreamRef.current
+      remoteAudioRef.current
     ) {
-      localStreamRef.current
-        .getAudioTracks()
-        .forEach((track) => {
-          track.enabled =
-            !newMuted;
-        });
+      remoteAudioRef.current.srcObject =
+        remoteStream;
     }
-  };
+  }
+);
 
-  const endCall = () => {
+connectionRef.current =
+  peer;
+
+};
+
+// =========================
+// ANSWER CALL
+// =========================
+
+const answerCall = () => {
+if (
+!localStreamRef.current
+)
+return;
+
+setCallAccepted(true);
+
+const peer =
+  new Peer({
+    initiator: false,
+    trickle: false,
+    stream:
+      localStreamRef.current,
+
+    config: {
+      iceServers: [
+        {
+          urls: [
+            "stun:stun.l.google.com:19302",
+          ],
+        },
+      ],
+    },
+  });
+
+peer.on(
+  "signal",
+  (signal) => {
+    socket.emit(
+      "answer-call",
+      {
+        signal,
+        to: caller,
+      }
+    );
+  }
+);
+
+peer.on(
+  "stream",
+  (remoteStream) => {
     if (
-      localStreamRef.current
+      remoteAudioRef.current
     ) {
-      localStreamRef.current
-        .getTracks()
-        .forEach((track) =>
-          track.stop()
-        );
+      remoteAudioRef.current.srcObject =
+        remoteStream;
     }
+  }
+);
 
-    onClose();
-  };
+peer.signal(
+  callerSignal
+);
 
-  return (
-    <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+connectionRef.current =
+  peer;
 
-      <div className="bg-gray-900 text-white rounded-3xl p-8 w-full max-w-sm text-center shadow-2xl">
+};
 
-        <img
-          src={
-            selectedUser?.profilePic ||
-            defaultProfile
+// =========================
+// END CALL
+// =========================
+
+const endCall = () => {
+socket.emit(
+"end-call",
+{
+to:
+selectedUser._id,
+}
+);
+
+connectionRef.current?.destroy();
+
+if (
+  localStreamRef.current
+) {
+  localStreamRef.current
+    .getTracks()
+    .forEach((track) =>
+      track.stop()
+    );
+}
+
+onClose();
+
+};
+
+// =========================
+// MUTE
+// =========================
+
+const toggleMute = () => {
+const next =
+!muted;
+
+setMuted(next);
+
+localStreamRef.current
+  ?.getAudioTracks()
+  .forEach((track) => {
+    track.enabled =
+      !next;
+  });
+
+};
+
+// =========================
+// SPEAKER
+// =========================
+
+useEffect(() => {
+if (
+remoteAudioRef.current
+) {
+remoteAudioRef.current.muted =
+!speaker;
+}
+}, [speaker]);
+
+return (
+<div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+
+  <div className="bg-gray-900 text-white rounded-3xl p-8 w-full max-w-sm text-center shadow-2xl">
+
+    <audio
+      ref={remoteAudioRef}
+      autoPlay
+    />
+
+    <img
+      src={
+        selectedUser?.profilePic ||
+        defaultProfile
+      }
+      alt=""
+      className="w-28 h-28 rounded-full mx-auto object-cover border-4 border-white"
+    />
+
+    <h2 className="text-2xl font-bold mt-5">
+      {selectedUser?.name}
+    </h2>
+
+    <p className="text-gray-300 mt-2">
+      {callAccepted
+        ? "Connected"
+        : "Calling..."}
+    </p>
+
+    {receivingCall &&
+      !callAccepted && (
+        <button
+          onClick={
+            answerCall
           }
-          alt=""
-          className="w-28 h-28 rounded-full mx-auto object-cover border-4 border-white"
-        />
+          className="bg-green-600 hover:bg-green-700 px-5 py-3 rounded-xl mt-5"
+        >
+          Answer Call
+        </button>
+      )}
 
-        <h2 className="text-2xl font-bold mt-5">
-          {selectedUser?.name}
-        </h2>
+    <div className="flex justify-center gap-5 mt-10">
 
-        <p className="text-gray-300 mt-2 animate-pulse">
-          Voice Call Active...
-        </p>
+      <button
+        onClick={() =>
+          setSpeaker(
+            !speaker
+          )
+        }
+        className={`w-14 h-14 rounded-full text-2xl flex items-center justify-center ${
+          speaker
+            ? "bg-blue-500"
+            : "bg-gray-700"
+        }`}
+      >
+        {speaker
+          ? "🔊"
+          : "🔈"}
+      </button>
 
-        {/* CONTROLS */}
-        <div className="flex justify-center gap-5 mt-10">
+      <button
+        onClick={
+          toggleMute
+        }
+        className={`w-14 h-14 rounded-full text-2xl flex items-center justify-center ${
+          muted
+            ? "bg-red-500"
+            : "bg-gray-700"
+        }`}
+      >
+        {muted
+          ? "🔇"
+          : "🎤"}
+      </button>
 
-          {/* SPEAKER */}
-          <button
-            onClick={() =>
-              setSpeaker(
-                !speaker
-              )
-            }
+      <button
+        onClick={
+          endCall
+        }
+        className="bg-red-600 hover:bg-red-700 w-14 h-14 rounded-full text-2xl flex items-center justify-center"
+      >
+        ❌
+      </button>
 
-   <audio
-  ref={remoteAudioRef}
-  autoPlay
-/>
-            className={`w-14 h-14 rounded-full text-2xl flex items-center justify-center transition ${
-              speaker
-                ? "bg-blue-500"
-                : "bg-gray-700"
-            }`}
-          >
-            {speaker
-              ? "🔊"
-              : "🔈"}
-          </button>
-
-          {/* MUTE */}
-          <button
-            onClick={
-              toggleMute
-            }
-            className={`w-14 h-14 rounded-full text-2xl flex items-center justify-center transition ${
-              muted
-                ? "bg-red-500"
-                : "bg-gray-700"
-            }`}
-          >
-            {muted
-              ? "🔇"
-              : "🎤"}
-          </button>
-
-          {/* END */}
-          <button
-            onClick={
-              endCall
-            }
-            className="bg-red-600 hover:bg-red-700 w-14 h-14 rounded-full text-2xl flex items-center justify-center transition"
-          >
-            ❌
-          </button>
-
-        </div>
-      </div>
     </div>
-  );
+
+    {!receivingCall && (
+      <button
+        onClick={
+          callUser
+        }
+        className="hidden"
+      />
+    )}
+  </div>
+</div>
+
+);
 };
 
 export default VoiceCall;
