@@ -5,6 +5,9 @@ import React, {
   useState,
   useRef,
 } from "react";
+import Peer from "simple-peer";
+import { connectSocket } from "../socket";
+
 
 const VoiceCall = ({
   selectedUser,
@@ -20,19 +23,222 @@ const VoiceCall = ({
   const localStreamRef =
     useRef(null);
 
+const [receivingCall, setReceivingCall] =
+  useState(false);
+
+const [callerSignal, setCallerSignal] =
+  useState(null);
+
+const [caller, setCaller] =
+  useState(null);
+
+const [callAccepted, setCallAccepted] =
+  useState(false);
+
+const remoteAudioRef = useRef(null);
+
+const connectionRef = useRef(null);
+
+const socket = useRef(
+  connectSocket()
+).current;
+
+useEffect(() => {
+
+  const handleIncomingCall =
+    (data) => {
+
+      if (
+        data.callType === "voice"
+      ) {
+
+        setReceivingCall(true);
+
+        setCallerSignal(
+          data.signal
+        );
+
+        setCaller(
+          data.from
+        );
+      }
+    };
+
+  socket.on(
+    "incoming-call",
+    handleIncomingCall
+  );
+
+  return () => {
+    socket.off(
+      "incoming-call",
+      handleIncomingCall
+    );
+  };
+
+}, [socket]);
+
+
+const callUser = () => {
+
+  const peer =
+    new Peer({
+      initiator: true,
+      trickle: false,
+      stream:
+        localStreamRef.current,
+
+      config: {
+        iceServers: [
+          {
+            urls: [
+              "stun:stun.l.google.com:19302",
+            ],
+          },
+        ],
+      },
+    });
+
+  peer.on(
+    "signal",
+    (signal) => {
+
+      socket.emit(
+        "call-user",
+        {
+          to:
+            selectedUser._id,
+
+          from:
+            currentUser,
+
+          signal,
+
+          callType:
+            "voice",
+        }
+      );
+    }
+  );
+
+  peer.on(
+    "stream",
+    (remoteStream) => {
+
+      if (
+        remoteAudioRef.current
+      ) {
+
+        remoteAudioRef.current.srcObject =
+          remoteStream;
+      }
+    }
+  );
+
+  connectionRef.current =
+    peer;
+};
+
+
+const answerCall = () => {
+
+  setCallAccepted(true);
+
+  const peer =
+    new Peer({
+      initiator: false,
+      trickle: false,
+      stream:
+        localStreamRef.current,
+
+      config: {
+        iceServers: [
+          {
+            urls: [
+              "stun:stun.l.google.com:19302",
+            ],
+          },
+        ],
+      },
+    });
+
+  peer.on(
+    "signal",
+    (signal) => {
+
+      socket.emit(
+        "answer-call",
+        {
+          signal,
+
+          to:
+            caller._id,
+        }
+      );
+    }
+  );
+
+  peer.on(
+    "stream",
+    (remoteStream) => {
+
+      if (
+        remoteAudioRef.current
+      ) {
+
+        remoteAudioRef.current.srcObject =
+          remoteStream;
+      }
+    }
+  );
+
+  peer.signal(
+    callerSignal
+  );
+
+  connectionRef.current =
+    peer;
+};
+
+
+const endCall = () => {
+
+  socket.emit(
+    "end-call",
+    {
+      to:
+        selectedUser._id,
+    }
+  );
+
+  connectionRef.current?.destroy();
+
+  if (
+    localStreamRef.current
+  ) {
+
+    localStreamRef.current
+      .getTracks()
+      .forEach((track) =>
+        track.stop()
+      );
+  }
+
+  onClose();
+};
+
   useEffect(() => {
     const startCall =
       async () => {
         try {
           const stream =
-            await navigator.mediaDevices.getUserMedia(
-              {
-                audio: true,
-              }
-            );
+  await navigator.mediaDevices.getUserMedia({
+    audio: true,
+    video: false,
+  });
 
-          localStreamRef.current =
-            stream;
+localStreamRef.current =
+  stream;
 
           console.log(
             "Voice call started",
@@ -128,6 +334,11 @@ const VoiceCall = ({
                 !speaker
               )
             }
+
+   <audio
+  ref={remoteAudioRef}
+  autoPlay
+/>
             className={`w-14 h-14 rounded-full text-2xl flex items-center justify-center transition ${
               speaker
                 ? "bg-blue-500"
