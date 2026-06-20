@@ -372,8 +372,15 @@ onMouseUp={
 ? stopRecording
 : undefined
 }
-disabled={uploading}
-className={"w-12 h-12 rounded-full text-white shadow-lg flex items-center justify-center text-xl transition-all duration-300 ${ recording ? isCancelling ? "bg-red-700 scale-125" : "bg-red-500 animate-pulse scale-110" : uploading ? "bg-gray-400" : "bg-green-500" }"}
+className={`w-12 h-12 rounded-full text-white shadow-lg flex items-center justify-center text-xl transition-all duration-300 ${
+  recording
+    ? isCancelling
+      ? "bg-red-700 scale-125"
+      : "bg-red-500 animate-pulse scale-110"
+    : uploading
+    ? "bg-gray-400"
+    : "bg-green-500"
+}`}
 >
 {uploading
 ? "..."
