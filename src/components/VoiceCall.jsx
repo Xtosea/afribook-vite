@@ -92,24 +92,17 @@ return () => {
 // =========================
 
 useEffect(() => {
-const handleIncomingCall =
-(data) => {
-if (
-data.callType !== "voice"
-)
-return;
-
-    ringtoneRef.current?.play();
-
-    setReceivingCall(true);
-
-    setCaller(
-      data.from
+ringtoneRef.current
+  ?.play()
+  .then(() => {
+    console.log("Ringtone playing");
+  })
+  .catch((err) => {
+    console.error(
+      "Ringtone blocked:",
+      err
     );
-
-    setCallerSignal(
-      data.signal
-    );
+  });
   };
 
 socket.on(
