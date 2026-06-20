@@ -377,11 +377,11 @@ const Messages = () => {
 
         formData.append(
           "upload_preset",
-          "YOUR_UPLOAD_PRESET"
+          "joblink_unsigned"
         );
 
         const cloudName =
-          "YOUR_CLOUD_NAME";
+          "africbook";
 
         const resourceType =
           media.type.startsWith(
@@ -945,23 +945,18 @@ const Messages = () => {
         )}
 
       {/* VOICE CALL */}
-      {showVoiceCall &&
-        selectedUser && (
-          <VoiceCall
-            currentUser={
-              currentUser
-            }
-            selectedUser={
-              selectedUser
-            }
-            onClose={() =>
-              setShowVoiceCall(
-                false
-              )
-            }
-          />
-        )}
-    </div>
+      {showVoiceCall && (
+  <VoiceCall
+    currentUser={currentUser}
+    selectedUser={selectedUser}
+    socket={socketRef.current}
+    onClose={() =>
+      setShowVoiceCall(false)
+    }
+    defaultProfile={defaultProfile}
+  />
+)}
+   </div>
   );
 };
 
