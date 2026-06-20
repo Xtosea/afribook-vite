@@ -455,6 +455,11 @@ uploadedMedia =
           }
         );
 
+      console.log(
+  "Voice message response:",
+  newMessage
+);
+
       setMessages((prev) => [
         ...prev,
         newMessage,
