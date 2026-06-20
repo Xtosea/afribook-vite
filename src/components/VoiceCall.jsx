@@ -10,7 +10,9 @@ import { connectSocket } from "../socket";
 
 
 const VoiceCall = ({
+  currentUser,
   selectedUser,
+  socket,
   onClose,
   defaultProfile,
 }) => {
