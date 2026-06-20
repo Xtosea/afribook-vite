@@ -49,6 +49,8 @@ const Navbar = () => {
 
   
   const settingsRef = useRef(null);
+  const dropdownRef = useRef(null);
+
 
   const [isLoggedIn, setIsLoggedIn] = useState(
     !!localStorage.getItem("token")
@@ -65,6 +67,7 @@ const Navbar = () => {
   const currentUserId = localStorage.getItem("userId");
 
   const isActive = (path) => location.pathname === path;
+
 
   // ================= SOCKET =================
   useEffect(() => {
@@ -111,7 +114,6 @@ const Navbar = () => {
         const nData = await nRes.json();
         const cData = await cRes.json();
 
-const dropdownRef = useRef(null);
 
         setNotifications(Array.isArray(nData) ? nData : []);
         setUnreadCount(cData.count || 0);
