@@ -142,9 +142,12 @@ const Navbar = () => {
   }, []);
 
   const handleLogout = () => {
-    localStorage.clear();
-    navigate("/login");
-  };
+  setMobileOpen(false);
+  setShowSettings(false);
+
+  localStorage.clear();
+  navigate("/login", { replace: true });
+};
 
   // ================= UI =================
   return (
