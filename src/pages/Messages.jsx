@@ -381,7 +381,7 @@ const Messages = () => {
         );
 
         const cloudName =
-          "africbook";
+          "dycqfqqlc";
 
         const resourceType =
           media.type.startsWith(
