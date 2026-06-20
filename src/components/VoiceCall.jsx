@@ -131,36 +131,45 @@ return () => {
 // =========================
 
 useEffect(() => {
-const handleAccepted =
-(signal) => {
+
+const handleAccepted = (signal) => {
+
 setCallAccepted(true);
 
-    if (
-      connectionRef.current
-    ) {
-      connectionRef.current.signal(
-        signal
-      );
-    }
-  };
 
-callingRef.current?.pause();
-callingRef.current.currentTime = 0;
+// STOP CALLING TONE HERE
+if (callingRef.current) {
+  callingRef.current.pause();
+  callingRef.current.currentTime = 0;
+}
 
-socket.on(
-  "call-accepted",
-  handleAccepted
+
+if (
+connectionRef.current
+) {
+connectionRef.current.signal(
+signal
 );
+}
 
-return () => {
-  socket.off(
-    "call-accepted",
-    handleAccepted
-  );
 };
 
-}, [socket]);
 
+socket.on(
+"call-accepted",
+handleAccepted
+);
+
+
+return () => {
+socket.off(
+"call-accepted",
+handleAccepted
+);
+};
+
+
+}, [socket]);
 // =========================
 // CALL ENDED
 // =========================
@@ -211,7 +220,16 @@ if (
 )
 return;
 
-callingRef.current?.play();
+if (callingRef.current) {
+  callingRef.current
+    .play()
+    .catch(err =>
+      console.log(
+        "Calling sound blocked:",
+        err
+      )
+    );
+}
 
 const peer =
   new Peer({
@@ -422,6 +440,18 @@ return (
       autoPlay
     />
 
+      <audio
+  ref={ringtoneRef}
+  src="/sounds/ringtone.mp3"
+  loop
+/>
+
+<audio
+  ref={callingRef}
+  src="/sounds/calling.mp3"
+  loop
+/>
+
     <img
       src={
         selectedUser?.profilePic ||
@@ -472,17 +502,7 @@ return (
           : "🔈"}
       </button>
 
-    <audio
-  ref={ringtoneRef}
-  src="/sounds/ringtone.mp3"
-  loop
-/>
-
-<audio
-  ref={callingRef}
-  src="/sounds/calling.mp3"
-  loop
-/>
+   
 
       <button
         onClick={
