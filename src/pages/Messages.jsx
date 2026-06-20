@@ -404,10 +404,21 @@ const Messages = () => {
           );
 
         const uploadData =
-          await uploadRes.json();
+ await uploadRes.json();
 
-        uploadedMedia =
-          uploadData.secure_url;
+console.log(
+  "Cloudinary response:",
+  uploadData
+);
+
+if(uploadData.error){
+  throw new Error(
+    uploadData.error.message
+  );
+}
+
+uploadedMedia =
+ uploadData.secure_url;
 
         mediaType =
           media.type.startsWith(
