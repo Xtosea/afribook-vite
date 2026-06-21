@@ -117,9 +117,9 @@ useEffect(() => {
   <div
   className="
     absolute
-    top-20
-    left-3
-    z-30
+    top-2
+    left-2
+    z-50
     flex
     items-center
     gap-2
@@ -403,6 +403,26 @@ className="bg-black/60 text-white p-3 rounded-full"
 🎵
 </button>
 
+</div>   {/* CLOSE TOOLBAR HERE */}
+
+
+{activeTool && (
+<div
+className="
+absolute
+bottom-0
+left-0
+right-0
+z-[100]
+bg-black/90
+p-4
+w-full
+max-h-[35vh]
+overflow-y-auto
+backdrop-blur-md
+"
+>
+
 
 {activeTool && (
 <div
@@ -510,23 +530,7 @@ className="bg-black/60 text-white p-3 rounded-full"
 )}
 
 
-<button
-  type="button"
-  onClick={() => setActiveTool(null)}
-  className="
-    absolute
-    top-2
-    left-15
-    bg-red-500
-    text-white
-    px-3
-    py-1
-    rounded-full
-    z-[200]
-  "
->
-  ✕
-</button>
+
 
 
     {activeTool && (
@@ -738,6 +742,24 @@ className="bg-orange-600 text-white p-2 rounded"
 )}
 
 
+<button
+  type="button"
+  onClick={() => setActiveTool(null)}
+  className="
+    absolute
+    top-2
+    left-15
+    bg-red-500
+    text-white
+    px-3
+    py-1
+    rounded-full
+    z-[200]
+  "
+>
+  ✕
+</button>
+
 
 
  {music?.url && (
@@ -752,7 +774,7 @@ className="bg-orange-600 text-white p-2 rounded"
 <div  
   className="  
     absolute  
-    bottom-10  
+    bottom-4  
     left-1/2  
     -translate-x-1/2  
     z-20  
