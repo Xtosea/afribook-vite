@@ -158,11 +158,24 @@ const applyAI = async (effect) => {
     setPreview(newUrl);
     setCloudinaryUrl(newUrl);
 
+    // ADD THIS
+    setMediaFiles((prev) =>
+      prev.map((file, index) =>
+        index === 0
+          ? {
+              ...file,
+              enhancedUrl: newUrl,
+              enhanced: true,
+              url: newUrl,
+            }
+          : file
+      )
+    );
+
   } catch (err) {
     console.error(err);
     alert("AI processing failed");
   }
-};
 };
 // =========================
 // HANDLE TAG FRINDS 
@@ -390,12 +403,7 @@ return (
   media={mediaFiles[0]}
 currentUser={currentUser}
 
-  preview={
-    mediaFiles[0]
-      ? URL.createObjectURL(mediaFiles[0])
-      : null
-  }
-
+  
   text={newPost}
   setText={setNewPost}
 
