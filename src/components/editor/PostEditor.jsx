@@ -470,7 +470,7 @@ className="bg-black/60 text-white p-3 rounded-full"
 onClick={() => setActiveTool("text")}
 className="bg-black/60 text-white p-3 rounded-full"
 >
-WriteText
+Text
 </button>
 
 <button
@@ -479,22 +479,6 @@ className="bg-black/60 text-white p-3 rounded-full"
 >
 🎨
 </button>
-
-  <button
-    type="button"
-    onClick={() => setActiveTool("rotate")}
-    className="w-12 h-12 rounded-full bg-black/60 text-white"
-  >
-    🔄
-  </button>
-
-  <button
-    type="button"
-    onClick={() => setActiveTool("size")}
-    className="w-12 h-12 rounded-full bg-black/60 text-white"
-  >
-    📏
-  </button>
 
   <button
     type="button"
