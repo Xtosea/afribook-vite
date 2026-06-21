@@ -41,7 +41,6 @@ import("emoji-picker-react")
 
 
 
-
 const [posting, setPosting] =
 useState(false);
 
@@ -244,8 +243,10 @@ useEffect(() => {
 
 
 
-const handleSubmitPost = async (e) => {
-console.log("HANDLE SUBMIT STARTED");
+const handleSubmitPost = async () => {
+  try {
+    setIsPosting(true);
+
 
 e.preventDefault();
 
@@ -406,6 +407,9 @@ currentUser={currentUser}
   
   text={newPost}
   setText={setNewPost}
+
+  
+  isPosting={isPosting}
 
 
   textPosition={textPosition}
