@@ -41,13 +41,6 @@ import("emoji-picker-react")
 
 const [isPosting, setIsPosting] = useState(false);
 
-
-
-const [posting, setPosting] =
-useState(false);
-
-
-
 const [newPost, setNewPost] =
 useState("");
 
@@ -250,7 +243,7 @@ const handleSubmitPost = async (e) => {
 
   if (!newPost && mediaFiles.length === 0) return;
 
-  setPosting(true);
+  setisPosting(true);
 
   try {
     const uploadedMedia = [];
@@ -373,7 +366,7 @@ const handleSubmitPost = async (e) => {
       err.message || "Post failed"
     );
   } finally {
-    setPosting(false);
+    setisPosting(false);
   }
 };
 
