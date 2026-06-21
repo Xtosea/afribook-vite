@@ -100,7 +100,7 @@ useEffect(() => {
   className="
     absolute
     top-4
-    left-15
+    left-0
     z-50
     bg-black/70
     text-white
