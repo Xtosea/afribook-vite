@@ -107,7 +107,7 @@ className="
   rounded-full
 "
 >
-  ✕ Cancel
+  Cancel
 </button>
 
 
@@ -404,35 +404,6 @@ className="bg-black/60 text-white p-3 rounded-full"
 </div>   {/* CLOSE TOOLBAR HERE */}
 
 
-<button
-  onClick={() => setActiveTool("text")}
-  className="w-12 h-12 rounded-full bg-black/60 text-white"
->
-  T
-</button>
-
-<button
-  onClick={() => setActiveTool("color")}
-  className="w-12 h-12 rounded-full bg-black/60 text-white"
->
-  🎨
-</button>
-
-<button
-  onClick={() => setActiveTool("background")}
-  className="w-12 h-12 rounded-full bg-black/60 text-white"
->
-  🌈
-</button>
-
-{media?.type?.startsWith("image") && (
-  <button
-    onClick={() => setActiveTool("ai")}
-    className="w-12 h-12 rounded-full bg-black/60 text-white"
-  >
-    🤖
-  </button>
-)}
 
 
 {/* ACTIVE TOOL PANEL */}
@@ -679,6 +650,38 @@ className="bg-black/60 text-white p-3 rounded-full"
         "
       />
     )}
+
+
+<button
+  onClick={() => setActiveTool("text")}
+  className="w-12 h-12 rounded-full bg-black/60 text-white"
+>
+  T
+</button>
+
+<button
+  onClick={() => setActiveTool("color")}
+  className="w-12 h-12 rounded-full bg-black/60 text-white"
+>
+  🎨
+</button>
+
+<button
+  onClick={() => setActiveTool("background")}
+  className="w-12 h-12 rounded-full bg-black/60 text-white"
+>
+  🌈
+</button>
+
+{media?.type?.startsWith("image") && (
+  <button
+    onClick={() => setActiveTool("ai")}
+    className="w-12 h-12 rounded-full bg-black/60 text-white"
+  >
+    🤖
+  </button>
+)}
+
 
 
 
