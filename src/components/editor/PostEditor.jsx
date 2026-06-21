@@ -168,8 +168,7 @@ useEffect(() => {
 
 
 <button
-  type="button"
-  onClick={handleSubmitPost}
+  type="submit"
   disabled={isPosting}
   className="
     absolute
