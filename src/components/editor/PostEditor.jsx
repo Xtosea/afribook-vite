@@ -198,21 +198,24 @@ useEffect(() => {
       className="overflow-hidden"
     >
       {file.type.startsWith("image") ? (
-  <img
-    src={
-      file.enhancedUrl
-        ? file.enhancedUrl
-        : URL.createObjectURL(file)
-    }
-    alt=""
-    className="w-full h-full object-cover"
-  />
-) : (
-  <video
-    src={URL.createObjectURL(file)}
-    className="w-full h-full object-cover"
-  />
-)}
+        <img
+          src={
+            file.enhancedUrl
+              ? file.enhancedUrl
+              : URL.createObjectURL(file)
+          }
+          alt=""
+          className="w-full h-full object-cover"
+        />
+      ) : (
+        <video
+          src={URL.createObjectURL(file)}
+          className="w-full h-full object-cover"
+        />
+      )}
+    </div>
+  ))}
+</div>
 
           
 
@@ -507,8 +510,9 @@ className="bg-black/60 text-white p-3 rounded-full"
 {media?.type?.startsWith("image") && (
 
 <button
+type="button"
 onClick={() => setActiveTool("ai")}
-className="bg-black/60 text-white p-3 rounded-full"
+...
 >
 🤖
 </button>
