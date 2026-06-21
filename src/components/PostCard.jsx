@@ -55,6 +55,15 @@ const PostCard = ({
   const isMulti =
     media.length > 1;
 
+const editor = post?.editor || {};
+
+const editorText = editor?.textPosition;
+const editorStickers = editor?.stickers || [];
+
+const postBackground =
+  editor?.backgroundColor || "white";
+
+
   // ================= STATE =================
 
   const [likes, setLikes] =
@@ -408,7 +417,18 @@ const PostCard = ({
   // ================= RENDER =================
 
 return (
-  <div className="bg-white rounded-xl shadow p-3 space-y-3">
+  <div
+  className="
+    rounded-xl
+    shadow
+    p-3
+    space-y-3
+    overflow-hidden
+  "
+  style={{
+    backgroundColor: postBackground
+  }}
+>
 
     {/* HEADER */}
     <div className="flex items-center justify-between">
@@ -507,6 +527,21 @@ return (
 
       )}
 
+      {editorStickers.map((sticker,index)=>(
+  <div
+    key={index}
+    style={{
+      position:"absolute",
+      left: sticker.x,
+      top: sticker.y,
+      fontSize:
+        `${sticker.size}px`
+    }}
+  >
+    {sticker.emoji}
+  </div>
+))}
+
       {/* MEDIA */}
 
       {media.length > 0 && (
@@ -558,6 +593,39 @@ return (
         </div>
 
       )}
+
+
+     {post?.content && (
+  <div
+    className="
+      relative
+      min-h-[100px]
+    "
+  >
+
+    <div
+      style={{
+        position: "absolute",
+        left: editorText?.x || 0,
+        top: editorText?.y || 0,
+        color:
+          editor?.textColor || "#fff",
+        fontSize:
+          `${editor?.textSize || 40}px`,
+        transform:
+          `rotate(${editor?.textRotation || 0}deg)`
+      }}
+      className="
+        font-bold
+        text-shadow
+      "
+    >
+      {post.content}
+    </div>
+
+
+  </div>
+)}
 
       {/* ACTIONS */}
 
