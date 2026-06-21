@@ -99,8 +99,8 @@ useEffect(() => {
   onClick={onCancel}
   className="
     absolute
-    top-4
-    left-0
+    top-16
+    left-2
     z-50
     bg-black/70
     text-white
@@ -687,23 +687,7 @@ className="bg-black/60 text-white p-3 rounded-full"
 )}
 
 
-<button
-  type="button"
-  onClick={() => setActiveTool(null)}
-  className="
-    absolute
-    top-2
-    left-15
-    bg-red-500
-    text-white
-    px-3
-    py-1
-    rounded-full
-    z-[200]
-  "
->
-  ✕
-</button>
+
 
 
 
