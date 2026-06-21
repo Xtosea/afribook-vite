@@ -328,6 +328,8 @@ useEffect(() => {
             })
           }
         >
+
+
           <div>
             <div
               className="
@@ -514,7 +516,7 @@ className="bg-black/60 text-white p-3 rounded-full"
   className="
     absolute
     top-2
-    right-2
+    right-8
     bg-red-500
     text-white
     px-3
@@ -750,10 +752,10 @@ className="bg-orange-600 text-white p-2 rounded"
 <div  
   className="  
     absolute  
-    bottom-0  
+    bottom-  
     left-1/2  
     -translate-x-1/2  
-    z-50  
+    z-20  
   "  
 >  
   <MediaUpload  
