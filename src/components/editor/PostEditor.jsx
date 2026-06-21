@@ -186,7 +186,7 @@ useEffect(() => {
     gap-2
     ${isPosting
       ? "bg-gray-500 cursor-not-allowed"
-      : "bg-blue-500"}
+      : "bg-white-500"}
   `}
 >
   {isPosting ? (
@@ -387,6 +387,9 @@ useEffect(() => {
     flex
     flex-col
     gap-3
+    max-h-[70vh]
+    overflow-y-auto
+    pb-5
   "
 >
 
