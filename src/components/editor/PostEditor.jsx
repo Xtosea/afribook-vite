@@ -6,10 +6,12 @@ import MediaUpload from "../MediaUpload";
 
 
 const PostEditor = ({
-  currentUser,
+currentUser,
 
   preview,
   media,
+  text,
+
   text,
   setText,
 
@@ -42,9 +44,26 @@ const PostEditor = ({
   activeTool,
   setActiveTool,
 
-  
+  location,
+  setLocation,
 
-  
+  feeling,
+  setFeeling,
+
+  tagInput,
+  setTagInput,
+  applyAI,
+
+  handleTagFriends,
+
+  handleSubmitPost,
+
+  onCancel,
+
+mediaFiles,
+setMediaFiles,
+
+
 }) => {
 
 
@@ -667,6 +686,43 @@ backdrop-blur-md
 </div>
 )}
 
+
+{activeTool === "ai" && (
+<div
+className="
+absolute
+bottom-0
+left-0
+right-0
+bg-black/90
+p-3
+z-50
+"
+>
+
+<button
+onClick={() => applyAI("enhance")}
+className="bg-blue-600 text-white p-2 rounded"
+>
+✨ Enhance
+</button>
+
+<button
+onClick={() => applyAI("beauty")}
+className="bg-pink-600 text-white p-2 rounded"
+>
+💄 Beauty
+</button>
+
+<button
+onClick={() => applyAI("afroglow")}
+className="bg-orange-600 text-white p-2 rounded"
+>
+🌍 Afro Glow
+</button>
+
+</div>
+)}
 
  {music?.url && (
   <audio
