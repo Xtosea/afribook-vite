@@ -215,11 +215,9 @@ useEffect(() => {
       )}
     </div>
   ))}
-</div>
+</div>   // <-- keep this
 
-          
-
-      {/* MUSIC LABEL */}
+{/* MUSIC LABEL */}
 {music && (
   <div
     className="
