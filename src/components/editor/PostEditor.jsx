@@ -3,10 +3,9 @@ import Draggable from "react-draggable";
 import MediaUpload from "../MediaUpload";
 
 
-const [isPosting, setIsPosting] = useState(false);
-
 
 const PostEditor = ({
+ currentUser,
  preview,
  media,
 
