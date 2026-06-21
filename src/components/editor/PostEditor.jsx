@@ -114,18 +114,19 @@ useEffect(() => {
 
 
 <div
+  <div
   className="
     absolute
-    top-16
-    left-2
-    z-40
+    top-20
+    left-3
+    z-30
     flex
     items-center
-    gap-3
+    gap-2
     bg-black/40
     backdrop-blur-sm
-    px-3
-    py-2
+    px-2
+    py-1
     rounded-xl
   "
 >
@@ -170,7 +171,7 @@ useEffect(() => {
   className="
     absolute
     top-4
-    right-4
+    right-20
     z-50
     bg-blue-500
     text-white
@@ -184,7 +185,8 @@ useEffect(() => {
 
 
 <div
-  className={`absolute inset-0 grid gap-1 ${
+  <div
+ className={`absolute inset-0 grid gap-1 z-0{
     mediaFiles.length === 2
       ? "grid-cols-2"
       : mediaFiles.length >= 3
@@ -401,18 +403,20 @@ className="bg-black/60 text-white p-3 rounded-full"
 </button>
 
 
-{activeTool === "text" && (
-  <div
-    className="
-      absolute
-      bottom-0
-      left-0
-      right-0
-      bg-black/80
-      p-3
-      z-50
-    "
-  >
+{activeTool && (
+<div
+className="
+absolute
+bottom-0
+left-0
+right-0
+z-[100]
+bg-black/90
+p-4
+max-h-[35vh]
+overflow-y-auto
+"
+>
 
     <input
       type="text"
