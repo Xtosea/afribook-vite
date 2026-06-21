@@ -109,7 +109,7 @@ useEffect(() => {
     shadow-lg
   "
 >
-  ✕ Cancel
+  ✕ 
 </button>
 
 
@@ -371,7 +371,8 @@ useEffect(() => {
     onClick={() => setActiveTool("location")}
     className="w-12 h-12 rounded-full bg-black/60 text-white"
   >
-    📍 Location
+    📍
+Location 
   </button>
 
   <button
@@ -379,7 +380,8 @@ useEffect(() => {
     onClick={() => setActiveTool("feeling")}
     className="w-12 h-12 rounded-full bg-black/60 text-white"
   >
-    😊 Feelings 
+    😊 
+Feelings 
   </button>
 
   <button
@@ -387,21 +389,24 @@ useEffect(() => {
     onClick={() => setActiveTool("tag")}
     className="w-12 h-12 rounded-full bg-black/60 text-white"
   >
-    🏷Tag Friends
+    🏷
+    Tag 
   </button>
 
 <button
 onClick={() => setActiveTool("sticker")}
 className="bg-black/60 text-white p-3 rounded-full"
 >
-😀 Stickers
+😀 
+Stickers
 </button>
 
 <button
 onClick={() => setActiveTool("music")}
 className="bg-black/60 text-white p-3 rounded-full"
 >
-🎵 Music 
+🎵 
+Music 
 </button>
 
 <button
@@ -415,7 +420,8 @@ className="bg-black/60 text-white p-3 rounded-full"
   onClick={() => setActiveTool("color")}
   className="w-12 h-12 rounded-full bg-black/60 text-white"
 >
-  🎨Bgcolor
+  🎨
+Bgcolor
 
 </button>
 
@@ -423,7 +429,8 @@ className="bg-black/60 text-white p-3 rounded-full"
   onClick={() => setActiveTool("background")}
   className="w-12 h-12 rounded-full bg-black/60 text-white"
 >
-  🌈Test color 
+  🌈
+Test color 
 </button>
 
 {media?.type?.startsWith("image") && (
@@ -431,7 +438,8 @@ className="bg-black/60 text-white p-3 rounded-full"
     onClick={() => setActiveTool("ai")}
     className="w-12 h-12 rounded-full bg-black/60 text-white"
   >
-    🤖AI
+    🤖
+    AI
   </button>
 )}
 
