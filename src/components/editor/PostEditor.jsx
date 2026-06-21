@@ -184,9 +184,9 @@ useEffect(() => {
 </button>
 
 
-<div
+
   <div
- className={`absolute inset-0 grid gap-1 z-0{
+  className={`absolute inset-0 grid gap-1 z-0 ${
     mediaFiles.length === 2
       ? "grid-cols-2"
       : mediaFiles.length >= 3
@@ -206,8 +206,8 @@ useEffect(() => {
               ? file.enhancedUrl
               : URL.createObjectURL(file)
           }
-          alt=""
           className="w-full h-full object-cover"
+          alt=""
         />
       ) : (
         <video
@@ -217,8 +217,7 @@ useEffect(() => {
       )}
     </div>
   ))}
-</div>   
-
+</div>
 {/* MUSIC LABEL */}
 {music && (
   <div
@@ -417,6 +416,25 @@ max-h-[35vh]
 overflow-y-auto
 "
 >
+
+<button
+  type="button"
+  onClick={() => setActiveTool(null)}
+  className="
+    absolute
+    top-2
+    right-2
+    bg-red-500
+    text-white
+    px-3
+    py-1
+    rounded-full
+    z-[200]
+  "
+>
+  ✕
+</button>
+
 
     <input
       type="text"
