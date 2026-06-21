@@ -380,98 +380,185 @@ useEffect(() => {
 {/* TOOLBAR */}
 <div
   className="
-  absolute
-  top-20
-  right-4
-  z-50
-  flex
-  flex-col
-  gap-3
+    absolute
+    top-20
+    right-4
+    z-50
+    flex
+    flex-col
+    gap-3
+  "
+>
+
+<button
+type="button"
+onClick={() => setActiveTool("location")}
+className="
+w-16
+h-16
+rounded-2xl
+bg-black/60
+text-white
+flex
+flex-col
+items-center
+justify-center
+text-xs
 "
-  
 >
+<span className="text-xl">📍</span>
+Loc
+</button>
 
-    <button
-    type="button"
-    onClick={() => setActiveTool("location")}
-    className="w-12 h-12 rounded-full bg-black/60 text-white"
-  >
-    📍
-    Loc
-  </button>
-
-  <button
-    type="button"
-    onClick={() => setActiveTool("feeling")}
-    className="w-12 h-12 rounded-full bg-black/60 text-white"
-  >
-    😊 
-    mood 
-  </button>
-
-  <button
-    type="button"
-    onClick={() => setActiveTool("tag")}
-    className="w-12 h-12 rounded-full bg-black/60 text-white"
-  >
-    🏷
-    Tag 
-  </button>
 
 <button
+type="button"
+onClick={() => setActiveTool("feeling")}
+className="
+w-16
+h-16
+rounded-2xl
+bg-black/60
+text-white
+flex
+flex-col
+items-center
+justify-center
+text-xs
+"
+>
+<span className="text-xl">😊</span>
+Mood
+</button>
+
+
+<button
+type="button"
+onClick={() => setActiveTool("tag")}
+className="
+w-16
+h-16
+rounded-2xl
+bg-black/60
+text-white
+flex
+flex-col
+items-center
+justify-center
+text-xs
+"
+>
+<span className="text-xl">🏷</span>
+Tag
+</button>
+
+
+<button
+type="button"
 onClick={() => setActiveTool("sticker")}
-className="bg-black/60 text-white p-3 rounded-full"
+className="
+w-16
+h-16
+rounded-2xl
+bg-black/60
+text-white
+flex
+flex-col
+items-center
+justify-center
+text-xs
+"
 >
-😀 
-Stick
+<span className="text-xl">😀</span>
+Sticker
 </button>
 
+
 <button
+type="button"
 onClick={() => setActiveTool("music")}
-className="bg-black/60 text-white p-3 rounded-full"
+className="
+w-16
+h-16
+rounded-2xl
+bg-black/60
+text-white
+flex
+flex-col
+items-center
+justify-center
+text-xs
+"
 >
-🎵 
-Music 
+<span className="text-xl">🎵</span>
+Music
 </button>
+
 
 <button
-  onClick={() => setActiveTool("text")}
-  className="w-12 h-12 rounded-full bg-black/60 text-white"
+type="button"
+onClick={() => setActiveTool("text")}
+className="
+w-16
+h-16
+rounded-2xl
+bg-black/60
+text-white
+flex
+flex-col
+items-center
+justify-center
+text-xs
+"
 >
-  Test
+<span className="text-xl">T</span>
+Text
 </button>
+
 
 <button
-  onClick={() => setActiveTool("color")}
-  className="w-12 h-12 rounded-full bg-black/60 text-white"
+type="button"
+onClick={() => setActiveTool("color")}
+className="
+w-16
+h-16
+rounded-2xl
+bg-black/60
+text-white
+flex
+flex-col
+items-center
+justify-center
+text-xs
+"
 >
-  🎨
-  BG 
-
+<span className="text-xl">🎨</span>
+BG
 </button>
+
 
 <button
-  onClick={() => setActiveTool("background")}
-  className="w-12 h-12 rounded-full bg-black/60 text-white"
+type="button"
+onClick={() => setActiveTool("background")}
+className="
+w-16
+h-16
+rounded-2xl
+bg-black/60
+text-white
+flex
+flex-col
+items-center
+justify-center
+text-xs
+"
 >
-  🌈
- color 
+<span className="text-xl">🌈</span>
+Color
 </button>
 
-{media?.type?.startsWith("image") && (
-  <button
-    onClick={() => setActiveTool("ai")}
-    className="w-12 h-12 rounded-full bg-black/60 text-white"
-  >
-    🤖
-    AI
-  </button>
-)}
 
-
-
-</div>   
-
+</div>
 
 {/* CLOSE TOOLBAR HERE */}
 
