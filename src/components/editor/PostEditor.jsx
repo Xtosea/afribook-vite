@@ -6,14 +6,12 @@ import MediaUpload from "../MediaUpload";
 
 
 const PostEditor = ({
-currentUser,
+  currentUser,
 
   preview,
   media,
   text,
   setText,
-  setText={setNewPost}
-
 
   textPosition,
   setTextPosition,
@@ -44,23 +42,7 @@ currentUser,
   activeTool,
   setActiveTool,
 
-  location,
-  setLocation,
-
-  feeling,
-  setFeeling,
-
-  tagInput,
-  setTagInput,
-
-  handleTagFriends,
-
-  handleSubmitPost,
-
-  onCancel,
-
-mediaFiles,
-setMediaFiles,
+  
 
   
 }) => {
@@ -73,6 +55,7 @@ useEffect(() => {
     audioRef.current.load();
   }
 }, [music]);
+
 
 
 
@@ -398,11 +381,77 @@ className="bg-black/60 text-white p-3 rounded-full"
 😀
 </button>
 
-  <onClick={() => setActiveTool("music")}
+<button
+onClick={() => setActiveTool("music")}
 className="bg-black/60 text-white p-3 rounded-full"
 >
 🎵
 </button>
+
+
+{activeTool === "text" && (
+  <div
+    className="
+      absolute
+      bottom-0
+      left-0
+      right-0
+      bg-black/80
+      p-3
+      z-50
+    "
+  >
+
+    <input
+      type="text"
+      placeholder="Add text..."
+      value={text}
+      onChange={(e) =>
+        setText(e.target.value)
+      }
+      className="
+        w-full
+        p-2
+        rounded
+        mb-2
+      "
+    />
+
+    <input
+      type="color"
+      value={textColor}
+      onChange={(e)=>
+        setTextColor(e.target.value)
+      }
+    />
+
+    <input
+      type="range"
+      min="20"
+      max="120"
+      value={size}
+      onChange={(e)=>
+        setSize(Number(e.target.value))
+      }
+      className="w-full"
+    />
+
+    <input
+      type="range"
+      min="-180"
+      max="180"
+      value={textRotation}
+      onChange={(e)=>
+        setTextRotation(
+          Number(e.target.value)
+        )
+      }
+      className="w-full"
+    />
+
+  </div>
+)}
+
 
   <button
 onClick={() => setActiveTool("color")}
