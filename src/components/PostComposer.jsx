@@ -243,22 +243,17 @@ useEffect(() => {
 
 
 
-const handleSubmitPost = async () => {
+const handleSubmitPost = async (e) => {
+  if (e) e.preventDefault();
+
   if (!newPost && mediaFiles.length === 0) return;
 
   setPosting(true);
 
   try {
+    const uploadedMedia = [];
 
-e.preventDefault();
-
-if (!newPost && mediaFiles.length === 0) return;
-
-setPosting(true);
-
-try {
-const uploadedMedia = [];
-for (let file of mediaFiles) {
+    for (let file of mediaFiles) {
       if (file.enhanced && file.url) {
         uploadedMedia.push({
           url: file.url,
@@ -267,98 +262,117 @@ for (let file of mediaFiles) {
         continue;
       }
 
+      const type = file.type?.startsWith("image")
+        ? "image"
+        : "video";
 
-  const type = file.type?.startsWith("image") ? "image" : "video";  
+      if (type === "image") {
+        const url = await uploadImage(file);
 
-  if (type === "image") {  
-    const url = await uploadImage(file);  
-    uploadedMedia.push({ url, type: "image" });  
-    continue;  
-  }  
+        uploadedMedia.push({
+          url,
+          type: "image",
+        });
 
-  await validateVideoDuration(file, 180);  
+        continue;
+      }
 
-  const { videoUrl, thumbnailBlob } = await uploadVideo(file);  
+      await validateVideoDuration(file, 180);
 
-  const thumbnailFile = new File(  
-    [thumbnailBlob],  
-    "thumbnail.jpg",  
-    { type: "image/jpeg" }  
-  );  
+      const {
+        videoUrl,
+        thumbnailBlob,
+      } = await uploadVideo(file);
 
-  const thumbnailUrl = await uploadImage(thumbnailFile);  
-
-  uploadedMedia.push({  
-    url: videoUrl,  
-    type: "video",  
-    thumbnailUrl,  
-  });  
-}  
-
-const res = await fetch(`${API_BASE}/api/posts`, {  
-  method: "POST",  
-  headers: {  
-    Authorization: `Bearer ${token}`,  
-    "Content-Type": "application/json",  
-  },  
-  body: JSON.stringify({
-  content: newPost,
-  media: uploadedMedia,
-
-  editor: {
-    textPosition,
-    textRotation,
-    textSize: size,
-    textColor,
-    
-    stickers,
-
-    music: music
-      ? {
-          _id: music._id,
-          title: music.title,
-          url: music.url,
+      const thumbnailFile = new File(
+        [thumbnailBlob],
+        "thumbnail.jpg",
+        {
+          type: "image/jpeg",
         }
-      : null,
-  },
+      );
 
-  location,
-  feeling,
-  taggedFriends,
-  textColor,
-  
-  
-}),
-});  
+      const thumbnailUrl =
+        await uploadImage(thumbnailFile);
 
-const data = await res.json();  
-console.log("POST RESPONSE:", data);  
+      uploadedMedia.push({
+        url: videoUrl,
+        type: "video",
+        thumbnailUrl,
+      });
+    }
 
-if (!res.ok) throw new Error(data.error || "Post failed");  
+    const res = await fetch(
+      `${API_BASE}/api/posts`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          content: newPost,
+          media: uploadedMedia,
 
-// RESET (ONLY ONCE, INSIDE FUNCTION)  
-setNewPost("");  
-setMediaFiles([]);  
-  
-  
-  
-setMusic(null);
-setStickers([]);
-setSelectedSticker(null);
-setTextRotation(0);
-setTextPosition({ x: 50, y: 50 });
-setSize(60);
-setBackgroundColor("#000000");
-setActiveTool(null);
+          editor: {
+            textPosition,
+            textRotation,
+            textSize: size,
+            textColor,
+            stickers,
 
-navigate("/");
+            music: music
+              ? {
+                  _id: music._id,
+                  title: music.title,
+                  url: music.url,
+                }
+              : null,
+          },
 
-} catch (err) {
-  console.error("SUBMIT ERROR:", err);
-  alert(err.message || "Post failed");
-} finally {
-  setPosting(false);
-}
+          location,
+          feeling,
+          taggedFriends,
+          textColor,
+        }),
+      }
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(
+        data.error || "Post failed"
+      );
+    }
+
+    setNewPost("");
+    setMediaFiles([]);
+    setMusic(null);
+    setStickers([]);
+    setSelectedSticker(null);
+    setTextRotation(0);
+    setTextPosition({
+      x: 50,
+      y: 50,
+    });
+    setSize(60);
+    setBackgroundColor("#000000");
+    setActiveTool(null);
+
+    navigate("/");
+  } catch (err) {
+    console.error(
+      "SUBMIT ERROR:",
+      err
+    );
+
+    alert(
+      err.message || "Post failed"
+    );
+  } finally {
+    setPosting(false);
+  }
 };
 
 // =========================
