@@ -94,20 +94,22 @@ useEffect(() => {
 
 
 <button
-className="
-  absolute
-  top-2
-  left-1/2
-  -translate-x-1/2
-  z-50
-  bg-black/70
-  text-white
-  px-4
-  py-2
-  rounded-full
-"
+  type="button"
+  onClick={onCancel}
+  className="
+    absolute
+    top-3
+    left-3
+    z-[200]
+    bg-red-500
+    text-white
+    px-4
+    py-2
+    rounded-full
+    shadow-lg
+  "
 >
-  Cancel
+  ✕ Cancel
 </button>
 
 
@@ -116,15 +118,16 @@ className="
   className="
     absolute
     top-2
-    right-10
+    left-1/2
+    -translate-x-1/2
     z-50
     flex
     items-center
     gap-2
     bg-black/40
     backdrop-blur-sm
-    px-2
-    py-1
+    px-3
+    py-2
     rounded-xl
   "
 >
@@ -168,9 +171,9 @@ className="
   onClick={handleSubmitPost}
   className="
     absolute
-    top-4
-    right-4
-    z-50
+    top-3
+    right-3
+    z-[200]
     bg-blue-500
     text-white
     px-5
@@ -368,7 +371,7 @@ className="
     onClick={() => setActiveTool("location")}
     className="w-12 h-12 rounded-full bg-black/60 text-white"
   >
-    📍
+    📍 Location
   </button>
 
   <button
@@ -376,7 +379,7 @@ className="
     onClick={() => setActiveTool("feeling")}
     className="w-12 h-12 rounded-full bg-black/60 text-white"
   >
-    😊
+    😊 Feelings 
   </button>
 
   <button
@@ -384,42 +387,43 @@ className="
     onClick={() => setActiveTool("tag")}
     className="w-12 h-12 rounded-full bg-black/60 text-white"
   >
-    🏷
+    🏷Tag Friends
   </button>
 
 <button
 onClick={() => setActiveTool("sticker")}
 className="bg-black/60 text-white p-3 rounded-full"
 >
-😀
+😀 Stickers
 </button>
 
 <button
 onClick={() => setActiveTool("music")}
 className="bg-black/60 text-white p-3 rounded-full"
 >
-🎵
+🎵 Music 
 </button>
 
 <button
   onClick={() => setActiveTool("text")}
   className="w-12 h-12 rounded-full bg-black/60 text-white"
 >
-  T
+  Test
 </button>
 
 <button
   onClick={() => setActiveTool("color")}
   className="w-12 h-12 rounded-full bg-black/60 text-white"
 >
-  🎨
+  🎨Bgcolor
+
 </button>
 
 <button
   onClick={() => setActiveTool("background")}
   className="w-12 h-12 rounded-full bg-black/60 text-white"
 >
-  🌈
+  🌈Test color 
 </button>
 
 {media?.type?.startsWith("image") && (
@@ -427,7 +431,7 @@ className="bg-black/60 text-white p-3 rounded-full"
     onClick={() => setActiveTool("ai")}
     className="w-12 h-12 rounded-full bg-black/60 text-white"
   >
-    🤖
+    🤖AI
   </button>
 )}
 
