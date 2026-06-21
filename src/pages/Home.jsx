@@ -24,6 +24,9 @@ import ReelsHorizontal from "../components/reels/ReelsHorizontal";
 import FeedSection from "../components/feed/FeedSection";
 import TopCreators from "../components/feed/TopCreators";
 import ChallengesWidget from "../components/feed/ChallengesWidget";
+import PageLoader from "../components/common/PageLoader";
+
+
 
 // Lazy
 const PostCard = lazy(() => import("../components/PostCard"));
@@ -57,49 +60,64 @@ const Home = () => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
 
+
+const [networkError, setNetworkError] = useState(false);
+const [isOffline, setIsOffline] = useState(!navigator.onLine);
+
   // ================= REFS =================
-  const observer = useRef(null);
+ const observer = useRef(null);
   const fetchLock = useRef(false);
   const feedRef = useRef(null);
 
   const LIMIT = 5;
 
-  // ================= AUTH =================
-  useEffect(() => {
-    if (!token) navigate("/login");
-  }, [token, navigate]);
+
+
+// ================= AUTH =================
+useEffect(() => {
+  if (!token) {
+    navigate("/login");
+  }
+}, [token, navigate]);
+
 
   // ================= FETCH POSTS =================
   const fetchPosts = useCallback(async () => {
-    if (!token || fetchLock.current || !hasMore) return;
+  if (!token || fetchLock.current || !hasMore) return;
 
-    fetchLock.current = true;
+  fetchLock.current = true;
 
-    try {
-      setLoadingPosts(true);
+  try {
+    setLoadingPosts(true);
+    setNetworkError(false);
 
-      const postsData = await fetchWithToken(
-        `${API_BASE}/api/posts?page=${page}&limit=${LIMIT}`,
-        token
-      );
+    const postsData = await fetchWithToken(
+      `${API_BASE}/api/posts?page=${page}&limit=${LIMIT}`,
+      token
+    );
 
-      const newPosts = Array.isArray(postsData) ? postsData : [];
+    const newPosts = Array.isArray(postsData)
+      ? postsData
+      : [];
 
-      setPosts((prev) =>
-        page === 1 ? newPosts : [...prev, ...newPosts]
-      );
+    setPosts((prev) =>
+      page === 1
+        ? newPosts
+        : [...prev, ...newPosts]
+    );
 
-      if (newPosts.length < LIMIT) {
-        setHasMore(false);
-      }
-    } catch (err) {
-      console.error("Posts error:", err);
-    } finally {
-      setLoadingPosts(false);
-      fetchLock.current = false;
+    if (newPosts.length < LIMIT) {
+      setHasMore(false);
     }
-  }, [page, token, hasMore]);
+  } catch (err) {
+    console.error("Posts error:", err);
 
+    setNetworkError(true);
+  } finally {
+    setLoadingPosts(false);
+    fetchLock.current = false;
+  }
+}, [page, token, hasMore]);
   useEffect(() => {
     fetchPosts();
   }, [fetchPosts]);
@@ -142,6 +160,23 @@ const Home = () => {
 
     fetchReels();
   }, []);
+
+
+// ================= OFFLINE =================
+useEffect(() => {
+  const handleOnline = () => setIsOffline(false);
+  const handleOffline = () => setIsOffline(true);
+
+  window.addEventListener("online", handleOnline);
+  window.addEventListener("offline", handleOffline);
+
+  return () => {
+    window.removeEventListener("online", handleOnline);
+    window.removeEventListener("offline", handleOffline);
+  };
+}, []);
+
+
 
   // ================= SOCKET =================
   useEffect(() => {
@@ -189,9 +224,79 @@ const Home = () => {
     [loadingPosts, hasMore]
   );
 
-  // ================= RENDER =================
+
+
+
+// ================= OFFLINE RENDER=================
+
+if (isOffline) {
   return (
-    <div className="w-full min-h-screen grid grid-cols-1 md:grid-cols-4 gap-4 max-w-7xl mx-auto px-2">
+    <div className="min-h-screen flex items-center justify-center bg-white px-4">
+      <div className="text-center">
+
+        <div className="text-6xl mb-4">
+          📡
+        </div>
+
+        <h2 className="text-xl font-bold text-gray-800">
+          No Internet Connection
+        </h2>
+
+        <p className="text-gray-500 mt-2">
+          Please check your network and try again.
+        </p>
+
+        <button
+          onClick={() => window.location.reload()}
+          className="mt-4 bg-blue-500 text-white px-5 py-2 rounded-lg"
+        >
+          Retry
+        </button>
+
+      </div>
+    </div>
+  );
+}
+
+
+if (networkError) {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-white px-4">
+      <div className="text-center">
+
+        <div className="text-5xl mb-4">
+          📶
+        </div>
+
+        <h2 className="text-xl font-bold">
+          Network Error
+        </h2>
+
+        <p className="text-gray-500 mt-2">
+          Unable to load Afribook.
+          Check your internet connection.
+        </p>
+
+        <button
+          onClick={() => window.location.reload()}
+          className="mt-4 bg-blue-600 text-white px-5 py-2 rounded-lg"
+        >
+          Retry
+        </button>
+
+      </div>
+    </div>
+  );
+}
+
+
+if (loadingPosts && page === 1) {
+  return <PageLoader />;
+}
+
+// ================= RENDER =================
+return (
+  <div className="w-full min-h-screen grid grid-cols-1 md:grid-cols-4 gap-4 max-w-7xl mx-auto px-2">
 
       <aside className="hidden md:block md:col-span-1">
         <SidebarLeft />
