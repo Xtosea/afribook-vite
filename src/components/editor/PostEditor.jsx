@@ -216,7 +216,6 @@ useEffect(() => {
     </div>
   ))}
 </div>
-</div>
 
           
 
