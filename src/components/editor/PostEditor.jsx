@@ -11,9 +11,8 @@ currentUser,
   preview,
   media,
   text,
-
-  showTextArea,
-  setShowTextArea,
+  setText,
+  setText={setNewPost}
 
 
   textPosition,
@@ -161,24 +160,7 @@ useEffect(() => {
   </div>
 </div>
 
-<button
-  type="button"
-  onClick={() => setShowTextArea(!showTextArea)}
-  className="
-    absolute
-    bottom-20
-    left-4
-    z-50
-    bg-black/70
-    text-white
-    px-4
-    py-2
-    rounded-full
-    fixed 
-  "
->
-  📝 Text
-</button>
+
 
 
 <button
@@ -376,6 +358,15 @@ useEffect(() => {
 "
   
 >
+
+button
+onClick={() => setActiveTool("text")}
+className="bg-black/60 text-white p-3 rounded-full"
+>
+WriteText
+</button>
+
+
   <button
     type="button"
     onClick={() => setActiveTool("location")}
@@ -400,29 +391,25 @@ useEffect(() => {
     🏷
   </button>
 
-  <button
-    type="button"
-    onClick={() => setActiveTool("sticker")}
-    className="w-12 h-12 rounded-full bg-black/60 text-white"
-  >
-    😀
-  </button>
+<button
+onClick={() => setActiveTool("sticker")}
+className="bg-black/60 text-white p-3 rounded-full"
+>
+😀
+</button>
+
+  <onClick={() => setActiveTool("music")}
+className="bg-black/60 text-white p-3 rounded-full"
+>
+🎵
+</button>
 
   <button
-    type="button"
-    onClick={() => setActiveTool("music")}
-    className="w-12 h-12 rounded-full bg-black/60 text-white"
-  >
-    🎵
-  </button>
-
-  <button
-    type="button"
-    onClick={() => setActiveTool("color")}
-    className="w-12 h-12 rounded-full bg-black/60 text-white"
-  >
-    🎨
-  </button>
+onClick={() => setActiveTool("color")}
+className="bg-black/60 text-white p-3 rounded-full"
+>
+🎨
+</button>
 
   <button
     type="button"
@@ -448,6 +435,17 @@ useEffect(() => {
     🌈
   </button>
 </div>
+
+{media?.type?.startsWith("image") && (
+
+<button
+onClick={() => setActiveTool("ai")}
+className="bg-black/60 text-white p-3 rounded-full"
+>
+🤖
+</button>
+
+)}
 
 
     {activeTool && (
