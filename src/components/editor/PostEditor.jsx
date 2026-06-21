@@ -42,6 +42,15 @@ const PostEditor = ({
 
   musicList,
 
+  music: music
+ ? {
+   _id:music._id,
+   title:music.title,
+   url:music.url
+ }
+ : null
+}
+
   activeTool,
   setActiveTool,
 
