@@ -109,6 +109,25 @@ const [musicList, setMusicList] = useState([]);
 
 
 
+const applyAI = async (effect) => {
+  if (!mediaFiles.length) return;
+
+  try {
+    const updatedFiles = [...mediaFiles];
+
+    updatedFiles[0] = {
+      ...updatedFiles[0],
+      enhanced: true,
+      aiEffect: effect,
+    };
+
+    setMediaFiles(updatedFiles);
+
+    console.log(`Applied ${effect}`);
+  } catch (err) {
+    console.error(err);
+  }
+};
 // =========================
 // HANDLE TAHFRINDS 
 // =========================
