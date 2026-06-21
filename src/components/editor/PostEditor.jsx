@@ -3,10 +3,9 @@ import Draggable from "react-draggable";
 import MediaUpload from "../MediaUpload";
 
 
+const [isPosting, setIsPosting] = useState(false);
 
 
-const PostEditor = ({
-currentUser,
 
   preview,
   media,
@@ -101,7 +100,7 @@ useEffect(() => {
     top-3
     left-3
     z-[200]
-    bg-red-500
+    
     text-white
     px-4
     py-2
@@ -372,7 +371,7 @@ useEffect(() => {
     className="w-12 h-12 rounded-full bg-black/60 text-white"
   >
     📍
-Location 
+    Loc
   </button>
 
   <button
@@ -381,7 +380,7 @@ Location
     className="w-12 h-12 rounded-full bg-black/60 text-white"
   >
     😊 
-Feelings 
+    mood 
   </button>
 
   <button
@@ -398,7 +397,7 @@ onClick={() => setActiveTool("sticker")}
 className="bg-black/60 text-white p-3 rounded-full"
 >
 😀 
-Stickers
+Stick
 </button>
 
 <button
@@ -421,7 +420,7 @@ Music
   className="w-12 h-12 rounded-full bg-black/60 text-white"
 >
   🎨
-Bgcolor
+  BG 
 
 </button>
 
@@ -430,7 +429,7 @@ Bgcolor
   className="w-12 h-12 rounded-full bg-black/60 text-white"
 >
   🌈
-Test color 
+ color 
 </button>
 
 {media?.type?.startsWith("image") && (
