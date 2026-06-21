@@ -401,12 +401,47 @@ className="bg-black/60 text-white p-3 rounded-full"
 🎵
 </button>
 
-</div>   {/* CLOSE TOOLBAR HERE */}
+<button
+  onClick={() => setActiveTool("text")}
+  className="w-12 h-12 rounded-full bg-black/60 text-white"
+>
+  T
+</button>
+
+<button
+  onClick={() => setActiveTool("color")}
+  className="w-12 h-12 rounded-full bg-black/60 text-white"
+>
+  🎨
+</button>
+
+<button
+  onClick={() => setActiveTool("background")}
+  className="w-12 h-12 rounded-full bg-black/60 text-white"
+>
+  🌈
+</button>
+
+{media?.type?.startsWith("image") && (
+  <button
+    onClick={() => setActiveTool("ai")}
+    className="w-12 h-12 rounded-full bg-black/60 text-white"
+  >
+    🤖
+  </button>
+)}
+
+
+
+</div>   
+
+
+{/* CLOSE TOOLBAR HERE */}
 
 
 
 
-{/* ACTIVE TOOL PANEL */}
+  {/* ACTIVE TOOL PANEL */}
 {activeTool && (
   <div
     className="
@@ -651,41 +686,7 @@ className="bg-black/60 text-white p-3 rounded-full"
       />
     )}
 
-
-<button
-  onClick={() => setActiveTool("text")}
-  className="w-12 h-12 rounded-full bg-black/60 text-white"
->
-  T
-</button>
-
-<button
-  onClick={() => setActiveTool("color")}
-  className="w-12 h-12 rounded-full bg-black/60 text-white"
->
-  🎨
-</button>
-
-<button
-  onClick={() => setActiveTool("background")}
-  className="w-12 h-12 rounded-full bg-black/60 text-white"
->
-  🌈
-</button>
-
-{media?.type?.startsWith("image") && (
-  <button
-    onClick={() => setActiveTool("ai")}
-    className="w-12 h-12 rounded-full bg-black/60 text-white"
-  >
-    🤖
-  </button>
-)}
-
-
-
-
-    {/* AI */}
+          n{/* AI */}
     {activeTool === "ai" && (
       <div className="flex gap-3 mt-6">
 
