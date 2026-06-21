@@ -94,20 +94,18 @@ useEffect(() => {
 
 
 
-<button
-  type="button"
-  onClick={onCancel}
-  className="
-    absolute
-    top-16
-    left-2
-    z-50
-    bg-black/70
-    text-white
-    px-4
-    py-2
-    rounded-full
-  "
+className="
+  absolute
+  top-2
+  left-1/2
+  -translate-x-1/2
+  z-50
+  bg-black/70
+  text-white
+  px-4
+  py-2
+  rounded-full
+"
 >
   ✕ Cancel
 </button>
@@ -404,6 +402,37 @@ className="bg-black/60 text-white p-3 rounded-full"
 </button>
 
 </div>   {/* CLOSE TOOLBAR HERE */}
+
+
+<button
+  onClick={() => setActiveTool("text")}
+  className="w-12 h-12 rounded-full bg-black/60 text-white"
+>
+  T
+</button>
+
+<button
+  onClick={() => setActiveTool("color")}
+  className="w-12 h-12 rounded-full bg-black/60 text-white"
+>
+  🎨
+</button>
+
+<button
+  onClick={() => setActiveTool("background")}
+  className="w-12 h-12 rounded-full bg-black/60 text-white"
+>
+  🌈
+</button>
+
+{media?.type?.startsWith("image") && (
+  <button
+    onClick={() => setActiveTool("ai")}
+    className="w-12 h-12 rounded-full bg-black/60 text-white"
+  >
+    🤖
+  </button>
+)}
 
 
 {/* ACTIVE TOOL PANEL */}
