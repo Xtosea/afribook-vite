@@ -360,15 +360,7 @@ useEffect(() => {
   
 >
 
-<button
-onClick={() => setActiveTool("text")}
-className="bg-black/60 text-white p-3 rounded-full"
->
-WriteText
-</button>
-
-
-  <button
+    <button
     type="button"
     onClick={() => setActiveTool("location")}
     className="w-12 h-12 rounded-full bg-black/60 text-white"
@@ -471,7 +463,15 @@ className="bg-black/60 text-white p-3 rounded-full"
 )}
 
 
-  <button
+
+<button
+onClick={() => setActiveTool("text")}
+className="bg-black/60 text-white p-3 rounded-full"
+>
+WriteText
+</button>
+
+<button
 onClick={() => setActiveTool("color")}
 className="bg-black/60 text-white p-3 rounded-full"
 >
