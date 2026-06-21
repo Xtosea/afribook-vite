@@ -198,20 +198,21 @@ useEffect(() => {
       className="overflow-hidden"
     >
       {file.type.startsWith("image") ? (
-        <img
-          src={URL.createObjectURL(file)}
-          alt=""
-          className="w-full h-full object-cover"
-        />
-      ) : (
-        <video
-          src={URL.createObjectURL(file)}
-          className="w-full h-full object-cover"
-        />
-      )}
-    </div>
-  ))}
-</div>
+  <img
+    src={
+      file.enhancedUrl
+        ? file.enhancedUrl
+        : URL.createObjectURL(file)
+    }
+    alt=""
+    className="w-full h-full object-cover"
+  />
+) : (
+  <video
+    src={URL.createObjectURL(file)}
+    className="w-full h-full object-cover"
+  />
+)}
 
           
 
