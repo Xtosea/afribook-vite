@@ -167,27 +167,21 @@ useEffect(() => {
 
 
 
-
 <button
   type="button"
   onClick={handleSubmitPost}
   disabled={isPosting}
-  className={`
+  className="
     absolute
     top-3
     right-3
     z-[200]
     text-white
-    px-5
-    py-2
-    rounded-full
     flex
     items-center
     gap-2
-    ${isPosting
-      ? "bg-gray-500 cursor-not-allowed"
-      : "bg-white-500"}
-  `}
+    font-semibold
+  "
 >
   {isPosting ? (
     <>
