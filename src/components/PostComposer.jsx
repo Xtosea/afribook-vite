@@ -244,9 +244,11 @@ useEffect(() => {
 
 
 const handleSubmitPost = async () => {
-  try {
-    setIsPosting(true);
+  if (!newPost && mediaFiles.length === 0) return;
 
+  setPosting(true);
+
+  try {
 
 e.preventDefault();
 
@@ -352,10 +354,10 @@ setActiveTool(null);
 navigate("/");
 
 } catch (err) {
-console.error("SUBMIT ERROR:", err);
-alert(err.message || "Post failed");
+  console.error("SUBMIT ERROR:", err);
+  alert(err.message || "Post failed");
 } finally {
-setPosting(false);
+  setPosting(false);
 }
 };
 
