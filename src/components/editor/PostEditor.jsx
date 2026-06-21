@@ -118,7 +118,7 @@ useEffect(() => {
   className="
     absolute
     top-2
-    left-2
+    right-10
     z-50
     flex
     items-center
