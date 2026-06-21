@@ -6,9 +6,13 @@ import MediaUpload from "../MediaUpload";
 const [isPosting, setIsPosting] = useState(false);
 
 
+const PostEditor = ({
+ preview,
+ media,
 
-  preview,
-  media,
+ handleSubmitPost,
+ isPosting,
+  
   
   text,
   setText,
@@ -168,19 +172,42 @@ useEffect(() => {
 <button
   type="button"
   onClick={handleSubmitPost}
-  className="
+  disabled={isPosting}
+  className={`
     absolute
     top-3
     right-3
     z-[200]
-    bg-blue-500
     text-white
     px-5
     py-2
     rounded-full
-  "
+    flex
+    items-center
+    gap-2
+    ${isPosting
+      ? "bg-gray-500 cursor-not-allowed"
+      : "bg-blue-500"}
+  `}
 >
-  Post
+  {isPosting ? (
+    <>
+      <span
+        className="
+          w-4
+          h-4
+          border-2
+          border-white
+          border-t-transparent
+          rounded-full
+          animate-spin
+        "
+      />
+      Posting...
+    </>
+  ) : (
+    "Post"
+  )}
 </button>
 
 
