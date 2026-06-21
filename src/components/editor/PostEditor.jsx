@@ -10,8 +10,7 @@ currentUser,
 
   preview,
   media,
-  text,
-
+  
   text,
   setText,
 
@@ -361,7 +360,7 @@ useEffect(() => {
   
 >
 
-button
+<button
 onClick={() => setActiveTool("text")}
 className="bg-black/60 text-white p-3 rounded-full"
 >
