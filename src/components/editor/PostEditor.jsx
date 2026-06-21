@@ -58,7 +58,7 @@ const PostEditor = ({
 
   handleTagFriends,
 
-  handleSubmitPost,
+  
 
   onCancel,
 
