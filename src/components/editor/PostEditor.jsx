@@ -508,7 +508,7 @@ className="bg-black/60 text-white p-3 rounded-full"
 )}
 
 
-button
+<button
   type="button"
   onClick={() => setActiveTool(null)}
   className="
