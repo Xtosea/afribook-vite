@@ -215,7 +215,7 @@ useEffect(() => {
       )}
     </div>
   ))}
-</div>   // <-- keep this
+</div>   
 
 {/* MUSIC LABEL */}
 {music && (
@@ -508,11 +508,11 @@ className="bg-black/60 text-white p-3 rounded-full"
 {media?.type?.startsWith("image") && (
 
 <button
-type="button"
-onClick={() => setActiveTool("ai")}
-...
+  type="button"
+  onClick={() => setActiveTool("ai")}
+  className="bg-black/60 text-white p-3 rounded-full"
 >
-🤖
+  🤖
 </button>
 
 )}
