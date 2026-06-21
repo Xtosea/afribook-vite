@@ -243,7 +243,7 @@ const handleSubmitPost = async (e) => {
 
   if (!newPost && mediaFiles.length === 0) return;
 
-  setisPosting(true);
+  setIsPosting(true);
 
   try {
     const uploadedMedia = [];
@@ -366,7 +366,7 @@ const handleSubmitPost = async (e) => {
       err.message || "Post failed"
     );
   } finally {
-    setisPosting(false);
+    setIsPosting(false);
   }
 };
 
