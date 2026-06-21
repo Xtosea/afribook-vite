@@ -704,18 +704,7 @@ backdrop-blur-md
 )}
 
 
-{activeTool === "ai" && (
-<div
-className="
-absolute
-bottom-0
-left-0
-right-0
-bg-black/90
-p-3
-z-50
-"
->
+
 
 <button
 onClick={() => applyAI("enhance")}
