@@ -39,6 +39,8 @@ import("emoji-picker-react")
 
 
 
+const [isPosting, setIsPosting] = useState(false);
+
 
 
 const [posting, setPosting] =
