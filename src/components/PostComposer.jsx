@@ -458,6 +458,7 @@ onCancel={handleCancel}
 
 mediaFiles={mediaFiles}
 setMediaFiles={setMediaFiles}
+applyAI={applyAI}
 
 />
 
