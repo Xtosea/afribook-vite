@@ -406,328 +406,284 @@ className="bg-black/60 text-white p-3 rounded-full"
 </div>   {/* CLOSE TOOLBAR HERE */}
 
 
+{/* ACTIVE TOOL PANEL */}
 {activeTool && (
-<div
-className="
-absolute
-bottom-0
-left-0
-right-0
-z-[100]
-bg-black/90
-p-4
-w-full
-max-h-[35vh]
-overflow-y-auto
-backdrop-blur-md
-"
->
-
-
-{activeTool && (
-<div
-className="
-absolute
-bottom-0
-left-0
-right-0
-z-[100]
-bg-black/90
-p-4
-max-h-[35vh]
-overflow-y-auto
-"
->
-
-
-
-
-    <input
-      type="text"
-      placeholder="Add text..."
-      value={text}
-      onChange={(e) =>
-        setText(e.target.value)
-      }
-      className="
-        w-full
-        p-2
-        rounded
-        mb-2
-      "
-    />
-
-    <input
-      type="color"
-      value={textColor}
-      onChange={(e)=>
-        setTextColor(e.target.value)
-      }
-    />
-
-    <input
-      type="range"
-      min="20"
-      max="120"
-      value={size}
-      onChange={(e)=>
-        setSize(Number(e.target.value))
-      }
-      className="w-full"
-    />
-
-    <input
-      type="range"
-      min="-180"
-      max="180"
-      value={textRotation}
-      onChange={(e)=>
-        setTextRotation(
-          Number(e.target.value)
-        )
-      }
-      className="w-full"
-    />
-
-  </div>
-)}
-
-
-
-<button
-onClick={() => setActiveTool("text")}
-className="bg-black/60 text-white p-3 rounded-full"
->
-Text
-</button>
-
-<button
-onClick={() => setActiveTool("color")}
-className="bg-black/60 text-white p-3 rounded-full"
->
-🎨
-</button>
-
-  <button
-    type="button"
-    onClick={() => setActiveTool("background")}
-    className="w-12 h-12 rounded-full bg-black/60 text-white"
-  >
-    🌈
-  </button>
-</div>
-
-{media?.type?.startsWith("image") && (
-
-<button
-  type="button"
-  onClick={() => setActiveTool("ai")}
-  className="bg-black/60 text-white p-3 rounded-full"
->
-  🤖
-</button>
-
-)}
-
-
-
-
-
-    {activeTool && (
   <div
     className="
       absolute
       bottom-0
       left-0
       right-0
+      z-[100]
       bg-black/90
-p-4
-max-h-[35vh]
-overflow-y-auto
-backdrop-blur-md
-      z-50
+      p-4
+      w-full
+      max-h-[35vh]
+      overflow-y-auto
+      backdrop-blur-md
     "
   >
 
+    {/* CLOSE PANEL */}
+    <button
+      type="button"
+      onClick={() => setActiveTool(null)}
+      className="
+        absolute
+        top-2
+        right-2
+        bg-red-500
+        text-white
+        px-3
+        py-1
+        rounded-full
+        z-[200]
+      "
+    >
+      ✕
+    </button>
 
-{activeTool === "sticker" && (
-  <div className="flex gap-3 flex-wrap">
-    {["🔥","❤️","😂","😎","🎉","💯"].map(
-      (emoji) => (
-        <button
-          key={emoji}
-          className="text-3xl"
-          onClick={() =>
-            setStickers((prev) => [
-              ...prev,
-              {
-                emoji,
-                x: 100,
-                y: 100,
-                size: 60,
-              },
-            ])
+
+    {/* TEXT TOOL */}
+    {activeTool === "text" && (
+      <div className="space-y-3 mt-6">
+
+        <input
+          type="text"
+          placeholder="Add text..."
+          value={text}
+          onChange={(e)=>setText(e.target.value)}
+          className="
+            w-full
+            p-3
+            rounded-lg
+            text-black
+          "
+        />
+
+        <label className="text-white">
+          Text Color
+        </label>
+
+        <input
+          type="color"
+          value={textColor}
+          onChange={(e)=>setTextColor(e.target.value)}
+          className="w-full h-10"
+        />
+
+
+        <label className="text-white">
+          Size
+        </label>
+
+        <input
+          type="range"
+          min="20"
+          max="150"
+          value={size}
+          onChange={(e)=>setSize(Number(e.target.value))}
+          className="w-full"
+        />
+
+
+        <label className="text-white">
+          Rotate
+        </label>
+
+        <input
+          type="range"
+          min="-180"
+          max="180"
+          value={textRotation}
+          onChange={(e)=>
+            setTextRotation(Number(e.target.value))
           }
-        >
-          {emoji}
-        </button>
-      )
+          className="w-full"
+        />
+
+      </div>
     )}
-  </div>
-)}
 
 
-{activeTool === "music" && (
-  <div className="space-y-3">
-    {/* Selected music player */}
-    {music?.url && (
-      <audio
-        controls
-        src={music.url}
-        className="w-full"
+
+    {/* STICKERS */}
+    {activeTool === "sticker" && (
+      <div className="flex flex-wrap gap-4 mt-6">
+
+        {["🔥","❤️","😂","😎","🎉","💯"].map(
+          (emoji)=>(
+            <button
+              key={emoji}
+              className="text-4xl"
+              onClick={() =>
+                setStickers(prev=>[
+                  ...prev,
+                  {
+                    emoji,
+                    x:100,
+                    y:100,
+                    size:60
+                  }
+                ])
+              }
+            >
+              {emoji}
+            </button>
+          )
+        )}
+
+      </div>
+    )}
+
+
+
+    {/* MUSIC */}
+    {activeTool === "music" && (
+      <div className="mt-6 space-y-3">
+
+        {music?.url && (
+          <audio
+            controls
+            src={music.url}
+            className="w-full"
+          />
+        )}
+
+
+        {musicList?.map(song=>(
+          <button
+            key={song._id}
+            onClick={()=>setMusic(song)}
+            className="
+              w-full
+              p-3
+              rounded-lg
+              bg-white/10
+              text-white
+              text-left
+            "
+          >
+            🎵 {song.title}
+          </button>
+        ))}
+
+      </div>
+    )}
+
+
+
+    {/* COLOR */}
+    {activeTool === "color" && (
+      <input
+        type="color"
+        value={textColor}
+        onChange={(e)=>setTextColor(e.target.value)}
+        className="w-full h-12 mt-6"
       />
     )}
 
-    {/* Music list */}
-    <div className="max-h-48 overflow-y-auto space-y-2">
-      {musicList?.map((song) => (
+
+
+    {/* BACKGROUND */}
+    {activeTool === "background" && (
+      <input
+        type="color"
+        value={backgroundColor}
+        onChange={(e)=>
+          setBackgroundColor(e.target.value)
+        }
+        className="w-full h-12 mt-6"
+      />
+    )}
+
+
+
+    {/* LOCATION */}
+    {activeTool === "location" && (
+      <input
+        value={location}
+        onChange={(e)=>setLocation(e.target.value)}
+        placeholder="Add location..."
+        className="
+          w-full
+          p-3
+          rounded-lg
+          mt-6
+          text-black
+        "
+      />
+    )}
+
+
+
+    {/* FEELING */}
+    {activeTool === "feeling" && (
+      <input
+        value={feeling}
+        onChange={(e)=>setFeeling(e.target.value)}
+        placeholder="How are you feeling?"
+        className="
+          w-full
+          p-3
+          rounded-lg
+          mt-6
+          text-black
+        "
+      />
+    )}
+
+
+
+    {/* TAG */}
+    {activeTool === "tag" && (
+      <input
+        value={tagInput}
+        onChange={(e)=>handleTagFriends(e.target.value)}
+        placeholder="Tag friends..."
+        className="
+          w-full
+          p-3
+          rounded-lg
+          mt-6
+          text-black
+        "
+      />
+    )}
+
+
+
+    {/* AI */}
+    {activeTool === "ai" && (
+      <div className="flex gap-3 mt-6">
+
         <button
-          key={song._id}
-          type="button"
-          onClick={() => setMusic(song)}
-          className="
-            block
-            w-full
-            text-left
-            p-3
-            rounded-lg
-            bg-white/10
-            text-white
-          "
+          onClick={()=>applyAI("enhance")}
+          className="bg-blue-600 text-white p-3 rounded-lg"
         >
-          🎵 {song.title}
+          ✨ Enhance
         </button>
-      ))}
-    </div>
+
+
+        <button
+          onClick={()=>applyAI("beauty")}
+          className="bg-pink-600 text-white p-3 rounded-lg"
+        >
+          💄 Beauty
+        </button>
+
+
+        <button
+          onClick={()=>applyAI("afroglow")}
+          className="bg-orange-600 text-white p-3 rounded-lg"
+        >
+          🌍 Afro Glow
+        </button>
+
+      </div>
+    )}
+
   </div>
-)}
-
-
-{activeTool === "color" && (
-  <input
-    type="color"
-    value={textColor}
-    onChange={(e) =>
-      setTextColor(e.target.value)
-    }
-  />
-)}
-
-
-
-{activeTool === "background" && (
-  <input
-    type="color"
-    value={backgroundColor}
-    onChange={(e) =>
-      setBackgroundColor(
-        e.target.value
-      )
-    }
-  />
-)}
-
-
-
-{activeTool === "rotate" && (
-  <input
-    type="range"
-    min="-180"
-    max="180"
-    value={textRotation}
-    onChange={(e) =>
-      setTextRotation(
-        Number(e.target.value)
-      )
-    }
-    className="w-full"
-  />
-)}
-
-
-
-{activeTool === "size" && (
-  <input
-    type="range"
-    min="20"
-    max="150"
-    value={size}
-    onChange={(e) =>
-      setSize(
-        Number(e.target.value)
-      )
-    }
-    className="w-full"
-  />
-)}
-
-{activeTool === "location" && (
-  <input
-    value={location}
-    onChange={(e) => setLocation(e.target.value)}
-    placeholder="Add location..."
-    className="w-full p-3 rounded-lg"
-  />
-)}
-
-
-{activeTool === "feeling" && (
-  <input
-    value={feeling}
-    onChange={(e) => setFeeling(e.target.value)}
-    placeholder="How are you feeling?"
-    className="w-full p-3 rounded-lg"
-  />
-)}
-
-
-{activeTool === "tag" && (
-  <input
-    value={tagInput}
-    onChange={(e) => handleTagFriends(e.target.value)}
-    placeholder="Tag friends..."
-    className="w-full p-3 rounded-lg"
-  />
-)}
-
-</div>
-)}
-
-
-
-
-<button
-onClick={() => applyAI("enhance")}
-className="bg-blue-600 text-white p-2 rounded"
->
-✨ Enhance
-</button>
-
-<button
-onClick={() => applyAI("beauty")}
-className="bg-pink-600 text-white p-2 rounded"
->
-💄 Beauty
-</button>
-
-<button
-onClick={() => applyAI("afroglow")}
-className="bg-orange-600 text-white p-2 rounded"
->
-🌍 Afro Glow
-</button>
-
-</div>
 )}
 
 
