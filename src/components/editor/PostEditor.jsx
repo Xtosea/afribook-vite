@@ -750,7 +750,7 @@ className="bg-orange-600 text-white p-2 rounded"
 <div  
   className="  
     absolute  
-    bottom-4  
+    bottom-0  
     left-1/2  
     -translate-x-1/2  
     z-50  
