@@ -516,7 +516,7 @@ className="bg-black/60 text-white p-3 rounded-full"
   className="
     absolute
     top-2
-    right-8
+    left-15
     bg-red-500
     text-white
     px-3
@@ -752,7 +752,7 @@ className="bg-orange-600 text-white p-2 rounded"
 <div  
   className="  
     absolute  
-    bottom-  
+    bottom-10  
     left-1/2  
     -translate-x-1/2  
     z-20  
