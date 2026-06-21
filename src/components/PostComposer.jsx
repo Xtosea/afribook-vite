@@ -39,7 +39,7 @@ import("emoji-picker-react")
 
 
 
-const [showTextArea, setShowTextArea] = useState(false);
+
 const [posting, setPosting] =
 useState(false);
 
@@ -321,72 +321,6 @@ return (
 
 
 
-{/* TEXTAREA */}
-{showTextArea && (
-  <textarea
-    rows={2}
-    value={newPost}
-    onChange={(e) => setNewPost(e.target.value)}
-    onInput={(e) => {
-      e.target.style.height = "auto";
-      e.target.style.height = `${e.target.scrollHeight}px`;
-    }}
-    placeholder={`Share a photo, video or thought... ${
-      currentUser?.name || "User"
-    }?`}
-    
-  className="
-fixed
-top-20
-left-1/2
--translate-x-1/2
-w-[90%]
-max-w-md
-p-6
-rounded-2xl
-resize-y
-transition-all
-duration-200
-focus:outline-none
-focus:ring-2
-focus:ring-blue-400
-min-h-[10px]
-text-lg
-border-0
-shadow-none
-"
-  />
-)}
-
-{/* EXPANDED */}
-<div className="space-y-4">
-
- {/* EMOJI */}  
-
-      {showEmoji && (  
-
-        <div className="border rounded-xl p-2 bg-white shadow">  
-
-          <Suspense fallback={<div>Loading...</div>}>  
-
-            <EmojiPicker  
-              onEmojiClick={(  
-                emojiData  
-              ) => {  
-
-                setNewPost(  
-                  (prev) =>  
-                    prev +  
-                    emojiData.emoji  
-                );  
-              }}  
-            />  
-
-          </Suspense>  
-
-        </div>  
-
-      )}  
 
       
 
@@ -408,9 +342,8 @@ currentUser={currentUser}
   }
 
   text={newPost}
+  setText={setNewPost}
 
-showTextArea={showTextArea}
- setShowTextArea={setShowTextArea}
 
   textPosition={textPosition}
   setTextPosition={setTextPosition}
