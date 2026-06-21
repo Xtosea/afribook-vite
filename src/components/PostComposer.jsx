@@ -17,6 +17,8 @@ import validateVideoDuration from "../utils/validateVideoDuration";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import PostEditor from "./editor/PostEditor";
+import { uploadToCloudinary } from "../utils/uploadToCloudinary";
+
 
 
 
@@ -58,6 +60,8 @@ const [location, setLocation] = useState("");
 const [feeling, setFeeling] = useState("");
 const [tagInput, setTagInput] = useState("");
 const [taggedFriends, setTaggedFriends] = useState([]);
+const [cloudinaryUrl, setCloudinaryUrl] = useState("");
+const [preview, setPreview] = useState("");
 
 
 // =========================
@@ -110,26 +114,58 @@ const [musicList, setMusicList] = useState([]);
 
 
 const applyAI = async (effect) => {
-  if (!mediaFiles.length) return;
-
   try {
-    const updatedFiles = [...mediaFiles];
+    if (!mediaFiles.length) {
+      alert("Select an image first");
+      return;
+    }
 
-    updatedFiles[0] = {
-      ...updatedFiles[0],
-      enhanced: true,
-      aiEffect: effect,
-    };
+    let imageUrl = cloudinaryUrl;
 
-    setMediaFiles(updatedFiles);
+    if (!imageUrl) {
+      imageUrl = await uploadToCloudinary(mediaFiles[0]);
+      setCloudinaryUrl(imageUrl);
+    }
 
-    console.log(`Applied ${effect}`);
+    let newUrl = imageUrl;
+
+    switch (effect) {
+      case "enhance":
+        newUrl = imageUrl.replace(
+          "/upload/",
+          "/upload/e_enhance/"
+        );
+        break;
+
+      case "beauty":
+        newUrl = imageUrl.replace(
+          "/upload/",
+          "/upload/e_improve/"
+        );
+        break;
+
+      case "afroglow":
+        newUrl = imageUrl.replace(
+          "/upload/",
+          "/upload/e_vibrance:50,e_improve/"
+        );
+        break;
+
+      default:
+        return;
+    }
+
+    setPreview(newUrl);
+    setCloudinaryUrl(newUrl);
+
   } catch (err) {
     console.error(err);
+    alert("AI processing failed");
   }
 };
+};
 // =========================
-// HANDLE TAHFRINDS 
+// HANDLE TAG FRINDS 
 // =========================
 const handleTagFriends = (value) => {
   setTagInput(value);
