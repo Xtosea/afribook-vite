@@ -110,13 +110,16 @@ useEffect(() => {
       setHasMore(false);
     }
   } catch (err) {
-    console.error("Posts error:", err);
+  console.error("Posts error:", err);
 
+  if (!navigator.onLine) {
     setNetworkError(true);
-  } finally {
-    setLoadingPosts(false);
-    fetchLock.current = false;
   }
+} finally {
+  setLoadingPosts(false);
+  fetchLock.current = false;
+}
+
 }, [page, token, hasMore]);
   useEffect(() => {
     fetchPosts();
