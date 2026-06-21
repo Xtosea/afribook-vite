@@ -100,7 +100,7 @@ useEffect(() => {
   className="
     absolute
     top-4
-    left-4
+    left-15
     z-50
     bg-black/70
     text-white
@@ -171,7 +171,7 @@ useEffect(() => {
   className="
     absolute
     top-4
-    right-20
+    right-4
     z-50
     bg-blue-500
     text-white
@@ -417,23 +417,7 @@ overflow-y-auto
 "
 >
 
-<button
-  type="button"
-  onClick={() => setActiveTool(null)}
-  className="
-    absolute
-    top-2
-    right-2
-    bg-red-500
-    text-white
-    px-3
-    py-1
-    rounded-full
-    z-[200]
-  "
->
-  ✕
-</button>
+
 
 
     <input
@@ -522,6 +506,25 @@ className="bg-black/60 text-white p-3 rounded-full"
 </button>
 
 )}
+
+
+button
+  type="button"
+  onClick={() => setActiveTool(null)}
+  className="
+    absolute
+    top-2
+    right-2
+    bg-red-500
+    text-white
+    px-3
+    py-1
+    rounded-full
+    z-[200]
+  "
+>
+  ✕
+</button>
 
 
     {activeTool && (
@@ -731,6 +734,9 @@ className="bg-orange-600 text-white p-2 rounded"
 
 </div>
 )}
+
+
+
 
  {music?.url && (
   <audio
