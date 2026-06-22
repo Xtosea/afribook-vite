@@ -505,6 +505,7 @@ return (
   className="relative overflow-hidden rounded-xl"
   style={{
     backgroundColor: postBackground,
+    minHeight: post?.editor ? "300px" : "auto",
   }}
 >
 
@@ -578,46 +579,42 @@ return (
 
 
   {/* EDITOR TEXT */}
-  {post?.editor && (
-    <div
-      style={{
-        position:"absolute",
-        left: editorText?.x ?? 20,
-        top: editorText?.y ?? 20,
-        color: editor?.textColor || "#000",
-        fontSize:
-          `${editor?.textSize || 27}px`,
-        transform:
-          `rotate(${editor?.textRotation || 0}deg)`
-      }}
-      className="
-        font-bold
-        z-10
-      "
-    >
-      {post.content}
-    </div>
-  )}
+{post?.editor && (
+  <div
+    style={{
+      position:"absolute",
+      left: editorText?.x ?? 20,
+      top: editorText?.y ?? 20,
+      color: editor?.textColor || "#000",
+      fontSize:
+        `${editor?.textSize || 27}px`,
+      transform:
+        `rotate(${editor?.textRotation || 0}deg)`,
+      zIndex: 20,
+    }}
+    className="font-bold"
+  >
+    {post.content}
+  </div>
+)}
 
 
 
   {/* STICKERS */}
   {editorStickers.map((sticker,index)=>(
-    <div
-      key={index}
-      style={{
-        position:"absolute",
-        left: sticker.x,
-        top: sticker.y,
-        fontSize:
-          `${sticker.size}px`,
-      }}
-      className="z-10"
-    >
-      {sticker.emoji}
-    </div>
-  ))}
-
+  <div
+    key={index}
+  style={{
+  position:"absolute",
+  left: sticker.x,
+  top: sticker.y,
+  fontSize:`${sticker.size}px`,
+  zIndex:20,
+}}
+  >
+    {sticker.emoji}
+  </div>
+))}
 
 </div>
       
