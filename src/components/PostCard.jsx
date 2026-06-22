@@ -556,18 +556,23 @@ return (
 
  {/* EDITOR BACKGROUND POST */}
 
-{post?.editor ? (
+{post?.editor &&
+ Object.keys(post.editor).length > 0 ? (
+
   <div
-    className="relative rounded-xl overflow-hidden"
+    className="
+      relative
+      rounded-xl
+      overflow-hidden
+    "
     style={{
       backgroundColor: postBackground,
       minHeight:
-        editorStickers.length > 0 || editorText
+        editorStickers.length || editorText
           ? "300px"
-          : "0px",
+          : "0px"
     }}
   >
-
     {editorStickers.map((sticker,index)=>(
       <div
         key={index}
