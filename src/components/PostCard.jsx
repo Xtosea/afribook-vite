@@ -581,7 +581,7 @@ return (
 )}
 
 
-  {/* MEDIA */}
+  
   {/* MEDIA */}
 {media.length > 0 && (
   <div
@@ -608,7 +608,9 @@ return (
   w-full
   ${
     isLandscape
-      ? "max-h-[1200px] object-contain"
+      ? "max-h-[1600px] object-contain"
+      : isPortrait
+      ? "max-h-[500px] object-cover"
       : "max-h-[700px] object-cover"
   }
 `}
@@ -623,7 +625,7 @@ return (
             loading="lazy"
             className="
               w-full
-              max-h-[700px]
+              max-h-[500px]
               object-cover
             "
             alt=""
