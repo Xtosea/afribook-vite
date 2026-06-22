@@ -8,7 +8,7 @@ const PostEditor = ({
   currentUser,
   preview,
   media,
- 'featured'
+ "featured"
 
   handleSubmitPost,
   isPosting,
@@ -103,6 +103,7 @@ useEffect(() => {
     text-white
     px-4
     py-2
+    bg-black/60
     rounded-full
     shadow-lg
   "
