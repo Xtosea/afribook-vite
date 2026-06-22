@@ -291,71 +291,10 @@ const saveEditMessage = async (messageId) => {
 
 
 
-const deleteMessage = async (
-  messageId
-) => {
-  try {
-    await fetchWithToken(
-      `${API_BASE}/api/messages/${messageId}`,
-      token,
-      {
-        method: "DELETE",
-      }
-    );
-
-    setMessages((prev) =>
-      prev.filter(
-        (m) => m._id !== messageId
-      )
-    );
-
-    socketRef.current?.emit(
-      "message-deleted",
-      messageId
-    );
-  } catch (err) {
-    console.log(err);
-  }
-};
-setMessages((prev) => [
-        ...prev,
-        newMessage,
-      ]);
-
-      socketRef.current?.emit(
-        "send-message",
-        newMessage
-      );
-
-      setText("");
-      setMedia(null);
-      setUploading(false);
-    } catch (err) {
-      console.log(err);
-
-      setUploading(false);
-    }
-  };
-
-
-const deleteForMe = async (messageId) => {
-  try {
-    // optional: you can still call backend to log it
-    // BUT message will NOT be removed for other user
-
-    setMessages((prev) =>
-      prev.filter((msg) => msg._id !== messageId)
-    );
-
-    // optional socket update (ONLY if you want UI sync locally)
-    socketRef.current?.emit("message-hidden", {
-      messageId,
-      userId: currentUser,
-    });
-
-  } catch (err) {
-    console.log(err);
-  }
+const deleteForMe = (messageId) => {
+  setMessages((prev) =>
+    prev.filter((msg) => msg._id !== messageId)
+  );
 };
 
 
@@ -380,34 +319,6 @@ const deleteForEveryone = async (messageId) => {
   }
 };
 
-
-// ADSTERRA
-  useEffect(() => {
-    const script =
-      document.createElement(
-        "script"
-      );
-
-    script.src =
-      "https://pl29467278.effectivecpmnetwork.com/1ac49ab91139c0ad3e13572497cfbe18/invoke.js";
-
-    script.async = true;
-
-    script.setAttribute(
-      "data-cfasync",
-      "false"
-    );
-
-    document.body.appendChild(
-      script
-    );
-
-    return () => {
-      document.body.removeChild(
-        script
-      );
-    };
-  }, []);
 
 
 
@@ -664,6 +575,35 @@ uploadedMedia =
 );
 
 
+// ADSTERRA
+  useEffect(() => {
+    const script =
+      document.createElement(
+        "script"
+      );
+
+    script.src =
+      "https://pl29467278.effectivecpmnetwork.com/1ac49ab91139c0ad3e13572497cfbe18/invoke.js";
+
+    script.async = true;
+
+    script.setAttribute(
+      "data-cfasync",
+      "false"
+    );
+
+    document.body.appendChild(
+      script
+    );
+
+    return () => {
+      document.body.removeChild(
+        script
+      );
+    };
+  }, []);
+
+
 
 
   return (
@@ -830,8 +770,28 @@ uploadedMedia =
                     msg.sender?._id ===
                       currentUser;
 
+
+                    
+const showAd =
+  index > 0 && index % 8 === 0;
+
                   return (
-                    <motion.div
+
+    {showAd && (
+  <div className="flex justify-center my-3">
+    <div className="w-full max-w-[85%] bg-yellow-50 border border-yellow-200 rounded-2xl p-3 text-center shadow-sm">
+
+      <p className="text-xs text-gray-500 mb-2">
+        Sponsored
+      </p>
+
+      <SponsoredAd />
+
+    </div>
+  </div>
+)}
+
+                      <motion.div
                       key={index}
                       initial={{
                         opacity: 0,
