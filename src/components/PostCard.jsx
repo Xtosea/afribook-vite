@@ -490,51 +490,7 @@ return (
     </div>
 
 
-<div
-  className="relative min-h-[500px] rounded-xl overflow-hidden"
-  style={{
-    backgroundColor: postBackground
-  }}
->
-
-  {/* STICKERS */}
-  {editorStickers.map((sticker,index)=>(
-    <div
-      key={index}
-      style={{
-        position:"absolute",
-        left: sticker.x,
-        top: sticker.y,
-        fontSize:`${sticker.size}px`,
-      }}
-    >
-      {sticker.emoji}
-    </div>
-  ))}
-
-
-  {/* EDITOR TEXT */}
-  {post?.content && (
-    <div
-      style={{
-        position:"absolute",
-        left: editorText?.x || 0,
-        top: editorText?.y || 0,
-        color: editor?.textColor || "#000",
-        fontSize:`${editor?.textSize || 27}px`,
-        transform:
-          `rotate(${editor?.textRotation || 0}deg)`
-      }}
-      className="font-bold"
-    >
-      {post.content}
-    </div>
-  )}
-
-</div>
-
-
-          {/* URL PREVIEWS */}
+        {/* URL PREVIEWS */}
 
           {urls.length > 0 && (
 
@@ -617,6 +573,50 @@ return (
 
       )}
 
+
+
+     <div
+  className="relative min-h-[500px] rounded-xl overflow-hidden"
+  style={{
+    backgroundColor: postBackground
+  }}
+>
+
+  {/* STICKERS */}
+  {editorStickers.map((sticker,index)=>(
+    <div
+      key={index}
+      style={{
+        position:"absolute",
+        left: sticker.x,
+        top: sticker.y,
+        fontSize:`${sticker.size}px`,
+      }}
+    >
+      {sticker.emoji}
+    </div>
+  ))}
+
+
+  {/* EDITOR TEXT */}
+  {post?.content && (
+    <div
+      style={{
+        position:"absolute",
+        left: editorText?.x || 0,
+        top: editorText?.y || 0,
+        color: editor?.textColor || "#000",
+        fontSize:`${editor?.textSize || 27}px`,
+        transform:
+          `rotate(${editor?.textRotation || 0}deg)`
+      }}
+      className="font-bold"
+    >
+      {post.content}
+    </div>
+  )}
+
+</div>
 
      
 
