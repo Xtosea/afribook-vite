@@ -424,6 +424,7 @@ return (
     p-3
     space-y-3
     overflow-hidden
+    relative
   "
   style={{
     backgroundColor: postBackground
@@ -527,20 +528,23 @@ return (
 
       )}
 
-      {editorStickers.map((sticker,index)=>(
-  <div
-    key={index}
-    style={{
-      position:"absolute",
-      left: sticker.x,
-      top: sticker.y,
-      fontSize:
-        `${sticker.size}px`
-    }}
-  >
-    {sticker.emoji}
-  </div>
-))}
+      <div
+  className="relative min-h-[100px]"
+>
+  {editorStickers.map((sticker,index)=>(
+    <div
+      key={index}
+      style={{
+        position:"absolute",
+        left: sticker.x,
+        top: sticker.y,
+        fontSize: `${sticker.size}px`,
+      }}
+    >
+      {sticker.emoji}
+    </div>
+  ))}
+</div>
 
       {/* MEDIA */}
 
