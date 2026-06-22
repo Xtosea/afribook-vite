@@ -850,6 +850,66 @@ const showAd =
   }`}
 >
 
+            
+<div className="relative">
+
+  {/* 3 DOT BUTTON */}
+  {isMe && (
+    <button
+      onClick={() =>
+        setOpenMenuId(
+          openMenuId === msg._id ? null : msg._id
+        )
+      }
+      className="absolute top-1 right-2 text-lg"
+    >
+      ⋮
+    </button>
+  )}
+
+  {/* MENU */}
+  {openMenuId === msg._id && (
+    <div className="absolute top-8 right-2 bg-white shadow-lg rounded-lg w-40 z-50 border">
+
+      {/* EDIT */}
+      <button
+        onClick={() => {
+          startEditMessage(msg);
+          setOpenMenuId(null);
+        }}
+        className="w-full text-left px-3 py-2 hover:bg-gray-100 text-sm"
+      >
+        ✏ Edit message
+      </button>
+
+      {/* DELETE FOR ME */}
+      <button
+        onClick={() => {
+          deleteForMe(msg._id);
+          setOpenMenuId(null);
+        }}
+        className="w-full text-left px-3 py-2 hover:bg-gray-100 text-sm"
+      >
+        🗑 Delete for me
+      </button>
+
+      {/* DELETE FOR EVERYONE */}
+      <button
+        onClick={() => {
+          deleteMessage(msg._id);
+          setOpenMenuId(null);
+        }}
+        className="w-full text-left px-3 py-2 hover:bg-gray-100 text-sm text-red-500"
+      >
+        ❌ Delete for everyone
+      </button>
+
+    </div>
+  )}
+</div>
+
+
+
                         {/* IMAGE */}
                         {msg.mediaType ===
                           "image" && (
@@ -930,63 +990,7 @@ const showAd =
 
   {/* EDIT BOX HERE */}
 
-   <div className="relative">
-
-  {/* 3 DOT BUTTON */}
-  {isMe && (
-    <button
-      onClick={() =>
-        setOpenMenuId(
-          openMenuId === msg._id ? null : msg._id
-        )
-      }
-      className="absolute top-1 right-2 text-lg"
-    >
-      ⋮
-    </button>
-  )}
-
-  {/* MENU */}
-  {openMenuId === msg._id && (
-    <div className="absolute top-8 right-2 bg-white shadow-lg rounded-lg w-40 z-50 border">
-
-      {/* EDIT */}
-      <button
-        onClick={() => {
-          startEditMessage(msg);
-          setOpenMenuId(null);
-        }}
-        className="w-full text-left px-3 py-2 hover:bg-gray-100 text-sm"
-      >
-        ✏ Edit message
-      </button>
-
-      {/* DELETE FOR ME */}
-      <button
-        onClick={() => {
-          deleteForMe(msg._id);
-          setOpenMenuId(null);
-        }}
-        className="w-full text-left px-3 py-2 hover:bg-gray-100 text-sm"
-      >
-        🗑 Delete for me
-      </button>
-
-      {/* DELETE FOR EVERYONE */}
-      <button
-        onClick={() => {
-          deleteMessage(msg._id);
-          setOpenMenuId(null);
-        }}
-        className="w-full text-left px-3 py-2 hover:bg-gray-100 text-sm text-red-500"
-      >
-        ❌ Delete for everyone
-      </button>
-
-    </div>
-  )}
-</div>
-
+   
 
   {editingMessageId && (
     <div className="bg-yellow-50 border-t p-3 flex gap-2">
