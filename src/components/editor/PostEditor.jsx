@@ -164,8 +164,9 @@ useEffect(() => {
 
 
 <button
-  type="submit"
+  type="button"
   disabled={isPosting}
+  onClick={handleSubmitPost}
   className="
     absolute
     top-3
@@ -176,6 +177,7 @@ useEffect(() => {
     items-center
     gap-2
     font-semibold
+    bg-black/60
   "
 >
   {isPosting ? (
@@ -719,15 +721,32 @@ Color
       />
     )}
 
+    {musicList?.map(song => (
+      <button
+        key={song._id}
+        type="button"
+        onClick={() => setMusic(song)}
+        className="
+          w-full
+          p-3
+          rounded-lg
+          bg-white/10
+          text-white
+        "
+      >
+        🎵 {song.title}
+      </button>
+    ))}
+
     <button
       type="button"
-      onClick={()=>setActiveTool(null)}
+      onClick={() => setActiveTool(null)}
       className="
-      w-full
-      bg-green-600
-      text-white
-      py-3
-      rounded-lg
+        w-full
+        bg-green-600
+        text-white
+        py-3
+        rounded-lg
       "
     >
       Use Music
