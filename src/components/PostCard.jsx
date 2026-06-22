@@ -568,7 +568,7 @@ return (
 
       )}
 
-      <
+      
 
 
       {/* MEDIA */}
@@ -624,37 +624,7 @@ return (
       )}
 
 
-     {post?.content && (
-  <div
-    className="
-      relative
-      min-h-[100px]
-    "
-  >
-
-    <div
-      style={{
-        position: "absolute",
-        left: editorText?.x || 0,
-        top: editorText?.y || 0,
-        color:
-          editor?.textColor || "#fff",
-        fontSize:
-          `${editor?.textSize || 40}px`,
-        transform:
-          `rotate(${editor?.textRotation || 0}deg)`
-      }}
-      className="
-        font-bold
-        text-shadow
-      "
-    >
-      {post.content}
-    </div>
-
-
-  </div>
-)}
+     
 
       {/* ACTIONS */}
 
