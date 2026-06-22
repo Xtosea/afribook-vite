@@ -236,7 +236,7 @@ const Messages = () => {
 const [editText, setEditText] = useState("");
 const [editingMessageId, setEditingMessageId] =
   useState(null);
-
+const [openMenuId, setOpenMenuId] = useState(null);
 
 
 
@@ -249,6 +249,166 @@ const startEditMessage = (msg) => {
   setEditingMessageId(msg._id);
   setEditText(msg.text || "");
 };
+
+const deleteForMe = (messageId) => {
+  setMessages((prev) =>
+    prev.filter((msg) => msg._id !== messageId)
+  );
+};
+
+
+
+
+const saveEditMessage = async (messageId) => {
+  try {
+    const updated = await fetchWithToken(
+      `${API_BASE}/api/messages/${messageId}`,
+      token,
+      {
+        method: "PUT",
+        body: JSON.stringify({
+          text: editText,
+        }),
+      }
+    );
+
+    setMessages((prev) =>
+      prev.map((msg) =>
+        msg._id === messageId ? updated : msg
+      )
+    );
+
+    socketRef.current?.emit("message-edited", updated);
+
+    setEditingMessageId(null);
+    setEditText("");
+
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+
+
+
+const deleteMessage = async (
+  messageId
+) => {
+  try {
+    await fetchWithToken(
+      `${API_BASE}/api/messages/${messageId}`,
+      token,
+      {
+        method: "DELETE",
+      }
+    );
+
+    setMessages((prev) =>
+      prev.filter(
+        (m) => m._id !== messageId
+      )
+    );
+
+    socketRef.current?.emit(
+      "message-deleted",
+      messageId
+    );
+  } catch (err) {
+    console.log(err);
+  }
+};
+setMessages((prev) => [
+        ...prev,
+        newMessage,
+      ]);
+
+      socketRef.current?.emit(
+        "send-message",
+        newMessage
+      );
+
+      setText("");
+      setMedia(null);
+      setUploading(false);
+    } catch (err) {
+      console.log(err);
+
+      setUploading(false);
+    }
+  };
+
+
+const deleteForMe = async (messageId) => {
+  try {
+    // optional: you can still call backend to log it
+    // BUT message will NOT be removed for other user
+
+    setMessages((prev) =>
+      prev.filter((msg) => msg._id !== messageId)
+    );
+
+    // optional socket update (ONLY if you want UI sync locally)
+    socketRef.current?.emit("message-hidden", {
+      messageId,
+      userId: currentUser,
+    });
+
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+
+const deleteForEveryone = async (messageId) => {
+  try {
+    await fetchWithToken(
+      `${API_BASE}/api/messages/${messageId}/everyone`,
+      token,
+      { method: "DELETE" }
+    );
+
+    setMessages((prev) =>
+      prev.filter((msg) => msg._id !== messageId)
+    );
+
+    socketRef.current?.emit("message-deleted", {
+      messageId,
+    });
+
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+
+// ADSTERRA
+  useEffect(() => {
+    const script =
+      document.createElement(
+        "script"
+      );
+
+    script.src =
+      "https://pl29467278.effectivecpmnetwork.com/1ac49ab91139c0ad3e13572497cfbe18/invoke.js";
+
+    script.async = true;
+
+    script.setAttribute(
+      "data-cfasync",
+      "false"
+    );
+
+    document.body.appendChild(
+      script
+    );
+
+    return () => {
+      document.body.removeChild(
+        script
+      );
+    };
+  }, []);
+
 
 
   // AUTO SCROLL
@@ -505,151 +665,6 @@ uploadedMedia =
 
 
 
-const deleteForEveryone =
-  async (messageId) => {
-
-    try {
-
-      await fetchWithToken(
-        `${API_BASE}/api/messages/${messageId}/everyone`,
-        token,
-        {
-          method: "DELETE",
-        }
-      );
-
-      setMessages((prev) =>
-        prev.filter(
-          (msg) =>
-            msg._id !== messageId
-        )
-      );
-
-      socketRef.current?.emit(
-        "message-deleted",
-        {
-          messageId,
-        }
-      );
-
-      setSelectedMessage(null);
-
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-
-const saveEditMessage = async (messageId) => {
-  try {
-    const updated = await fetchWithToken(
-      `${API_BASE}/api/messages/${messageId}`,
-      token,
-      {
-        method: "PUT",
-        body: JSON.stringify({
-          text: editText,
-        }),
-      }
-    );
-
-    setMessages(prev =>
-      prev.map(m =>
-        m._id === messageId ? updated : m
-      )
-    );
-
-    socketRef.current?.emit(
-      "message-edited",
-      updated
-    );
-
-    setEditingMessageId(null);
-    setEditText("");
-
-  } catch(err) {
-    console.log(err);
-  }
-};
-
-    
-
-const deleteMessage = async (
-  messageId
-) => {
-  try {
-    await fetchWithToken(
-      `${API_BASE}/api/messages/${messageId}`,
-      token,
-      {
-        method: "DELETE",
-      }
-    );
-
-    setMessages((prev) =>
-      prev.filter(
-        (m) => m._id !== messageId
-      )
-    );
-
-    socketRef.current?.emit(
-      "message-deleted",
-      messageId
-    );
-  } catch (err) {
-    console.log(err);
-  }
-};
-
-
-
- setMessages((prev) => [
-        ...prev,
-        newMessage,
-      ]);
-
-      socketRef.current?.emit(
-        "send-message",
-        newMessage
-      );
-
-      setText("");
-      setMedia(null);
-      setUploading(false);
-    } catch (err) {
-      console.log(err);
-
-      setUploading(false);
-    }
-  };
-
-  // ADSTERRA
-  useEffect(() => {
-    const script =
-      document.createElement(
-        "script"
-      );
-
-    script.src =
-      "https://pl29467278.effectivecpmnetwork.com/1ac49ab91139c0ad3e13572497cfbe18/invoke.js";
-
-    script.async = true;
-
-    script.setAttribute(
-      "data-cfasync",
-      "false"
-    );
-
-    document.body.appendChild(
-      script
-    );
-
-    return () => {
-      document.body.removeChild(
-        script
-      );
-    };
-  }, []);
 
   return (
     <div className="flex h-full bg-gray-100 overflow-hidden">
@@ -880,31 +895,7 @@ const deleteMessage = async (
 />
                         )}
 
-                        {/* TEXT */}
-{msg.text && (
-  <div className="space-y-2">
-    <p>{msg.text}</p>
-
-    {isMe && (
-      <div className="flex gap-2 text-xs">
-        <button
-          onClick={() => startEditMessage(msg)}
-          className="bg-yellow-500 text-white px-2 py-1 rounded"
-        >
-          ✏ Edit
-        </button>
-
-        <button
-          onClick={() => deleteMessage(msg._id)}
-          className="bg-red-500 text-white px-2 py-1 rounded"
-        >
-          🗑 Delete
-        </button>
-      </div>
-    )}
-  </div>
-)}
-
+                        
                         {/* TIME */}
                         <p
                           className={`text-[11px] mt-1 ${
@@ -936,15 +927,71 @@ const deleteMessage = async (
               />
             </div>
 
-            {/* INPUT AREA */}
-            <div className="sticky bottom-[70px] md:bottom-0 z-30 bg-white border-t px-3 py-3 shadow-lg">
-
-
-{/* INPUT AREA */}
+         
+      {/* INPUT AREA */}
 
 <div className="sticky bottom-0 z-30 bg-white border-t px-3 py-3">
 
   {/* EDIT BOX HERE */}
+
+   <div className="relative">
+
+  {/* 3 DOT BUTTON */}
+  {isMe && (
+    <button
+      onClick={() =>
+        setOpenMenuId(
+          openMenuId === msg._id ? null : msg._id
+        )
+      }
+      className="absolute top-1 right-2 text-lg"
+    >
+      ⋮
+    </button>
+  )}
+
+  {/* MENU */}
+  {openMenuId === msg._id && (
+    <div className="absolute top-8 right-2 bg-white shadow-lg rounded-lg w-40 z-50 border">
+
+      {/* EDIT */}
+      <button
+        onClick={() => {
+          startEditMessage(msg);
+          setOpenMenuId(null);
+        }}
+        className="w-full text-left px-3 py-2 hover:bg-gray-100 text-sm"
+      >
+        ✏ Edit message
+      </button>
+
+      {/* DELETE FOR ME */}
+      <button
+        onClick={() => {
+          deleteForMe(msg._id);
+          setOpenMenuId(null);
+        }}
+        className="w-full text-left px-3 py-2 hover:bg-gray-100 text-sm"
+      >
+        🗑 Delete for me
+      </button>
+
+      {/* DELETE FOR EVERYONE */}
+      <button
+        onClick={() => {
+          deleteMessage(msg._id);
+          setOpenMenuId(null);
+        }}
+        className="w-full text-left px-3 py-2 hover:bg-gray-100 text-sm text-red-500"
+      >
+        ❌ Delete for everyone
+      </button>
+
+    </div>
+  )}
+</div>
+
+
   {editingMessageId && (
     <div className="bg-yellow-50 border-t p-3 flex gap-2">
 
