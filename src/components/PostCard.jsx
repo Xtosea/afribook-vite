@@ -558,14 +558,13 @@ return (
 
 {post?.editor ? (
   <div
-    className="
-      relative
-      rounded-xl
-      overflow-hidden
-      min-h-[300px]
-    "
+    className="relative rounded-xl overflow-hidden"
     style={{
       backgroundColor: postBackground,
+      minHeight:
+        editorStickers.length > 0 || editorText
+          ? "300px"
+          : "0px",
     }}
   >
 
