@@ -96,9 +96,9 @@ useEffect(() => {
   className="
     absolute
     top-3
-    left-3
+    left-1/2
+    -translate-x-1/2
     z-[200]
-    
     text-white
     px-4
     py-2
@@ -106,7 +106,7 @@ useEffect(() => {
     shadow-lg
   "
 >
-  ✕ 
+  ✕
 </button>
 
 
@@ -115,8 +115,7 @@ useEffect(() => {
   className="
     absolute
     top-2
-    left-1/2
-    -translate-x-1/2
+    left-3
     z-50
     flex
     items-center
@@ -514,7 +513,7 @@ className="
 w-16
 h-16
 rounded-2xl
-bg-black/60
+bg-white/60
 text-white
 flex
 flex-col
