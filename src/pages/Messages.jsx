@@ -251,9 +251,6 @@ const [editText, setEditText] =
   const [showSidebar, setShowSidebar] =
     useState(false);
 
-const [editingMessageId, setEditingMessageId] =
-  useState(null);
-
 const [editText, setEditText] =
   useState("");
 
