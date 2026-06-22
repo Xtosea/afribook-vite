@@ -575,7 +575,7 @@ return (
 
 
 
-     <div
+ <div
   className="relative min-h-[500px] rounded-xl overflow-hidden"
   style={{
     backgroundColor: postBackground
