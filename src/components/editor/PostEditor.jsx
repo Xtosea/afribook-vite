@@ -5,14 +5,13 @@ import MediaUpload from "../MediaUpload";
 
 
 const PostEditor = ({
- currentUser,
- preview,
- media,
+  currentUser,
+  preview,
+  media,
 
- handleSubmitPost,
- isPosting,
-  
-  
+  handleSubmitPost,
+  isPosting,
+
   text,
   setText,
 
@@ -42,15 +41,6 @@ const PostEditor = ({
 
   musicList,
 
-  music: music
- ? {
-   _id:music._id,
-   title:music.title,
-   url:music.url
- }
- : null
-}
-
   activeTool,
   setActiveTool,
 
@@ -62,18 +52,14 @@ const PostEditor = ({
 
   tagInput,
   setTagInput,
+
   applyAI,
-
   handleTagFriends,
-
-  
 
   onCancel,
 
-mediaFiles,
-setMediaFiles,
-
-
+  mediaFiles,
+  setMediaFiles,
 }) => {
 
 
