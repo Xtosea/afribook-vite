@@ -430,6 +430,15 @@ return (
     {/* HEADER */}
     <div className="flex items-center justify-between">
 
+{/* TEXT (NORMAL POST CONTENT) */}
+{post?.content && (
+  <div className="px-2 py-2 text-[15px] leading-relaxed whitespace-pre-wrap break-words">
+    {renderContentWithLinks(post.content)}
+  </div>
+)}
+
+
+
       <div className="flex items-center gap-3">
 
         <img
@@ -482,7 +491,7 @@ return (
 
 
 <div
-  className="relative min-h-[200px] rounded-xl overflow-hidden"
+  className="relative min-h-[500px] rounded-xl overflow-hidden"
   style={{
     backgroundColor: postBackground
   }}
@@ -524,21 +533,6 @@ return (
 
 </div>
 
-
-
-     {/* TEXT */}
-
-      {post?.content && (
-
-        <div className="space-y-3">
-
-          <div className="px-1 whitespace-pre-wrap break-words text-[15px] leading-relaxed">
-
-            {renderContentWithLinks(
-              post.content
-            )}
-
-          </div>
 
           {/* URL PREVIEWS */}
 
