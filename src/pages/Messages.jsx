@@ -276,28 +276,50 @@ const [editingMessageId, setEditingMessageId] =
     socket.emit("join", currentUser);
 
     socket.on(
-      "receive-message",
-      (message) => {
-        if (
-          selectedUser &&
-          (message.sender ===
-            selectedUser._id ||
-            message.receiver ===
-              selectedUser._id ||
-            message.sender?._id ===
-              selectedUser._id)
-        ) {
-          setMessages((prev) => [
-            ...prev,
-            message,
-          ]);
-        }
-      }
+  "receive-message",
+  (message) => {
+    if (
+      selectedUser &&
+      (
+        message.sender === selectedUser._id ||
+        message.receiver === selectedUser._id ||
+        message.sender?._id === selectedUser._id
+      )
+    ) {
+      setMessages(prev => [...prev, message]);
+    }
+  }
+);
+
+socket.on(
+  "message-deleted",
+  ({ messageId }) => {
+    setMessages(prev =>
+      prev.filter(
+        msg => msg._id !== messageId
+      )
     );
+  }
+);
+
+socket.on(
+  "message-edited",
+  (updatedMessage) => {
+    setMessages(prev =>
+      prev.map(msg =>
+        msg._id === updatedMessage._id
+          ? updatedMessage
+          : msg
+      )
+    );
+  }
+);
 
     return () => {
-      socket.off("receive-message");
-    };
+  socket.off("receive-message");
+  socket.off("message-deleted");
+  socket.off("message-edited");
+};
   }, [selectedUser, currentUser]);
 
   // LOAD MESSAGES
@@ -373,43 +395,7 @@ const [editingMessageId, setEditingMessageId] =
 
 
 
-socket.on(
-  "message-deleted",
-  ({ messageId }) => {
 
-    setMessages((prev) =>
-      prev.filter(
-        (msg) =>
-          msg._id !== messageId
-      )
-    );
-  }
-);
-
-socket.on(
-  "message-edited",
-  (updatedMessage) => {
-
-    setMessages((prev) =>
-      prev.map((msg) =>
-        msg._id ===
-        updatedMessage._id
-          ? updatedMessage
-          : msg
-      )
-    );
-  }
-);
-
-
-return () => {
-  socket.off("receive-message");
-  socket.off("message-deleted");
-  socket.off("message-edited");
-};
-
-
-  
 const saveEditMessage = async (messageId) => {
   try {
     const updated =
@@ -647,23 +633,6 @@ const saveEdit = async () => {
     console.log(err);
   }
 };
-
-
-
-
-const saveEditedMessage = async () => {
-  try {
-    const updated =
-      await fetchWithToken(
-        `${API_BASE}/api/messages/${editingMessage}`,
-        token,
-        {
-          method: "PUT",
-          body: JSON.stringify({
-            text: editText,
-          }),
-        }
-      );
 
     setMessages((prev) =>
       prev.map((m) =>
