@@ -708,33 +708,33 @@ Color
 
 
 
-    {/* MUSIC */}
     {activeTool === "music" && (
-      <div className="mt-6 space-y-3">
+  <div className="mt-6 space-y-3">
 
-        {music?.url && (
-          <audio
-            controls
-            src={music.url}
-            className="w-full"
-          />
-        )}
+    {music?.url && (
+      <audio
+        controls
+        src={music.url}
+        className="w-full"
+      />
+    )}
 
+    <button
+      type="button"
+      onClick={()=>setActiveTool(null)}
+      className="
+      w-full
+      bg-green-600
+      text-white
+      py-3
+      rounded-lg
+      "
+    >
+      Use Music
+    </button>
 
-        <button
- type="button"
- onClick={()=>setActiveTool(null)}
- className="
- w-full
- bg-green-600
- text-white
- py-3
- rounded-lg
- "
->
- Use Music
-</button>
-}}
+  </div>
+)}
 
 
     {/* COLOR */}
