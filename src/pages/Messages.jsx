@@ -18,6 +18,9 @@ import {
 import VideoCall from "../components/VideoCall";
 import VoiceRecorder from "../components/VoiceRecorder";
 import VoiceCall from "../components/VoiceCall";
+import SponsoredAd from "../components/SponsoredAd";
+
+
 
 const defaultProfile =
   "https://afribook-backend.onrender.com/uploads/profiles/default-profile.png";
@@ -796,22 +799,15 @@ const showAd =
   index > 0 && index % 8 === 0;
 
                   return (
-
+  <>
     {showAd && (
-  <div className="flex justify-center my-3">
-    <div className="w-full max-w-[85%] bg-yellow-50 border border-yellow-200 rounded-2xl p-3 text-center shadow-sm">
+      <div className="flex justify-center my-3">
+        <SponsoredAd />
+      </div>
+    )}
 
-      <p className="text-xs text-gray-500 mb-2">
-        Sponsored
-      </p>
-
-      <SponsoredAd />
-
-    </div>
-  </div>
-)}
-
-                      <motion.div
+   
+                   <motion.div
                       key={index}
                       initial={{
                         opacity: 0,
