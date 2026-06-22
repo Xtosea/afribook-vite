@@ -596,66 +596,83 @@ Color
     </button>
 
 
-    {/* TEXT TOOL */}
     {activeTool === "text" && (
-      <div className="space-y-3 mt-6">
+  <div className="space-y-3 mt-6">
 
-        <input
-          type="text"
-          placeholder="Add text..."
-          value={text}
-          onChange={(e)=>setText(e.target.value)}
-          className="
-            w-full
-            p-3
-            rounded-lg
-            text-black
-          "
-        />
+    <input
+      type="text"
+      placeholder="Add text..."
+      value={text}
+      onChange={(e)=>setText(e.target.value)}
+      className="
+        w-full
+        p-3
+        rounded-lg
+        text-black
+      "
+    />
 
-        <label className="text-white">
-          Text Color
-        </label>
+    <label className="text-white">
+      Text Color
+    </label>
 
-        <input
-          type="color"
-          value={textColor}
-          onChange={(e)=>setTextColor(e.target.value)}
-          className="w-full h-10"
-        />
-
-
-        <label className="text-white">
-          Size
-        </label>
-
-        <input
-          type="range"
-          min="20"
-          max="150"
-          value={size}
-          onChange={(e)=>setSize(Number(e.target.value))}
-          className="w-full"
-        />
+    <input
+      type="color"
+      value={textColor}
+      onChange={(e)=>setTextColor(e.target.value)}
+      className="w-full h-10"
+    />
 
 
-        <label className="text-white">
-          Rotate
-        </label>
+    <label className="text-white">
+      Size
+    </label>
 
-        <input
-          type="range"
-          min="-180"
-          max="180"
-          value={textRotation}
-          onChange={(e)=>
-            setTextRotation(Number(e.target.value))
-          }
-          className="w-full"
-        />
+    <input
+      type="range"
+      min="20"
+      max="150"
+      value={size}
+      onChange={(e)=>setSize(Number(e.target.value))}
+      className="w-full"
+    />
 
-      </div>
-    )}
+
+    <label className="text-white">
+      Rotate
+    </label>
+
+    <input
+      type="range"
+      min="-180"
+      max="180"
+      value={textRotation}
+      onChange={(e)=>
+        setTextRotation(Number(e.target.value))
+      }
+      className="w-full"
+    />
+
+
+    {/* DONE BUTTON */}
+    <button
+      type="button"
+      onClick={() => setActiveTool(null)}
+      className="
+        w-full
+        bg-blue-600
+        text-white
+        py-3
+        rounded-xl
+        font-semibold
+      "
+    >
+      Done
+    </button>
+
+
+  </div>
+)}
 
 
 
@@ -666,8 +683,9 @@ Color
         {["🔥","❤️","😂","😎","🎉","💯"].map(
           (emoji)=>(
             <button
-              key={emoji}
-              className="text-4xl"
+  type="button"
+  key={emoji}
+  className="text-4xl"
               onClick={() =>
                 setStickers(prev=>[
                   ...prev,
@@ -703,25 +721,19 @@ Color
         )}
 
 
-        {musicList?.map(song=>(
-          <button
-            key={song._id}
-            onClick={()=>setMusic(song)}
-            className="
-              w-full
-              p-3
-              rounded-lg
-              bg-white/10
-              text-white
-              text-left
-            "
-          >
-            🎵 {song.title}
-          </button>
-        ))}
-
-      </div>
-    )}
+        <button
+ type="button"
+ onClick={()=>setActiveTool(null)}
+ className="
+ w-full
+ bg-green-600
+ text-white
+ py-3
+ rounded-lg
+ "
+>
+ Use Music
+</button>
 
 
 
@@ -753,62 +765,115 @@ Color
 
     {/* LOCATION */}
     {activeTool === "location" && (
-      <input
-        value={location}
-        onChange={(e)=>setLocation(e.target.value)}
-        placeholder="Add location..."
-        className="
-          w-full
-          p-3
-          rounded-lg
-          mt-6
-          text-black
-        "
-      />
-    )}
+<div className="mt-6 space-y-3">
 
+<input
+ value={location}
+ onChange={(e)=>setLocation(e.target.value)}
+ placeholder="Add location..."
+ className="
+ w-full
+ p-3
+ rounded-lg
+ text-black
+ "
+/>
+
+<button
+ type="button"
+ onClick={()=>setActiveTool(null)}
+ className="
+ w-full
+ bg-blue-600
+ text-white
+ py-3
+ rounded-lg
+ "
+>
+ Done
+</button>
+
+</div>
+)}
 
 
     {/* FEELING */}
     {activeTool === "feeling" && (
-      <input
-        value={feeling}
-        onChange={(e)=>setFeeling(e.target.value)}
-        placeholder="How are you feeling?"
-        className="
-          w-full
-          p-3
-          rounded-lg
-          mt-6
-          text-black
-        "
-      />
-    )}
+<div className="mt-6 space-y-3">
+
+<input
+  value={feeling}
+  onChange={(e)=>setFeeling(e.target.value)}
+  placeholder="How are you feeling?"
+  className="
+    w-full
+    p-3
+    rounded-lg
+    text-black
+  "
+/>
+
+
+<button
+  type="button"
+  onClick={() => setActiveTool(null)}
+  className="
+    w-full
+    bg-blue-600
+    text-white
+    py-3
+    rounded-lg
+    font-semibold
+  "
+>
+  Done
+</button>
+
+
+</div>
+)}
 
 
 
     {/* TAG */}
     {activeTool === "tag" && (
-      <input
-        value={tagInput}
-        onChange={(e)=>handleTagFriends(e.target.value)}
-        placeholder="Tag friends..."
-        className="
-          w-full
-          p-3
-          rounded-lg
-          mt-6
-          text-black
-        "
-      />
-    )}
+<div className="mt-6 space-y-3">
 
+<input
+ value={tagInput}
+ onChange={(e)=>handleTagFriends(e.target.value)}
+ placeholder="Tag friends..."
+ className="
+ w-full
+ p-3
+ rounded-lg
+ text-black
+ "
+/>
+
+<button
+ type="button"
+ onClick={()=>setActiveTool(null)}
+ className="
+ bg-blue-600
+ text-white
+ w-full
+ py-3
+ rounded-lg
+ "
+>
+ Done
+</button>
+
+</div>
+)}
           n{/* AI */}
     {activeTool === "ai" && (
       <div className="flex gap-3 mt-6">
 
         <button
-          onClick={()=>applyAI("enhance")}
+  type="button"
+  onClick={()=>applyAI("enhance")}
           className="bg-blue-600 text-white p-3 rounded-lg"
         >
           ✨ Enhance
@@ -816,7 +881,8 @@ Color
 
 
         <button
-          onClick={()=>applyAI("beauty")}
+  type="button"
+  onClick={()=>applyAI("enhance")}
           className="bg-pink-600 text-white p-3 rounded-lg"
         >
           💄 Beauty
@@ -824,7 +890,8 @@ Color
 
 
         <button
-          onClick={()=>applyAI("afroglow")}
+  type="button"
+  onClick={()=>applyAI("enhance")}
           className="bg-orange-600 text-white p-3 rounded-lg"
         >
           🌍 Afro Glow
