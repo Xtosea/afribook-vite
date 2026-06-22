@@ -64,6 +64,7 @@ const postBackground =
   editor?.backgroundColor || "white";
 const isBackgroundPost =
   post?.editor && media.length === 0;
+  const layout = post?.layout || "featured";
 
 
 
@@ -592,12 +593,17 @@ return (
   {/* MEDIA */}
 {media.length > 0 && (
   <div
-    className={
-      isMulti
-        ? "grid grid-cols-2 gap-1"
-        : "w-full"
-    }
-  >
+    <div
+  className={
+    !isMulti
+      ? "w-full"
+      : layout === "featured"
+      ? "grid grid-cols-2 grid-rows-2 gap-1"
+      : layout === "vertical"
+      ? "grid grid-cols-1 gap-1"
+      : "grid grid-cols-2 gap-1"
+  }
+>
 
       {media.map((m,i)=>(
 
@@ -630,11 +636,18 @@ return (
             key={i}
             src={m.url}
             loading="lazy"
-            className="
-              w-full
-              max-h-[500px]
-              object-cover
-            "
+
+            className={`
+w-full
+object-cover
+rounded-lg
+${
+ layout === "featured" && i === 0
+ ? "row-span-2 h-[500px]"
+ : "h-[250px]"
+}
+`}
+
             alt=""
           />
 
