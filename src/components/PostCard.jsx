@@ -504,9 +504,13 @@ return (
 <div
   className="relative overflow-hidden rounded-xl"
   style={{
-    backgroundColor: postBackground,
-    minHeight: post?.editor ? "300px" : "auto",
-  }}
+  backgroundColor: isBackgroundPost
+    ? postBackground
+    : "transparent",
+  minHeight: isBackgroundPost
+    ? "400px"
+    : "auto",
+}}
 >
 
   {/* NORMAL TEXT ABOVE MEDIA (Facebook style) */}
@@ -523,6 +527,38 @@ return (
       {renderContentWithLinks(post.content)}
     </div>
   )}
+
+       
+{post?.content && media.length > 0 && (
+  <div
+    className="
+      px-3
+      py-3
+      whitespace-pre-wrap
+      break-words
+      text-[15px]
+    "
+  >
+    {renderContentWithLinks(post.content)}
+  </div>
+)}
+
+
+{post?.content &&
+ !post?.editor &&
+ media.length === 0 && (
+  <div
+    className="
+      px-3
+      py-3
+      whitespace-pre-wrap
+      break-words
+      text-[15px]
+    "
+  >
+    {renderContentWithLinks(post.content)}
+  </div>
+)}
 
 
   {/* MEDIA */}
@@ -579,7 +615,7 @@ return (
 
 
   {/* EDITOR TEXT */}
-{post?.editor && (
+{isBackgroundPost && (
   <div
     style={{
       position:"absolute",
@@ -601,7 +637,8 @@ return (
 
 
   {/* STICKERS */}
-  {editorStickers.map((sticker,index)=>(
+  {isBackgroundPost &&
+  editorStickers.map((sticker,index)=>(
   <div
     key={index}
   style={{
