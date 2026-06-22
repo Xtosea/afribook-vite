@@ -290,6 +290,26 @@ const saveEditMessage = async (messageId) => {
 
 
 
+const deleteMessage = async (messageId) => {
+  try {
+    await fetchWithToken(
+      `${API_BASE}/api/messages/${messageId}`,
+      token,
+      { method: "DELETE" }
+    );
+
+    setMessages((prev) =>
+      prev.filter((m) => m._id !== messageId)
+    );
+
+    socketRef.current?.emit("message-deleted", {
+      messageId,
+    });
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 
 const deleteForMe = (messageId) => {
   setMessages((prev) =>
