@@ -593,17 +593,16 @@ return (
   {/* MEDIA */}
 {media.length > 0 && (
   <div
-    <div
-  className={
-    !isMulti
-      ? "w-full"
-      : layout === "featured"
-      ? "grid grid-cols-2 grid-rows-2 gap-1"
-      : layout === "vertical"
-      ? "grid grid-cols-1 gap-1"
-      : "grid grid-cols-2 gap-1"
-  }
->
+    className={
+      !isMulti
+        ? "w-full"
+        : layout === "featured"
+        ? "grid grid-cols-2 grid-rows-2 gap-1"
+        : layout === "vertical"
+        ? "grid grid-cols-1 gap-1"
+        : "grid grid-cols-2 gap-1"
+    }
+  >
 
       {media.map((m,i)=>(
 
