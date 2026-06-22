@@ -492,31 +492,16 @@ return (
 
         {/* URL PREVIEWS */}
 
-          {urls.length > 0 && (
-
-            <div className="space-y-3">
-
-              {urls.map(
-                (
-                  url,
-                  index
-                ) => (
-
-                  <LinkPreview
-                    key={`${url}-${index}`}
-                    url={url}
-                  />
-
-                )
-              )}
-
-            </div>
-
-          )}
-
-        </div>
-
-      )}
+{urls.length > 0 && (
+  <div className="space-y-3 px-2">
+    {urls.map((url, index) => (
+      <LinkPreview
+        key={`${url}-${index}`}
+        url={url}
+      />
+    ))}
+  </div>
+)}
 
       
 
