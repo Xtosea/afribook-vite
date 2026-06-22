@@ -184,6 +184,7 @@ useEffect(() => {
         className="
           w-4
           h-4
+          bg-black/60
           border-2
           border-white
           border-t-transparent
