@@ -62,6 +62,9 @@ const editorStickers = editor?.stickers || [];
 
 const postBackground =
   editor?.backgroundColor || "white";
+const isBackgroundPost =
+  post?.editor && media.length === 0;
+
 
 
   // ================= STATE =================
