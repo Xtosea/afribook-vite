@@ -513,7 +513,7 @@ className="
 w-16
 h-16
 rounded-2xl
-bg-white/60
+bg-black/60
 text-white
 flex
 flex-col
