@@ -563,9 +563,10 @@ return (
 
 
  <div
-  className="relative min-h-[250px] rounded-xl overflow-hidden"
+  className="relative rounded-xl overflow-hidden"
   style={{
-    backgroundColor: postBackground
+    backgroundColor: postBackground,
+    minHeight: media.length > 0 ? "auto" : "120px"
   }}
 >
 
@@ -585,29 +586,7 @@ return (
   ))}
 
 
-  {/* EDITOR TEXT */}
-  {post?.content && (
-    <div
-      style={{
-        position:"absolute",
-        left: editorText?.x || 0,
-        top: editorText?.y || 0,
-        color: editor?.textColor || "#000",
-        fontSize:`${editor?.textSize || 27}px`,
-        transform:
-          `rotate(${editor?.textRotation || 0}deg)`
-      }}
-      className="font-bold"
-    >
-      {post.content}
-    </div>
-  )}
-
-</div>
-
-     
-
-      {/* ACTIONS */}
+     {/* ACTIONS */}
 
 <div className="grid grid-cols-4 border-t border-gray-200 pt-2">
 
