@@ -372,11 +372,44 @@ const [editingMessageId, setEditingMessageId] =
   }, [id]);
 
 
-  const startEditMessage = (msg) => {
-  setEditingMessageId(msg._id);
-  setEditText(msg.text || "");
+
+socket.on(
+  "message-deleted",
+  ({ messageId }) => {
+
+    setMessages((prev) =>
+      prev.filter(
+        (msg) =>
+          msg._id !== messageId
+      )
+    );
+  }
+);
+
+socket.on(
+  "message-edited",
+  (updatedMessage) => {
+
+    setMessages((prev) =>
+      prev.map((msg) =>
+        msg._id ===
+        updatedMessage._id
+          ? updatedMessage
+          : msg
+      )
+    );
+  }
+);
+
+
+return () => {
+  socket.off("receive-message");
+  socket.off("message-deleted");
+  socket.off("message-edited");
 };
 
+
+  
 const saveEditMessage = async (messageId) => {
   try {
     const updated =
@@ -539,31 +572,6 @@ uploadedMedia =
   newMessage
 );
 
-const deleteForMe = async (
-  messageId
-) => {
-  try {
-    await fetchWithToken(
-      `${API_BASE}/api/messages/${messageId}/me`,
-      token,
-      {
-        method: "DELETE",
-      }
-    );
-
-    setMessages((prev) =>
-      prev.filter(
-        (msg) =>
-          msg._id !== messageId
-      )
-    );
-
-    setSelectedMessage(null);
-
-  } catch (err) {
-    console.log(err);
-  }
-};
 
 
 const deleteForEveryone =
@@ -704,46 +712,9 @@ const deleteMessage = async (
   }
 };
 
-socket.on(
-  "message-deleted",
-  ({ messageId }) => {
-
-    setMessages((prev) =>
-      prev.filter(
-        (msg) =>
-          msg._id !== messageId
-      )
-    );
-  }
-);
-
-socket.on(
-  "message-edited",
-  (updatedMessage) => {
-
-    setMessages((prev) =>
-      prev.map((msg) =>
-        msg._id ===
-        updatedMessage._id
-          ? updatedMessage
-          : msg
-      )
-    );
-  }
-);
 
 
-return () => {
-  socket.off("receive-message");
-  socket.off("message-deleted");
-  socket.off("message-edited");
-};
-
-
-
-    
-
-      setMessages((prev) => [
+ setMessages((prev) => [
         ...prev,
         newMessage,
       ]);
@@ -1111,7 +1082,7 @@ return () => {
                     <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 w-12 h-12 rounded-full flex items-center justify-center text-xl shadow">
 
 
-{editingMessage && (
+{editingMessageId && (
   <div className="bg-yellow-50 border-t p-3 flex gap-2">
 
     <input
