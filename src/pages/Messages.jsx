@@ -251,6 +251,12 @@ const [editText, setEditText] =
   const [showSidebar, setShowSidebar] =
     useState(false);
 
+const [editingMessageId, setEditingMessageId] =
+  useState(null);
+
+const [editText, setEditText] =
+  useState("");
+
   // AUTO SCROLL
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({
@@ -367,6 +373,65 @@ const [editText, setEditText] =
 
     fetchUsers();
   }, [id]);
+
+
+  const startEditMessage = (msg) => {
+  setEditingMessageId(msg._id);
+  setEditText(msg.text || "");
+};
+
+const saveEditMessage = async (messageId) => {
+  try {
+    const updated =
+      await fetchWithToken(
+        `${API_BASE}/api/messages/${messageId}`,
+        token,
+        {
+          method: "PUT",
+          body: JSON.stringify({
+            text: editText,
+          }),
+        }
+      );
+
+    setMessages((prev) =>
+      prev.map((m) =>
+        m._id === messageId
+          ? updated
+          : m
+      )
+    );
+
+    setEditingMessageId(null);
+    setEditText("");
+
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+const deleteMessage = async (
+  messageId
+) => {
+  try {
+    await fetchWithToken(
+      `${API_BASE}/api/messages/${messageId}`,
+      token,
+      {
+        method: "DELETE",
+      }
+    );
+
+    setMessages((prev) =>
+      prev.filter(
+        (m) => m._id !== messageId
+      )
+    );
+
+  } catch (err) {
+    console.log(err);
+  }
+};
 
   // SEND MESSAGE
   const sendMessage = async () => {
