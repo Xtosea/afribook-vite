@@ -443,14 +443,6 @@ return (
         <div>
 
 
-{/* TEXT (NORMAL POST CONTENT) */}
-{post?.content && (
-  <div className="px-2 py-2 text-[15px] leading-relaxed whitespace-pre-wrap break-words">
-    {renderContentWithLinks(post.content)}
-  </div>
-)}
-
-
 
 
           <div
@@ -562,30 +554,87 @@ return (
 
 
 
- <div
-  className="relative rounded-xl overflow-hidden"
-  style={{
-    backgroundColor: postBackground,
-    minHeight: media.length > 0 ? "auto" : "120px"
-  }}
->
+ 
 
-  {/* STICKERS */}
-  {editorStickers.map((sticker,index)=>(
-    <div
-      key={index}
-      style={{
-        position:"absolute",
-        left: sticker.x,
-        top: sticker.y,
-        fontSize:`${sticker.size}px`,
-      }}
-    >
-      {sticker.emoji}
+  {/* MEDIA */}
+
+{media.length > 0 && (
+  <div>
+    ...
+  </div>
+)}
+
+
+{/* EDITOR / NORMAL CONTENT */}
+
+{post?.editor ? (
+  <div
+    className="
+      relative
+      rounded-xl
+      overflow-hidden
+      min-h-[400px]
+    "
+    style={{
+      backgroundColor: postBackground,
+    }}
+  >
+
+    {editorStickers.map((sticker,index)=>(
+      <div
+        key={index}
+        style={{
+          position:"absolute",
+          left: sticker.x,
+          top: sticker.y,
+          fontSize:`${sticker.size}px`,
+        }}
+      >
+        {sticker.emoji}
+      </div>
+    ))}
+
+
+    {post?.content && (
+      <div
+        style={{
+          position:"absolute",
+          left: editorText?.x || 0,
+          top: editorText?.y || 0,
+          color: editor?.textColor || "#000",
+          fontSize:`${editor?.textSize || 27}px`,
+          transform:
+            `rotate(${editor?.textRotation || 0}deg)`
+        }}
+        className="font-bold"
+      >
+        {post.content}
+      </div>
+    )}
+
+  </div>
+
+) : (
+
+  post?.content && (
+    <div className="
+      px-2
+      py-2
+      whitespace-pre-wrap
+      break-words
+      text-[15px]
+    ">
+      {renderContentWithLinks(post.content)}
     </div>
-  ))}
+  )
 
-</div>   
+)}
+
+
+
+{/* ACTIONS */}
+
+<div className="grid grid-cols-4 ...">
 
 
 {/* ACTIONS */}
