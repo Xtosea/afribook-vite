@@ -32,11 +32,6 @@ const AudioMessage = ({
   const audioRef =
     useRef(null);
 
-const startEditMessage = (msg) => {
-  setEditingMessage(msg._id);
-  setEditText(msg.text);
-};
-
 
 
   const [playing, setPlaying] =
@@ -238,20 +233,22 @@ const Messages = () => {
     setShowVoiceCall,
   ] = useState(false);
 
-const [selectedMessage, setSelectedMessage] =
+const [editText, setEditText] = useState("");
+const [editingMessageId, setEditingMessageId] =
   useState(null);
 
-const [editingMessage, setEditingMessage] =
-  useState(null);
 
-const [editText, setEditText] =
-  useState("");
 
 
   const [showSidebar, setShowSidebar] =
     useState(false);
-const [editingMessageId, setEditingMessageId] =
-  useState(null);
+
+
+
+const startEditMessage = (msg) => {
+  setEditingMessageId(msg._id);
+  setEditText(msg.text || "");
+};
 
 
   // AUTO SCROLL
@@ -396,58 +393,6 @@ socket.on(
 
 
 
-const saveEditMessage = async (messageId) => {
-  try {
-    const updated =
-      await fetchWithToken(
-        `${API_BASE}/api/messages/${messageId}`,
-        token,
-        {
-          method: "PUT",
-          body: JSON.stringify({
-            text: editText,
-          }),
-        }
-      );
-
-    setMessages((prev) =>
-      prev.map((m) =>
-        m._id === messageId
-          ? updated
-          : m
-      )
-    );
-
-    setEditingMessageId(null);
-    setEditText("");
-
-  } catch (err) {
-    console.log(err);
-  }
-};
-
-const deleteMessage = async (
-  messageId
-) => {
-  try {
-    await fetchWithToken(
-      `${API_BASE}/api/messages/${messageId}`,
-      token,
-      {
-        method: "DELETE",
-      }
-    );
-
-    setMessages((prev) =>
-      prev.filter(
-        (m) => m._id !== messageId
-      )
-    );
-
-  } catch (err) {
-    console.log(err);
-  }
-};
 
   // SEND MESSAGE
   const sendMessage = async () => {
@@ -595,28 +540,22 @@ const deleteForEveryone =
   };
 
 
-const saveEdit = async () => {
-
+const saveEditMessage = async (messageId) => {
   try {
+    const updated = await fetchWithToken(
+      `${API_BASE}/api/messages/${messageId}`,
+      token,
+      {
+        method: "PUT",
+        body: JSON.stringify({
+          text: editText,
+        }),
+      }
+    );
 
-    const updated =
-      await fetchWithToken(
-        `${API_BASE}/api/messages/${editingMessage._id}`,
-        token,
-        {
-          method: "PUT",
-
-          body: JSON.stringify({
-            text: editText,
-          }),
-        }
-      );
-
-    setMessages((prev) =>
-      prev.map((msg) =>
-        msg._id === updated._id
-          ? updated
-          : msg
+    setMessages(prev =>
+      prev.map(m =>
+        m._id === messageId ? updated : m
       )
     );
 
@@ -625,34 +564,15 @@ const saveEdit = async () => {
       updated
     );
 
-    setEditingMessage(null);
-
+    setEditingMessageId(null);
     setEditText("");
 
-  } catch (err) {
+  } catch(err) {
     console.log(err);
   }
 };
 
-    setMessages((prev) =>
-      prev.map((m) =>
-        m._id === editingMessage
-          ? updated
-          : m
-      )
-    );
-
-    socketRef.current?.emit(
-      "message-edited",
-      updated
-    );
-
-    setEditingMessage(null);
-    setEditText("");
-  } catch (err) {
-    console.log(err);
-  }
-};
+    
 
 const deleteMessage = async (
   messageId
@@ -1019,6 +939,74 @@ const deleteMessage = async (
             {/* INPUT AREA */}
             <div className="sticky bottom-[70px] md:bottom-0 z-30 bg-white border-t px-3 py-3 shadow-lg">
 
+
+{/* INPUT AREA */}
+
+<div className="sticky bottom-0 z-30 bg-white border-t px-3 py-3">
+
+  {/* EDIT BOX HERE */}
+  {editingMessageId && (
+    <div className="bg-yellow-50 border-t p-3 flex gap-2">
+
+      <input
+        value={editText}
+        onChange={(e) =>
+          setEditText(e.target.value)
+        }
+        className="
+          flex-1
+          border
+          rounded-lg
+          px-3
+          py-2
+        "
+      />
+
+      <button
+        onClick={() =>
+          saveEditMessage(editingMessageId)
+        }
+        className="bg-blue-500 text-white px-4 rounded-lg"
+      >
+        Save
+      </button>
+
+      <button
+        onClick={() => {
+          setEditingMessageId(null);
+          setEditText("");
+        }}
+        className="
+          bg-gray-500
+          text-white
+          px-4
+          rounded-lg
+        "
+      >
+        Cancel
+      </button>
+
+    </div>
+  )}
+
+
+  {/* NORMAL MESSAGE INPUT BELOW */}
+  <div className="flex items-center bg-gray-100 rounded-3xl px-3 py-2">
+
+    <input
+      type="text"
+      placeholder="Type a message..."
+      value={text}
+      onChange={(e)=>setText(e.target.value)}
+      className="flex-1 bg-transparent outline-none"
+    />
+
+  </div>
+
+</div>
+
+
+
               <div className="space-y-2">
 
                 {/* INPUT */}
@@ -1051,53 +1039,7 @@ const deleteMessage = async (
                     <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 w-12 h-12 rounded-full flex items-center justify-center text-xl shadow">
 
 
-{editingMessageId && (
-  <div className="bg-yellow-50 border-t p-3 flex gap-2">
-
-    <input
-      value={editText}
-      onChange={(e) =>
-        setEditText(e.target.value)
-      }
-      className="
-        flex-1
-        border
-        rounded-lg
-        px-3
-        py-2
-      "
-    />
-
-    <button
-      onClick={saveEditedMessage}
-      className="
-        bg-green-600
-        text-white
-        px-4
-        rounded-lg
-      "
-    >
-      Save
-    </button>
-
-    <button
-      onClick={() =>
-        setEditingMessage(null)
-      }
-      className="
-        bg-gray-500
-        text-white
-        px-4
-        rounded-lg
-      "
-    >
-      Cancel
-    </button>
-
-  </div>
-)}
-
-                      📎
+                     📎
 
                       <input
                         type="file"
