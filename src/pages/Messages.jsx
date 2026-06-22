@@ -32,6 +32,13 @@ const AudioMessage = ({
   const audioRef =
     useRef(null);
 
+const startEditMessage = (msg) => {
+  setEditingMessage(msg._id);
+  setEditText(msg.text);
+};
+
+
+
   const [playing, setPlaying] =
     useState(false);
 
@@ -230,6 +237,16 @@ const Messages = () => {
     showVoiceCall,
     setShowVoiceCall,
   ] = useState(false);
+
+const [selectedMessage, setSelectedMessage] =
+  useState(null);
+
+const [editingMessage, setEditingMessage] =
+  useState(null);
+
+const [editText, setEditText] =
+  useState("");
+
 
   const [showSidebar, setShowSidebar] =
     useState(false);
@@ -459,6 +476,210 @@ uploadedMedia =
   "Voice message response:",
   newMessage
 );
+
+const deleteForMe = async (
+  messageId
+) => {
+  try {
+    await fetchWithToken(
+      `${API_BASE}/api/messages/${messageId}/me`,
+      token,
+      {
+        method: "DELETE",
+      }
+    );
+
+    setMessages((prev) =>
+      prev.filter(
+        (msg) =>
+          msg._id !== messageId
+      )
+    );
+
+    setSelectedMessage(null);
+
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+
+const deleteForEveryone =
+  async (messageId) => {
+
+    try {
+
+      await fetchWithToken(
+        `${API_BASE}/api/messages/${messageId}/everyone`,
+        token,
+        {
+          method: "DELETE",
+        }
+      );
+
+      setMessages((prev) =>
+        prev.filter(
+          (msg) =>
+            msg._id !== messageId
+        )
+      );
+
+      socketRef.current?.emit(
+        "message-deleted",
+        {
+          messageId,
+        }
+      );
+
+      setSelectedMessage(null);
+
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+
+const saveEdit = async () => {
+
+  try {
+
+    const updated =
+      await fetchWithToken(
+        `${API_BASE}/api/messages/${editingMessage._id}`,
+        token,
+        {
+          method: "PUT",
+
+          body: JSON.stringify({
+            text: editText,
+          }),
+        }
+      );
+
+    setMessages((prev) =>
+      prev.map((msg) =>
+        msg._id === updated._id
+          ? updated
+          : msg
+      )
+    );
+
+    socketRef.current?.emit(
+      "message-edited",
+      updated
+    );
+
+    setEditingMessage(null);
+
+    setEditText("");
+
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+
+
+
+const saveEditedMessage = async () => {
+  try {
+    const updated =
+      await fetchWithToken(
+        `${API_BASE}/api/messages/${editingMessage}`,
+        token,
+        {
+          method: "PUT",
+          body: JSON.stringify({
+            text: editText,
+          }),
+        }
+      );
+
+    setMessages((prev) =>
+      prev.map((m) =>
+        m._id === editingMessage
+          ? updated
+          : m
+      )
+    );
+
+    socketRef.current?.emit(
+      "message-edited",
+      updated
+    );
+
+    setEditingMessage(null);
+    setEditText("");
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+const deleteMessage = async (
+  messageId
+) => {
+  try {
+    await fetchWithToken(
+      `${API_BASE}/api/messages/${messageId}`,
+      token,
+      {
+        method: "DELETE",
+      }
+    );
+
+    setMessages((prev) =>
+      prev.filter(
+        (m) => m._id !== messageId
+      )
+    );
+
+    socketRef.current?.emit(
+      "message-deleted",
+      messageId
+    );
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+socket.on(
+  "message-deleted",
+  ({ messageId }) => {
+
+    setMessages((prev) =>
+      prev.filter(
+        (msg) =>
+          msg._id !== messageId
+      )
+    );
+  }
+);
+
+socket.on(
+  "message-edited",
+  (updatedMessage) => {
+
+    setMessages((prev) =>
+      prev.map((msg) =>
+        msg._id ===
+        updatedMessage._id
+          ? updatedMessage
+          : msg
+      )
+    );
+  }
+);
+
+
+return () => {
+  socket.off("receive-message");
+  socket.off("message-deleted");
+  socket.off("message-edited");
+};
+
+
+
+    
 
       setMessages((prev) => [
         ...prev,
@@ -738,11 +959,29 @@ uploadedMedia =
                         )}
 
                         {/* TEXT */}
-                        {msg.text && (
-                          <p>
-                            {msg.text}
-                          </p>
-                        )}
+{msg.text && (
+  <div className="space-y-2">
+    <p>{msg.text}</p>
+
+    {isMe && (
+      <div className="flex gap-2 text-xs">
+        <button
+          onClick={() => startEditMessage(msg)}
+          className="bg-yellow-500 text-white px-2 py-1 rounded"
+        >
+          ✏ Edit
+        </button>
+
+        <button
+          onClick={() => deleteMessage(msg._id)}
+          className="bg-red-500 text-white px-2 py-1 rounded"
+        >
+          🗑 Delete
+        </button>
+      </div>
+    )}
+  </div>
+)}
 
                         {/* TIME */}
                         <p
@@ -808,6 +1047,53 @@ uploadedMedia =
 
                     {/* FILE */}
                     <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 w-12 h-12 rounded-full flex items-center justify-center text-xl shadow">
+
+
+{editingMessage && (
+  <div className="bg-yellow-50 border-t p-3 flex gap-2">
+
+    <input
+      value={editText}
+      onChange={(e) =>
+        setEditText(e.target.value)
+      }
+      className="
+        flex-1
+        border
+        rounded-lg
+        px-3
+        py-2
+      "
+    />
+
+    <button
+      onClick={saveEditedMessage}
+      className="
+        bg-green-600
+        text-white
+        px-4
+        rounded-lg
+      "
+    >
+      Save
+    </button>
+
+    <button
+      onClick={() =>
+        setEditingMessage(null)
+      }
+      className="
+        bg-gray-500
+        text-white
+        px-4
+        rounded-lg
+      "
+    >
+      Cancel
+    </button>
+
+  </div>
+)}
 
                       📎
 
