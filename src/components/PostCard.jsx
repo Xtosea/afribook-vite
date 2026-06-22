@@ -96,6 +96,7 @@ const isBackgroundPost =
     useState(false);
 
 const [isLandscape, setIsLandscape] = useState(false);
+const [isPortrait, setIsPortrait] = useState(false);
 
   // ================= AUTH =================
 
@@ -418,6 +419,8 @@ const [isLandscape, setIsLandscape] = useState(false);
 
   }, [media]);
 
+
+
 useEffect(() => {
   if (!media[0]?.url) return;
 
@@ -426,6 +429,10 @@ useEffect(() => {
   img.onload = () => {
     setIsLandscape(
       img.width > img.height
+    );
+
+    setIsPortrait(
+      img.height > img.width
     );
   };
 
