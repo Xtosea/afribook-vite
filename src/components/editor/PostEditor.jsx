@@ -8,6 +8,7 @@ const PostEditor = ({
   currentUser,
   preview,
   media,
+ 'featured'
 
   handleSubmitPost,
   isPosting,
