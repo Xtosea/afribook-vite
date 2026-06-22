@@ -499,123 +499,128 @@ return (
 
       
 
+{/* POST CONTENT CANVAS */}
 
-      {/* MEDIA */}
+<div
+  className="relative overflow-hidden rounded-xl"
+  style={{
+    backgroundColor: postBackground,
+  }}
+>
 
-      {media.length > 0 && (
-
-        <div
-          className={
-            isMulti
-              ? "grid grid-cols-2 gap-2"
-              : ""
-          }
-        >
-
-          {media.map(
-            (m, i) =>
-
-              m.type ===
-              "video" ? (
-
-                <video
-                  key={i}
-                  ref={(el) =>
-                    (
-                      videoRefs.current[
-                        i
-                      ] = el
-                    )
-                  }
-                  src={m.url}
-                  controls
-                  poster={m.thumbnailUrl || ""}
-                  preload="none"
-                  playsInline
-                  className="w-full rounded-xl bg-black max-h-[600px] object-cover"
-                />
-
-              ) : (
-
-                <img
-                  key={i}
-                  src={m.url}
-                  loading="lazy"
-                  className="w-full rounded-xl object-cover max-h-[700px]"
-                  alt=""
-                />
-
-              )
-          )}
-
-        </div>
-
-      )}
-
-
-
- {/* EDITOR BACKGROUND POST */}
-
-{post?.editor &&
- Object.keys(post.editor).length > 0 ? (
-
-  <div
-    className="
-      relative
-      rounded-xl
-      overflow-hidden
-    "
-    style={{
-      backgroundColor: postBackground,
-      minHeight:
-        editorStickers.length || editorText
-          ? "300px"
-          : "0px"
-    }}
-  >
-    {editorStickers.map((sticker,index)=>(
-      <div
-        key={index}
-        style={{
-          position:"absolute",
-          left: sticker.x,
-          top: sticker.y,
-          fontSize:`${sticker.size}px`,
-        }}
-      >
-        {sticker.emoji}
-      </div>
-    ))}
-
-
-    {post?.content && (
-      <div
-        style={{
-          position:"absolute",
-          left: editorText?.x || 0,
-          top: editorText?.y || 0,
-          color: editor?.textColor || "#000",
-          fontSize:`${editor?.textSize || 27}px`,
-          transform:
-            `rotate(${editor?.textRotation || 0}deg)`
-        }}
-        className="font-bold"
-      >
-        {post.content}
-      </div>
-    )}
-
-  </div>
-
-) : (
-
-  post?.content && (
-    <div className="px-2 py-2 whitespace-pre-wrap break-words">
+  {/* NORMAL TEXT ABOVE MEDIA (Facebook style) */}
+  {post?.content && !post?.editor && (
+    <div
+      className="
+        px-3
+        py-3
+        whitespace-pre-wrap
+        break-words
+        text-[15px]
+      "
+    >
       {renderContentWithLinks(post.content)}
     </div>
-  )
+  )}
 
-)}
+
+  {/* MEDIA */}
+  {media.length > 0 && (
+    <div
+      className={
+        isMulti
+          ? "grid grid-cols-2 gap-1"
+          : ""
+      }
+    >
+
+      {media.map((m,i)=>(
+
+        m.type === "video" ? (
+
+          <video
+            key={i}
+            ref={(el)=>
+              videoRefs.current[i]=el
+            }
+            src={m.url}
+            controls
+            playsInline
+            className="
+              w-full
+              max-h-[700px]
+              object-cover
+              bg-black
+            "
+          />
+
+        ) : (
+
+          <img
+            key={i}
+            src={m.url}
+            loading="lazy"
+            className="
+              w-full
+              max-h-[700px]
+              object-cover
+            "
+            alt=""
+          />
+
+        )
+
+      ))}
+
+    </div>
+  )}
+
+
+
+  {/* EDITOR TEXT */}
+  {post?.editor && (
+    <div
+      style={{
+        position:"absolute",
+        left: editorText?.x ?? 20,
+        top: editorText?.y ?? 20,
+        color: editor?.textColor || "#000",
+        fontSize:
+          `${editor?.textSize || 27}px`,
+        transform:
+          `rotate(${editor?.textRotation || 0}deg)`
+      }}
+      className="
+        font-bold
+        z-10
+      "
+    >
+      {post.content}
+    </div>
+  )}
+
+
+
+  {/* STICKERS */}
+  {editorStickers.map((sticker,index)=>(
+    <div
+      key={index}
+      style={{
+        position:"absolute",
+        left: sticker.x,
+        top: sticker.y,
+        fontSize:
+          `${sticker.size}px`,
+      }}
+      className="z-10"
+    >
+      {sticker.emoji}
+    </div>
+  ))}
+
+
+</div>
+      
 
 
 {/* ACTIONS */}
