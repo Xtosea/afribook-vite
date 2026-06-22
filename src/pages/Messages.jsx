@@ -488,7 +488,7 @@ socket.on(
 
 
 
-  // SEND MESSAGE
+    // SEND MESSAGE
   const sendMessage = async () => {
     if (
       !text.trim() &&
@@ -597,8 +597,27 @@ uploadedMedia =
   newMessage
 );
 
+      setMessages((prev) => [
+        ...prev,
+        newMessage,
+      ]);
 
-// ADSTERRA
+      socketRef.current?.emit(
+        "send-message",
+        newMessage
+      );
+
+      setText("");
+      setMedia(null);
+      setUploading(false);
+    } catch (err) {
+      console.log(err);
+
+      setUploading(false);
+    }
+  };
+
+  // ADSTERRA
   useEffect(() => {
     const script =
       document.createElement(
@@ -894,6 +913,7 @@ const showAd =
                         </p>
                       </div>
                     </motion.div>
+                    </>
                   );
                 }
               )}
@@ -1225,6 +1245,7 @@ const showAd =
     defaultProfile={defaultProfile}
   />
 )}
+
    </div>
   );
 };
