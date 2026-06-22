@@ -95,6 +95,8 @@ const isBackgroundPost =
   const [liking, setLiking] =
     useState(false);
 
+const [isLandscape, setIsLandscape] = useState(false);
+
   // ================= AUTH =================
 
   const token =
@@ -416,6 +418,21 @@ const isBackgroundPost =
 
   }, [media]);
 
+useEffect(() => {
+  if (!media[0]?.url) return;
+
+  const img = new Image();
+
+  img.onload = () => {
+    setIsLandscape(
+      img.width > img.height
+    );
+  };
+
+  img.src = media[0].url;
+
+}, [media]);
+
 
   // ================= RENDER =================
 
@@ -565,14 +582,15 @@ return (
 
 
   {/* MEDIA */}
-  {media.length > 0 && (
-    <div
-      className={
-        isMulti
-          ? "grid grid-cols-2 gap-1"
-          : ""
-      }
-    >
+  {/* MEDIA */}
+{media.length > 0 && (
+  <div
+    className={
+      isMulti
+        ? "grid grid-cols-2 gap-1"
+        : "w-full"
+    }
+  >
 
       {media.map((m,i)=>(
 
@@ -586,12 +604,15 @@ return (
             src={m.url}
             controls
             playsInline
-            className="
-              w-full
-              max-h-[700px]
-              object-cover
-              bg-black
-            "
+            className={`
+  w-full
+  ${
+    isLandscape
+      ? "max-h-[1200px] object-contain"
+      : "max-h-[700px] object-cover"
+  }
+`}
+
           />
 
         ) : (
