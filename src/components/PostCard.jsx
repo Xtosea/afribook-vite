@@ -585,8 +585,10 @@ return (
     </div>
   ))}
 
+</div>   
 
-     {/* ACTIONS */}
+
+{/* ACTIONS */}
 
 <div className="grid grid-cols-4 border-t border-gray-200 pt-2">
 
