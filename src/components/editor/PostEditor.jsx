@@ -867,7 +867,7 @@ Color
 
 </div>
 )}
-          n{/* AI */}
+          
     {activeTool === "ai" && (
       <div className="flex gap-3 mt-6">
 
