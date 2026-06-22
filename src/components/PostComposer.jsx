@@ -315,6 +315,7 @@ const handleSubmitPost = async (e) => {
             textSize: size,
             textColor,
             stickers,
+            backgroundColor,
 
             music: music
               ? {
@@ -351,7 +352,7 @@ const handleSubmitPost = async (e) => {
       x: 50,
       y: 50,
     });
-    setSize(60);
+    setSize(27);
     setBackgroundColor("#000000");
     setActiveTool(null);
 
