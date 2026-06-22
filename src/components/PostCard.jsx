@@ -554,18 +554,7 @@ return (
 
 
 
- 
-
-  {/* MEDIA */}
-
-{media.length > 0 && (
-  <div>
-    ...
-  </div>
-)}
-
-
-{/* EDITOR / NORMAL CONTENT */}
+ {/* EDITOR BACKGROUND POST */}
 
 {post?.editor ? (
   <div
@@ -573,7 +562,7 @@ return (
       relative
       rounded-xl
       overflow-hidden
-      min-h-[400px]
+      min-h-[300px]
     "
     style={{
       backgroundColor: postBackground,
@@ -617,19 +606,12 @@ return (
 ) : (
 
   post?.content && (
-    <div className="
-      px-2
-      py-2
-      whitespace-pre-wrap
-      break-words
-      text-[15px]
-    ">
+    <div className="px-2 py-2 whitespace-pre-wrap break-words">
       {renderContentWithLinks(post.content)}
     </div>
   )
 
 )}
-
 
 
 {/* ACTIONS */}
