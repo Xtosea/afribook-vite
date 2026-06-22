@@ -734,7 +734,7 @@ Color
 >
  Use Music
 </button>
-
+}}
 
 
     {/* COLOR */}
