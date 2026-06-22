@@ -430,16 +430,7 @@ return (
     {/* HEADER */}
     <div className="flex items-center justify-between">
 
-{/* TEXT (NORMAL POST CONTENT) */}
-{post?.content && (
-  <div className="px-2 py-2 text-[15px] leading-relaxed whitespace-pre-wrap break-words">
-    {renderContentWithLinks(post.content)}
-  </div>
-)}
-
-
-
-      <div className="flex items-center gap-3">
+<div className="flex items-center gap-3">
 
         <img
           src={post?.user?.profilePic || defaultProfile}
@@ -450,6 +441,17 @@ return (
         />
 
         <div>
+
+
+{/* TEXT (NORMAL POST CONTENT) */}
+{post?.content && (
+  <div className="px-2 py-2 text-[15px] leading-relaxed whitespace-pre-wrap break-words">
+    {renderContentWithLinks(post.content)}
+  </div>
+)}
+
+
+
 
           <div
             className="flex items-center gap-1 cursor-pointer"
@@ -561,7 +563,7 @@ return (
 
 
  <div
-  className="relative min-h-[500px] rounded-xl overflow-hidden"
+  className="relative min-h-[250px] rounded-xl overflow-hidden"
   style={{
     backgroundColor: postBackground
   }}
