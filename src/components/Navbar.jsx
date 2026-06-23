@@ -278,6 +278,7 @@ const Navbar = () => {
       </Link>
 
 </div>
+</div>
 
 
       {/* ================= MOBILE DRAWER ================= */}
