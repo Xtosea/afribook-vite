@@ -880,26 +880,7 @@ uploadedMedia =
     </div>
   )}
 
-  {openMenuId === msg._id && (
-    <div
-      ref={menuRef}
-      className="
-        absolute
-        top-6
-        right-0
-        bg-white
-        shadow-lg
-        rounded-lg
-        w-40
-        z-50
-        border
-      "
-    >
-      {/* menu buttons */}
-    </div>
-  )}
-</div>
-
+  
 {/* MENU */}
 {openMenuId === msg._id && (
   <div
