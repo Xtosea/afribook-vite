@@ -852,7 +852,7 @@ uploadedMedia =
                           : "justify-start"
                       }`}
                     >
-                     <div
+                    
   <div
   className={`relative max-w-[85%] overflow-visible px-4 py-3 rounded-3xl shadow-md break-words ${
     isMe
