@@ -227,9 +227,7 @@ const Navbar = () => {
           </div>
 
           {/* MOBILE MENU */}
-          <button className="md:hidden p-2" onClick={() => setMobileOpen(true)}>
-            <Menu />
-          </button>
+          
         </div>
       </nav>
 
@@ -271,27 +269,9 @@ const Navbar = () => {
         <span>Chats</span>
       </Link>
 
-      <Link
-        to="/friends"
-        className={`flex flex-col items-center text-xs ${
-          isActive("/friends") ? "text-blue-600" : ""
-        }`}
-      >
-        <Users size={20} />
-        <span>Friends</span>
-      </Link>
+      
 
-      <Link
-        to="/wallet"
-        className={`flex flex-col items-center text-xs ${
-          isActive("/wallet") ? "text-blue-600" : ""
-        }`}
-      >
-        <Wallet size={20} />
-        <span>Wallet</span>
-      </Link>
-
-    </div>
+       </div>
 
     <div className="grid grid-cols-5 gap-2 p-2 border-t">
 
@@ -305,27 +285,7 @@ const Navbar = () => {
         <span>Profile</span>
       </Link>
 
-      <Link
-        to="/friend-requests"
-        className={`flex flex-col items-center text-xs ${
-          isActive("/friend-requests")
-            ? "text-blue-600"
-            : ""
-        }`}
-      >
-        <UserPlus size={20} />
-        <span>Requests</span>
-      </Link>
-
-      <Link
-        to="/saved"
-        className={`flex flex-col items-center text-xs ${
-          isActive("/saved") ? "text-blue-600" : ""
-        }`}
-      >
-        <Bookmark size={20} />
-        <span>Saved</span>
-      </Link>
+      
 
       <Link
         to="/leaderboard"
