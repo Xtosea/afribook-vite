@@ -891,7 +891,7 @@ uploadedMedia =
       absolute
       top-8
       right-0
-      bg-white
+      bg-black 
       shadow-lg
       rounded-lg
       w-40
