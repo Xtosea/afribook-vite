@@ -19,15 +19,16 @@ registerSW({
 ReactDOM.createRoot(
   document.getElementById("root")
 ).render(
-  <React.StrictMode>
 
-    <AuthProvider>
+  <BrowserRouter>
 
-      <Logout />
+  <AuthProvider>
 
-      <App />
+    <Logout />
 
-    </AuthProvider>
+    <App />
 
-  </React.StrictMode>
+  </AuthProvider>
+
+</BrowserRouter>
 );
