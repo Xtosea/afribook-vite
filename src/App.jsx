@@ -124,15 +124,14 @@ useEffect(() => {
 }, []);
 
 
-  return (
-    <HelmetProvider>
-      
-        <Navbar />
+ return (
+  <HelmetProvider>
 
+    <Navbar />
 
-        <div className="min-h-[calc(100vh-80px)] w-full">
-          <Routes>
+    <div className="min-h-[calc(100vh-80px)] w-full">
 
+      <Routes>
             {/* PUBLIC */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
