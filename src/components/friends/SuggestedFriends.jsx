@@ -271,7 +271,7 @@ const SuggestedFriends = ({
             {user.name}
           </h3>
 
-        </div>
+        
 
                       <p className="text-xs text-gray-500 mb-3">
                         Registered user
