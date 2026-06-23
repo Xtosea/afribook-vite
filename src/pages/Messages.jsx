@@ -648,6 +648,13 @@ uploadedMedia =
 
 
 
+  return () => {
+      document.body.removeChild(
+        script
+      );
+    };
+  }, []);
+
   return (
     <div className="flex h-full bg-gray-100 overflow-hidden">
 
@@ -812,21 +819,8 @@ uploadedMedia =
                     msg.sender?._id ===
                       currentUser;
 
-
-                    
-const showAd =
-  index > 0 && index % 8 === 0;
-
                   return (
-  <>
-    {showAd && (
-      <div className="flex justify-center my-3">
-        <SponsoredAd />
-      </div>
-    )}
-
-   
-                   <motion.div
+                    <motion.div
                       key={index}
                       initial={{
                         opacity: 0,
@@ -849,8 +843,8 @@ const showAd =
       : "bg-white text-gray-800 rounded-bl-md mr-auto"
   }`}
 >
-
-            
+           
+             
 <div className="relative">
 
   {/* 3 DOT BUTTON */}
@@ -909,7 +903,6 @@ const showAd =
 </div>
 
 
-
                         {/* IMAGE */}
                         {msg.mediaType ===
                           "image" && (
@@ -950,7 +943,13 @@ const showAd =
 />
                         )}
 
-                        
+                        {/* TEXT */}
+                        {msg.text && (
+                          <p>
+                            {msg.text}
+                          </p>
+                        )}
+
                         {/* TIME */}
                         <p
                           className={`text-[11px] mt-1 ${
@@ -973,7 +972,6 @@ const showAd =
                         </p>
                       </div>
                     </motion.div>
-                    </>
                   );
                 }
               )}
@@ -983,76 +981,8 @@ const showAd =
               />
             </div>
 
-         
-      {/* INPUT AREA */}
-
-<div className="sticky bottom-0 z-30 bg-white border-t px-3 py-3">
-
-  {/* EDIT BOX HERE */}
-
-   
-
-  {editingMessageId && (
-    <div className="bg-yellow-50 border-t p-3 flex gap-2">
-
-      <input
-        value={editText}
-        onChange={(e) =>
-          setEditText(e.target.value)
-        }
-        className="
-          flex-1
-          border
-          rounded-lg
-          px-3
-          py-2
-        "
-      />
-
-      <button
-        onClick={() =>
-          saveEditMessage(editingMessageId)
-        }
-        className="bg-blue-500 text-white px-4 rounded-lg"
-      >
-        Save
-      </button>
-
-      <button
-        onClick={() => {
-          setEditingMessageId(null);
-          setEditText("");
-        }}
-        className="
-          bg-gray-500
-          text-white
-          px-4
-          rounded-lg
-        "
-      >
-        Cancel
-      </button>
-
-    </div>
-  )}
-
-
-  {/* NORMAL MESSAGE INPUT BELOW */}
-  <div className="flex items-center bg-gray-100 rounded-3xl px-3 py-2">
-
-    <input
-      type="text"
-      placeholder="Type a message..."
-      value={text}
-      onChange={(e)=>setText(e.target.value)}
-      className="flex-1 bg-transparent outline-none"
-    />
-
-  </div>
-
-</div>
-
-
+            {/* INPUT AREA */}
+            <div className="sticky bottom-[70px] md:bottom-0 z-30 bg-white border-t px-3 py-3 shadow-lg">
 
               <div className="space-y-2">
 
@@ -1085,8 +1015,7 @@ const showAd =
                     {/* FILE */}
                     <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 w-12 h-12 rounded-full flex items-center justify-center text-xl shadow">
 
-
-                     📎
+                      📎
 
                       <input
                         type="file"
@@ -1249,7 +1178,6 @@ const showAd =
     defaultProfile={defaultProfile}
   />
 )}
-
    </div>
   );
 };
