@@ -1069,6 +1069,7 @@ uploadedMedia =
   )
 )}
 
+
                         {/* TIME */}
                         <p
                           className={`text-[11px] mt-1 ${
@@ -1085,10 +1086,13 @@ uploadedMedia =
                               hour:
                                 "2-digit",
                               minute:
-                                "2-digit",
+                                     "2-digit",
+
                             }
                           )}
                         </p>
+                        
+                      </div> 
                       </div>
                     </motion.div>
                   );
