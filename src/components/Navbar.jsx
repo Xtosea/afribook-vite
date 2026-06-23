@@ -228,7 +228,7 @@ const Navbar = () => {
 
             {/* MOBILE MENU */}
           <button className="md:hidden p-2" onClick={() => setMobileOpen(true)}>
-            <Menu />
+            <Men />
           </button>
         </div>
       </nav>
