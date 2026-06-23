@@ -250,7 +250,8 @@ const SuggestedFriends = ({
 
 const isDefaultProfile =
   !user.profilePic ||
-  user.profilePic?.includes("default-profile");
+  user.profilePic === defaultProfile ||
+  user.profilePic.includes("default-profile");
 
  <img
   src={
