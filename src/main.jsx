@@ -21,8 +21,7 @@ ReactDOM.createRoot(
 ).render(
   <React.StrictMode>
 
-    main.jsx
-
+   
 <BrowserRouter>
    <AuthProvider>
       <Logout />
