@@ -241,62 +241,32 @@ const Navbar = () => {
 
     <div className="grid grid-cols-6 gap-2 p-2">
 
-      <Link
-        to="/"
-        className={`flex flex-col items-center text-xs ${
-          isActive("/") ? "text-blue-600" : ""
-        }`}
-      >
-        <Home size={20} />
-        <span>Home</span>
-      </Link>
+  <Link to="/" className="flex flex-col items-center text-xs">
+    <Home size={20} />
+    <span>Home</span>
+  </Link>
 
-      <Link
-        to="/reels"
-        className={`flex flex-col items-center text-xs ${
-          isActive("/reels") ? "text-blue-600" : ""
-        }`}
-      >
-        <Video size={20} />
-        <span>Reels</span>
-      </Link>
+  <Link to="/reels" className="flex flex-col items-center text-xs">
+    <Video size={20} />
+    <span>Reels</span>
+  </Link>
 
-      <Link
-        to="/messages"
-        className={`flex flex-col items-center text-xs ${
-          isActive("/messages") ? "text-blue-600" : ""
-        }`}
-      >
-        <MessageCircle size={20} />
-        <span>Chats</span>
-      </Link>
-</div>
+  <Link to="/messages" className="flex flex-col items-center text-xs">
+    <MessageCircle size={20} />
+    <span>Chats</span>
+  </Link>
 
-    <Link
-        to="/profile"
-        className={`flex flex-col items-center text-xs ${
-          isActive("/profile") ? "text-blue-600" : ""
-        }`}
-      >
-        <User size={20} />
-        <span>Profile</span>
-      </Link>
+  <Link to="/profile" className="flex flex-col items-center text-xs">
+    <User size={20} />
+    <span>Profile</span>
+  </Link>
 
-      
+  <Link to="/leaderboard" className="flex flex-col items-center text-xs">
+    <Trophy size={20} />
+    <span>Top</span>
+  </Link>
 
-      <Link
-        to="/leaderboard"
-        className={`flex flex-col items-center text-xs ${
-          isActive("/leaderboard")
-            ? "text-blue-600"
-            : ""
-        }`}
-      >
-        <Trophy size={20} />
-        <span>Top</span>
-      </Link>
-    
-       
+  
       <Link
         to="/wallet"
         className={`flex flex-col items-center text-xs ${
@@ -306,7 +276,8 @@ const Navbar = () => {
         <Wallet size={20} />
         <span>Wallet</span>
       </Link>
-       </div>
+
+</div>
 )}
 
       {/* ================= MOBILE DRAWER ================= */}
