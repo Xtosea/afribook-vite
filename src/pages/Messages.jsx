@@ -253,12 +253,6 @@ const startEditMessage = (msg) => {
   setEditText(msg.text || "");
 };
 
-const deleteForMe = (messageId) => {
-  setMessages((prev) =>
-    prev.filter((msg) => msg._id !== messageId)
-  );
-};
-
 
 
 
@@ -648,14 +642,7 @@ uploadedMedia =
 
 
 
-  return () => {
-      document.body.removeChild(
-        script
-      );
-    };
-  }, []);
-
-  return (
+    return (
     <div className="flex h-full bg-gray-100 overflow-hidden">
 
       {/* MOBILE OVERLAY */}
