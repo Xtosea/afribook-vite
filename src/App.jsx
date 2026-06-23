@@ -339,7 +339,7 @@ useEffect(() => {
         {/* Toast MUST be inside Router but OUTSIDE Routes */}
         <ToastContainer position="bottom-center" />
 
-      </Routes>
+      
     </HelmetProvider>
   );
 }
