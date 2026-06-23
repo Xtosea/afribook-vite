@@ -909,6 +909,7 @@ uploadedMedia =
         text-left
         px-3
         py-2
+        text-500-black
         hover:bg-gray-100
         text-sm
       "
@@ -926,6 +927,7 @@ uploadedMedia =
         text-left
         px-3
         py-2
+        text-black-500
         hover:bg-gray-100
         text-sm
       "
