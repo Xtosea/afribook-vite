@@ -210,8 +210,15 @@ const SuggestedFriends = ({
               "
             >
               {users
-                .slice(0, limit)
-                .map((user) => (
+  .slice(0, limit)
+  .map((user) => {
+
+    const isDefaultProfile =
+      !user.profilePic ||
+      user.profilePic === defaultProfile ||
+      user.profilePic.includes("default-profile");
+
+    return (
 
                   <div
                     key={user._id}
@@ -243,8 +250,7 @@ const SuggestedFriends = ({
 
 const isDefaultProfile =
   !user.profilePic ||
-  user.profilePic === defaultProfile ||
-  user.profilePic.includes("default-profile");
+  user.profilePic?.includes("default-profile");
 
  <img
   src={
@@ -304,7 +310,8 @@ const isDefaultProfile =
                     </button>
 
                   </div>
-                ))}
+                );
+              })}
             </div>
 
           )}
