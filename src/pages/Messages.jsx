@@ -864,20 +864,6 @@ uploadedMedia =
 <div className="relative">
 
   {/* 3 DOT BUTTON */}
-  {isMe && (
-    <button
-      onClick={() =>
-        setOpenMenuId(
-          openMenuId === msg._id ? null : msg._id
-        )
-      }
-      className="absolute top-1 right-2 text-lg"
-    >
-      ⋮
-    </button>
-  )}
-
-  {/* 3 DOT BUTTON */}
 {isMe && (
   <button
     onClick={() =>
