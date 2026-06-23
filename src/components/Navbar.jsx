@@ -276,12 +276,9 @@ const Navbar = () => {
         <Wallet size={20} />
         <span>Wallet</span>
       </Link>
-
 </div>
 </div>
-}
-
-
+)}
       {/* ================= MOBILE DRAWER ================= */}
       {mobileOpen && (
         <div className="fixed inset-0 bg-black/40 z-50">
