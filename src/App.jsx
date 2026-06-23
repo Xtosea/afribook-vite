@@ -126,7 +126,7 @@ useEffect(() => {
 
   return (
     <HelmetProvider>
-      <Routes>
+      
         <Navbar />
 
 
