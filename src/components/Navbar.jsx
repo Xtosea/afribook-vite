@@ -239,7 +239,7 @@ const Navbar = () => {
 {isLoggedIn && (
   <div className="md:hidden bg-white border-b shadow-sm sticky top-2">
 
-    <div className="grid grid-cols-1 gap-2 p-2">
+    <div className="grid grid-cols-2 gap-2 p-2">
 
       <Link
         to="/"
