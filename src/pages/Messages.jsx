@@ -247,6 +247,9 @@ const [openMenuId, setOpenMenuId] = useState(null);
     useState(false);
 
 
+const menuRef = useRef(null);
+
+
 
 const startEditMessage = (msg) => {
   setEditingMessageId(msg._id);
@@ -316,6 +319,12 @@ const deleteForMe = (messageId) => {
 
 
 const deleteForEveryone = async (messageId) => {
+
+const confirmed = window.confirm(
+  "Delete this message for everyone?"
+);
+
+if (!confirmed) return;
   try {
     await fetchWithToken(
       `${API_BASE}/api/messages/${messageId}/everyone`,
@@ -337,7 +346,27 @@ const deleteForEveryone = async (messageId) => {
 };
 
 
+useEffect(() => {
+  const handleClickOutside = (e) => {
+    if (
+      menuRef.current &&
+      !menuRef.current.contains(e.target)
+    ) {
+      setOpenMenuId(null);
+    }
+  };
 
+  document.addEventListener(
+    "mousedown",
+    handleClickOutside
+  );
+
+  return () =>
+    document.removeEventListener(
+      "mousedown",
+      handleClickOutside
+    );
+}, []);
 
   // AUTO SCROLL
   const scrollToBottom = () => {
@@ -848,46 +877,91 @@ uploadedMedia =
     </button>
   )}
 
-  {/* MENU */}
-  {openMenuId === msg._id && (
-    <div className="absolute top-8 right-2 bg-white shadow-lg rounded-lg w-40 z-50 border">
+  {/* 3 DOT BUTTON */}
+{isMe && (
+  <button
+    onClick={() =>
+      setOpenMenuId(
+        openMenuId === msg._id
+          ? null
+          : msg._id
+      )
+    }
+    className="absolute top-1 right-2 text-lg"
+  >
+    ⋮
+  </button>
+)}
 
-      {/* EDIT */}
-      <button
-        onClick={() => {
-          startEditMessage(msg);
-          setOpenMenuId(null);
-        }}
-        className="w-full text-left px-3 py-2 hover:bg-gray-100 text-sm"
-      >
-        ✏ Edit message
-      </button>
+{/* MENU */}
+{openMenuId === msg._id && (
+  <div
+    ref={menuRef}
+    className="
+      absolute
+      top-8
+      right-2
+      bg-white
+      shadow-lg
+      rounded-lg
+      w-40
+      z-50
+      border
+    "
+  >
+    <button
+      onClick={() => {
+        startEditMessage(msg);
+        setOpenMenuId(null);
+      }}
+      className="
+        w-full
+        text-left
+        px-3
+        py-2
+        hover:bg-gray-100
+        text-sm
+      "
+    >
+      ✏ Edit message
+    </button>
 
-      {/* DELETE FOR ME */}
-      <button
-        onClick={() => {
-          deleteForMe(msg._id);
-          setOpenMenuId(null);
-        }}
-        className="w-full text-left px-3 py-2 hover:bg-gray-100 text-sm"
-      >
-        🗑 Delete for me
-      </button>
+    <button
+      onClick={() => {
+        deleteForMe(msg._id);
+        setOpenMenuId(null);
+      }}
+      className="
+        w-full
+        text-left
+        px-3
+        py-2
+        hover:bg-gray-100
+        text-sm
+      "
+    >
+      🗑 Delete for me
+    </button>
 
-      {/* DELETE FOR EVERYONE */}
-      <button
-        onClick={() => {
-          deleteMessage(msg._id);
-          setOpenMenuId(null);
-        }}
-        className="w-full text-left px-3 py-2 hover:bg-gray-100 text-sm text-red-500"
-      >
-        ❌ Delete for everyone
-      </button>
-
-    </div>
-  )}
-</div>
+    <button
+      onClick={() => {
+        deleteForEveryone(msg._id);
+        setOpenMenuId(null);
+      }}
+      className="
+        w-full
+        text-left
+        px-3
+        py-2
+        text-red-500
+        hover:bg-gray-100
+        text-sm
+      "
+    >
+      ❌ Delete for everyone
+    </button>
+  </div>
+)}
 
 
                         {/* IMAGE */}
@@ -930,12 +1004,70 @@ uploadedMedia =
 />
                         )}
 
-                        {/* TEXT */}
-                        {msg.text && (
-                          <p>
-                            {msg.text}
-                          </p>
-                        )}
+                        {/* TEXT OR EDIT MODE */}
+{editingMessageId === msg._id ? (
+  <div className="mt-2 space-y-2">
+
+    <textarea
+      value={editText}
+      onChange={(e) =>
+        setEditText(e.target.value)
+      }
+      className="w-full p-2 rounded-lg border text-black"
+      rows={3}
+    />
+
+    <div className="flex gap-2">
+
+      <button
+  type="button"
+  onClick={() =>
+    saveEditMessage(msg._id)
+  }
+  className="
+    bg-green-500
+    text-white
+    px-3
+    py-1
+    rounded
+  "
+>
+  Save
+</button>
+
+      <button
+  type="button"
+  onClick={() => {
+    setEditingMessageId(null);
+    setEditText("");
+  }}
+  className="
+    bg-gray-500
+    text-white
+    px-3
+    py-1
+    rounded
+  "
+>
+  Cancel
+</button>
+
+    </div>
+  </div>
+) : (
+  msg.text && (
+    <div>
+  <p>{msg.text}</p>
+
+  {msg.updatedAt &&
+   msg.updatedAt !== msg.createdAt && (
+    <span className="text-[10px] opacity-70">
+      (edited)
+    </span>
+  )}
+</div>
+  )
+)}
 
                         {/* TIME */}
                         <p
