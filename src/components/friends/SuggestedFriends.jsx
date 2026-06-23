@@ -262,7 +262,7 @@ const SuggestedFriends = ({
               ${
                 isDefaultProfile
                   ? "w-24 h-24"
-                  : "w-40 h-40"
+                  : "w-60 h-60"
               }
             `}
           />
