@@ -863,7 +863,6 @@ uploadedMedia =
 
 {/* 3 DOT BUTTON */}             
 <div className="relative">
-
   {isMe && (
     <div className="flex justify-end mb-1">
       <button
@@ -881,8 +880,24 @@ uploadedMedia =
     </div>
   )}
 
-  {msg.text && <p>{msg.text}</p>}
-
+  {openMenuId === msg._id && (
+    <div
+      ref={menuRef}
+      className="
+        absolute
+        top-6
+        right-0
+        bg-white
+        shadow-lg
+        rounded-lg
+        w-40
+        z-50
+        border
+      "
+    >
+      {/* menu buttons */}
+    </div>
+  )}
 </div>
 
 {/* MENU */}
