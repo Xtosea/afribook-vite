@@ -853,7 +853,8 @@ uploadedMedia =
                       }`}
                     >
                      <div
-  className={`max-w-[85%] overflow-hidden px-4 py-3 rounded-3xl shadow-md break-words ${
+  <div
+  className={`relative max-w-[85%] overflow-visible px-4 py-3 rounded-3xl shadow-md break-words ${
     isMe
       ? "bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-br-md ml-auto"
       : "bg-white text-gray-800 rounded-bl-md mr-auto"
@@ -862,7 +863,7 @@ uploadedMedia =
            
 
 {/* 3 DOT BUTTON */}             
-<div className="relative">
+<div className="relative z-50">
   {isMe && (
     <div className="flex justify-end mb-1">
       <button
@@ -886,9 +887,10 @@ uploadedMedia =
   <div
     ref={menuRef}
     className="
+      className="
       absolute
       top-8
-      right-2
+      right-0
       bg-white
       shadow-lg
       rounded-lg
