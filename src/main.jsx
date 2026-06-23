@@ -20,10 +20,10 @@ ReactDOM.createRoot(
   document.getElementById("root")
 ).render(
   
-<BrowserRouter>
+
    <AuthProvider>
       <Logout />
       <App />
    </AuthProvider>
-</BrowserRouter>
+
 );
