@@ -219,64 +219,59 @@ const SuggestedFriends = ({
       user.profilePic.includes("default-profile");
 
     return (
+      <div
+        key={user._id}
+        className="
+          min-w-[220px]
+          bg-gray-50
+          rounded-2xl
+          p-3
+          flex-shrink-0
+          border
+        "
+      >
 
-                  <div
-                    key={user._id}
-                    className="
-                      min-w-[220px]
-                      bg-gray-50
-                      rounded-2xl
-                      p-3
-                      flex-shrink-0
-                      border
-                    "
-                  >
+        {/* USER INFO */}
+        <div
+          className="
+            flex
+            flex-col
+            items-center
+            text-center
+            cursor-pointer
+          "
+          onClick={() =>
+            navigate(`/profile/${user._id}`)
+          }
+        >
 
-                    {/* USER INFO */}
-                    <div
-                      className="
-                        flex
-                        flex-col
-                        items-center
-                        text-center
-                        cursor-pointer
-                      "
-                      onClick={() =>
-                        navigate(
-                          `/profile/${user._id}`
-                        )
-                      }
-                    >
+          <img
+            src={
+              user.profilePic ||
+              defaultProfile
+            }
+            onError={(e) => {
+              e.target.src =
+                defaultProfile;
+            }}
+            alt={user.name}
+            className={`
+              rounded-2xl
+              object-cover
+              mb-3
+              ${
+                isDefaultProfile
+                  ? "w-24 h-24"
+                  : "w-40 h-40"
+              }
+            `}
+          />
 
-const isDefaultProfile =
-  !user.profilePic ||
-  user.profilePic === defaultProfile ||
-  user.profilePic.includes("default-profile");
+          <h3 className="font-semibold text-sm">
+            {user.name}
+          </h3>
 
- <img
-  src={
-    user.profilePic ||
-    defaultProfile
-  }
-  onError={(e) => {
-    e.target.src = defaultProfile;
-  }}
-  alt={user.name}
-  className={`
-    rounded-2xl
-    object-cover
-    mb-3
-    ${
-      isDefaultProfile
-        ? "w-24 h-24"
-        : "w-40 h-40"
-    }
-  `}
-/>
-
-                      <h3 className="font-semibold text-sm">
-                        {user.name}
-                      </h3>
+        </div>
 
                       <p className="text-xs text-gray-500 mb-3">
                         Registered user
