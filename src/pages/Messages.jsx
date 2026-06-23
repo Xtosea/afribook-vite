@@ -860,24 +860,30 @@ uploadedMedia =
   }`}
 >
            
-             
+
+{/* 3 DOT BUTTON */}             
 <div className="relative">
 
-  {/* 3 DOT BUTTON */}
-{isMe && (
-  <button
-    onClick={() =>
-      setOpenMenuId(
-        openMenuId === msg._id
-          ? null
-          : msg._id
-      )
-    }
-    className="absolute top-1 right-2 text-lg"
-  >
-    ⋮
-  </button>
-)}
+  {isMe && (
+    <div className="flex justify-end mb-1">
+      <button
+        onClick={() =>
+          setOpenMenuId(
+            openMenuId === msg._id
+              ? null
+              : msg._id
+          )
+        }
+        className="text-lg"
+      >
+        ⋮
+      </button>
+    </div>
+  )}
+
+  {msg.text && <p>{msg.text}</p>}
+
+</div>
 
 {/* MENU */}
 {openMenuId === msg._id && (
