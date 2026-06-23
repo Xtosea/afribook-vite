@@ -887,7 +887,7 @@ uploadedMedia =
   <div
     ref={menuRef}
     className="
-      className="
+      
       absolute
       top-8
       right-0
