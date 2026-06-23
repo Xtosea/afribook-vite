@@ -241,23 +241,30 @@ const SuggestedFriends = ({
                       }
                     >
 
-                      <img
+const isDefaultProfile =
+  !user.profilePic ||
+  user.profilePic === defaultProfile ||
+  user.profilePic.includes("default-profile");
+
+ <img
   src={
     user.profilePic ||
     defaultProfile
   }
   onError={(e) => {
-    e.target.src =
-      defaultProfile;
+    e.target.src = defaultProfile;
   }}
   alt={user.name}
-  className="
-    w-40
-    h-40
+  className={`
     rounded-2xl
     object-cover
     mb-3
-  "
+    ${
+      isDefaultProfile
+        ? "w-24 h-24"
+        : "w-40 h-40"
+    }
+  `}
 />
 
                       <h3 className="font-semibold text-sm">
