@@ -21,17 +21,12 @@ ReactDOM.createRoot(
 ).render(
   <React.StrictMode>
 
-    <BrowserRouter>
+    main.jsx
 
-      <AuthProvider>
-
-        <Logout />
-
-        <App />
-
-      </AuthProvider>
-
-    </BrowserRouter>
-
-  </React.StrictMode>
+<BrowserRouter>
+   <AuthProvider>
+      <Logout />
+      <App />
+   </AuthProvider>
+</BrowserRouter>
 );
