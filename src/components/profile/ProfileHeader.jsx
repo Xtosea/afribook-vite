@@ -3,6 +3,11 @@ import React from "react";
 import { API_BASE } from "../../api/api";
 
 const ProfileHeader = ({ user, isOwner, onEdit, previewProfilePic, previewCoverPhoto }) => {
+
+const isDefaultProfilePic =
+  !previewProfilePic &&
+  !user.profilePic;
+
   return (
     <div className="bg-white rounded-xl shadow overflow-hidden relative">
 
@@ -40,7 +45,11 @@ const ProfileHeader = ({ user, isOwner, onEdit, previewProfilePic, previewCoverP
                 : previewProfilePic || `${API_BASE}/uploads/profiles/default-profile.png`
             }
             alt="Profile"
-            className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
+            className={`rounded-full object-cover border-4 border-white shadow-lg ${
+  isDefaultProfilePic
+    ? "w-20 h-20"
+    : "w-32 h-32"
+}`}
           />
         </div>
 
