@@ -103,7 +103,7 @@ useEffect(() => {
     text-white
     px-4
     py-2
-    bg-black/60
+    bg-red/60
     rounded-full
     shadow-lg
   "
@@ -117,7 +117,7 @@ useEffect(() => {
   className="
     absolute
     top-2
-    left-3
+    left-2
     z-50
     flex
     items-center
