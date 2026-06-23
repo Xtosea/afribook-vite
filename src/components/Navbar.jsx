@@ -228,7 +228,7 @@ const Navbar = () => {
 
             {/* MOBILE MENU */}
           <button className="md:hidden p-2" onClick={() => setMobileOpen(true)}>
-            <Men />
+            <Menu />
           </button>
         </div>
       </nav>
@@ -270,14 +270,9 @@ const Navbar = () => {
         <MessageCircle size={20} />
         <span>Chats</span>
       </Link>
+</div>
 
-      
-
-       </div>
-
-    <div className="grid grid-cols-5 gap-2 p-2 border-t">
-
-      <Link
+    <Link
         to="/profile"
         className={`flex flex-col items-center text-xs ${
           isActive("/profile") ? "text-blue-600" : ""
@@ -300,18 +295,18 @@ const Navbar = () => {
         <Trophy size={20} />
         <span>Top</span>
       </Link>
-
-      <button
-        onClick={() => setMobileOpen(true)}
-        className="flex flex-col items-center text-xs"
+    
+       
+      <Link
+        to="/wallet"
+        className={`flex flex-col items-center text-xs ${
+          isActive("/wallet") ? "text-blue-600" : ""
+        }`}
       >
-        <Menu size={20} />
-        <span>Menu</span>
-      </button>
-
-    </div>
-
-  </div>
+        <Wallet size={20} />
+        <span>Wallet</span>
+      </Link>
+       </div>
 )}
 
       {/* ================= MOBILE DRAWER ================= */}
