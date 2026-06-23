@@ -278,7 +278,7 @@ const Navbar = () => {
       </Link>
 
 </div>
-)}
+
 
       {/* ================= MOBILE DRAWER ================= */}
       {mobileOpen && (
