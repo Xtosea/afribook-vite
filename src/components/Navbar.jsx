@@ -226,8 +226,10 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* MOBILE MENU */}
-          
+            {/* MOBILE MENU */}
+          <button className="md:hidden p-2" onClick={() => setMobileOpen(true)}>
+            <Menu />
+          </button>
         </div>
       </nav>
 
@@ -237,7 +239,7 @@ const Navbar = () => {
 {isLoggedIn && (
   <div className="md:hidden bg-white border-b shadow-sm sticky top-2">
 
-    <div className="grid grid-cols-5 gap-2 p-2">
+    <div className="grid grid-cols-1 gap-2 p-2">
 
       <Link
         to="/"
@@ -317,12 +319,7 @@ const Navbar = () => {
         <div className="fixed inset-0 bg-black/40 z-50">
           <div className="w-72 h-full bg-white p-4">
 
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-bold">Menu</h2>
-              <button onClick={() => setMobileOpen(false)}>
-                <X />
-              </button>
-            </div>
+            
 
             <div className="flex flex-col gap-3">
 
