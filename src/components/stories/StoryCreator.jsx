@@ -22,24 +22,17 @@ const emojiList = [
 ];
 
 
+const currentUser = JSON.parse(
+  localStorage.getItem("user")
+);
 
+console.log(currentUser);
 
 const StoryCreator = ({ onClose, onSelectFile }) => {
 
-const currentUser = JSON.parse(
-  localStorage.getItem("user") || "{}"
-);
 
 const fileRef = useRef();
 const audioRef = useRef();
-
-useEffect(() => {
-  console.log("StoryCreator Mounted");
-
-  return () => {
-    console.log("StoryCreator Unmounted");
-  };
-}, []);
 
 
 
@@ -78,48 +71,40 @@ const [cloudinaryUrl, setCloudinaryUrl] = useState(null);
 
 // ================= HANDLE FILE =================
 const handleFile = async (e) => {
-  try {
-    const file = e.target.files[0];
+const file = e.target.files[0];
 
-    console.log("FILE SELECTED:", file);
+if (!file) return;
 
-    if (!file) return;
+setMedia(file);
 
-    setMedia(file);
+try {
+if (file.type.startsWith("image/")) {
+const url = await uploadToCloudinary(file);
 
-    if (file.type.startsWith("image/")) {
+setCloudinaryUrl(url);
+setPreview(url);
+} else {
+// video/audio local preview
+setCloudinaryUrl(null);
 
-      console.log("Uploading image...");
+setPreview(
+URL.createObjectURL(file)
+);
+}
+} catch (error) {
+console.error(
+"IMAGE UPLOAD FAILED:",
+error
+);
 
-      const url = await uploadToCloudinary(file);
+setPreview(null);
+setCloudinaryUrl(null);
 
-      console.log("Cloudinary URL:", url);
+alert("Image upload failed");
+}
 
-      setCloudinaryUrl(url);
-      setPreview(url);
-
-    } else {
-
-      console.log("Video/Audio selected");
-
-      setCloudinaryUrl(null);
-      setPreview(
-        URL.createObjectURL(file)
-      );
-    }
-
-  } catch (err) {
-
-    console.error(
-      "HANDLE FILE ERROR:",
-      err
-    );
-
-    setPreview(null);
-    setCloudinaryUrl(null);
-  }
-
-  e.target.value = "";
+// allow selecting same file again
+e.target.value = "";
 };
 
 // ================= APPLY AI =================
@@ -248,27 +233,7 @@ fetch(`${API_BASE}/api/story-music`)
 
 // ================= UI =================
 return (
-<div
-  className="fixed inset-0 bg-black/90"
-  style={{
-    zIndex: 2147483647,
-  }}
->
-
-<button
-  onClick={() => alert("MODAL CLICK WORKS")}
-  style={{
-    position: "fixed",
-    top: "100px",
-    left: "100px",
-    zIndex: 2147483647,
-    background: "red",
-    color: "white",
-    padding: "20px",
-  }}
->
-  CLICK ME
-</button>
+<div className="fixed inset-0 z-[9999] bg-black/90 flex items-center justify-center">
 
 <div
 className="
@@ -281,6 +246,21 @@ className="
    overflow-y-auto "
 >
 
+
+{/* HEADER */}  
+<div className="flex justify-between items-center mb-3">  
+<h2 className="font-bold text-lg">Create Story</h2>  
+
+<button  
+onClick={onClose}  
+className="text-red-500 font-bold"  
+>  
+✕  
+</button>  
+</div>  
+
+
+
 {/* DRAGGABLE PREVIEW AREA */}
 <div
 className="relative mb-3 h-[85vh] rounded-xl overflow-hidden bg-black"
@@ -290,78 +270,38 @@ style={{ backgroundColor }}
 {/* Media Preview */}
 
 
-
-
-
-<button
-  type="button"
-  onClick={onClose}
-  className="
-    absolute
-    top-3
-    left-1/2
-    -translate-x-1/2
-    z-[200]
-    text-white
-    px-4
-    py-2
-    bg-black/60
-    rounded-full
-    shadow-lg
-  "
->
-  ✕
-</button>
-
 {/* TOP BAR */}
+<div className="absolute top-3 left-3 right-3 z-50 flex items-center justify-between">
 
-  <div
-  className="
-    absolute
-    top-2
-    left-1
-    z-50
-    flex
-    items-center
-    gap-2
-    bg-black/40
-    backdrop-blur-sm
-    px-3
-    py-2
-    rounded-xl
-  "
->
-  <img
-    src={
-      currentUser?.profilePic ||
-      "/default-avatar.png"
-    }
-    alt=""
-    className="
-      w-10
-      h-10
-      rounded-full
-      object-cover
-      border
-      border-white
-    "
-  />
+  <div className="flex items-center gap-2">
 
-  <div>
-    <p className="text-white font-semibold text-sm">
-      {currentUser?.name}
-    </p>
+    <img
+      src={
+        currentUser?.profilePicture ||
+        "/default-avatar.png"
+      }
+      alt=""
+      className="w-14 h-14 rounded-full object-cover border-2 border-white"
+    />
 
-    <span
-      className="
-        text-xs
-        text-white/80
-      "
-    >
-      🌎 Public
-    </span>
-  </div>
-</div>
+    <div>
+      <p className="text-white font-semibold text-sm">
+        {currentUser?.name}
+      </p>
+
+      <span
+        className="
+          text-xs
+          bg-black/50
+          text-white
+          px-2
+          py-1
+          rounded-full
+        "
+      >
+        🌎 Public
+      </span>
+    </div>
 
     {music && (
       <span
@@ -380,139 +320,66 @@ style={{ backgroundColor }}
         🎵 {music.title}
       </span>
     )}
-
+  </div>
 
   {(preview ||
-  text ||
-  music ||
-  stickers.length > 0 ||
-  backgroundColor !== "#000000") && (
-  <button
-   type="button"
-    onClick={handlePost}
-    className="
-      absolute
-      top-3
-      right-4
-      z-[200]
-      bg-blue-600
-      text-white
-      px-5
-      py-2
-      rounded-full
-      font-semibold
-      shadow-lg
-    "
-  >
-    Post
-  </button>
-)}
+    text ||
+    music ||
+    stickers.length > 0 ||
+    backgroundColor !== "#000000") && (
+    <button
+      onClick={handlePost}
+      className="
+        bg-blue-600
+        text-white
+        px-5
+        py-3
+        rounded-full
+        font-semibold
+        shadow-lg
+      "
+    >
+      Post
+    </button>
+  )}
 
+</div>
 
-{/* TOOLBAR */}
-<div
-  className="
-    absolute
-    top-20
-    right-4
-    z-50
-    flex
-    flex-col
-    gap-3
-    max-h-[70vh]
-    overflow-y-auto
-    pb-5
-  "
->
+<div className="absolute top-20 right-3 flex flex-col gap-2 z-50">
 
 <button
-type="button"
-  onClick={() => fileRef.current?.click()}
-  className="
-    bg-black/60
-    text-white
-    p-2
-    rounded-xl
-    flex
-    flex-col
-    items-center
-    text-xs
-  "
+onClick={() => fileRef.current?.click()}
+className="bg-black/60 text-white p-2 rounded-full"
 >
-  <span className="text-2xl">📷</span>
-  <span>Media</span>
+📷
 </button>
 
 <button
-type="button"
-  onClick={() => setActiveTool("text")}
-  className="
-    bg-black/60
-    text-white
-    p-2
-    rounded-xl
-    flex
-    flex-col
-    items-center
-    text-xs
-  "
+onClick={() => setActiveTool("text")}
+className="bg-black/60 text-white p-2 rounded-full"
 >
-  <span className="text-2xl">Aa</span>
-  <span>Text</span>
+Aa
 </button>
 
 <button
-type="button"
-  onClick={() => setActiveTool("sticker")}
-  className="
-    bg-black/60
-    text-white
-    p-2
-    rounded-xl
-    flex
-    flex-col
-    items-center
-    text-xs
-  "
+onClick={() => setActiveTool("sticker")}
+className="bg-black/60 text-white p-2 rounded-full"
 >
-  <span className="text-2xl">😀</span>
-  <span>Sticker</span>
+😀
 </button>
 
 <button
-type="button"
-  onClick={() => setActiveTool("music")}
-  className="
-    bg-black/60
-    text-white
-    p-2
-    rounded-xl
-    flex
-    flex-col
-    items-center
-    text-xs
-  "
+onClick={() => setActiveTool("music")}
+className="bg-black/60 text-white p-2 rounded-full"
 >
-  <span className="text-2xl">🎵</span>
-  <span>Music</span>
+🎵
 </button>
 
 <button
-type="button"
-  onClick={() => setActiveTool("color")}
-  className="
-    bg-black/60
-    text-white
-    p-2
-    rounded-xl
-    flex
-    flex-col
-    items-center
-    text-xs
-  "
+onClick={() => setActiveTool("color")}
+className="bg-black/60 text-white p-2 rounded-full"
 >
-  <span className="text-2xl">🎨</span>
-  <span>BG</span>
+🎨
 </button>
 
 
@@ -523,35 +390,18 @@ onClick={() => setActiveTool("ai")}
 className="bg-black/60 text-white p-3 rounded-full"
 >
 🤖
-AI
 </button>
 )}
 
 
-      {/* CLOSE/CANCEL PANEL*/}
-{activeTool && (
-  <button
-type="button"
-    onClick={() => setActiveTool(null)}
-    className="
-      bg-red-600
-      text-white
-      p-2
-      rounded-xl
-      flex
-      flex-col
-      items-center
-      text-xs
-    "
-  >
-    <span className="text-2xl">❌</span>
-    <span>Cancel</span>
-  </button>
-)}
+<button
+onClick={() => setActiveTool(null)}
+className="absolute top-2 right-12 text-Red"
+>
+❌
+</button>
 </div>
 
-
-    {/* PREVIEW */}
 
 {/* IMAGE */}
 {preview &&
@@ -630,7 +480,6 @@ className="w-full"
 />
 
 <button
-type="button"
 onClick={() => setActiveTool(null)}
 className="
    mt-3
@@ -647,7 +496,7 @@ Done
 </div>
 )}
 
-   {/* ACTIVE TOOLS */}
+
 
 {activeTool === "sticker" && (
 <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-3 z-50">
@@ -705,7 +554,6 @@ className="w-full"
 />
 
 <button
-type="button"
 onClick={() => setActiveTool(null)}
 className="mt-3 bg-green-600 text-white px-3 py-2 rounded"
 >
@@ -743,7 +591,6 @@ className="flex justify-between items-center border-b border-white/20 py-2"
 
 <div className="flex gap-2">
 <button
-type="button"
 onClick={() => {
 setMusic(song);
 setActiveTool(null);
@@ -754,7 +601,6 @@ Select
 </button>
 
 <button
-type="button"
 onClick={() => {
 if (audioRef.current) {
 audioRef.current.src =
@@ -802,7 +648,6 @@ className="
 <div className="grid grid-cols-2 gap-2">
 
 <button
-type="button"
 onClick={() => applyAI("enhance")}
 className="bg-blue-600 text-white p-2 rounded"
 >
@@ -817,7 +662,6 @@ className="bg-pink-600 text-white p-2 rounded"
 </button>
 
 <button
-type="button"
 onClick={() => applyAI("queen")}
 className="bg-purple-600 text-white p-2 rounded"
 >
@@ -825,7 +669,6 @@ className="bg-purple-600 text-white p-2 rounded"
 </button>
 
 <button
-type="button"
 onClick={() => applyAI("ceo")}
 className="bg-gray-700 text-white p-2 rounded"
 >
@@ -833,7 +676,6 @@ className="bg-gray-700 text-white p-2 rounded"
 </button>
 
 <button
-type="button"
 onClick={() => applyAI("gamer")}
 className="bg-green-600 text-white p-2 rounded"
 >
@@ -841,7 +683,6 @@ className="bg-green-600 text-white p-2 rounded"
 </button>
 
 <button
-type="button"
 onClick={() => applyAI("afroglow")}
 className="bg-orange-600 text-white p-2 rounded"
 >
@@ -849,7 +690,6 @@ className="bg-orange-600 text-white p-2 rounded"
 </button>
 
 <button
-type="button"
 onClick={() => applyAI("naijavibes")}
 className="bg-red-600 text-white p-2 rounded"
 >
@@ -857,7 +697,6 @@ className="bg-red-600 text-white p-2 rounded"
 </button>
 
 <button
-type="button"
 onClick={() => applyAI("festival")}
 className="bg-yellow-600 text-white p-2 rounded"
 >
@@ -865,7 +704,6 @@ className="bg-yellow-600 text-white p-2 rounded"
 </button>
 
 <button
-type="button"
 onClick={() => applyAI("studio")}
 className="bg-slate-600 text-white p-2 rounded"
 >
@@ -873,7 +711,6 @@ className="bg-slate-600 text-white p-2 rounded"
 </button>
 
 <button
-type="button"
 onClick={() => applyAI("goldenhour")}
 className="bg-amber-600 text-white p-2 rounded"
 >
@@ -972,7 +809,6 @@ onChange={handleFile}
 
 </div>
 </div>
-
 );
 };
 
