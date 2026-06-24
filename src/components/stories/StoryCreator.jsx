@@ -71,42 +71,41 @@ const [cloudinaryUrl, setCloudinaryUrl] = useState(null);
 
 // ================= HANDLE FILE =================
 const handleFile = async (e) => {
-const file = e.target.files[0];
+  console.log("FILE PICKER TRIGGERED");
 
-if (!file) return;
+  const file = e.target.files[0];
 
-setMedia(file);
+  console.log("SELECTED FILE:", file);
 
-try {
-if (file.type.startsWith("image/")) {
-const url = await uploadToCloudinary(file);
+  if (!file) return;
 
-setCloudinaryUrl(url);
-setPreview(url);
-} else {
-// video/audio local preview
-setCloudinaryUrl(null);
+  setMedia(file);
 
-setPreview(
-URL.createObjectURL(file)
-);
-}
-} catch (error) {
-console.error(
-"IMAGE UPLOAD FAILED:",
-error
-);
+  try {
+    console.log("STARTING UPLOAD");
 
-setPreview(null);
-setCloudinaryUrl(null);
+    if (file.type.startsWith("image/")) {
+      const url = await uploadToCloudinary(file);
 
-alert("Image upload failed");
-}
+      console.log("UPLOAD SUCCESS:", url);
 
-// allow selecting same file again
-e.target.value = "";
+      setCloudinaryUrl(url);
+      setPreview(url);
+    } else {
+      console.log("VIDEO OR AUDIO");
+
+      setCloudinaryUrl(null);
+      setPreview(URL.createObjectURL(file));
+    }
+  } catch (error) {
+    console.error("IMAGE UPLOAD FAILED:", error);
+
+    alert(JSON.stringify(error));
+
+    setPreview(null);
+    setCloudinaryUrl(null);
+  }
 };
-
 // ================= APPLY AI =================
 const applyAI = (effect) => {
 if (!cloudinaryUrl) {
