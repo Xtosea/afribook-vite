@@ -248,7 +248,7 @@ fetch(`${API_BASE}/api/story-music`)
 
 // ================= UI =================
 return (
-<<div
+<div
   className="fixed inset-0 bg-black/90"
   style={{
     zIndex: 2147483647,
