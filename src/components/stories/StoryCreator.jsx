@@ -71,40 +71,48 @@ const [cloudinaryUrl, setCloudinaryUrl] = useState(null);
 
 // ================= HANDLE FILE =================
 const handleFile = async (e) => {
-const file = e.target.files[0];
+  try {
+    const file = e.target.files[0];
 
-if (!file) return;
+    console.log("FILE SELECTED:", file);
 
-setMedia(file);
+    if (!file) return;
 
-try {
-if (file.type.startsWith("image/")) {
-const url = await uploadToCloudinary(file);
+    setMedia(file);
 
-setCloudinaryUrl(url);
-setPreview(url);
-} else {
-// video/audio local preview
-setCloudinaryUrl(null);
+    if (file.type.startsWith("image/")) {
 
-setPreview(
-URL.createObjectURL(file)
-);
-}
-} catch (error) {
-console.error(
-"IMAGE UPLOAD FAILED:",
-error
-);
+      console.log("Uploading image...");
 
-setPreview(null);
-setCloudinaryUrl(null);
+      const url = await uploadToCloudinary(file);
 
-alert("Image upload failed");
-}
+      console.log("Cloudinary URL:", url);
 
-// allow selecting same file again
-e.target.value = "";
+      setCloudinaryUrl(url);
+      setPreview(url);
+
+    } else {
+
+      console.log("Video/Audio selected");
+
+      setCloudinaryUrl(null);
+      setPreview(
+        URL.createObjectURL(file)
+      );
+    }
+
+  } catch (err) {
+
+    console.error(
+      "HANDLE FILE ERROR:",
+      err
+    );
+
+    setPreview(null);
+    setCloudinaryUrl(null);
+  }
+
+  e.target.value = "";
 };
 
 // ================= APPLY AI =================
