@@ -103,12 +103,15 @@ useEffect(() => {
   /* ================= CREATE STORY ================= */
   const handleCreateStory = () => {
   alert("STEP 1");
-  console.log("STEP 1");
 
   setShowCreator(true);
 
-  alert("STEP 2");
-  console.log("STEP 2");
+  setTimeout(() => {
+    console.log(
+      "AFTER SET STATE:",
+      showCreator
+    );
+  }, 1000);
 };
   /* ================= UPLOAD STORY ================= */
   const handleUpload = async (formData) => {
@@ -212,6 +215,17 @@ console.log(
 return (
     <>
       <div className="flex gap-4 overflow-x-auto py-3 px-3 scrollbar-hide">
+
+<button
+  onClick={() => {
+    setShowCreator(true);
+    alert("MANUAL SET");
+  }}
+  className="bg-red-600 text-white p-3"
+>
+  FORCE OPEN
+</button>
+
 
         {/* CREATE STORY */}
  <div
