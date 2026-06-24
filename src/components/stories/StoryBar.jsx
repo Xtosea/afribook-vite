@@ -202,7 +202,20 @@ useEffect(() => {
     return () => delete window.nextStory;
   }, [selectedStory, activeStories]);
 
-  return (
+
+
+
+  useEffect(() => {
+  window.nextStory = nextStory;
+  return () => delete window.nextStory;
+}, [selectedStory, activeStories]);
+
+console.log(
+  "RENDERING StoryBar, showCreator =",
+  showCreator
+);
+
+return (
     <>
       <div className="relative z-[9999] flex gap-4 overflow-x-auto py-3 px-3 scrollbar-hide">
 
