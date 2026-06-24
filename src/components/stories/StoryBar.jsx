@@ -104,18 +104,18 @@ useEffect(() => {
 
   /* ================= CREATE STORY ================= */
   const handleCreateStory = () => {
-  console.log("OPENING STORY CREATOR");
+  console.log("STEP 1");
 
-  setShowCreator(true);
+  try {
+    console.log("STEP 2");
 
-  setTimeout(() => {
-    console.log(
-      "AFTER 1 SECOND:",
-      showCreator
-    );
-  }, 1000);
+    setShowCreator(true);
+
+    console.log("STEP 3");
+  } catch (err) {
+    console.error("CREATE STORY ERROR:", err);
+  }
 };
-
   /* ================= UPLOAD STORY ================= */
   const handleUpload = async (formData) => {
     try {
