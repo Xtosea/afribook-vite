@@ -368,6 +368,7 @@ style={{ backgroundColor }}
   stickers.length > 0 ||
   backgroundColor !== "#000000") && (
   <button
+   type="button"
     onClick={handlePost}
     className="
       absolute
@@ -405,6 +406,7 @@ style={{ backgroundColor }}
 >
 
 <button
+type="button"
   onClick={() => fileRef.current?.click()}
   className="
     bg-black/60
@@ -422,6 +424,7 @@ style={{ backgroundColor }}
 </button>
 
 <button
+type="button"
   onClick={() => setActiveTool("text")}
   className="
     bg-black/60
@@ -439,6 +442,7 @@ style={{ backgroundColor }}
 </button>
 
 <button
+type="button"
   onClick={() => setActiveTool("sticker")}
   className="
     bg-black/60
@@ -456,6 +460,7 @@ style={{ backgroundColor }}
 </button>
 
 <button
+type="button"
   onClick={() => setActiveTool("music")}
   className="
     bg-black/60
@@ -473,6 +478,7 @@ style={{ backgroundColor }}
 </button>
 
 <button
+type="button"
   onClick={() => setActiveTool("color")}
   className="
     bg-black/60
@@ -505,6 +511,7 @@ AI
       {/* CLOSE/CANCEL PANEL*/}
 {activeTool && (
   <button
+type="button"
     onClick={() => setActiveTool(null)}
     className="
       bg-red-600
@@ -603,6 +610,7 @@ className="w-full"
 />
 
 <button
+type="button"
 onClick={() => setActiveTool(null)}
 className="
    mt-3
@@ -677,6 +685,7 @@ className="w-full"
 />
 
 <button
+type="button"
 onClick={() => setActiveTool(null)}
 className="mt-3 bg-green-600 text-white px-3 py-2 rounded"
 >
@@ -714,6 +723,7 @@ className="flex justify-between items-center border-b border-white/20 py-2"
 
 <div className="flex gap-2">
 <button
+type="button"
 onClick={() => {
 setMusic(song);
 setActiveTool(null);
@@ -724,6 +734,7 @@ Select
 </button>
 
 <button
+type="button"
 onClick={() => {
 if (audioRef.current) {
 audioRef.current.src =
@@ -771,6 +782,7 @@ className="
 <div className="grid grid-cols-2 gap-2">
 
 <button
+type="button"
 onClick={() => applyAI("enhance")}
 className="bg-blue-600 text-white p-2 rounded"
 >
@@ -785,6 +797,7 @@ className="bg-pink-600 text-white p-2 rounded"
 </button>
 
 <button
+type="button"
 onClick={() => applyAI("queen")}
 className="bg-purple-600 text-white p-2 rounded"
 >
@@ -792,6 +805,7 @@ className="bg-purple-600 text-white p-2 rounded"
 </button>
 
 <button
+type="button"
 onClick={() => applyAI("ceo")}
 className="bg-gray-700 text-white p-2 rounded"
 >
@@ -799,6 +813,7 @@ className="bg-gray-700 text-white p-2 rounded"
 </button>
 
 <button
+type="button"
 onClick={() => applyAI("gamer")}
 className="bg-green-600 text-white p-2 rounded"
 >
@@ -806,6 +821,7 @@ className="bg-green-600 text-white p-2 rounded"
 </button>
 
 <button
+type="button"
 onClick={() => applyAI("afroglow")}
 className="bg-orange-600 text-white p-2 rounded"
 >
@@ -813,6 +829,7 @@ className="bg-orange-600 text-white p-2 rounded"
 </button>
 
 <button
+type="button"
 onClick={() => applyAI("naijavibes")}
 className="bg-red-600 text-white p-2 rounded"
 >
@@ -820,6 +837,7 @@ className="bg-red-600 text-white p-2 rounded"
 </button>
 
 <button
+type="button"
 onClick={() => applyAI("festival")}
 className="bg-yellow-600 text-white p-2 rounded"
 >
@@ -827,6 +845,7 @@ className="bg-yellow-600 text-white p-2 rounded"
 </button>
 
 <button
+type="button"
 onClick={() => applyAI("studio")}
 className="bg-slate-600 text-white p-2 rounded"
 >
@@ -834,6 +853,7 @@ className="bg-slate-600 text-white p-2 rounded"
 </button>
 
 <button
+type="button"
 onClick={() => applyAI("goldenhour")}
 className="bg-amber-600 text-white p-2 rounded"
 >
