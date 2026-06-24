@@ -100,7 +100,7 @@ useEffect(() => {
     left-1/2
     -translate-x-1/2
     z-[200]
-    text-white
+    text-red
     px-4
     py-2
     bg-red/60
@@ -177,7 +177,7 @@ useEffect(() => {
     items-center
     gap-2
     font-semibold
-    bg-black/60
+    bg-blue/60
   "
 >
   {isPosting ? (
