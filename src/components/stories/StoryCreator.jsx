@@ -371,7 +371,7 @@ style={{ backgroundColor }}
     Post
   </button>
 )}
-
+</div>
 
 {/* TOOLBAR */}
 <div
