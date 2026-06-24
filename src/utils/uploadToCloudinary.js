@@ -16,27 +16,32 @@ export async function uploadToCloudinary(file) {
 
   formData.append(
     "upload_preset",
-    console.log(
-  "CLOUDINARY URL:",
-  import.meta.env.VITE_CLOUDINARY_UPLOAD_URL
-);
+    import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET
+  );
 
-alert(
-  "Uploading to:\n" +
-  import.meta.env.VITE_CLOUDINARY_UPLOAD_URL
-);
+  console.log(
+    "CLOUDINARY URL:",
+    import.meta.env.VITE_CLOUDINARY_UPLOAD_URL
+  );
 
-const response = await fetch(
-  import.meta.env.VITE_CLOUDINARY_UPLOAD_URL,
-  {
-    method: "POST",
-    body: formData,
-  }
-);
+  alert(
+    "Uploading to:\n" +
+    import.meta.env.VITE_CLOUDINARY_UPLOAD_URL
+  );
+
+  const response = await fetch(
+    import.meta.env.VITE_CLOUDINARY_UPLOAD_URL,
+    {
+      method: "POST",
+      body: formData,
+    }
+  );
 
   const data = await response.json();
 
   if (!response.ok) {
+    console.error("Cloudinary error:", data);
+
     throw new Error(
       data.error?.message ||
       "Cloudinary upload failed"
