@@ -30,9 +30,11 @@ const StoryBar = ({ user }) => {
 
 
 useEffect(() => {
-  console.log("showCreator:", showCreator);
+  console.log(
+    "showCreator CHANGED:",
+    showCreator
+  );
 }, [showCreator]);
-
 
 useEffect(() => {
   console.log("StoryBar Mounted");
