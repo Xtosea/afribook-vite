@@ -388,43 +388,88 @@ style={{ backgroundColor }}
 >
 
 <button
-onClick={() => fileRef.current?.click()}
-className="bg-black/60 text-white p-2 rounded-full"
+  onClick={() => fileRef.current?.click()}
+  className="
+    bg-black/60
+    text-white
+    p-2
+    rounded-xl
+    flex
+    flex-col
+    items-center
+    text-xs
+  "
 >
-📷
-pics/videos
+  <span className="text-2xl">📷</span>
+  <span>Media</span>
 </button>
 
 <button
-onClick={() => setActiveTool("text")}
-className="bg-black/60 text-white p-2 rounded-full"
+  onClick={() => setActiveTool("text")}
+  className="
+    bg-black/60
+    text-white
+    p-2
+    rounded-xl
+    flex
+    flex-col
+    items-center
+    text-xs
+  "
 >
-Aa
-Texx
+  <span className="text-2xl">Aa</span>
+  <span>Text</span>
 </button>
 
 <button
-onClick={() => setActiveTool("sticker")}
-className="bg-black/60 text-white p-2 rounded-full"
+  onClick={() => setActiveTool("sticker")}
+  className="
+    bg-black/60
+    text-white
+    p-2
+    rounded-xl
+    flex
+    flex-col
+    items-center
+    text-xs
+  "
 >
-😀
-stickers
+  <span className="text-2xl">😀</span>
+  <span>Sticker</span>
 </button>
 
 <button
-onClick={() => setActiveTool("music")}
-className="bg-black/60 text-white p-2 rounded-full"
+  onClick={() => setActiveTool("music")}
+  className="
+    bg-black/60
+    text-white
+    p-2
+    rounded-xl
+    flex
+    flex-col
+    items-center
+    text-xs
+  "
 >
-🎵
-music
+  <span className="text-2xl">🎵</span>
+  <span>Music</span>
 </button>
 
 <button
-onClick={() => setActiveTool("color")}
-className="bg-black/60 text-white p-2 rounded-full"
+  onClick={() => setActiveTool("color")}
+  className="
+    bg-black/60
+    text-white
+    p-2
+    rounded-xl
+    flex
+    flex-col
+    items-center
+    text-xs
+  "
 >
-🎨
-BG
+  <span className="text-2xl">🎨</span>
+  <span>BG</span>
 </button>
 
 
@@ -440,25 +485,27 @@ AI
 )}
 
 
-<button
-      type="button"
-      onClick={() => setActiveTool(null)}
-      className="
-        absolute
-        top-2
-        right-2
-        bg-red-500
-        text-white
-        px-3
-        py-1
-        rounded-full
-        z-[200]
-      "
-    >
-      ✕
-    </button>
-</div>
+      {/* CLOSE/CANCEL PANEL*/}
+{activeTool && (
+  <button
+    onClick={() => setActiveTool(null)}
+    className="
+      bg-red-600
+      text-white
+      p-2
+      rounded-xl
+      flex
+      flex-col
+      items-center
+      text-xs
+    "
+  >
+    <span className="text-2xl">❌</span>
+    <span>Cancel</span>
+  </button>
+)}
 
+    {/* PREVIEW */}
 
 {/* IMAGE */}
 {preview &&
@@ -553,7 +600,7 @@ Done
 </div>
 )}
 
-
+   {/* ACTIVE TOOLS */}
 
 {activeTool === "sticker" && (
 <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-3 z-50">
