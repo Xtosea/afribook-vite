@@ -70,51 +70,43 @@ const [cloudinaryUrl, setCloudinaryUrl] = useState(null);
 
 
 // ================= HANDLE FILE =================
-// ================= HANDLE FILE =================
 const handleFile = async (e) => {
-  console.log("FILE PICKER TRIGGERED");
+const file = e.target.files[0];
 
-  const file = e.target.files[0];
+if (!file) return;
 
-  console.log("SELECTED FILE:", file);
+setMedia(file);
 
-  if (!file) return;
+try {
+if (file.type.startsWith("image/")) {
+const url = await uploadToCloudinary(file);
 
-  setMedia(file);
+setCloudinaryUrl(url);
+setPreview(url);
+} else {
+// video/audio local preview
+setCloudinaryUrl(null);
 
-  try {
-    console.log("STARTING UPLOAD");
+setPreview(
+URL.createObjectURL(file)
+);
+}
+} catch (error) {
+console.error(
+"IMAGE UPLOAD FAILED:",
+error
+);
 
-    if (file.type.startsWith("image/")) {
-      const url = await uploadToCloudinary(file);
+setPreview(null);
+setCloudinaryUrl(null);
 
-      console.log("UPLOAD SUCCESS:", url);
+alert("Image upload failed");
+}
 
-      setCloudinaryUrl(url);
-      setPreview(url);
-    } else {
-      console.log("VIDEO OR AUDIO");
-
-      setCloudinaryUrl(null);
-      setPreview(URL.createObjectURL(file));
-    }
-
-  } catch (error) {
-    console.error("IMAGE UPLOAD FAILED:", error);
-
-    console.log("ERROR MESSAGE:", error?.message);
-    console.log("ERROR STACK:", error?.stack);
-
-    alert(
-      error?.message ||
-      error?.toString() ||
-      "Unknown upload error"
-    );
-
-    setPreview(null);
-    setCloudinaryUrl(null);
-  }
+// allow selecting same file again
+e.target.value = "";
 };
+
 // ================= APPLY AI =================
 const applyAI = (effect) => {
 if (!cloudinaryUrl) {
@@ -915,19 +907,12 @@ textShadow:
 {/* HIDDEN FILE INPUT */}  
 
 <input
-  type="file"
-  ref={fileRef}
-  accept="video/*,image/*,audio/*"
-  onClick={() => {
-    alert("INPUT CLICKED");
-    console.log("INPUT CLICKED");
-  }}
-  onChange={(e) => {
-    alert("FILE CHOSEN");
-    console.log("FILE CHOSEN", e.target.files);
 
-    handleFile(e);
-  }}
+type="file"
+ref={fileRef}
+className="hidden"
+accept="video/*,image/*,audio/*"
+onChange={handleFile}
 />
 
 </div>
