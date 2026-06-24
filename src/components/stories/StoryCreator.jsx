@@ -70,6 +70,7 @@ const [cloudinaryUrl, setCloudinaryUrl] = useState(null);
 
 
 // ================= HANDLE FILE =================
+// ================= HANDLE FILE =================
 const handleFile = async (e) => {
   console.log("FILE PICKER TRIGGERED");
 
@@ -97,10 +98,18 @@ const handleFile = async (e) => {
       setCloudinaryUrl(null);
       setPreview(URL.createObjectURL(file));
     }
+
   } catch (error) {
     console.error("IMAGE UPLOAD FAILED:", error);
 
-    alert(JSON.stringify(error));
+    console.log("ERROR MESSAGE:", error?.message);
+    console.log("ERROR STACK:", error?.stack);
+
+    alert(
+      error?.message ||
+      error?.toString() ||
+      "Unknown upload error"
+    );
 
     setPreview(null);
     setCloudinaryUrl(null);
