@@ -915,12 +915,19 @@ textShadow:
 {/* HIDDEN FILE INPUT */}  
 
 <input
+  type="file"
+  ref={fileRef}
+  accept="video/*,image/*,audio/*"
+  onClick={() => {
+    alert("INPUT CLICKED");
+    console.log("INPUT CLICKED");
+  }}
+  onChange={(e) => {
+    alert("FILE CHOSEN");
+    console.log("FILE CHOSEN", e.target.files);
 
-type="file"
-ref={fileRef}
-className="hidden"
-accept="video/*,image/*,audio/*"
-onChange={handleFile}
+    handleFile(e);
+  }}
 />
 
 </div>
