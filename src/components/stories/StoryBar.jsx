@@ -189,9 +189,12 @@ useEffect(() => {
 
         {/* CREATE STORY */}
         <div
-          onClick={handleCreateStory}
-          className="relative min-w-[110px] h-[190px] rounded-2xl overflow-hidden cursor-pointer shadow-lg bg-black"
-        >
+  onClick={() => {
+    console.log("CREATE STORY CLICKED");
+    handleCreateStory();
+  }}
+  className="relative min-w-[110px] h-[190px] rounded-2xl overflow-hidden cursor-pointer shadow-lg bg-black"
+>
           <img
             src={
               user?.profilePic ||
