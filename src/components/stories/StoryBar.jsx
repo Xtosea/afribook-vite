@@ -263,12 +263,10 @@ useEffect(() => {
         ))}
       </div>
 
-      {showCreator && (
-        <StoryCreator
-          onClose={() => setShowCreator(false)}
-          onSelectFile={handleUpload}
-        />
-      )}
+      <StoryCreator
+  onClose={() => setShowCreator(false)}
+  onSelectFile={handleUpload}
+/>
 
       {selectedStory && (
         <StoryViewer
