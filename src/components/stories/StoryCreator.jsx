@@ -902,7 +902,7 @@ textShadow:
 </Draggable>
 )}
 </div>
-</div>
+
 
 {/* HIDDEN FILE INPUT */}  
 
@@ -916,6 +916,7 @@ onChange={handleFile}
 />
 
 </div>
+<div>
 
 );
 };
