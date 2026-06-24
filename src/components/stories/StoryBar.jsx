@@ -33,6 +33,15 @@ useEffect(() => {
   console.log("showCreator:", showCreator);
 }, [showCreator]);
 
+
+useEffect(() => {
+  console.log("StoryBar Mounted");
+
+  return () => {
+    console.log("StoryBar Unmounted");
+  };
+}, []);
+
   /* ================= FETCH STORIES ================= */
   const fetchStories = async () => {
     try {
@@ -94,7 +103,15 @@ useEffect(() => {
   /* ================= CREATE STORY ================= */
   const handleCreateStory = () => {
   console.log("OPENING STORY CREATOR");
+
   setShowCreator(true);
+
+  setTimeout(() => {
+    console.log(
+      "AFTER 1 SECOND:",
+      showCreator
+    );
+  }, 1000);
 };
 
   /* ================= UPLOAD STORY ================= */
