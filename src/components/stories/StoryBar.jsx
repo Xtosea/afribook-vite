@@ -263,10 +263,12 @@ useEffect(() => {
         ))}
       </div>
 
-      <StoryCreator
-  onClose={() => setShowCreator(false)}
-  onSelectFile={handleUpload}
-/>
+      {showCreator && (
+  <StoryCreator
+    onClose={() => setShowCreator(false)}
+    onSelectFile={handleUpload}
+  />
+)}
 
       {selectedStory && (
         <StoryViewer
@@ -276,6 +278,17 @@ useEffect(() => {
           onShare={handleShare}
         />
       )}
+
+   <button
+  onClick={() => {
+    setShowCreator(true);
+    console.log("SET TRUE");
+  }}
+  className="fixed top-20 left-20 z-[99999] bg-red-600 text-white p-4"
+>
+  TEST
+</button>
+
     </>
   );
 };
