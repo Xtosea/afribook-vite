@@ -13,7 +13,22 @@ import { getSocket } from "../../socket";
 import StoryCreator from "./StoryCreator";
 
 const StoryBar = ({ user }) => {
-console.log("STORYBAR VERSION 999");
+console.log("StoryCreator Rendering");
+
+return (
+  <div
+    style={{
+      position: "fixed",
+      inset: 0,
+      background: "yellow",
+      zIndex: 999999,
+    }}
+  >
+    STORY CREATOR TEST
+  </div>
+);
+
+
   const socket = getSocket();
   const fileRef = useRef();
 
@@ -298,7 +313,10 @@ return (
       zIndex: 999999,
     }}
   >
-    TEST MODAL
+    <StoryCreator
+      onClose={() => setShowCreator(false)}
+      onSelectFile={handleUpload}
+    />
   </div>
 )}
 
