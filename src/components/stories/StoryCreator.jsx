@@ -257,9 +257,10 @@ style={{ backgroundColor }}
 
 
 
+
 <button
   type="button"
-  onClick={onClose}
+  onClick={onCancel}
   className="
     absolute
     top-3
@@ -276,7 +277,6 @@ style={{ backgroundColor }}
 >
   ✕
 </button>
-
 
 {/* TOP BAR */}
 
@@ -348,27 +348,29 @@ style={{ backgroundColor }}
   
 
   {(preview ||
-    text ||
-    music ||
-    stickers.length > 0 ||
-    backgroundColor !== "#000000") && (
-    <button
-      onClick={handlePost}
-      className="
-        bg-blue-600
-        text-white
-        px-5
-        py-3
-        rounded-full
-        font-semibold
-        shadow-lg
-      "
-    >
-      Post
-    </button>
-  )}
-
-</div>
+  text ||
+  music ||
+  stickers.length > 0 ||
+  backgroundColor !== "#000000") && (
+  <button
+    onClick={handlePost}
+    className="
+      absolute
+      top-3
+      right-4
+      z-[200]
+      bg-blue-600
+      text-white
+      px-5
+      py-2
+      rounded-full
+      font-semibold
+      shadow-lg
+    "
+  >
+    Post
+  </button>
+)}
 
 
 {/* TOOLBAR */}
