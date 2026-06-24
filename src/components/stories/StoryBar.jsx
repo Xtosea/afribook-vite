@@ -31,10 +31,7 @@ console.log("STORYBAR VERSION 999");
 
 
 useEffect(() => {
-  console.log(
-    "showCreator CHANGED:",
-    showCreator
-  );
+  console.log("SHOW CREATOR NOW:", showCreator);
 }, [showCreator]);
 
 useEffect(() => {
@@ -107,15 +104,12 @@ useEffect(() => {
   const handleCreateStory = () => {
   console.log("STEP 1");
 
-  try {
-    console.log("STEP 2");
+  setShowCreator((prev) => {
+    console.log("PREV:", prev);
+    return true;
+  });
 
-    setShowCreator(true);
-
-    console.log("STEP 3");
-  } catch (err) {
-    console.error("CREATE STORY ERROR:", err);
-  }
+  console.log("STEP 2");
 };
   /* ================= UPLOAD STORY ================= */
   const handleUpload = async (formData) => {
@@ -222,7 +216,14 @@ return (
 
         {/* CREATE STORY */}
  <div
-  onClick={handleCreateStory}
+  onClick={(e) => {
+  e.preventDefault();
+  e.stopPropagation();
+
+  console.log("CARD CLICK");
+
+  handleCreateStory();
+}}
           className="relative min-w-[110px] h-[190px] rounded-2xl overflow-hidden cursor-pointer shadow-lg bg-black"
         >
           <img
