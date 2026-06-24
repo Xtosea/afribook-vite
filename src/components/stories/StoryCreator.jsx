@@ -270,38 +270,78 @@ style={{ backgroundColor }}
 {/* Media Preview */}
 
 
+
+
+<button
+  type="button"
+  onClick={onClose}
+  className="
+    absolute
+    top-3
+    left-1/2
+    -translate-x-1/2
+    z-[200]
+    text-white
+    px-4
+    py-2
+    bg-black/60
+    rounded-full
+    shadow-lg
+  "
+>
+  ✕
+</button>
+
+
 {/* TOP BAR */}
-<div className="absolute top-3 left-3 right-3 z-50 flex items-center justify-between">
 
-  <div className="flex items-center gap-2">
+  <div
+  className="
+    absolute
+    top-2
+    left-1
+    z-50
+    flex
+    items-center
+    gap-2
+    bg-black/40
+    backdrop-blur-sm
+    px-3
+    py-2
+    rounded-xl
+  "
+>
+  <img
+    src={
+      currentUser?.profilePic ||
+      "/default-avatar.png"
+    }
+    alt=""
+    className="
+      w-10
+      h-10
+      rounded-full
+      object-cover
+      border
+      border-white
+    "
+  />
 
-    <img
-      src={
-        currentUser?.profilePicture ||
-        "/default-avatar.png"
-      }
-      alt=""
-      className="w-14 h-14 rounded-full object-cover border-2 border-white"
-    />
+  <div>
+    <p className="text-white font-semibold text-sm">
+      {currentUser?.name}
+    </p>
 
-    <div>
-      <p className="text-white font-semibold text-sm">
-        {currentUser?.name}
-      </p>
-
-      <span
-        className="
-          text-xs
-          bg-black/50
-          text-white
-          px-2
-          py-1
-          rounded-full
-        "
-      >
-        🌎 Public
-      </span>
-    </div>
+    <span
+      className="
+        text-xs
+        text-white/80
+      "
+    >
+      🌎 Public
+    </span>
+  </div>
+</div>
 
     {music && (
       <span
@@ -345,13 +385,29 @@ style={{ backgroundColor }}
 
 </div>
 
-<div className="absolute top-20 right-3 flex flex-col gap-2 z-50">
+
+{/* TOOLBAR */}
+<div
+  className="
+    absolute
+    top-20
+    right-4
+    z-50
+    flex
+    flex-col
+    gap-3
+    max-h-[70vh]
+    overflow-y-auto
+    pb-5
+  "
+>
 
 <button
 onClick={() => fileRef.current?.click()}
 className="bg-black/60 text-white p-2 rounded-full"
 >
 📷
+pics/videos
 </button>
 
 <button
@@ -359,6 +415,7 @@ onClick={() => setActiveTool("text")}
 className="bg-black/60 text-white p-2 rounded-full"
 >
 Aa
+Texx
 </button>
 
 <button
@@ -366,6 +423,7 @@ onClick={() => setActiveTool("sticker")}
 className="bg-black/60 text-white p-2 rounded-full"
 >
 😀
+stickers
 </button>
 
 <button
@@ -373,6 +431,7 @@ onClick={() => setActiveTool("music")}
 className="bg-black/60 text-white p-2 rounded-full"
 >
 🎵
+music
 </button>
 
 <button
@@ -380,6 +439,7 @@ onClick={() => setActiveTool("color")}
 className="bg-black/60 text-white p-2 rounded-full"
 >
 🎨
+BG
 </button>
 
 
@@ -390,6 +450,7 @@ onClick={() => setActiveTool("ai")}
 className="bg-black/60 text-white p-3 rounded-full"
 >
 🤖
+AI
 </button>
 )}
 
