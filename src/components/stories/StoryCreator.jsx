@@ -504,6 +504,8 @@ AI
     <span>Cancel</span>
   </button>
 )}
+</div>
+
 
     {/* PREVIEW */}
 
