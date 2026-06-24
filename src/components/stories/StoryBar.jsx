@@ -188,7 +188,6 @@ useEffect(() => {
       <div className="flex gap-4 overflow-x-auto py-3 px-3 scrollbar-hide">
 
         {/* CREATE STORY */}
-        <div
   <div
   onClick={(e) => {
     e.preventDefault();
