@@ -248,21 +248,27 @@ fetch(`${API_BASE}/api/story-music`)
 
 // ================= UI =================
 return (
-<div className="fixed inset-0 z-[9999] bg-black/90 flex items-center justify-center">
-
-<div
+<<div
+  className="fixed inset-0 bg-black/90"
   style={{
-    position: "fixed",
-    top: 20,
-    left: 20,
-    background: "yellow",
-    color: "black",
-    padding: "20px",
-    zIndex: 999999999,
+    zIndex: 2147483647,
   }}
 >
-  STORY CREATOR IS OPEN
-</div>
+
+<button
+  onClick={() => alert("MODAL CLICK WORKS")}
+  style={{
+    position: "fixed",
+    top: "100px",
+    left: "100px",
+    zIndex: 2147483647,
+    background: "red",
+    color: "white",
+    padding: "20px",
+  }}
+>
+  CLICK ME
+</button>
 
 <div
 className="
