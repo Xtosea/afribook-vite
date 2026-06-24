@@ -13,6 +13,7 @@ import { getSocket } from "../../socket";
 import StoryCreator from "./StoryCreator";
 
 const StoryBar = ({ user }) => {
+console.log("STORYBAR VERSION 999");
   const socket = getSocket();
   const fileRef = useRef();
 
