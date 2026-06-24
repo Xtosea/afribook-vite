@@ -290,10 +290,16 @@ return (
       </div>
 
       {showCreator && (
-  <StoryCreator
-    onClose={() => setShowCreator(false)}
-    onSelectFile={handleUpload}
-  />
+  <div
+    style={{
+      position: "fixed",
+      inset: 0,
+      background: "red",
+      zIndex: 999999,
+    }}
+  >
+    TEST MODAL
+  </div>
 )}
 
       {selectedStory && (
