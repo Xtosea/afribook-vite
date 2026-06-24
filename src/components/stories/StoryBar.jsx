@@ -28,6 +28,11 @@ const StoryBar = ({ user }) => {
   const [opening, setOpening] = useState(false);
   const [showCreator, setShowCreator] = useState(false);
 
+
+useEffect(() => {
+  console.log("showCreator:", showCreator);
+}, [showCreator]);
+
   /* ================= FETCH STORIES ================= */
   const fetchStories = async () => {
     try {
@@ -88,8 +93,9 @@ const StoryBar = ({ user }) => {
 
   /* ================= CREATE STORY ================= */
   const handleCreateStory = () => {
-    setShowCreator(true);
-  };
+  console.log("OPENING STORY CREATOR");
+  setShowCreator(true);
+};
 
   /* ================= UPLOAD STORY ================= */
   const handleUpload = async (formData) => {
