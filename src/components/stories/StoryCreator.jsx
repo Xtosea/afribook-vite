@@ -22,13 +22,13 @@ const emojiList = [
 ];
 
 
-const currentUser = JSON.parse(
-  localStorage.getItem("user")
-);
 
-console.log(currentUser);
 
 const StoryCreator = ({ onClose, onSelectFile }) => {
+
+const currentUser = JSON.parse(
+  localStorage.getItem("user") || "{}"
+);
 
 
 const fileRef = useRef();
