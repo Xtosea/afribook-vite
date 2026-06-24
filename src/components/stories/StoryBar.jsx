@@ -207,6 +207,18 @@ useEffect(() => {
       <div className="flex gap-4 overflow-x-auto py-3 px-3 scrollbar-hide">
 
         {/* CREATE STORY */}
+
+<div
+  onClick={() => {
+    alert("TEST CLICK");
+    console.log("TEST CLICK");
+  }}
+  className="fixed top-20 left-5 z-[99999] bg-red-600 text-white p-4"
+>
+  TEST
+</div>
+
+
   <div
   onClick={() => {
     alert("CREATE STORY CLICKED");
@@ -280,17 +292,6 @@ useEffect(() => {
           onShare={handleShare}
         />
       )}
-
-   <button
-  onClick={() => {
-    setShowCreator(true);
-    console.log("SET TRUE");
-  }}
-  className="fixed top-20 left-20 z-[99999] bg-red-600 text-white p-4"
->
-  TEST
-</button>
-
     </>
   );
 };
