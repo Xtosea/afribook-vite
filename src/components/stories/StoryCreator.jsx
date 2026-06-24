@@ -441,11 +441,22 @@ AI
 
 
 <button
-onClick={() => setActiveTool(null)}
-className="absolute top-2 right-12 text-Red"
->
-❌
-</button>
+      type="button"
+      onClick={() => setActiveTool(null)}
+      className="
+        absolute
+        top-2
+        right-2
+        bg-red-500
+        text-white
+        px-3
+        py-1
+        rounded-full
+        z-[200]
+      "
+    >
+      ✕
+    </button>
 </div>
 
 
