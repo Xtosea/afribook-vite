@@ -30,9 +30,16 @@ const currentUser = JSON.parse(
   localStorage.getItem("user") || "{}"
 );
 
-
 const fileRef = useRef();
 const audioRef = useRef();
+
+useEffect(() => {
+  console.log("StoryCreator Mounted");
+
+  return () => {
+    console.log("StoryCreator Unmounted");
+  };
+}, []);
 
 
 
