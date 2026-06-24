@@ -916,7 +916,7 @@ onChange={handleFile}
 />
 
 </div>
-<div>
+</div>
 
 );
 };
