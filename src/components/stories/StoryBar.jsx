@@ -189,15 +189,11 @@ useEffect(() => {
 
         {/* CREATE STORY */}
   <div
-  onClick={(e) => {
-    e.preventDefault();
-    e.stopPropagation();
-
+  onClick={() => {
+    alert("CREATE STORY CLICKED");
     console.log("CREATE STORY CLICKED");
-
     handleCreateStory();
   }}
-
   className="relative min-w-[110px] h-[190px] rounded-2xl overflow-hidden cursor-pointer shadow-lg bg-black"
 >
           <img
