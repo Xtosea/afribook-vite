@@ -246,21 +246,6 @@ className="
    overflow-y-auto "
 >
 
-
-{/* HEADER */}  
-<div className="flex justify-between items-center mb-3">  
-<h2 className="font-bold text-lg">Create Story</h2>  
-
-<button  
-onClick={onClose}  
-className="text-red-500 font-bold"  
->  
-✕  
-</button>  
-</div>  
-
-
-
 {/* DRAGGABLE PREVIEW AREA */}
 <div
 className="relative mb-3 h-[85vh] rounded-xl overflow-hidden bg-black"
@@ -360,7 +345,7 @@ style={{ backgroundColor }}
         🎵 {music.title}
       </span>
     )}
-  </div>
+  
 
   {(preview ||
     text ||
