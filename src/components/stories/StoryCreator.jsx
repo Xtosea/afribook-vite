@@ -248,7 +248,19 @@ fetch(`${API_BASE}/api/story-music`)
 
 // ================= UI =================
 return (
-<div className="fixed inset-0 z-[9999] bg-black/90 flex items-center justify-center">
+<div
+  style={{
+    position: "fixed",
+    top: 20,
+    left: 20,
+    background: "yellow",
+    color: "black",
+    padding: "20px",
+    zIndex: 999999999,
+  }}
+>
+  STORY CREATOR IS OPEN
+</div>
 
 <div
 className="
