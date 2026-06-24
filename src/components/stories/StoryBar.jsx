@@ -204,28 +204,27 @@ useEffect(() => {
 
   return (
     <>
-      <div className="flex gap-4 overflow-x-auto py-3 px-3 scrollbar-hide">
+      <div className="relative z-[9999] flex gap-4 overflow-x-auto py-3 px-3 scrollbar-hide">
 
         {/* CREATE STORY */}
-
-<div
-  onClick={() => {
-    alert("TEST CLICK");
-    console.log("TEST CLICK");
-  }}
-  className="fixed top-20 left-5 z-[99999] bg-red-600 text-white p-4"
->
-  TEST
-</div>
-
-
-  <div
+ <div
   onClick={() => {
     alert("CREATE STORY CLICKED");
     console.log("CREATE STORY CLICKED");
-    handleCreateStory();
   }}
-  className="relative min-w-[110px] h-[190px] rounded-2xl overflow-hidden cursor-pointer shadow-lg bg-black"
+  className="
+    relative
+    min-w-[110px]
+    h-[190px]
+    rounded-2xl
+    overflow-hidden
+    cursor-pointer
+    shadow-lg
+    bg-red-600
+    border-4
+    border-yellow-400
+    z-[9999]
+  "
 >
           <img
             src={
