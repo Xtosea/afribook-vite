@@ -100,10 +100,11 @@ useEffect(() => {
     left-1/2
     -translate-x-1/2
     z-[200]
-    text-red
+    text-white
+    hover:bg-blue-700
     px-4
     py-2
-    bg-red/60
+    bg-red-600/60
     rounded-full
     shadow-lg
   "
@@ -163,22 +164,23 @@ useEffect(() => {
 
 
 
-<button
-  type="button"
-  disabled={isPosting}
-  onClick={handleSubmitPost}
-  className="
-    absolute
-    top-3
-    right-3
-    z-[200]
-    text-white
-    flex
-    items-center
-    gap-2
-    font-semibold
-    bg-blue/60
-  "
+className="
+absolute
+top-3
+right-3
+z-[200]
+text-white
+flex
+items-center
+gap-2
+font-semibold
+bg-blue-600
+hover:bg-blue-700
+px-4
+py-2
+rounded-xl
+shadow-lg
+"
 >
   {isPosting ? (
     <>
