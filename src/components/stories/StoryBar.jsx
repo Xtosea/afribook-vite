@@ -217,28 +217,13 @@ console.log(
 
 return (
     <>
-      <div className="relative z-[9999] flex gap-4 overflow-x-auto py-3 px-3 scrollbar-hide">
+      <div className="flex gap-4 overflow-x-auto py-3 px-3 scrollbar-hide">
 
         {/* CREATE STORY */}
  <div
-  onClick={() => {
-    alert("CREATE STORY CLICKED");
-    console.log("CREATE STORY CLICKED");
-  }}
-  className="
-    relative
-    min-w-[110px]
-    h-[190px]
-    rounded-2xl
-    overflow-hidden
-    cursor-pointer
-    shadow-lg
-    bg-red-600
-    border-4
-    border-yellow-400
-    z-[9999]
-  "
->
+  onClick={handleCreateStory}
+          className="relative min-w-[110px] h-[190px] rounded-2xl overflow-hidden cursor-pointer shadow-lg bg-black"
+        >
           <img
             src={
               user?.profilePic ||
