@@ -102,13 +102,12 @@ useEffect(() => {
 
   /* ================= CREATE STORY ================= */
   const handleCreateStory = () => {
+  alert("STEP 1");
   console.log("STEP 1");
 
-  setShowCreator((prev) => {
-    console.log("PREV:", prev);
-    return true;
-  });
+  setShowCreator(true);
 
+  alert("STEP 2");
   console.log("STEP 2");
 };
   /* ================= UPLOAD STORY ================= */
