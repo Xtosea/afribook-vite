@@ -260,7 +260,7 @@ style={{ backgroundColor }}
 
 <button
   type="button"
-  onClick={onCancel}
+  onClick={onClose}
   className="
     absolute
     top-3
