@@ -177,9 +177,6 @@ const StoryBar = ({ user }) => {
     return () => delete window.nextStory;
   }, [selectedStory, activeStories]);
 
-
-console.log("About to render StoryCreator");
-
   return (
     <>
       <div className="flex gap-4 overflow-x-auto py-3 px-3 scrollbar-hide">
