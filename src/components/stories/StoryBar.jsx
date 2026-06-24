@@ -13,22 +13,6 @@ import { getSocket } from "../../socket";
 import StoryCreator from "./StoryCreator";
 
 const StoryBar = ({ user }) => {
-console.log("StoryCreator Rendering");
-
-return (
-  <div
-    style={{
-      position: "fixed",
-      inset: 0,
-      background: "yellow",
-      zIndex: 999999,
-    }}
-  >
-    STORY CREATOR TEST
-  </div>
-);
-
-
   const socket = getSocket();
   const fileRef = useRef();
 
@@ -43,19 +27,6 @@ return (
   const [activeStories, setActiveStories] = useState([]);
   const [opening, setOpening] = useState(false);
   const [showCreator, setShowCreator] = useState(false);
-
-
-useEffect(() => {
-  console.log("SHOW CREATOR NOW:", showCreator);
-}, [showCreator]);
-
-useEffect(() => {
-  console.log("StoryBar Mounted");
-
-  return () => {
-    console.log("StoryBar Unmounted");
-  };
-}, []);
 
   /* ================= FETCH STORIES ================= */
   const fetchStories = async () => {
@@ -117,17 +88,9 @@ useEffect(() => {
 
   /* ================= CREATE STORY ================= */
   const handleCreateStory = () => {
-  alert("STEP 1");
+    setShowCreator(true);
+  };
 
-  setShowCreator(true);
-
-  setTimeout(() => {
-    console.log(
-      "AFTER SET STATE:",
-      showCreator
-    );
-  }, 1000);
-};
   /* ================= UPLOAD STORY ================= */
   const handleUpload = async (formData) => {
     try {
@@ -214,44 +177,13 @@ useEffect(() => {
     return () => delete window.nextStory;
   }, [selectedStory, activeStories]);
 
-
-
-
-  useEffect(() => {
-  window.nextStory = nextStory;
-  return () => delete window.nextStory;
-}, [selectedStory, activeStories]);
-
-console.log(
-  "RENDERING StoryBar, showCreator =",
-  showCreator
-);
-
-return (
+  return (
     <>
       <div className="flex gap-4 overflow-x-auto py-3 px-3 scrollbar-hide">
 
-<button
-  onClick={() => {
-    setShowCreator(true);
-    alert("MANUAL SET");
-  }}
-  className="bg-red-600 text-white p-3"
->
-  FORCE OPEN
-</button>
-
-
         {/* CREATE STORY */}
- <div
-  onClick={(e) => {
-  e.preventDefault();
-  e.stopPropagation();
-
-  console.log("CARD CLICK");
-
-  handleCreateStory();
-}}
+        <div
+          onClick={handleCreateStory}
           className="relative min-w-[110px] h-[190px] rounded-2xl overflow-hidden cursor-pointer shadow-lg bg-black"
         >
           <img
@@ -305,20 +237,11 @@ return (
       </div>
 
       {showCreator && (
-  <div
-    style={{
-      position: "fixed",
-      inset: 0,
-      background: "red",
-      zIndex: 999999,
-    }}
-  >
-    <StoryCreator
-      onClose={() => setShowCreator(false)}
-      onSelectFile={handleUpload}
-    />
-  </div>
-)}
+        <StoryCreator
+          onClose={() => setShowCreator(false)}
+          onSelectFile={handleUpload}
+        />
+      )}
 
       {selectedStory && (
         <StoryViewer
