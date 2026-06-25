@@ -670,7 +670,7 @@ uploadedMedia =
 
 
 
-      {/* GROUP MESSAGE BY DATE */}
+      /* GROUP MESSAGE BY DATE */
 const groupedMessages = messages.reduce(
   (groups, message) => {
     const dateKey =
@@ -690,7 +690,7 @@ const groupedMessages = messages.reduce(
 );
 
 
-         {/*  DATE FORMATTER */}
+         /*  DATE FORMATTER */
 const formatMessageDate = (date) => {
   const d = new Date(date);
 
@@ -721,12 +721,12 @@ const formatMessageDate = (date) => {
 };
 
 
-           {/* RETURN UI*/}
+           /* RETURN UI*/
     return (
     <div className="flex h-full bg-gray-100 overflow-hidden">
 
 
-      {/* DATE SEPARATION */}
+      /* DATE SEPARATION */
 <div className="flex justify-center my-4">
   <span
     className="
