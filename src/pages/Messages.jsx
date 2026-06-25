@@ -1129,9 +1129,12 @@ const groupedMessages = messages.reduce(
                     </motion.div>
                     {/* END OF MOTION */}
                 );
-               })}
-             ))}
-            ref={messagesEndRef}
+              })}
+            </div>
+          ))
+          }
+
+          <div ref={messagesEndRef} />
           />
             </div>
 
