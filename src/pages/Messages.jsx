@@ -671,6 +671,22 @@ uploadedMedia =
   }, []);
 
 
+const groupedMessages = messages.reduce(
+  (groups, message) => {
+    const date = formatMessageDate(
+      message.createdAt
+    );
+
+    if (!groups[date]) {
+      groups[date] = [];
+    }
+
+    groups[date].push(message);
+
+    return groups;
+  },
+  {}
+);
 
 
     return (
@@ -829,8 +845,13 @@ uploadedMedia =
             {/* MESSAGES */}
             <div className="flex-1 overflow-y-auto px-3 py-4 pb-32 md:pb-4 bg-gradient-to-b from-gray-50 to-gray-100 space-y-4">
 
-              {messages.map(
-                (msg, index) => {
+              {Object.entries(groupedMessages).map(
+  ([date, dayMessages]) => (
+    <div key={date}>
+      <DateDivider date={date} />
+
+      {dayMessages.map(
+        (msg, index) => {
                   const isMe =
                     msg.sender ===
                       currentUser ||
@@ -1092,6 +1113,9 @@ uploadedMedia =
                   );
                 }
               )}
+    </div>
+  )
+)}
 
               <div
                 ref={messagesEndRef}
