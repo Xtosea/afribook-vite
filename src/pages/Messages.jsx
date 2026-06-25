@@ -1192,10 +1192,10 @@ const formatMessageDate = (date) => {
 
                   );
                 }
-              )}}
+              )}
               </div>
             )
-          )}
+          
 
            
 
