@@ -689,6 +689,20 @@ const groupedMessages = messages.reduce(
 );
 
 
+
+console.log(
+  "First message date:",
+  messages[0]?.createdAt
+);
+
+console.log(
+  "Formatted:",
+  formatMessageDate(
+    messages[0]?.createdAt
+  )
+);
+
+
     return (
     <div className="flex h-full bg-gray-100 overflow-hidden">
 
