@@ -868,7 +868,8 @@ const groupedMessages = messages.reduce(
             {/* MESSAGES */}
             <div className="flex-1 overflow-y-auto px-3 py-4 pb-32 md:pb-4 bg-gradient-to-b from-gray-50 to-gray-100 space-y-4">
 
-          {/* MAP MESSAGE */}   {Object.entries(groupedMessages).map(
+          {/* MAP MESSAGE */}
+{Object.entries(groupedMessages).map(
   ([date, dayMessages]) => (
     <div key={date}>
 
@@ -879,18 +880,17 @@ const groupedMessages = messages.reduce(
       </div>
 
       {dayMessages.map((msg, index) => {
-
         const isMe =
           msg.sender === currentUser ||
           msg.sender?._id === currentUser;
 
         return (
-
           <motion.div
             key={index}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
           >
+            {/* YOUR MESSAGE BUBBLE CODE */}
             
 
   <div
@@ -1129,14 +1129,13 @@ const groupedMessages = messages.reduce(
                     </motion.div>
                     {/* END OF MOTION */}
                 );
-              })}
-            </div>
-          ))
-          }
+      })}
+    </div>
+  )
+)}
 
-          <div ref={messagesEndRef} />
-          />
-            </div>
+<div ref={messagesEndRef} />
+         </div>
 
             {/* INPUT AREA */}
             <div className="sticky bottom-[70px] md:bottom-0 z-30 bg-white border-t px-3 py-3 shadow-lg">
