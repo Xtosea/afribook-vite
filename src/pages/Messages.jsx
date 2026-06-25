@@ -1131,9 +1131,8 @@ const groupedMessages = messages.reduce(
                 );
       })}
     </div>
-  )
-)}
-
+  ))}
+  
 <div ref={messagesEndRef} />
          </div>
 
