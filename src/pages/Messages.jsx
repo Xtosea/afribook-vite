@@ -745,7 +745,7 @@ const formatMessageDate = (date) => {
 
 
              
-      {/* RENDER MESSAGS FOR DATE*/}
+      /* RENDER MESSAGS FOR DATE*/
 {dayMessages.map((msg, index) => {
   const isMe =
     msg.sender === currentUser ||
