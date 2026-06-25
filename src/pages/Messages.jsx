@@ -1188,14 +1188,16 @@ const formatMessageDate = (date) => {
                       </div> 
                       </div>
                     </motion.div>
+                {/* END OF MOTION*/}
+
                   );
                 }
-              )}
+              )}}
               </div>
             )
           )}
 
-           {/* END OF MOTION*/}
+           
 
               <div
                 ref={messagesEndRef}
