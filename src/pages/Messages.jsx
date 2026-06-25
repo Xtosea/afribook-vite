@@ -1130,13 +1130,12 @@ const groupedMessages = messages.reduce(
                     {/* END OF MOTION */}
                   );
                 })}
-             </div>
-           ))
-          }
+            </div>
+          ))}
 
-              <div
-                ref={messagesEndRef}
-              />
+          <div
+            ref={messagesEndRef}
+          />
             </div>
 
             {/* INPUT AREA */}
