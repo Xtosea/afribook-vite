@@ -670,109 +670,9 @@ uploadedMedia =
 
 
 
-      /* GROUP MESSAGE BY DATE */
-const groupedMessages = messages.reduce(
-  (groups, message) => {
-    const dateKey =
-      formatMessageDate(
-        message.createdAt
-      );
 
-    if (!groups[dateKey]) {
-      groups[dateKey] = [];
-    }
-
-    groups[dateKey].push(message);
-
-    return groups;
-  },
-  {}
-);
-
-
-         /*  DATE FORMATTER */
-const formatMessageDate = (date) => {
-  const d = new Date(date);
-
-  const today = new Date();
-  const yesterday = new Date();
-
-  yesterday.setDate(today.getDate() - 1);
-
-  if (
-    d.toDateString() === today.toDateString()
-  ) {
-    return "Today";
-  }
-
-  if (
-    d.toDateString() ===
-    yesterday.toDateString()
-  ) {
-    return "Yesterday";
-  }
-
-  return d.toLocaleDateString([], {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-};
-
-
-           /* RETURN UI*/
     return (
     <div className="flex h-full bg-gray-100 overflow-hidden">
-
-
-      /* DATE SEPARATION */
-<div className="flex justify-center my-4">
-  <span
-    className="
-      bg-gray-300
-      text-gray-700
-      text-xs
-      px-3
-      py-1
-      rounded-full
-      shadow
-    "
-  >
-    {date}
-  </span>
-</div>
-
-
-             
-      /* RENDER MESSAGS FOR DATE*/
-{dayMessages.map((msg, index) => {
-  const isMe =
-    msg.sender === currentUser ||
-    msg.sender?._id === currentUser;
-
-  return (
-    <motion.div
-      key={msg._id}
-      initial={{
-        opacity: 0,
-        y: 10,
-      }}
-      animate={{
-        opacity: 1,
-        y: 0,
-      }}
-      className={`flex ${
-        isMe
-          ? "justify-end"
-          : "justify-start"
-      }`}
-    >
-      {/* your existing message bubble */}
-    </motion.div>
-  );
-})}
-
 
       {/* MOBILE OVERLAY */}
       {showSidebar && (
@@ -924,12 +824,11 @@ const formatMessageDate = (date) => {
               </div>
             </div>
 
-            {/* MESSAGES MAP */}
+            {/* MESSAGES */}
             <div className="flex-1 overflow-y-auto px-3 py-4 pb-32 md:pb-4 bg-gradient-to-b from-gray-50 to-gray-100 space-y-4">
 
-             {/* MESSAGES */} {Object.entries(groupedMessages).map(
-  ([date, dayMessages]) => (
-    <div key={date}>
+              {messages.map(
+                (msg, index) => {
                   const isMe =
                     msg.sender ===
                       currentUser ||
@@ -953,7 +852,7 @@ const formatMessageDate = (date) => {
                           : "justify-start"
                       }`}
                     >
-                    
+
   <div
   className={`relative max-w-[85%] overflow-visible px-4 py-3 rounded-3xl shadow-md break-words ${
     isMe
@@ -961,7 +860,7 @@ const formatMessageDate = (date) => {
       : "bg-white text-gray-800 rounded-bl-md mr-auto"
   }`}
 >
-           
+
 
 {/* 3 DOT BUTTON */}             
 <div className="relative z-50">
@@ -982,7 +881,7 @@ const formatMessageDate = (date) => {
     </div>
   )}
 
-  
+
 {/* MENU */}
 {openMenuId === msg._id && (
   <div
@@ -1046,7 +945,7 @@ const formatMessageDate = (date) => {
         text-left
         px-3
         py-2
-        text-red-600
+        text-red-500
         hover:bg-gray-100
         text-sm
       "
@@ -1184,20 +1083,13 @@ const formatMessageDate = (date) => {
                             }
                           )}
                         </p>
-                        
+
                       </div> 
                       </div>
                     </motion.div>
-                {/* END OF MOTION*/}
-
                   );
                 }
               )}
-              </div>
-            
-          
-
-           
 
               <div
                 ref={messagesEndRef}
@@ -1366,7 +1258,7 @@ const formatMessageDate = (date) => {
 
               <p className="text-gray-500 mt-2 text-lg">
                 Click on the left top menu to select a user to chat with.
-                 
+
               </p>
             </div>
           </div>
