@@ -667,48 +667,7 @@ uploadedMedia =
       );
     };
   }, []);
-  
-      /* MASSAGE FORMATTER*/
-const formatMessageDate = (date) => {
-  const d = new Date(date);
 
-  const today = new Date();
-  const yesterday = new Date();
-
-  yesterday.setDate(today.getDate() - 1);
-
-  if (d.toDateString() === today.toDateString()) {
-    return "Today";
-  }
-
-  if (d.toDateString() === yesterday.toDateString()) {
-    return "Yesterday";
-  }
-
-  return d.toLocaleDateString([], {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-};
-
-const groupedMessages = messages.reduce(
-  (groups, message) => {
-    const date = formatMessageDate(
-      message.createdAt
-    );
-
-    if (!groups[date]) {
-      groups[date] = [];
-    }
-
-    groups[date].push(message);
-
-    return groups;
-  },
-  {}
-);
 
 
 
@@ -868,30 +827,31 @@ const groupedMessages = messages.reduce(
             {/* MESSAGES */}
             <div className="flex-1 overflow-y-auto px-3 py-4 pb-32 md:pb-4 bg-gradient-to-b from-gray-50 to-gray-100 space-y-4">
 
-          {/* MAP MESSAGE */}
-{Object.entries(groupedMessages).map(
-  ([date, dayMessages]) => (
-    <div key={date}>
+              {messages.map(
+                (msg, index) => {
+                  const isMe =
+                    msg.sender ===
+                      currentUser ||
+                    msg.sender?._id ===
+                      currentUser;
 
-      <div className="flex justify-center my-4">
-        <span className="bg-gray-300 text-gray-700 text-xs px-3 py-1 rounded-full shadow">
-          {date}
-        </span>
-      </div>
-
-      {dayMessages.map((msg, index) => {
-        const isMe =
-          msg.sender === currentUser ||
-          msg.sender?._id === currentUser;
-
-        return (
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            {/* YOUR MESSAGE BUBBLE CODE */}
-            
+                  return (
+                    <motion.div
+                      key={index}
+                      initial={{
+                        opacity: 0,
+                        y: 10,
+                      }}
+                      animate={{
+                        opacity: 1,
+                        y: 0,
+                      }}
+                      className={`flex ${
+                        isMe
+                          ? "justify-end"
+                          : "justify-start"
+                      }`}
+                    >
 
   <div
   className={`relative max-w-[85%] overflow-visible px-4 py-3 rounded-3xl shadow-md break-words ${
@@ -1127,15 +1087,14 @@ const groupedMessages = messages.reduce(
                       </div> 
                       </div>
                     </motion.div>
-                    {/* END OF MOTION */}
-                );
-      })}
-    </div>
-  );
-})}
-  
-<div ref={messagesEndRef} />
-         </div>
+                  );
+                }
+              )}
+
+              <div
+                ref={messagesEndRef}
+              />
+            </div>
 
             {/* INPUT AREA */}
             <div className="sticky bottom-[70px] md:bottom-0 z-30 bg-white border-t px-3 py-3 shadow-lg">
