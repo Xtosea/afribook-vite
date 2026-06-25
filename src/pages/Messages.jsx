@@ -872,45 +872,26 @@ const groupedMessages = messages.reduce(
   ([date, dayMessages]) => (
     <div key={date}>
 
-   <div className="flex justify-center my-4">
-  <span
-    className="
-      bg-gray-300
-      text-gray-700
-      text-xs
-      px-3
-      py-1
-      rounded-full
-      shadow
-    "
-  >
-    {date}
-  </span>
-</div>
+      <div className="flex justify-center my-4">
+        <span className="bg-gray-300 text-gray-700 text-xs px-3 py-1 rounded-full shadow">
+          {date}
+        </span>
+      </div>
 
-                  const isMe =
-                    msg.sender ===
-                      currentUser ||
-                    msg.sender?._id ===
-                      currentUser;
+      {dayMessages.map((msg, index) => {
 
-                  return (
-                    <motion.div
-                      key={index}
-                      initial={{
-                        opacity: 0,
-                        y: 10,
-                      }}
-                      animate={{
-                        opacity: 1,
-                        y: 0,
-                      }}
-                      className={`flex ${
-                        isMe
-                          ? "justify-end"
-                          : "justify-start"
-                      }`}
-                    >
+        const isMe =
+          msg.sender === currentUser ||
+          msg.sender?._id === currentUser;
+
+        return (
+
+          <motion.div
+            key={index}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            
 
   <div
   className={`relative max-w-[85%] overflow-visible px-4 py-3 rounded-3xl shadow-md break-words ${
