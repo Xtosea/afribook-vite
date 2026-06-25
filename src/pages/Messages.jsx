@@ -945,7 +945,7 @@ uploadedMedia =
         text-left
         px-3
         py-2
-        text-red-500
+        text-red-600
         hover:bg-gray-100
         text-sm
       "
