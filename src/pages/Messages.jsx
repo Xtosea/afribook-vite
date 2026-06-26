@@ -796,7 +796,7 @@ console.log(
         {selectedUser ? (
           <>
             {/* HEADER */}
-            <div className="fixed top-16 left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-b shadow-sm px-4 py-3 flex items-center justify-between">
+            <div className="fixed top-14 left-0 right-0 z-30 bg-white border-b shadow-sm px-4 py-3 flex items-center justify-between">
 
               <div className="flex items-center gap-3">
 
@@ -1137,7 +1137,7 @@ console.log(
             </div>
 
             {/* INPUT AREA */}
-            <div className="fixed w-full left-0 right-0 bottom-[0px] mid:bottom-4 z-30 bg-white/95 backdrop-blur-md border-t px-3 py-3 shadow-lg">
+            <div className="fixed w-full left-0 right-0 bottom-[0px] mid:bottom-4 z-30 bg-white border-t px-3 py-3 shadow-lg">
 
               <div className="space-y-2">
 
