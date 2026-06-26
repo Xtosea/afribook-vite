@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 
 import Navbar from "./components/Navbar";
@@ -94,6 +94,11 @@ import FriendCarousel from "./components/friends/FriendCarousel";
 
 function App() {
   console.log("API:", import.meta.env.VITE_API_BASE);
+
+const location = useLocation();
+
+const hideNavbar =
+  location.pathname.startsWith("/messages");
 
 
 useEffect(() => {
