@@ -791,7 +791,7 @@ console.log(
       </div>
 
       {/* CHAT AREA */}
-      <div className="flex-1 flex flex-col h-full overflow-hidden">
+      <div className="fixed top-0 left-0 right-0 z-30 px-4 py-3 flex items-center justify-between">
 
         {selectedUser ? (
           <>
@@ -1138,12 +1138,12 @@ console.log(
             </div>
 
             {/* INPUT AREA */}
-            <div className="fixed bottom-0 left-0 right-0 z-30 bg-white border-t px-3 py-3 shadow-lg">
+            <div className= "fixed bottom-0 left-0 right-0 z-30 px-3 py-3">
 
               <div className="space-y-2">
 
                 {/* INPUT */}
-                <div className="sticky bottom-0 z-30 bg-white border-t shadow-lg">
+                <div className="w-full">
 
                   <input
                     type="text"
