@@ -119,13 +119,12 @@ const AudioMessage = ({
 
       {/* AUDIO BODY */}
       <div
-        className={`flex-1 rounded-2xl px-3 py-2 overflow-hidden ${
-          isMe
-            ? "bg-white/10"
-            : "bg-gray-50"
-        }`}
-      >
-
+  className={`flex-1 rounded-2xl px-3 py-2 overflow-hidden ${
+    isMe
+      ? "bg-gradient-to-r from-green-500 to-green-700 text-white"
+      : "bg-green-100 text-gray-800"
+  }`}
+>
         {/* TOP ROW */}
         <div className="flex items-center justify-between">
 
@@ -874,22 +873,9 @@ console.log(
                       currentUser;
 
                   return (
-                    motion.div
-                      key={index}
-                      initial={{
-                        opacity: 0,
-                        y: 10,
-                      }}
-                      animate={{
-                        opacity: 1,
-                        y: 0,
-                      }}
-                      className={`flex ${
-                        isMe
-                          ? "justify-end"
-                          : "justify-start"
-                      }`}
-                    >
+                    className={`flex mb-4 ${
+  isMe ? "justify-end" : "justify-start"
+}`}
 
   <div
   className={`relative max-w-[85%] overflow-visible px-4 py-3 rounded-3xl shadow-md break-words ${
@@ -1104,8 +1090,8 @@ console.log(
                         <p
                           className={`text-[11px] mt-1 ${
                             isMe
-                              ? "text-blue-100"
-                              : "text-gray-400"
+                              ?l "text-blue-100"
+                              :lll "text-gray-400"
                           }`}
                         >
                           {new Date(
