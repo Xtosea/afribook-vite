@@ -277,7 +277,7 @@ useEffect(() => {
   }
 />
 
-ProtectedRoute>} />
+
             <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
             <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
 
