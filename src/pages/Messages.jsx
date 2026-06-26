@@ -704,7 +704,7 @@ console.log(
 
 
     return (
-  <div className="flex h-screen bg-gray-100 overflow-hidden">
+  <div className="flex flex-1 bg-gray-100 overflow-hidden">
 
       {/* MOBILE OVERLAY */}
       {showSidebar && (
@@ -791,7 +791,7 @@ console.log(
       </div>
 
       {/* CHAT AREA */}
-      <div className="flex-1 flex flex-col h-[calc(100vh-80px)] overflow-hidden">
+      <div className="flex-1 flex flex-col h-full overflow-hidden">
 
         {selectedUser ? (
           <>
