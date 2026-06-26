@@ -42,8 +42,19 @@ export const connectSocket = () => {
 
     // ✅ Connected
     socket.on("connect", () => {
-      console.log("✅ Socket connected:", socket.id);
-    });
+  console.log("✅ Socket connected:", socket.id);
+
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  console.log("LocalStorage user:", user);
+
+  if (user?._id) {
+    socket.emit("join", user._id);
+    console.log("👤 Joined room:", user._id);
+  } else {
+    console.log("❌ No user found in localStorage");
+  }
+});
 
     // ❌ Error
     socket.on("connect_error", (err) => {
