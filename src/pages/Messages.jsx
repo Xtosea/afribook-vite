@@ -796,7 +796,7 @@ console.log(
         {selectedUser ? (
           <>
             {/* HEADER */}
-            <div className="sticky top-0 z-30 bg-white border-b shadow-sm">
+            <div className="sticky top-0 z-30 bg-white border-b shadow-sm px-4 py-3 flex items-center justify-between">
 
               <div className="flex items-center gap-3">
 
