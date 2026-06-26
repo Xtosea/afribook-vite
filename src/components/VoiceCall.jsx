@@ -30,6 +30,8 @@ useState(null);
 
 const [callAccepted, setCallAccepted] =
 useState(false);
+const [micReady, setMicReady] = useState(false);
+
 
 const localStreamRef =
 useRef(null);
@@ -43,6 +45,8 @@ useRef(null);
 const ringtoneRef = useRef(null);
 const callingRef = useRef(null);
 
+
+
 // =========================
 // GET MICROPHONE
 // =========================
@@ -55,6 +59,10 @@ await navigator.mediaDevices.getUserMedia({
 audio: true,
 video: false,
 });
+
+
+localStreamRef.current = stream;
+setMicReady(true);
 
     localStreamRef.current =
       stream;
@@ -89,6 +97,8 @@ return () => {
 
 
 const handleIncomingCall = ({ from, signal }) => {
+console.log("📥 INCOMING CALL", from);
+
   setReceivingCall(true);
   setCaller(from);
   setCallerSignal(signal);
@@ -141,6 +151,8 @@ return () => {
 useEffect(() => {
 
 const handleAccepted = (signal) => {
+console.log("✅ CALL ACCEPTED");
+
 
 setCallAccepted(true);
 
@@ -257,27 +269,25 @@ const peer =
     },
   });
 
-peer.on(
-  "signal",
-  (signal) => {
-    socket.emit(
-      "call-user",
-      {
-        to:
-          selectedUser._id,
-        from:
-          currentUser,
-        signal,
-        callType:
-          "voice",
-      }
-    );
-  }
-);
+peer.on("signal", (signal) => {
+
+  console.log("📤 OFFER SENT", signal);
+
+  socket.emit("call-user", {
+    to: selectedUser._id,
+    from: currentUser._id,
+    signal,
+    callType: "voice",
+  });
+
+});
 
 peer.on(
   "stream",
   (remoteStream) => {
+
+console.log("🎧 REMOTE AUDIO RECEIVED");
+
     if (
       remoteAudioRef.current
     ) {
@@ -328,6 +338,10 @@ const peer =
 peer.on(
   "signal",
   (signal) => {
+
+console.log("📤 ANSWER SENT", signal);
+
+
     socket.emit(
       "answer-call",
       {
@@ -431,12 +445,20 @@ remoteAudioRef.current.muted =
 useEffect(() => {
   if (
     selectedUser &&
+    micReady &&
     !receivingCall &&
-    localStreamRef.current
+    !callAccepted
   ) {
     callUser();
   }
-}, [selectedUser]);
+}, [
+  selectedUser,
+  micReady,
+  receivingCall,
+  callAccepted,
+]);
+
+
 
 return (
 <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
