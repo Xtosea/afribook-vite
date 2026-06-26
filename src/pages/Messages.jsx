@@ -791,7 +791,7 @@ console.log(
       </div>
 
       {/* CHAT AREA */}
-      <div className="flex-1 flex flex-col h-full overflow-hidden">
+      <div className="flex-1 flex flex-col h-[calc(100vh-80px)] overflow-hidden">
 
         {selectedUser ? (
           <>
@@ -857,17 +857,7 @@ console.log(
 
             {/* MESSAGES */}
             <div
-  className="
-    flex-1
-    overflow-y-auto
-    pt-20
-    pb-40
-    px-3
-    bg-gradient-to-b
-    from-gray-50
-    to-gray-100
-  "
->
+  <div className="flex-1 overflow-y-auto px-3 py-4 bg-gradient-to-b from-gray-50 to-gray-100 space-y-4">
 
               {Object.entries(groupedMessages).map(
   ([date, dayMessages]) => (
