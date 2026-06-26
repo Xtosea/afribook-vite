@@ -872,24 +872,23 @@ console.log(
                     msg.sender?._id ===
                       currentUser;
 
-                  return (
+ return (
   <motion.div
-    key={index}
+    key={msg._id}
     initial={{ opacity: 0, y: 10 }}
     animate={{ opacity: 1, y: 0 }}
     className={`flex mb-4 ${
       isMe ? "justify-end" : "justify-start"
     }`}
   >
-
-  <div
-  className={`relative max-w-[85%] overflow-visible px-4 py-3 rounded-3xl shadow-md break-words ${
-    isMe
-      ? "bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-br-md ml-auto"
-      : "bg-white text-gray-800 rounded-bl-md mr-auto"
-  }`}
->
-
+    <div
+      className={`relative max-w-[85%] overflow-visible px-4 py-3 rounded-3xl shadow-md break-words ${
+        isMe
+          ? "bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-br-md ml-auto"
+          : "bg-white text-gray-800 rounded-bl-md mr-auto"
+      }`}
+    >
+      
 
 {/* 3 DOT BUTTON */}             
 <div className="relative z-50">
