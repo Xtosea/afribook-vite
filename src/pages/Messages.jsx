@@ -874,7 +874,7 @@ console.log(
                       currentUser;
 
                   return (
-                    <motion.div
+                    motion.div
                       key={index}
                       initial={{
                         opacity: 0,
