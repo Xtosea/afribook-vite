@@ -1137,7 +1137,7 @@ console.log(
             </div>
 
             {/* INPUT AREA */}
-            <div className="sticky bottom-[60px] md:bottom-0 z-30 bg-white border-t px-3 py-3 shadow-lg">
+            <div className="sticky bottom-[40px] mid: bottom-4 z-20 bg-white border-t px-3 py-3 shadow-lg">
 
               <div className="space-y-2">
 
