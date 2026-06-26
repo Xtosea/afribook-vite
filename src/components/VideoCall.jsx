@@ -379,7 +379,7 @@ const VideoCall = ({
     );
   }
 
-  const peer = createPeer(true);
+  const peer = createPeer(true, stream);
 
   peer.on("signal", signal => {
 
@@ -425,7 +425,7 @@ const VideoCall = ({
 
   setCallAccepted(true);
 
-  const peer = createPeer(false);
+  const peer = createPeer(false, stream);
 
   peer.on("signal", signal => {
 
