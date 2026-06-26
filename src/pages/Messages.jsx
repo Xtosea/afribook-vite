@@ -796,7 +796,7 @@ console.log(
         {selectedUser ? (
           <>
             {/* HEADER */}
-            <div className="fixed top-0 h-,28 left-0 right-0 z-30 bg-white/95 backdrop-blur-md z-30 border-b shadow-sm px-4 py-3 flex items-center justify-between">
+            <div className="shrink-0 bg-white border-b px-4 py-3 flex items-center justify-between">
 
               <div className="flex items-center gap-3">
 
@@ -858,7 +858,7 @@ console.log(
 
 
             {/* MESSAGES */}
-            <div className="flex-1 overflow-y-auto px-3 pt-24 pb-36 space-y-4">
+            <div className="flex-1 overflow-y-auto px-3 py-4 space-y-4">
 
               {Object.entries(groupedMessages).map(
   ([date, dayMessages]) => (
@@ -1138,7 +1138,7 @@ console.log(
             </div>
 
             {/* INPUT AREA */}
-            <div className= "fixed bottom-0 left-0 h-28 right-0 bg-white/95 backdrop-blur-md z-30 z-30 px-3 py-3">
+            <div className="shrink-0 bg-white border-t px-3 py-3 shadow-lg">
 
               <div className="space-y-2">
 
