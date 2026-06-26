@@ -87,6 +87,21 @@ return () => {
 
 }, [onClose]);
 
+
+const handleIncomingCall = ({ from, signal }) => {
+  setReceivingCall(true);
+  setCaller(from);
+  setCallerSignal(signal);
+
+  if (ringtoneRef.current) {
+    ringtoneRef.current
+      .play()
+      .catch((err) =>
+        console.log("Ringtone blocked:", err)
+      );
+  }
+};
+
 // =========================
 // INCOMING CALL
 // =========================
