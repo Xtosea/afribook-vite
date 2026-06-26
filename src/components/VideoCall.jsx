@@ -7,19 +7,18 @@ import React, {
 import Peer from "simple-peer";
 import { connectSocket } from "../socket";
 
+
 const VideoCall = ({
   currentUser,
   selectedUser,
   onClose,
 }) => {
 
+
   const socket = useRef(
     connectSocket()
   ).current;
 
-  // =========================
-  // STATE
-  // =========================
 
   const [stream, setStream] =
     useState(null);
@@ -36,15 +35,13 @@ const VideoCall = ({
   const [callAccepted, setCallAccepted] =
     useState(false);
 
+
   const [micOn, setMicOn] =
     useState(true);
 
   const [cameraOn, setCameraOn] =
     useState(true);
 
-  // =========================
-  // REFS
-  // =========================
 
   const myVideo =
     useRef(null);
@@ -55,241 +52,260 @@ const VideoCall = ({
   const connectionRef =
     useRef(null);
 
-  const ringtoneRef =
-    useRef(null);
 
-  const callingRef =
-    useRef(null);
 
-  // =========================
-  // GET CAMERA & MIC
-  // =========================
+  // ================= MEDIA =================
 
   useEffect(() => {
 
-    let localStream;
+    let media;
+
 
     const startMedia = async () => {
 
       try {
 
-        localStream =
+        media =
           await navigator.mediaDevices.getUserMedia({
-            video: true,
-            audio: true,
+            video:true,
+            audio:true,
           });
 
-        setStream(localStream);
 
-        if (myVideo.current) {
+        setStream(media);
+
+
+        if(myVideo.current){
           myVideo.current.srcObject =
-            localStream;
+            media;
         }
 
-      } catch (err) {
+
+      } catch(err){
 
         console.log(
-          "Media error:",
+          "Media error",
           err
         );
 
-        alert(
-          "Camera or microphone permission denied."
-        );
-
-        onClose();
-
       }
 
     };
+
 
     startMedia();
 
+
     return () => {
 
-      if (localStream) {
-
-        localStream
-          .getTracks()
-          .forEach(track =>
-            track.stop()
-          );
-
-      }
+      media?.getTracks()
+      .forEach(track =>
+        track.stop()
+      );
 
     };
 
-  }, [onClose]);
 
-  // =========================
-  // HANDLE INCOMING CALL
-  // =========================
+  },[]);
 
-  const handleIncomingCall =
-    (data) => {
 
-      if (
+
+  // ================= SOCKET =================
+
+
+  useEffect(() => {
+
+
+    const incomingCall =
+    (data)=>{
+
+      if(
         data.callType !== "video"
       ) return;
 
-      setReceivingCall(true);
 
-      setCaller(
-        data.from
-      );
+      setReceivingCall(true);
 
       setCallerSignal(
         data.signal
       );
 
-      ringtoneRef.current
-        ?.play()
-        .catch(err =>
-          console.log(
-            "Ringtone blocked:",
-            err
-          )
-        );
+      setCaller(
+        data.from
+      );
 
     };
 
-  // =========================
-  // SOCKET EVENTS
-  // =========================
 
-  useEffect(() => {
 
-    const handleAccepted =
-      (signal) => {
+    const accepted =
+    (signal)=>{
 
-        setCallAccepted(true);
+      setCallAccepted(true);
 
-        callingRef.current?.pause();
 
-        if (callingRef.current) {
-          callingRef.current.currentTime = 0;
-        }
+      connectionRef.current
+      ?.signal(signal);
 
-        connectionRef.current
-          ?.signal(signal);
+    };
 
-      };
 
-    const handleEnded =
-      () => {
 
-        connectionRef.current
-          ?.destroy();
+    const ended = ()=>{
 
-        connectionRef.current =
-          null;
+      cleanupCall();
 
-        ringtoneRef.current?.pause();
-        callingRef.current?.pause();
+    };
 
-        if (ringtoneRef.current)
-          ringtoneRef.current.currentTime = 0;
 
-        if (callingRef.current)
-          callingRef.current.currentTime = 0;
-
-        if (stream) {
-
-          stream
-            .getTracks()
-            .forEach(track =>
-              track.stop()
-            );
-
-        }
-
-        onClose();
-
-      };
 
     socket.on(
       "incoming-call",
-      handleIncomingCall
+      incomingCall
     );
+
 
     socket.on(
       "call-accepted",
-      handleAccepted
+      accepted
     );
+
 
     socket.on(
       "call-ended",
-      handleEnded
+      ended
     );
 
-    return () => {
+
+
+    return ()=>{
 
       socket.off(
         "incoming-call",
-        handleIncomingCall
+        incomingCall
       );
+
 
       socket.off(
         "call-accepted",
-        handleAccepted
+        accepted
       );
+
 
       socket.off(
         "call-ended",
-        handleEnded
+        ended
       );
 
     };
 
-  }, [
-    socket,
-    stream,
-    onClose,
-  ]);
 
-  // =========================
-  // CREATE PEER
-  // =========================
+  },[socket]);
+
+
+
+
+  // ================= CLEANUP =================
+
+
+  const cleanupCall = ()=>{
+
+
+    connectionRef.current
+    ?.destroy();
+
+
+    connectionRef.current = null;
+
+
+
+    stream?.getTracks()
+    .forEach(track =>
+      track.stop()
+    );
+
+
+    if(myVideo.current)
+      myVideo.current.srcObject=null;
+
+
+    if(userVideo.current)
+      userVideo.current.srcObject=null;
+
+
+
+    setCallAccepted(false);
+    setReceivingCall(false);
+
+
+    onClose();
+
+  };
+
+
+
+
+
+  // ================= CREATE PEER =================
+
 
   const createPeer = (
-    initiator,
-    mediaStream
-  ) => {
+    initiator
+  )=>{
+
 
     const peer =
-      new Peer({
+    new Peer({
 
-        initiator,
+      initiator,
 
-        trickle: false,
+      trickle:false,
 
-        stream:
-          mediaStream,
+      stream,
 
-        config: {
 
-          iceServers: [
+      config:{
+        iceServers:[
+          {
+            urls:[
+              "stun:stun.l.google.com:19302",
+              "stun:stun1.l.google.com:19302",
+            ]
+          }
+        ]
+      }
 
-            {
-              urls: [
-                "stun:stun.l.google.com:19302",
-                "stun:stun1.l.google.com:19302",
-              ],
-            },
+    });
 
-          ],
 
-        },
 
-      });
+    peer.on(
+      "error",
+      err=>{
+        console.log(
+          "Peer error",
+          err
+        );
+      }
+    );
+
+
+    peer.on(
+      "close",
+      ()=>{
+        console.log(
+          "Peer closed"
+        );
+      }
+    );
+
+
 
     peer.on(
       "stream",
-      remoteStream => {
+      remoteStream=>{
 
-        if (
-          userVideo.current
-        ) {
+        if(userVideo.current){
 
           userVideo.current.srcObject =
             remoteStream;
@@ -299,29 +315,334 @@ const VideoCall = ({
       }
     );
 
-    peer.on(
-      "error",
-      err => {
 
-        console.log(
-          "Peer error:",
-          err
-        );
-
-      }
-    );
-
-    peer.on(
-      "close",
-      () => {
-
-        console.log(
-          "Peer closed"
-        );
-
-      }
-    );
 
     return peer;
 
   };
+
+
+
+
+
+  // ================= START CALL =================
+
+
+  const callUser = ()=>{
+
+
+    if(!stream)return;
+
+
+
+    const peer =
+      createPeer(true);
+
+
+
+    peer.on(
+      "signal",
+      signal=>{
+
+
+        socket.emit(
+          "call-user",
+          {
+
+            to:selectedUser._id,
+
+            from:currentUser,
+
+            signal,
+
+            callType:"video"
+
+          }
+        );
+
+
+      }
+    );
+
+
+
+    connectionRef.current =
+      peer;
+
+
+  };
+
+
+
+
+
+
+  // ================= ANSWER =================
+
+
+  const answerCall = ()=>{
+
+
+    if(!stream)return;
+
+
+
+    setCallAccepted(true);
+
+
+
+    const peer =
+      createPeer(false);
+
+
+
+    peer.on(
+      "signal",
+      signal=>{
+
+
+        socket.emit(
+          "answer-call",
+          {
+
+            signal,
+
+            to:
+            caller?._id
+
+          }
+        );
+
+
+      }
+    );
+
+
+
+    peer.signal(
+      callerSignal
+    );
+
+
+    connectionRef.current =
+      peer;
+
+
+  };
+
+
+
+
+
+
+  // ================= END =================
+
+
+  const endCall = ()=>{
+
+
+    socket.emit(
+      "end-call",
+      {
+        to:selectedUser._id
+      }
+    );
+
+
+    cleanupCall();
+
+  };
+
+
+
+
+
+
+  const toggleMic = ()=>{
+
+
+    stream?.getAudioTracks()
+    .forEach(track=>{
+
+      track.enabled =
+      !track.enabled;
+
+    });
+
+
+    setMicOn(
+      !micOn
+    );
+
+  };
+
+
+
+
+
+  const toggleCamera = ()=>{
+
+
+    stream?.getVideoTracks()
+    .forEach(track=>{
+
+      track.enabled =
+      !track.enabled;
+
+    });
+
+
+    setCameraOn(
+      !cameraOn
+    );
+
+  };
+
+
+
+
+
+  return (
+
+<div className="fixed inset-0 bg-black z-50 flex flex-col">
+
+
+<div className="flex-1 relative">
+
+
+<video
+ref={userVideo}
+autoPlay
+playsInline
+className="w-full h-full object-cover"
+/>
+
+
+
+<video
+ref={myVideo}
+autoPlay
+muted
+playsInline
+className="absolute bottom-5 right-5 w-32 h-44 rounded-xl border"
+/>
+
+
+
+<div className="absolute top-5 left-5 text-white">
+
+<h2 className="text-2xl font-bold">
+{selectedUser?.name}
+</h2>
+
+
+<p>
+
+{
+callAccepted
+?
+"Connected"
+:
+receivingCall
+?
+"Incoming call"
+:
+"Calling..."
+}
+
+</p>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+<div className="bg-black/80 p-5 flex justify-center gap-5">
+
+
+{
+receivingCall &&
+!callAccepted &&
+
+<button
+onClick={answerCall}
+className="bg-green-600 px-5 py-3 rounded-xl"
+>
+Answer
+</button>
+}
+
+
+
+
+{
+!receivingCall &&
+!callAccepted &&
+
+<button
+onClick={callUser}
+className="bg-blue-600 px-5 py-3 rounded-xl"
+>
+Call
+</button>
+}
+
+
+
+
+
+<button
+onClick={toggleMic}
+className="w-16 h-16 rounded-full bg-gray-700"
+>
+
+{
+micOn?"🎤":"🔇"
+}
+
+</button>
+
+
+
+
+<button
+onClick={toggleCamera}
+className="w-16 h-16 rounded-full bg-gray-700"
+>
+
+{
+cameraOn?"📹":"🚫"
+}
+
+</button>
+
+
+
+
+<button
+onClick={endCall}
+className="w-16 h-16 rounded-full bg-red-600"
+>
+
+📞
+
+</button>
+
+
+
+</div>
+
+
+</div>
+
+  );
+
+};
+
+
+export default VideoCall;
