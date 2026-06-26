@@ -704,7 +704,7 @@ console.log(
 
 
     return (
-    <div className="flex h-screen bg-gray-100 overflow-hidden">
+    <div className="flex h-[calc(100vh-120px)] bg-gray-100 overflow-hidden">
 
       {/* MOBILE OVERLAY */}
       {showSidebar && (
