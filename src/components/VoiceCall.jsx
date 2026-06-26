@@ -268,6 +268,9 @@ const peer =
       ],
     },
   });
+console.log("Creating Peer...");
+
+
 
 peer.on("signal", (signal) => {
 
