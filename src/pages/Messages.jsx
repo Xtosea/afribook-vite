@@ -856,8 +856,9 @@ console.log(
               </div>
             </div>
 
+
             {/* MESSAGES */}
-            <div className="flex-1 overflow-y-auto px-3 py-4 space-y-4">
+            <div className="flex-1 overflow-y-auto px-3 pt-20 pb-32 space-y-4">
 
               {Object.entries(groupedMessages).map(
   ([date, dayMessages]) => (
