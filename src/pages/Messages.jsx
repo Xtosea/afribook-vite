@@ -704,7 +704,7 @@ console.log(
 
 
     return (
-    <div className="flex h-[calc(100vh-120px)] bg-gray-100 overflow-hidden">
+  <div className="flex h-screen bg-gray-100 overflow-hidden">
 
       {/* MOBILE OVERLAY */}
       {showSidebar && (
@@ -796,7 +796,7 @@ console.log(
         {selectedUser ? (
           <>
             {/* HEADER */}
-            <div className="flex-1 flex flex-col min-h-0 overflow-hidden" w-full>
+            <div className="sticky top-0 z-30 bg-white border-b shadow-sm">
 
               <div className="flex items-center gap-3">
 
@@ -857,8 +857,7 @@ console.log(
             </div>
 
             {/* MESSAGES */}
-            <div
-  <div className="flex-1 overflow-y-auto px-3 py-4 bg-gradient-to-b from-gray-50 to-gray-100 space-y-4">
+            <div className="flex-1 overflow-y-auto px-3 py-4 space-y-4">
 
               {Object.entries(groupedMessages).map(
   ([date, dayMessages]) => (
@@ -1143,7 +1142,7 @@ console.log(
               <div className="space-y-2">
 
                 {/* INPUT */}
-                <div className="flex items-center bg-gray-100 rounded-3xl px-3 py-2">
+                <div className="sticky bottom-0 z-30 bg-white border-t shadow-lg">
 
                   <input
                     type="text"
