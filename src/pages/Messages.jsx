@@ -1106,7 +1106,7 @@ console.log(
 
 
 
-                      
+                      </div>
                       </div>
                     </motion.div>
                   );
