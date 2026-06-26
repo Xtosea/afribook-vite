@@ -1091,7 +1091,7 @@ console.log(
 
 
                         {/* TIME */}
-                        <p
+<p
   className={`text-[11px] mt-1 ${
     isMe
       ? "text-blue-100"
@@ -1105,19 +1105,6 @@ console.log(
 </p>
 
 
-                          {new Date(
-                            msg.createdAt
-                          ).toLocaleTimeString(
-                            [],
-                            {
-                              hour:
-                                "2-digit",
-                              minute:
-                                     "2-digit",
-
-                            }
-                          )}
-                        </p>
 
                       
                       </div>
