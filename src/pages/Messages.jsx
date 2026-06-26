@@ -873,9 +873,14 @@ console.log(
                       currentUser;
 
                   return (
-                    className={`flex mb-4 ${
-  isMe ? "justify-end" : "justify-start"
-}`}
+  <motion.div
+    key={index}
+    initial={{ opacity: 0, y: 10 }}
+    animate={{ opacity: 1, y: 0 }}
+    className={`flex mb-4 ${
+      isMe ? "justify-end" : "justify-start"
+    }`}
+  >
 
   <div
   className={`relative max-w-[85%] overflow-visible px-4 py-3 rounded-3xl shadow-md break-words ${
