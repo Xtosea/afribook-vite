@@ -133,7 +133,13 @@ useEffect(() => {
   <HelmetProvider>
 
     {!hideNavbar && <Navbar />}
-    <div className="min-h-[calc(100vh-80px)] w-full">
+    <div
+  className={
+    hideNavbar
+      ? "h-screen w-full"
+      : "min-h-[calc(100vh-80px)] w-full"
+  }
+>
 
       <Routes>
             {/* PUBLIC */}
@@ -262,7 +268,16 @@ useEffect(() => {
             <Route path="/profile/:userId" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/create" element={<ProtectedRoute><CreatePost /></ProtectedRoute>} />
             <Route path="/reels" element={<ProtectedRoute><Reels /></ProtectedRoute>} />
-            <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
+            <Route
+  path="/messages/:id?"
+  element={
+    <ProtectedRoute>
+      <Messages />
+    </ProtectedRoute>
+  }
+/>
+
+ProtectedRoute>} />
             <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
             <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
 
