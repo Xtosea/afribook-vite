@@ -251,6 +251,13 @@ if (callingRef.current) {
     );
 }
 
+console.log("===== START CALL =====");
+console.log("selectedUser:", selectedUser);
+console.log("currentUser:", currentUser);
+console.log("socket connected:", socket?.connected);
+console.log("stream:", localStreamRef.current);
+console.log("Peer:", Peer);
+
 const peer =
   new Peer({
     initiator: true,
@@ -269,6 +276,9 @@ const peer =
     },
   });
 console.log("Creating Peer...");
+
+
+
 
 
 
