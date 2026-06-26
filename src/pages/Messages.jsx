@@ -122,7 +122,7 @@ const AudioMessage = ({
         className={`flex-1 rounded-2xl px-3 py-2 overflow-hidden ${
           isMe
             ? "bg-white/10"
-            : "bg-gray-100"
+            : "bg-gray-50"
         }`}
       >
 
