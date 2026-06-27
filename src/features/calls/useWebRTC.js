@@ -22,19 +22,19 @@ const useWebRTC = ({
 
   const {
 
-    localStream,
+  localStream,
+  streamRef,
+  loading,
+  error,
+  micEnabled,
+  cameraEnabled,
 
-    getMedia,
+  startMedia,
+  stopMedia,
+  restartMedia,
 
-    stopMedia,
-
-    toggleMicrophone,
-
-    toggleCamera,
-
-    microphoneEnabled,
-
-    cameraEnabled,
+  toggleMic,
+  toggleCamera,
 
   } = useMedia({
     video,
