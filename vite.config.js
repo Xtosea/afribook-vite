@@ -53,6 +53,17 @@ export default defineConfig({
   },
 
   optimizeDeps: {
-    include: ["buffer", "process"],
+  include: [
+    "buffer",
+    "process",
+    "simple-peer"
+  ],
+},
+
+resolve: {
+  alias: {
+    buffer: "buffer",
+    process: "process/browser",
   },
+},
 });
