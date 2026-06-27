@@ -406,6 +406,37 @@ useEffect(() => {
   }
 );
 
+
+socket.on(
+  "incoming-call",
+  ({ from, callType }) => {
+
+    // Find the caller
+    const caller = friends.find(
+      user => user._id === from
+    );
+
+    if (caller) {
+
+      setSelectedUser(caller);
+
+      loadMessages(caller._id);
+
+    }
+
+    if (callType === "video") {
+
+      setShowCall(true);
+
+    } else {
+
+      setShowVoiceCall(true);
+
+    }
+
+  }
+);
+
 socket.on(
   "message-deleted",
   ({ messageId }) => {
@@ -434,8 +465,13 @@ socket.on(
   socket.off("receive-message");
   socket.off("message-deleted");
   socket.off("message-edited");
+  socket.off("incoming-call");
 };
-  }, [selectedUser, currentUser]);
+  }, [
+  selectedUser,
+  currentUser,
+  friends,
+]);
 
   // LOAD MESSAGES
   const loadMessages = async (
@@ -790,7 +826,7 @@ console.log(
       </div>
 
       {/* CHAT AREA */}
-      <div className="flex-1 flex flex-col h-[calc(100vh-80px)] overflow-hidden">
+      <div className="flex-1 flex flex-col h-[calc(90vh-80px)] overflow-hidden">
 
         {selectedUser ? (
           <>
@@ -1294,16 +1330,12 @@ console.log(
       {showCall &&
         selectedUser && (
           <VideoCall
-            currentUser={
-              currentUser
-            }
-            selectedUser={
-              selectedUser
-            }
-            onClose={() =>
-              setShowCall(false)
-            }
-          />
+  currentUser={currentUser}
+  selectedUser={selectedUser}
+  socket={socketRef.current}
+  onClose={() => setShowCall(false)}
+  defaultProfile={defaultProfile}
+/>
         )}
 
       {/* VOICE CALL */}
