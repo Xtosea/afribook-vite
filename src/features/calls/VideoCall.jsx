@@ -535,7 +535,7 @@ const VideoCall = ({
             <CallTimer
 
               startedAt={
-                callStartedAt
+                callStartedAt={callStartedAt}
               }
 
             />
@@ -583,7 +583,7 @@ const VideoCall = ({
       >
 
 
-        <CallControls
+ <CallControls
 
   microphoneEnabled={
     microphoneEnabled
