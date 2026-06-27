@@ -83,6 +83,8 @@ const VoiceCall = ({
   const remoteAudioRef =
     useRef(null);
 
+const startedCallRef = useRef(false);
+
   // ===============================
   // REMOTE AUDIO
   // ===============================
@@ -182,35 +184,29 @@ const VoiceCall = ({
 
   useEffect(() => {
 
-    if (
+  if (
 
-      selectedUser &&
+    selectedUser &&
 
-      !receivingCall &&
+    !receivingCall &&
 
-      !calling &&
+    !calling &&
 
-      !callAccepted
+    !callAccepted
 
-    ) {
+  ) {
 
-      callUser();
+    callUser();
 
-    }
+  }
 
-  }, [
-
-    selectedUser,
-
-    receivingCall,
-
-    calling,
-
-    callAccepted,
-
-    callUser,
-
-  ]);
+}, [
+  selectedUser,
+  receivingCall,
+  calling,
+  callAccepted,
+  callUser,
+]);
 
   // ===============================
   // CLEANUP
@@ -252,7 +248,7 @@ const VoiceCall = ({
 
 
   const profileImage =
-    selectedUser?.profilePicture ||
+    selectedUser?.profilePic ||
     defaultProfile ||
     "/default-avatar.png";
 
