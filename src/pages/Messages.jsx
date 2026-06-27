@@ -15,9 +15,9 @@ import {
   API_BASE,
 } from "../api/api";
 
-import VideoCall from "../../features/calls/VideoCall";
+import VideoCall from "../features/calls/VideoCall";
 import VoiceRecorder from "../components/VoiceRecorder";
-import VoiceCall from "../../features/calls/VoiceCall";
+import VoiceCall from "../features/calls/VoiceCall";
 import SponsoredAd from "../components/SponsoredAd";
 import DateDivider from "../components/DateDivider";
 import { formatMessageDate } from "../utils/dateHelpers";
