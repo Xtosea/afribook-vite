@@ -533,12 +533,8 @@ const VideoCall = ({
           callAccepted && (
 
             <CallTimer
-
-              startedAt={
-                callStartedAt={callStartedAt}
-              }
-
-            />
+  callStartedAt={callStartedAt}
+/>
 
           )
         }
