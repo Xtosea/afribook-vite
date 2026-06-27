@@ -1,8 +1,8 @@
 import {
-  useCallback,
   useEffect,
-  useRef,
   useState,
+  useRef,
+  useCallback,
 } from "react";
 
 import useMedia from "./useMedia";
