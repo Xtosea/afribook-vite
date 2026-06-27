@@ -396,12 +396,8 @@ const startedCallRef = useRef(false);
             >
 
               <CallTimer
-
-                startedAt={
-                  callStartedAt
-                }
-
-              />
+    callStartedAt={callStartedAt}
+/>
 
 
             </div>
@@ -433,8 +429,8 @@ const startedCallRef = useRef(false);
             }
 
 
-            onToggleMic={
-              toggleMicrophone
+            onToggleMicrophone={toggleMicrophone}
+onToggleCamera={toggleCamera}
             }
 
 
@@ -450,8 +446,7 @@ const startedCallRef = useRef(false);
             }
 
 
-            onEnd={
-              handleEndCall
+            onEndCall={handleEndCall}
             }
 
 
