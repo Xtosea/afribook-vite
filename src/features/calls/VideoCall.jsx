@@ -609,9 +609,9 @@ const VideoCall = ({
     answerCall
   }
 
-  onEnd={
-    handleEndCall
-  }
+  onEndCall={
+  handleEndCall
+}
 
   incoming={
     receivingCall &&
