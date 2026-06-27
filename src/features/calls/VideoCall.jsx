@@ -332,9 +332,9 @@ const VideoCall = ({
 
 
   const profileImage =
-    selectedUser?.profilePicture ||
-    defaultProfile ||
-    "/default-avatar.png";
+  selectedUser?.profilePic ||
+  defaultProfile ||
+  "/default-avatar.png";
 
 
 
