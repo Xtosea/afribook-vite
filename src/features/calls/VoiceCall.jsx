@@ -248,9 +248,9 @@ const startedCallRef = useRef(false);
 
 
   const profileImage =
-    selectedUser?.profilePic ||
-    defaultProfile ||
-    "/default-avatar.png";
+  selectedUser?.profilePic ||
+  defaultProfile ||
+  "/default-avatar.png";
 
 
   // ===============================
