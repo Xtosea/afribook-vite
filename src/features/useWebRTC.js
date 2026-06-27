@@ -442,6 +442,13 @@ const useWebRTC = ({
   const answerCall =
     useCallback(async () => {
 
+     if (peerRef.current) {
+  console.log(
+    "Peer already exists."
+  );
+  return;
+}
+
       if (
         !callerSignal ||
         !localStream
@@ -514,6 +521,7 @@ const useWebRTC = ({
 
     }, [
 
+      peerRef,
       caller,
 
       callerSignal,
@@ -570,16 +578,15 @@ const useWebRTC = ({
       setCallStartedAt(null);
 
     }, [
+socket,
+  
+selectedUser,
 
-      socket,
+stopMedia,
 
-      selectedUser,
+destroyPeer,
 
-      stopMedia,
-
-      destroyPeer,
-
-    ]);
+]);
 
 
 // ===============================
