@@ -5,9 +5,9 @@ import {
   useState,
 } from "react";
 
-import useMedia from "./useMedia";
+import useMedia from "/useMedia";
 
-import usePeerConnection from "./usePeerConnection";
+import usePeerConnection from "/usePeerConnection";
 
 const useWebRTC = ({
   currentUser,
