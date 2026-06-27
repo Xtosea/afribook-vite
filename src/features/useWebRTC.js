@@ -92,6 +92,9 @@ const useWebRTC = ({
   const [calling, setCalling] =
     useState(false);
 
+const [incomingVideo,setIncomingVideo] =
+useState(false);
+
   // ===============================
   // REFS
   // ===============================
@@ -158,6 +161,10 @@ const useWebRTC = ({
 
       setCallerSignal(signal);
 
+      setIncomingVideo(
+      callType === "video"
+    );
+
     };
 
     // -------------------------------
@@ -197,26 +204,34 @@ const useWebRTC = ({
     // -------------------------------
 
     const handleIceCandidate =
-      async ({
-        candidate,
-      }) => {
+async ({
+  candidate,
+}) => {
 
-        try {
+  if (!peerRef.current) {
 
-          await addIceCandidate(
-            candidate
-          );
+    console.log(
+      "ICE received before peer ready, saving..."
+    );
 
-        } catch (err) {
+    return;
 
-          console.error(
-            "ICE Error:",
-            err
-          );
+  }
 
-        }
+  try {
 
-      };
+    await addIceCandidate(candidate);
+
+  } catch(err){
+
+    console.error(
+      "ICE Error:",
+      err
+    );
+
+  }
+
+};
 
     // -------------------------------
     // End Call
@@ -228,6 +243,12 @@ const useWebRTC = ({
         console.log(
           "📴 Call Ended"
         );
+
+       if (peerRef.current) {
+
+  peerRef.current.onicecandidate = null;
+
+}
 
         stopMedia();
 
@@ -246,6 +267,8 @@ const useWebRTC = ({
         setCallStartedAt(
           null
         );
+       
+        setIncomingVideo(false);
 
       };
 
@@ -349,10 +372,11 @@ const useWebRTC = ({
   useCallback(async () => {
 
     if (
-      !selectedUser ||
-      !currentUser ||
-      !localStream
-    ) {
+ !selectedUser ||
+ !currentUser ||
+ !localStream ||
+ !socket
+) {
       return;
     }
 
@@ -576,6 +600,8 @@ const useWebRTC = ({
       setCallerSignal(null);
 
       setCallStartedAt(null);
+      
+      setIncomingVideo(false);
 
     }, [
 socket,
@@ -605,6 +631,7 @@ destroyPeer,
     callAccepted,
     callStartedAt,
     caller,
+    incomingVideo,
 
     // Connection state
     connectionState,
