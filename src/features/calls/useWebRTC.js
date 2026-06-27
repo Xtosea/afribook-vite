@@ -99,25 +99,22 @@ useState(false);
   // INITIALIZE MEDIA USE EFFECTS 
   // ===============================
 
-if (
-  !selectedUser ||
-  !currentUser ||
-  !socket
-) {
-  return;
-}
+useEffect(() => {
+  mountedRef.current = true;
 
-let stream = localStream;
+  startMedia();
 
-if (!stream) {
-  stream = await startMedia();
-}
+  return () => {
+    mountedRef.current = false;
 
-if (!stream) {
-  console.log("Unable to access media.");
-  return;
-}
-
+    stopMedia();
+    destroyPeer();
+  };
+}, [
+  startMedia,
+  stopMedia,
+  destroyPeer,
+]);
   
 
 // ===============================
