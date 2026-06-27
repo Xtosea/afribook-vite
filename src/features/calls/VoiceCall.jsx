@@ -431,7 +431,7 @@ const startedCallRef = useRef(false);
 
 
             onToggleMicrophone={toggleMicrophone}
-onToggleCamera={toggleCamera}
+
             }
 
 
@@ -439,7 +439,7 @@ onToggleCamera={toggleCamera}
               setSpeakerEnabled(
                 prev => !prev
               )
-            }
+            
 
 
             onAnswer={
