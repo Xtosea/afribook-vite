@@ -421,16 +421,12 @@ const startedCallRef = useRef(false);
   <CallControls
   microphoneEnabled={microphoneEnabled}
   speakerEnabled={speakerEnabled}
-  onToggleMic={toggleMicrophone}
+  onToggleMicrophone={toggleMicrophone}
   onToggleSpeaker={() =>
     setSpeakerEnabled(prev => !prev)
   }
   onAnswer={answerCall}
-  onEnd={handleEndCall}
-  incoming={
-    receivingCall &&
-    !callAccepted
-  }
+  onEndCall={handleEndCall}
 />
 
         </div>
