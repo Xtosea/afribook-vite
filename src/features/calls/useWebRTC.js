@@ -21,24 +21,14 @@ const useWebRTC = ({
   // ===============================
 
   const {
-
   localStream,
-  streamRef,
-  loading,
-  error,
-  micEnabled,
-  cameraEnabled,
-
   startMedia,
   stopMedia,
-  restartMedia,
-
   toggleMic,
   toggleCamera,
-
-  } = useMedia({
-    video,
-  });
+  micEnabled,
+  cameraEnabled,
+} = useMedia({ video });
 
   // ===============================
   // PEER CONNECTION
