@@ -584,66 +584,44 @@ const VideoCall = ({
 
         <CallControls
 
+  microphoneEnabled={
+    microphoneEnabled
+  }
 
-          microphoneEnabled={
-            microphoneEnabled
-          }
+  cameraEnabled={
+    cameraEnabled
+  }
 
+  speakerEnabled={
+    speakerEnabled
+  }
 
-          cameraEnabled={
-            cameraEnabled
-          }
+  onToggleMic={
+    toggleMicrophone
+  }
 
+  onToggleCamera={
+    toggleCamera
+  }
 
-          speakerEnabled={
-            speakerEnabled
-          }
+  onToggleSpeaker={() =>
+    setSpeakerEnabled(prev => !prev)
+  }
 
+  onAnswer={
+    answerCall
+  }
 
+  onEnd={
+    handleEndCall
+  }
 
-          onToggleMic={
-            toggleMicrophone
-          }
+  incoming={
+    receivingCall &&
+    !callAccepted
+  }
 
-
-
-          onToggleCamera={
-            toggleCamera
-          }
-
-
-
-          onToggleSpeaker={() =>
-
-            setSpeakerEnabled(
-              prev => !prev
-            )
-
-          }
-
-
-
-          onAnswer={
-            answerCall
-          }
-
-
-
-          onEnd={
-            handleEndCall
-          }
-
-
-
-          incoming={
-            receivingCall &&
-            !callAccepted
-          }
-
-
-        />
-
-
+/>
       </div>
 
 
