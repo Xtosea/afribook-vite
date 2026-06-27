@@ -418,47 +418,20 @@ const startedCallRef = useRef(false);
         >
 
 
-          <CallControls
-
-            microphoneEnabled={
-              microphoneEnabled
-            }
-
-
-            speakerEnabled={
-              speakerEnabled
-            }
-
-
-            onToggleMicrophone={toggleMicrophone}
-
-            }
-
-
-            onToggleSpeaker={() =>
-              setSpeakerEnabled(
-                prev => !prev
-              )
-            
-
-
-            onAnswer={
-              answerCall
-            }
-
-
-            onEndCall={handleEndCall}
-            }
-
-
-            incoming={
-              receivingCall &&
-              !callAccepted
-            }
-
-
-          />
-
+  <CallControls
+  microphoneEnabled={microphoneEnabled}
+  speakerEnabled={speakerEnabled}
+  onToggleMic={toggleMicrophone}
+  onToggleSpeaker={() =>
+    setSpeakerEnabled(prev => !prev)
+  }
+  onAnswer={answerCall}
+  onEnd={handleEndCall}
+  incoming={
+    receivingCall &&
+    !callAccepted
+  }
+/>
 
         </div>
 
