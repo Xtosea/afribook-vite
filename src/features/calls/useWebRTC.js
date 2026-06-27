@@ -99,23 +99,7 @@ useState(false);
   // INITIALIZE MEDIA USE EFFECTS 
   // ===============================
 
-  useEffect(() => {
-  mountedRef.current = true;
-
-  startMedia();
-
-  return () => {
-    mountedRef.current = false;
-
-    stopMedia();
-    destroyPeer();
-  };
-}, [
-  startMedia,
-  stopMedia,
-  destroyPeer,
-]);
-
+  
 
 // ===============================
   // SOCKET EVENTS
