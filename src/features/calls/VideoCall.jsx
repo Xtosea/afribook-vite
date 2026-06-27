@@ -580,7 +580,7 @@ const VideoCall = ({
 
 
  <CallControls
-
+  video={true}
   microphoneEnabled={
     microphoneEnabled
   }
@@ -593,7 +593,7 @@ const VideoCall = ({
     speakerEnabled
   }
 
-  onToggleMic={
+  onToggleMicrophone={
     toggleMicrophone
   }
 
