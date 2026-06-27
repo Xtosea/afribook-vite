@@ -7,7 +7,7 @@ import {
 
 import useMedia from "./useMedia";
 
-import usePeerConnection from "/usePeerConnection";
+import usePeerConnection from "./usePeerConnection";
 
 const useWebRTC = ({
   currentUser,
