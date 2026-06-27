@@ -10,6 +10,7 @@ const CallControls = ({
   onToggleCamera,
   onToggleSpeaker,
   onEndCall,
+  onAnswer
 }) => {
 
   return (
