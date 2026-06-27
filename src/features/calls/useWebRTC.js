@@ -99,6 +99,25 @@ useState(false);
   // INITIALIZE MEDIA USE EFFECTS 
   // ===============================
 
+if (
+  !selectedUser ||
+  !currentUser ||
+  !socket
+) {
+  return;
+}
+
+let stream = localStream;
+
+if (!stream) {
+  stream = await startMedia();
+}
+
+if (!stream) {
+  console.log("Unable to access media.");
+  return;
+}
+
   
 
 // ===============================
