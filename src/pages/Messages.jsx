@@ -17,7 +17,7 @@ import {
 
 import VideoCall from "../components/VideoCall";
 import VoiceRecorder from "../components/VoiceRecorder";
-import VoiceCall from "../components/VoiceCall";
+import VoiceCall from "../features/cslls/VoiceCall";
 import SponsoredAd from "../components/SponsoredAd";
 import DateDivider from "../components/DateDivider";
 import { formatMessageDate } from "../utils/dateHelpers";
