@@ -1,3 +1,6 @@
+import { Buffer } from "buffer";
+import process from "process";
+
 import React from "react";
 import ReactDOM from "react-dom/client";
 
@@ -13,6 +16,10 @@ import { registerSW } from "virtual:pwa-register";
 
 import Logout from "./components/inactivity/Logout";
 
+
+window.global = window;
+window.Buffer = Buffer;
+window.process = process;
 
 registerSW({
   immediate: true,
