@@ -100,23 +100,18 @@ useState(false);
   // ===============================
 
   useEffect(() => {
-
   mountedRef.current = true;
 
-  getMedia();
+  startMedia();
 
   return () => {
-
     mountedRef.current = false;
 
     stopMedia();
-
     destroyPeer();
-
   };
-
 }, [
-  getMedia,
+  startMedia,
   stopMedia,
   destroyPeer,
 ]);
@@ -610,36 +605,29 @@ destroyPeer,
   // ===============================
 
   return {
+  localStream,
+  remoteStream,
 
-    // Streams
-    localStream,
-    remoteStream,
+  calling,
+  receivingCall,
+  callAccepted,
+  callStartedAt,
+  caller,
+  incomingVideo,
 
-    // Call state
-    calling,
-    receivingCall,
-    callAccepted,
-    callStartedAt,
-    caller,
-    incomingVideo,
+  connectionState,
+  iceConnectionState,
 
-    // Connection state
-    connectionState,
-    iceConnectionState,
+  microphoneEnabled: micEnabled,
+  cameraEnabled,
 
-    // Media state
-    microphoneEnabled,
-    cameraEnabled,
+  callUser,
+  answerCall,
+  endCall,
 
-    // Actions
-    callUser,
-    answerCall,
-    endCall,
-
-    toggleMicrophone,
-    toggleCamera,
-
-  };
+  toggleMicrophone: toggleMic,
+  toggleCamera,
+};
 
 };
 
