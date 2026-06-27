@@ -513,3 +513,146 @@ const VideoCall = ({
 
 
       </div>
+
+{/* ===============================
+          CALL INFO + TIMER
+      =============================== */}
+
+
+      <div
+        className="
+        bg-gray-900
+        p-4
+        text-center
+        "
+      >
+
+
+        {
+          callAccepted && (
+
+            <CallTimer
+
+              startedAt={
+                callStartedAt
+              }
+
+            />
+
+          )
+        }
+
+
+
+        {
+          receivingCall &&
+          !callAccepted && (
+
+            <p
+              className="
+              text-white
+              mb-3
+              "
+            >
+
+              Incoming video call
+
+            </p>
+
+          )
+        }
+
+
+      </div>
+
+
+
+
+
+      {/* ===============================
+          CONTROLS
+      =============================== */}
+
+
+      <div
+        className="
+        bg-gray-900
+        p-5
+        "
+      >
+
+
+        <CallControls
+
+
+          microphoneEnabled={
+            microphoneEnabled
+          }
+
+
+          cameraEnabled={
+            cameraEnabled
+          }
+
+
+          speakerEnabled={
+            speakerEnabled
+          }
+
+
+
+          onToggleMic={
+            toggleMicrophone
+          }
+
+
+
+          onToggleCamera={
+            toggleCamera
+          }
+
+
+
+          onToggleSpeaker={() =>
+
+            setSpeakerEnabled(
+              prev => !prev
+            )
+
+          }
+
+
+
+          onAnswer={
+            answerCall
+          }
+
+
+
+          onEnd={
+            handleEndCall
+          }
+
+
+
+          incoming={
+            receivingCall &&
+            !callAccepted
+          }
+
+
+        />
+
+
+      </div>
+
+
+    </div>
+
+  );
+
+
+};
+
+
+export default VideoCall;
