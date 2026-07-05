@@ -165,6 +165,11 @@ useEffect(() => {
             answer
           );
 
+         if (timeoutRef.current) {
+  clearTimeout(timeoutRef.current);
+  timeoutRef.current = null;
+}
+
           setCallAccepted(true);
 
           setCalling(false);
@@ -189,25 +194,13 @@ useEffect(() => {
     // -------------------------------
 
     const handleIceCandidate =
-async ({
-  candidate,
-}) => {
-
-  if (!peerRef.current) {
-
-    console.log(
-      "ICE received before peer ready, saving..."
-    );
-
-    return;
-
-  }
+async ({ candidate }) => {
 
   try {
 
     await addIceCandidate(candidate);
 
-  } catch(err){
+  } catch (err) {
 
     console.error(
       "ICE Error:",
@@ -217,6 +210,7 @@ async ({
   }
 
 };
+
 
     // -------------------------------
     // End Call
@@ -391,7 +385,7 @@ async ({
                 selectedUser._id,
 
               from:
-                currentUser._id,
+                currentUser,
 
               candidate:
                 event.candidate,
@@ -410,7 +404,7 @@ async ({
             selectedUser._id,
 
           from:
-            currentUser._id,
+            currentUser,
 
           signal:
             offer,
@@ -448,106 +442,68 @@ async ({
   // ANSWER CALL
   // ===============================
 
-  const answerCall =
-    useCallback(async () => {
+  const answerCall = useCallback(async () => {
 
-     if (peerRef.current) {
-  console.log(
-    "Peer already exists."
-  );
-  return;
-}
+  if (peerRef.current) {
+    console.log("Peer already exists.");
+    return;
+  }
 
-      if (
-        !callerSignal ||
-        !localStream
-      )
-        return;
+  if (!callerSignal || !localStream) {
+    return;
+  }
 
-      try {
+  try {
 
-        const peer =
-          createPeer(localStream);
+    const peer = createPeer(localStream);
 
-        peer.onicecandidate =
-          (event) => {
+    peer.onicecandidate = (event) => {
 
-            if (!event.candidate)
-              return;
+      if (!event.candidate) return;
 
-            socket.emit(
-              "ice-candidate",
-              {
-                to: caller,
+      socket.emit("ice-candidate", {
+        to: caller,
+        from: currentUser,
+        candidate: event.candidate,
+      });
 
-                from:
-                  currentUser._id,
+    };
 
-                candidate:
-                  event.candidate,
-              }
-            );
+    await setRemoteDescription(callerSignal);
 
-          };
+    const answer = await createAnswer();
 
-        await setRemoteDescription(
-          callerSignal
-        );
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
 
-        const answer =
-          await createAnswer();
+    socket.emit("answer-call", {
+      to: caller,
+      signal: answer,
+    });
 
-        socket.emit(
-          "answer-call",
-          {
-            to:
-              caller,
+    setReceivingCall(false);
+    setCallAccepted(true);
+    setCallStartedAt(Date.now());
 
-            signal:
-              answer,
-          }
-        );
+  } catch (err) {
 
-        setReceivingCall(
-          false
-        );
+    console.error(err);
 
-        setCallAccepted(
-          true
-        );
+  }
 
-        setCallStartedAt(
-          Date.now()
-        );
-
-      } catch (err) {
-
-        console.error(
-          err
-        );
-
-      }
-
-    }, [
-
-      peerRef,
-      caller,
-
-      callerSignal,
-
-      currentUser,
-
-      socket,
-
-      localStream,
-
-      createPeer,
-
-      createAnswer,
-
-      setRemoteDescription,
-
-    ]);
+}, [
+  peerRef,
+  caller,
+  callerSignal,
+  currentUser,
+  socket,
+  localStream,
+  createPeer,
+  createAnswer,
+  setRemoteDescription,
+]);
 
   // ===============================
   // END CALL
