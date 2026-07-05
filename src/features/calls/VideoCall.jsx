@@ -1,4 +1,4 @@
-import {
+plimport {
   useEffect,
   useState,
   useRef,
@@ -17,6 +17,7 @@ const VideoCall = ({
   socket,
   onClose,
   defaultProfile,
+  isOutgoing,
 }) => {
 
 
@@ -253,30 +254,24 @@ const VideoCall = ({
   // ===============================
 
 
-  useEffect(()=>{
+  useEffect(() => {
 
+  if (
+    isOutgoing &&
+    selectedUser &&
+    !calling &&
+    !callAccepted
+  ) {
+    callUser();
+  }
 
-    if(
-
-      selectedUser &&
-      !receivingCall &&
-      !calling &&
-      !callAccepted
-
-    ){
-
-      callUser();
-
-    }
-
-
-  },[
-    selectedUser,
-    receivingCall,
-    calling,
-    callAccepted,
-    callUser
-  ]);
+}, [
+  isOutgoing,
+  selectedUser,
+  calling,
+  callAccepted,
+  callUser,
+]);
 
 
 
