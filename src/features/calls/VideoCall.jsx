@@ -12,12 +12,22 @@ import CallControls from "./CallControls";
 
 
 const VideoCall = ({
-  currentUser,
-  selectedUser,
-  socket,
-  onClose,
-  defaultProfile,
   isOutgoing,
+  selectedUser,
+  defaultProfile,
+  onClose,
+
+  remoteStream,
+  calling,
+  receivingCall,
+  callAccepted,
+  callStartedAt,
+
+  microphoneEnabled,
+  callUser,
+  answerCall,
+  endCall,
+  toggleMicr
 }) => {
 
 
@@ -25,45 +35,7 @@ const VideoCall = ({
   // WEBRTC
   // ===============================
 
-  const {
-
-    localStream,
-
-    remoteStream,
-
-    calling,
-
-    receivingCall,
-
-    callAccepted,
-
-    callStartedAt,
-
-    microphoneEnabled,
-
-    cameraEnabled,
-
-    callUser,
-
-    answerCall,
-
-    endCall,
-
-    toggleMicrophone,
-
-    toggleCamera,
-
-  } = useWebRTC({
-
-    currentUser,
-
-    selectedUser,
-
-    socket,
-
-    video: true,
-
-  });
+  
 
 
 
