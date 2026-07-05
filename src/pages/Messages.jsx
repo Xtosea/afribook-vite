@@ -1,4 +1,4 @@
-import React, {
+llimport React, {
   useEffect,
   useState,
   useRef,
@@ -203,9 +203,8 @@ const Messages = () => {
 
   const messagesEndRef = useRef(null);
 
-  const currentUser = JSON.parse(
-  localStorage.getItem("user")
-);
+  const currentUser =
+  localStorage.getItem("userId");
 
   const token =
     localStorage.getItem("token");
@@ -844,6 +843,7 @@ console.log(
               <div className="flex items-center gap-2">
 
                 {/* VOICE */}
+                <button 
                 onClick={() => {
   setIsOutgoingCall(true);
   setShowVoiceCall(true);
