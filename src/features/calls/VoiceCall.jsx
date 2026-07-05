@@ -12,11 +12,21 @@ import CallControls from "./CallControls";
 
 const VoiceCall = ({
   isOutgoing,
-  currentUser,
   selectedUser,
-  socket,
-  onClose,
   defaultProfile,
+  onClose,
+
+  remoteStream,
+  calling,
+  receivingCall,
+  callAccepted,
+  callStartedAt,
+
+  microphoneEnabled,
+  callUser,
+  answerCall,
+  endCall,
+  toggleMicrophone,
 }) => {
 
   // ===============================
