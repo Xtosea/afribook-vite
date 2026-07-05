@@ -5,7 +5,7 @@ import {
   useCallback,
 } from "react";
 
-import useWebRTC from "./useWebRTC";
+
 import useCallSounds from "./CallSounds";
 import CallTimer from "./CallTimer";
 import CallControls from "./CallControls";
@@ -33,39 +33,7 @@ const VoiceCall = ({
   // WEBRTC
   // ===============================
 
-  const {
-
-    remoteStream,
-
-    calling,
-
-    receivingCall,
-
-    callAccepted,
-
-    callStartedAt,
-
-    microphoneEnabled,
-
-    callUser,
-
-    answerCall,
-
-    endCall,
-
-    toggleMicrophone,
-
-  } = useWebRTC({
-
-    currentUser,
-
-    selectedUser,
-
-    socket,
-
-    video: false,
-
-  });
+  
 
   // ===============================
   // CALL SOUNDS
