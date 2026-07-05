@@ -1329,15 +1329,16 @@ console.log(
       {/* VOICE CALL */}
       {showVoiceCall && (
   <VoiceCall
+  {...webRTC}
   currentUser={currentUser}
   selectedUser={selectedUser}
   socket={socketRef.current}
+  isOutgoing={isOutgoingCall}
+  defaultProfile={defaultProfile}
   onClose={() => {
     setShowVoiceCall(false);
     setIsOutgoingCall(false);
   }}
-  isOutgoing={isOutgoingCall}
-  defaultProfile={defaultProfile}
 />
 )}
    </div>
