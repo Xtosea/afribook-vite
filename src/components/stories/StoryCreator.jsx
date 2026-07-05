@@ -197,35 +197,37 @@ setCloudinaryUrl(newUrl);
 };
 // ================= POST STORY =================
 const handlePost = async () => {
-if (
-!media &&
-!text &&
-!music &&
-stickers.length === 0
-) {
-return;
-}
-const story = await onSelectFile({
-  file: media,
-  cloudinaryUrl,
-  text,
-  textPosition,
-  textSize: size,
-  textColor,
-  textRotation,
-  music,
-  stickers,
-  backgroundColor,
-});
+  if (
+    !media &&
+    !text &&
+    !music &&
+    stickers.length === 0
+  ) {
+    return;
+  }
 
-if (story) {
-  onClose();
-}
+  const story = await onSelectFile({
+    file: media,
+    cloudinaryUrl,
+    text,
+    textPosition,
+    textSize: size,
+    textColor,
+    textRotation,
+    music,
+    stickers,
+    backgroundColor,
+  });
+
+  if (story) {
+    onClose();
+  }
+};   // <-- THIS WAS MISSING
 
 useEffect(() => {
-fetch(`${API_BASE}/api/story-music`)
-.then((res) => res.json())
-.then(setMusicList);
+  fetch(`${API_BASE}/api/story-music`)
+    .then((res) => res.json())
+    .then(setMusicList);
 }, []);
 
 
