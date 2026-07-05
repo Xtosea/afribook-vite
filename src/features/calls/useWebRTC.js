@@ -135,10 +135,12 @@ useEffect(() => {
       callType,
     }) => {
 
-      console.log(
-        "📞 Incoming Call",
-        from
-      );
+      console.log("📥 incoming-call event received");
+console.log({
+  from,
+  signal,
+  callType,
+});
 
       setReceivingCall(true);
 
@@ -158,6 +160,9 @@ useEffect(() => {
 
     const handleCallAccepted =
       async (answer) => {
+
+console.log("✅ call-accepted received");
+console.log(answer);
 
         try {
 
@@ -195,6 +200,9 @@ useEffect(() => {
 
     const handleIceCandidate =
 async ({ candidate }) => {
+
+console.log("🧊 ICE candidate received");
+console.log(candidate);
 
   try {
 
@@ -265,6 +273,8 @@ async ({ candidate }) => {
       "ice-candidate",
       handleIceCandidate
     );
+
+
 
     socket.on(
       "call-ended",
@@ -397,6 +407,13 @@ async ({ candidate }) => {
       const offer =
         await createOffer();
 
+
+console.log("📤 Emitting call-user", {
+  to: selectedUser._id,
+  from: currentUser,
+  callType: video ? "video" : "voice",
+});
+
       socket.emit(
         "call-user",
         {
@@ -478,6 +495,8 @@ async ({ candidate }) => {
       timeoutRef.current = null;
     }
 
+console.log("📤 Sending answer-call");
+
     socket.emit("answer-call", {
       to: caller,
       signal: answer,
@@ -515,6 +534,9 @@ async ({ candidate }) => {
       if (
         selectedUser
       ) {
+
+
+console.log("📴 Sending end-call");
 
         socket.emit(
           "end-call",
