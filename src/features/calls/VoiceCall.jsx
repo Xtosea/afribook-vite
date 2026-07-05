@@ -11,6 +11,7 @@ import CallTimer from "./CallTimer";
 import CallControls from "./CallControls";
 
 const VoiceCall = ({
+  isOutgoing,
   currentUser,
   selectedUser,
   socket,
@@ -186,24 +187,17 @@ const startedCallRef = useRef(false);
   useEffect(() => {
 
   if (
-
+    isOutgoing &&
     selectedUser &&
-
-    !receivingCall &&
-
     !calling &&
-
     !callAccepted
-
   ) {
-
     callUser();
-
   }
 
 }, [
+  isOutgoing,
   selectedUser,
-  receivingCall,
   calling,
   callAccepted,
   callUser,
@@ -427,6 +421,10 @@ const startedCallRef = useRef(false);
   }
   onAnswer={answerCall}
   onEndCall={handleEndCall}
+  incoming={
+    receivingCall &&
+    !callAccepted
+  }
 />
 
         </div>
