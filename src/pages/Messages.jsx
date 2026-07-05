@@ -203,8 +203,9 @@ const Messages = () => {
 
   const messagesEndRef = useRef(null);
 
-  const currentUser =
-    localStorage.getItem("userId");
+  const currentUser = JSON.parse(
+  localStorage.getItem("user")
+);
 
   const token =
     localStorage.getItem("token");
@@ -231,6 +232,9 @@ const Messages = () => {
 
   const [showCall, setShowCall] =
     useState(false);
+
+const [isOutgoingCall, setIsOutgoingCall] =
+  useState(false);
 
   const [
     showVoiceCall,
@@ -407,35 +411,7 @@ useEffect(() => {
 );
 
 
-socket.on(
-  "incoming-call",
-  ({ from, callType }) => {
 
-    // Find the caller
-    const caller = friends.find(
-      user => user._id === from
-    );
-
-    if (caller) {
-
-      setSelectedUser(caller);
-
-      loadMessages(caller._id);
-
-    }
-
-    if (callType === "video") {
-
-      setShowCall(true);
-
-    } else {
-
-      setShowVoiceCall(true);
-
-    }
-
-  }
-);
 
 socket.on(
   "message-deleted",
@@ -465,7 +441,7 @@ socket.on(
   socket.off("receive-message");
   socket.off("message-deleted");
   socket.off("message-edited");
-  socket.off("incoming-call");
+  
 };
   }, [
   selectedUser,
@@ -868,12 +844,10 @@ console.log(
               <div className="flex items-center gap-2">
 
                 {/* VOICE */}
-                <button
-                  onClick={() =>
-                    setShowVoiceCall(
-                      true
-                    )
-                  }
+                onClick={() => {
+  setIsOutgoingCall(true);
+  setShowVoiceCall(true);
+}}
                   className="bg-blue-500 hover:bg-blue-600 text-white w-11 h-11 rounded-full flex items-center justify-center shadow-lg"
                 >
                   📞
@@ -881,9 +855,10 @@ console.log(
 
                 {/* VIDEO */}
                 <button
-                  onClick={() =>
-                    setShowCall(true)
-                  }
+                  onClick={() => {
+  setIsOutgoingCall(true);
+  setShowCall(true);
+}}
                   className="bg-green-500 hover:bg-green-600 text-white w-11 h-11 rounded-full flex items-center justify-center shadow-lg"
                 >
                   📹
@@ -1333,7 +1308,11 @@ console.log(
   currentUser={currentUser}
   selectedUser={selectedUser}
   socket={socketRef.current}
-  onClose={() => setShowCall(false)}
+  onClose={() => {
+    setShowCall(false);
+    setIsOutgoingCall(false);
+  }}
+  isOutgoing={isOutgoingCall}
   defaultProfile={defaultProfile}
 />
         )}
@@ -1341,14 +1320,16 @@ console.log(
       {/* VOICE CALL */}
       {showVoiceCall && (
   <VoiceCall
-    currentUser={currentUser}
-    selectedUser={selectedUser}
-    socket={socketRef.current}
-    onClose={() =>
-      setShowVoiceCall(false)
-    }
-    defaultProfile={defaultProfile}
-  />
+  currentUser={currentUser}
+  selectedUser={selectedUser}
+  socket={socketRef.current}
+  onClose={() => {
+    setShowVoiceCall(false);
+    setIsOutgoingCall(false);
+  }}
+  isOutgoing={isOutgoingCall}
+  defaultProfile={defaultProfile}
+/>
 )}
    </div>
   );
