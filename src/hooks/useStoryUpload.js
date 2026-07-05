@@ -193,6 +193,9 @@ export function useStoryUpload() {
       const story =
         await res.json();
 
+  console.log("Status:", res.status);
+  console.log("Response:", story);
+
 
 
       if(!res.ok){
