@@ -1312,17 +1312,18 @@ console.log(
 
       {/* VIDEO CALL */}
       {showCall &&
-        selectedUser && (
-          <VideoCall
+  selectedUser && (
+  <VideoCall
+  {...webRTC}
   currentUser={currentUser}
   selectedUser={selectedUser}
   socket={socketRef.current}
-  onClose={() => {
-    setShowCall(false);
-    setIsOutgoingCall(false);
-  }}
   isOutgoing={isOutgoingCall}
   defaultProfile={defaultProfile}
+  onClose={() => {
+    setShowVoiceCall(false);
+    setIsOutgoingCall(false);
+  }}
 />
         )}
 
