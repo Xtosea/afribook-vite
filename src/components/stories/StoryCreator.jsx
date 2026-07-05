@@ -205,21 +205,22 @@ stickers.length === 0
 ) {
 return;
 }
-await onSelectFile({
-file: media,
-cloudinaryUrl,
-text,
-textPosition,
-textSize: size,
-textColor,
-textRotation,
-music,
-stickers,
-backgroundColor,
+const story = await onSelectFile({
+  file: media,
+  cloudinaryUrl,
+  text,
+  textPosition,
+  textSize: size,
+  textColor,
+  textRotation,
+  music,
+  stickers,
+  backgroundColor,
 });
 
-onClose();
-};
+if (story) {
+  onClose();
+}
 
 useEffect(() => {
 fetch(`${API_BASE}/api/story-music`)
