@@ -21,6 +21,7 @@ import VoiceCall from "../features/calls/VoiceCall";
 import SponsoredAd from "../components/SponsoredAd";
 import DateDivider from "../components/DateDivider";
 import { formatMessageDate } from "../utils/dateHelpers";
+import useWebRTC from "../features/calls/useWebRTC";
 
 
 
@@ -259,6 +260,14 @@ const startEditMessage = (msg) => {
   setEditingMessageId(msg._id);
   setEditText(msg.text || "");
 };
+
+
+const webRTC = useWebRTC({
+  currentUser,
+  selectedUser,
+  socket: socketRef.current,
+  video: false,
+});
 
 
 
