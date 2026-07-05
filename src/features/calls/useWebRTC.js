@@ -99,22 +99,7 @@ useState(false);
   // INITIALIZE MEDIA USE EFFECTS 
   // ===============================
 
-useEffect(() => {
-  mountedRef.current = true;
 
-  startMedia();
-
-  return () => {
-    mountedRef.current = false;
-
-    stopMedia();
-    destroyPeer();
-  };
-}, [
-  startMedia,
-  stopMedia,
-  destroyPeer,
-]);
   
 
 // ===============================
@@ -379,6 +364,12 @@ console.log(candidate);
 
     try {
 
+      await startMedia();
+
+      const stream = await startMedia();
+
+      const peer = createPeer(stream);
+
       const peer =
         createPeer(localStream);
 
@@ -471,6 +462,13 @@ console.log("📤 Emitting call-user", {
   }
 
   try {
+
+
+    await startMedia();
+    
+   const stream = await startMedia();
+
+   const peer = createPeer(stream);
 
     const peer = createPeer(localStream);
 
