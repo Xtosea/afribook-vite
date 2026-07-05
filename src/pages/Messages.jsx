@@ -204,7 +204,7 @@ const Messages = () => {
   const messagesEndRef = useRef(null);
 
   const currentUser =
-  localStorage.getItem("userId");
+    localStorage.getItem("userId");
 
   const token =
     localStorage.getItem("token");
