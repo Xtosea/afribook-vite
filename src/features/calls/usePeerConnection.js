@@ -53,12 +53,34 @@ const usePeerConnection = () => {
       peerRef.current =
         peer;
 
+      peer.oniceconnectionstatechange = () => {
+
+  console.log(
+    "ICE:",
+    peer.iceConnectionState
+  );
+
+  if (
+    peer.iceConnectionState === "failed" ||
+    peer.iceConnectionState === "disconnected"
+  ) {
+
+    // Notify the caller (or invoke a callback) to end the call.
+    // Don't call endCall() directly here unless createPeer()
+    // has access to it.
+
+  }
+
+};
+
       if (localStream) {
         addLocalTracks(
           peer,
           localStream
         );
       }
+
+      
 
       // ============================
       // REMOTE TRACK
