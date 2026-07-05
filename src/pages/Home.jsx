@@ -773,27 +773,22 @@ rounded-full
 
 
 <textarea
-
-placeholder="
-Share a photo, video or thought...
-"
-
-onFocus={()=>
-navigate("/create-post")
-}
-
-readOnly
-
-className="
-flex-1
-bg-gray-100
-rounded-full
-px-4
-py-3
-resize-none
-cursor-pointer
-"
-
+  placeholder={`What's on your mind, ${currentUser?.name?.split(" ")[0] || "there"}?`}
+  onFocus={() => navigate("/create-post")}
+  readOnly
+  rows={1}
+  className="
+    flex-1
+    bg-gray-100
+    rounded-full
+    px-4
+    py-2
+    text-sm
+    placeholder:text-gray-500
+    resize-none
+    cursor-pointer
+    overflow-hidden
+  "
 />
 
 
