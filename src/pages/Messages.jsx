@@ -1330,34 +1330,21 @@ console.log(
       {/* VIDEO CALL */}
       {showCall &&
   selectedUser && (
-  <VideoCall
+  <CallScreen
   {...webRTC}
-  currentUser={currentUser}
-  selectedUser={selectedUser}
-  socket={socketRef.current}
+  video={callType === "video"}
   isOutgoing={isOutgoingCall}
+  selectedUser={selectedUser}
   defaultProfile={defaultProfile}
   onClose={() => {
-  setShowCall(false);
-  setIsOutgoingCall(false);
-}}
+    setShowCall(false);
+    setShowVoiceCall(false);
+    setIsOutgoingCall(false);
+  }}
 />
-        )}
+)}
 
-      {/* VOICE CALL */}
-      {showVoiceCall && (
-  <VoiceCall
-  {...webRTC}
-  currentUser={currentUser}
-  selectedUser={selectedUser}
-  socket={socketRef.current}
-  isOutgoing={isOutgoingCall}
-  defaultProfile={defaultProfile}
-  onClose={() => {
-  setShowVoiceCall(false);
-  setIsOutgoingCall(false);
-}}
-/>
+      
 )}
    </div>
   );
