@@ -579,3 +579,7 @@ return (
 </div>
 
 );
+
+};
+
+export default CallScreen;
