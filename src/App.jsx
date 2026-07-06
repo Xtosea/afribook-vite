@@ -86,6 +86,8 @@ import DiscoverFriends from "./pages/DiscoverFriends";
 import FriendCarousel from "./components/friends/FriendCarousel";
 
 import IncomingCallListener from "./features/calls/IncomingCallListener";
+import IncomingCallModal
+from "./features/calls/IncomingCallModal";
 
 
 
@@ -130,17 +132,16 @@ useEffect(() => {
 
 
  return (
-  <HelmetProvider>
+    <HelmetProvider>
+      <Router>
+        <Navbar />
 
-    {!hideNavbar && <Navbar />}
-    <div
-  className={
-    hideNavbar
-      ? "h-screen w-full"
-      : "min-h-[calc(100vh-80px)] w-full"
-  }
->
-        <IncomingCallListener />
+
+        <div className="min-h-[calc(100vh-80px)] w-full">
+          
+        
+       <IncomingCallModal />
+      <IncomingCallListener />
 
       <Routes>
             {/* PUBLIC */}
