@@ -249,6 +249,8 @@ const [openMenuId, setOpenMenuId] = useState(null);
   const [showSidebar, setShowSidebar] =
     useState(false);
 
+const [onlineUsers, setOnlineUsers] = useState([]);
+
 
 const menuRef = useRef(null);
 
@@ -400,6 +402,10 @@ useEffect(() => {
 
     socket.emit("join", currentUser);
 
+   socket.on("online-users", (users) => {
+  setOnlineUsers(users);
+});
+
     socket.on(
   "receive-message",
   (message) => {
@@ -447,6 +453,7 @@ socket.on(
   socket.off("receive-message");
   socket.off("message-deleted");
   socket.off("message-edited");
+  socket.off("online-users");
   
 };
   }, [
@@ -800,7 +807,9 @@ console.log(
                   className="w-14 h-14 rounded-full object-cover"
                 />
 
-                <div className="absolute bottom-1 right-1 w-3 h-3 rounded-full bg-green-500 border-2 border-white animate-pulse" />
+               {onlineUsers.includes(user._id) && (
+  <div className="absolute bottom-1 right-1 w-3 h-3 rounded-full bg-green-500 border-2 border-white animate-pulse" />
+)}
               </div>
 
               <div>
@@ -850,9 +859,19 @@ console.log(
                     {selectedUser.name}
                   </h2>
 
-                  <p className="text-sm text-green-500">
-                    Online
-                  </p>
+                 <p
+  className={`text-sm ${
+    onlineUsers.includes(selectedUser._id)
+      ? "text-green-500"
+      : "text-gray-400"
+  }`}
+>
+  {onlineUsers.includes(selectedUser._id)
+    ? "Online"
+    : "Offline"}
+</p>
+
+
                 </div>
               </div>
 
@@ -862,10 +881,15 @@ console.log(
           {/* VOICE */}
    <button
   onClick={() => {
-    setIsOutgoingCall(true);
-    setShowCall(true);
-    webRTC.startVoiceCall();
-  }}
+  if (!onlineUsers.includes(selectedUser._id)) {
+    alert("This user is currently offline.");
+    return;
+  }
+
+  setIsOutgoingCall(true);
+  setShowCall(true);
+  webRTC.startVoiceCall();
+}}
   className="bg-blue-500 hover:bg-blue-600 text-white w-11 h-11 rounded-full flex items-center justify-center shadow-lg"
 >
   📞
@@ -874,10 +898,15 @@ console.log(
        {/* VIDEO */}
    <button
   onClick={() => {
-    setIsOutgoingCall(true);
-    setShowCall(true);
-    webRTC.startVideoCall();
-  }}
+  if (!onlineUsers.includes(selectedUser._id)) {
+    alert("This user is currently offline.");
+    return;
+  }
+
+  setIsOutgoingCall(true);
+  setShowCall(true);
+  webRTC.startVideoCall();
+}}
   className="bg-green-500 hover:bg-green-600 text-white w-11 h-11 rounded-full flex items-center justify-center shadow-lg"
 >
   📹
