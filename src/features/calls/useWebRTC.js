@@ -487,14 +487,10 @@ const callUser = useCallback(async () => {
   callType: callTypeRef.current,
 });
 
-  
-      }
-    );
-
-    console.log(
-      "📤 Calling",
-      selectedUser.name
-    );
+console.log(
+  "📤 Calling",
+  selectedUser.name
+);
 
     setCalling(true);
 
@@ -734,26 +730,23 @@ useEffect(() => {
 return {
   localStream,
   remoteStream,
-
   calling,
   receivingCall,
   callAccepted,
   incomingVideo,
-
   micEnabled,
   cameraEnabled,
-
   startVoiceCall,
   startVideoCall,
-
   answerCall,
   endCall,
-
   toggleMic,
   toggleCamera,
-
   connectionState,
   iceConnectionState,
-
   callStartedAt,
 };
+
+};
+
+export default useWebRTC;
