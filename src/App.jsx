@@ -85,7 +85,7 @@ import DiscoverFriends from "./pages/DiscoverFriends";
 
 import FriendCarousel from "./components/friends/FriendCarousel";
 
-
+import IncomingCallListener from "./features/calls/IncomingCallListener";
 
 
 
@@ -140,6 +140,7 @@ useEffect(() => {
       : "min-h-[calc(100vh-80px)] w-full"
   }
 >
+        <IncomingCallListener />
 
       <Routes>
             {/* PUBLIC */}
@@ -258,6 +259,9 @@ useEffect(() => {
     />}
   
 />
+
+
+   
 
 
 
