@@ -479,16 +479,9 @@ socket.on(
 // 👇 Add this here
 useEffect(() => {
   if (webRTC.receivingCall) {
-    if (webRTC.incomingVideo) {
-      setShowCall(true);
-    } else {
-      setShowVoiceCall(true);
-    }
+    setShowCall(true);
   }
-}, [
-  webRTC.receivingCall,
-  webRTC.incomingVideo,
-]);
+}, [webRTC.receivingCall]);
    
 
   // FETCH USERS
@@ -889,8 +882,8 @@ console.log(
 >
   📹
 </button>
-
 </div>
+
 
             {/* MESSAGES */}
             <div className="flex-1 overflow-y-auto px-3 py-4 space-y-4">
@@ -1341,8 +1334,6 @@ console.log(
 />
 )}
 
-      
-)}
    </div>
   );
 };
