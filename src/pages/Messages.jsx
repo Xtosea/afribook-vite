@@ -476,17 +476,12 @@ socket.on(
     }
   };
 
-  const webRTC = useWebRTC({
-  currentUser,
-  selectedUser,
-  socket: socketRef.current,
-  video: false,
-});
+  
 
 // 👇 Add this here
 useEffect(() => {
   if (webRTC.receivingCall) {
-    if (webRTC.incomingVideo) {
+    if (webRTC.incomingVideo) 
       setShowCall(true);
     } else {
       setShowVoiceCall(true);
