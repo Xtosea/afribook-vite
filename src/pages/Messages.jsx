@@ -23,6 +23,8 @@ import DateDivider from "../components/DateDivider";
 import { formatMessageDate } from "../utils/dateHelpers";
 import useWebRTC from "../features/calls/useWebRTC";
 import CallScreen from "../features/calls/CallScreen";
+import { useCall } from "../context/CallContext";
+
 
 
 
@@ -269,6 +271,11 @@ const webRTC = useWebRTC({
   video: false,
 });
 
+
+const {
+  pendingCall,
+  setPendingCall,
+} = useCall();
 
 
 
