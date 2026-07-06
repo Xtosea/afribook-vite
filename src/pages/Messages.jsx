@@ -866,8 +866,8 @@ console.log(
               {/* CALL BUTTONS */}
               <div className="flex items-center gap-2">
 
-                {/* VOICE */}
-                <button
+          {/* VOICE */}
+   <button
   onClick={() => {
     setIsOutgoingCall(true);
     setShowCall(true);
@@ -878,8 +878,8 @@ console.log(
   📞
 </button>
 
-                {/* VIDEO */}
-                <button
+       {/* VIDEO */}
+   <button
   onClick={() => {
     setIsOutgoingCall(true);
     setShowCall(true);
@@ -890,6 +890,7 @@ console.log(
   📹
 </button>
 
+</div>
 
             {/* MESSAGES */}
             <div className="flex-1 overflow-y-auto px-3 py-4 space-y-4">
