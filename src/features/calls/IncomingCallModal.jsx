@@ -12,11 +12,14 @@ const IncomingCallModal = () => {
   const navigate = useNavigate();
 
   const {
-    incomingCall,
-    showIncomingCall,
-    setShowIncomingCall,
-    setIncomingCall,
-  } = useCall();
+  incomingCall,
+  showIncomingCall,
+  setShowIncomingCall,
+  setIncomingCall,
+
+  pendingCall,
+  setPendingCall,
+} = useCall();
 
   if (!showIncomingCall || !incomingCall) {
     return null;
@@ -29,12 +32,15 @@ const IncomingCallModal = () => {
 
   const answer = () => {
 
-    setShowIncomingCall(false);
+  setPendingCall(incomingCall);
 
-    navigate("/messages/" + incomingCall.from);
+  setShowIncomingCall(false);
 
-  };
+  setIncomingCall(null);
 
+  navigate("/messages/" + incomingCall.from);
+
+};
   return (
     <div className="fixed inset-0 z-[9999] bg-black/70 flex items-center justify-center">
 
