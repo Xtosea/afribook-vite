@@ -481,7 +481,7 @@ socket.on(
 // 👇 Add this here
 useEffect(() => {
   if (webRTC.receivingCall) {
-    if (webRTC.incomingVideo) 
+    if (webRTC.incomingVideo) {
       setShowCall(true);
     } else {
       setShowVoiceCall(true);
@@ -1338,9 +1338,9 @@ console.log(
   isOutgoing={isOutgoingCall}
   defaultProfile={defaultProfile}
   onClose={() => {
-    setShowVoiceCall(false);
-    setIsOutgoingCall(false);
-  }}
+  setShowCall(false);
+  setIsOutgoingCall(false);
+}}
 />
         )}
 
@@ -1354,9 +1354,9 @@ console.log(
   isOutgoing={isOutgoingCall}
   defaultProfile={defaultProfile}
   onClose={() => {
-    setShowVoiceCall(false);
-    setIsOutgoingCall(false);
-  }}
+  setShowVoiceCall(false);
+  setIsOutgoingCall(false);
+}}
 />
 )}
    </div>
