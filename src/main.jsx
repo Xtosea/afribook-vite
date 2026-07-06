@@ -30,15 +30,17 @@ ReactDOM.createRoot(
   document.getElementById("root")
 ).render(
 
+
+  
+        
   <BrowserRouter>
-
   <AuthProvider>
-
-    <Logout />
+  <CallProvider>
+    <Logout/>
 
     <App />
 
   </AuthProvider>
-
+ </CallProvider>
 </BrowserRouter>
 );
