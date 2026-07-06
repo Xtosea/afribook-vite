@@ -22,6 +22,7 @@ import SponsoredAd from "../components/SponsoredAd";
 import DateDivider from "../components/DateDivider";
 import { formatMessageDate } from "../utils/dateHelpers";
 import useWebRTC from "../features/calls/useWebRTC";
+import CallScreen from "../features/calls/CallScreen";
 
 
 
@@ -236,10 +237,7 @@ const Messages = () => {
 const [isOutgoingCall, setIsOutgoingCall] =
   useState(false);
 
-  const [
-    showVoiceCall,
-    setShowVoiceCall,
-  ] = useState(false);
+  
 
 const [editText, setEditText] = useState("");
 const [editingMessageId, setEditingMessageId] =
@@ -869,28 +867,28 @@ console.log(
               <div className="flex items-center gap-2">
 
                 {/* VOICE */}
-                <button 
-                onClick={() => {
-  setIsOutgoingCall(true);
-  setShowVoiceCall(true);
-}}
-                  className="bg-blue-500 hover:bg-blue-600 text-white w-11 h-11 rounded-full flex items-center justify-center shadow-lg"
-                >
-                  📞
-                </button>
+                <button
+  onClick={() => {
+    setIsOutgoingCall(true);
+    setShowCall(true);
+    webRTC.startVoiceCall();
+  }}
+  className="bg-blue-500 hover:bg-blue-600 text-white w-11 h-11 rounded-full flex items-center justify-center shadow-lg"
+>
+  📞
+</button>
 
                 {/* VIDEO */}
                 <button
-                  onClick={() => {
-  setIsOutgoingCall(true);
-  setShowCall(true);
-}}
-                  className="bg-green-500 hover:bg-green-600 text-white w-11 h-11 rounded-full flex items-center justify-center shadow-lg"
-                >
-                  📹
-                </button>
-              </div>
-            </div>
+  onClick={() => {
+    setIsOutgoingCall(true);
+    setShowCall(true);
+    webRTC.startVideoCall();
+  }}
+  className="bg-green-500 hover:bg-green-600 text-white w-11 h-11 rounded-full flex items-center justify-center shadow-lg"
+>
+  📹
+</button>
 
 
             {/* MESSAGES */}
@@ -1331,16 +1329,14 @@ console.log(
       {showCall &&
   selectedUser && (
   <CallScreen
-  {...webRTC}
-  video={callType === "video"}
-  isOutgoing={isOutgoingCall}
-  selectedUser={selectedUser}
-  defaultProfile={defaultProfile}
-  onClose={() => {
-    setShowCall(false);
-    setShowVoiceCall(false);
-    setIsOutgoingCall(false);
-  }}
+    {...webRTC}
+    isOutgoing={isOutgoingCall}
+    selectedUser={selectedUser}
+    defaultProfile={defaultProfile}
+    onClose={() => {
+        setShowCall(false);
+        setIsOutgoingCall(false);
+    }}
 />
 )}
 
