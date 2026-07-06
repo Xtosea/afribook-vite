@@ -140,20 +140,14 @@ const useMedia = () => {
   // ===============================
 
   return {
-    localStream,
-
-    micEnabled,
-
-    cameraEnabled,
-
-    startMedia,
-
-    stopMedia,
-
-    toggleMic,
-
-    toggleCamera,
-  };
+  localStream,
+  microphoneEnabled: micEnabled,
+  cameraEnabled,
+  startMedia,
+  stopMedia,
+  toggleMicrophone: toggleMic,
+  toggleCamera,
+};
 };
 
 export default useMedia;
