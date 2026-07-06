@@ -489,6 +489,11 @@ const callUser = useCallback(async () => {
   from: currentUser,
   signal: offer,
   callType: callTypeRef.current,
+
+  name: localStorage.getItem("name"),
+
+  profilePic:
+    localStorage.getItem("profilePic"),
 });
 
 console.log(
