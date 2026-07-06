@@ -133,8 +133,8 @@ useEffect(() => {
 
  return (
     <HelmetProvider>
-      <Router>
-        <Navbar />
+      
+        <Navbar/>
 
 
         <div className="min-h-[calc(100vh-80px)] w-full">
