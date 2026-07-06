@@ -1,196 +1,146 @@
-import {
-  useEffect,
-  useState,
-  useRef,
-  useCallback,
-} from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 
-import {
-  getLocalStream,
-  stopStream,
-} from "./rtc";
-
-const useMedia = ({
-  video = false,
-} = {}) => {
-
-  const streamRef = useRef(null);
-
-  const [localStream, setLocalStream] =
-    useState(null);
-
-  const [loading, setLoading] =
-    useState(true);
-
-  const [error, setError] =
-    useState(null);
+const useMedia = () => {
+  const [localStream, setLocalStream] = useState(null);
 
   const [micEnabled, setMicEnabled] =
     useState(true);
 
   const [cameraEnabled, setCameraEnabled] =
-    useState(video);
+    useState(true);
 
-  // ==========================
-  // GET MEDIA
-  // ==========================
+  const streamRef = useRef(null);
 
-  const startMedia =
-    useCallback(async () => {
+  // ===============================
+  // START MEDIA
+  // ===============================
 
+  const startMedia = useCallback(
+    async ({ video = false } = {}) => {
       try {
+        // Stop any previous stream first
+        if (streamRef.current) {
+          streamRef.current
+            .getTracks()
+            .forEach((track) => track.stop());
 
-        setLoading(true);
-        setError(null);
+          streamRef.current = null;
+        }
 
         const stream =
-          await getLocalStream({
+          await navigator.mediaDevices.getUserMedia({
             audio: true,
             video,
           });
 
-        streamRef.current =
-          stream;
+        streamRef.current = stream;
 
         setLocalStream(stream);
 
-        setMicEnabled(true);
-        setCameraEnabled(video);
+        const audioTrack =
+          stream.getAudioTracks()[0];
+
+        const videoTrack =
+          stream.getVideoTracks()[0];
+
+        setMicEnabled(
+          audioTrack ? audioTrack.enabled : false
+        );
+
+        setCameraEnabled(
+          videoTrack ? videoTrack.enabled : false
+        );
 
         return stream;
-
       } catch (err) {
-
         console.error(
-          "Media Error:",
+          "getUserMedia failed:",
           err
         );
 
-        setError(err);
-
-        return null;
-
-      } finally {
-
-        setLoading(false);
-
+        throw err;
       }
+    },
+    []
+  );
 
-    }, [video]);
-
-  // ==========================
+  // ===============================
   // STOP MEDIA
-  // ==========================
+  // ===============================
 
-  const stopMedia =
-    useCallback(() => {
+  const stopMedia = useCallback(() => {
+    if (streamRef.current) {
+      streamRef.current
+        .getTracks()
+        .forEach((track) => track.stop());
 
-      if (!streamRef.current)
-        return;
+      streamRef.current = null;
+    }
 
-      stopStream(
-        streamRef.current
-      );
+    setLocalStream(null);
 
-      streamRef.current =
-        null;
+    setMicEnabled(false);
 
-      setLocalStream(null);
+    setCameraEnabled(false);
+  }, []);
 
-    }, []);
-
-  // ==========================
+  // ===============================
   // TOGGLE MICROPHONE
-  // ==========================
+  // ===============================
 
-  const toggleMic =
-    useCallback(() => {
+  const toggleMic = useCallback(() => {
+    if (!streamRef.current) return;
 
-      if (!streamRef.current)
-        return;
+    streamRef.current
+      .getAudioTracks()
+      .forEach((track) => {
+        track.enabled = !track.enabled;
 
-      const enabled =
-        !micEnabled;
+        setMicEnabled(track.enabled);
+      });
+  }, []);
 
-      streamRef.current
-        .getAudioTracks()
-        .forEach(track => {
-          track.enabled =
-            enabled;
-        });
-
-      setMicEnabled(enabled);
-
-    }, [micEnabled]);
-
-  // ==========================
+  // ===============================
   // TOGGLE CAMERA
-  // ==========================
+  // ===============================
 
-  const toggleCamera =
-    useCallback(() => {
+  const toggleCamera = useCallback(() => {
+    if (!streamRef.current) return;
 
-      if (!streamRef.current)
-        return;
+    const tracks =
+      streamRef.current.getVideoTracks();
 
-      const enabled =
-        !cameraEnabled;
+    if (!tracks.length) return;
 
-      streamRef.current
-        .getVideoTracks()
-        .forEach(track => {
-          track.enabled =
-            enabled;
-        });
+    tracks.forEach((track) => {
+      track.enabled = !track.enabled;
 
-      setCameraEnabled(enabled);
+      setCameraEnabled(track.enabled);
+    });
+  }, []);
 
-    }, [cameraEnabled]);
-
-  // ==========================
-  // RESTART MEDIA
-  // ==========================
-
-  const restartMedia =
-    useCallback(async () => {
-
-      stopMedia();
-
-      return await startMedia();
-
-    }, [
-      startMedia,
-      stopMedia,
-    ]);
-
-  // ==========================
-  // AUTO START
-  // ==========================
+  // ===============================
+  // CLEANUP
+  // ===============================
 
   useEffect(() => {
-
-    startMedia();
-
     return () => {
+      if (streamRef.current) {
+        streamRef.current
+          .getTracks()
+          .forEach((track) => track.stop());
 
-      stopMedia();
-
+        streamRef.current = null;
+      }
     };
+  }, []);
 
-  }, [
-    startMedia,
-    stopMedia,
-  ]);
+  // ===============================
+  // RETURN
+  // ===============================
 
   return {
-
     localStream,
-
-    streamRef,
-
-    loading,
-
-    error,
 
     micEnabled,
 
@@ -200,14 +150,10 @@ const useMedia = ({
 
     stopMedia,
 
-    restartMedia,
-
     toggleMic,
 
     toggleCamera,
-
   };
-
 };
 
 export default useMedia;
