@@ -1,19 +1,19 @@
 import {
-  useEffect,
   useState,
+  useEffect,
   useRef,
   useCallback,
 } from "react";
 
 import useMedia from "./useMedia";
-
 import usePeerConnection from "./usePeerConnection";
+
+const CALL_TIMEOUT = 30000;
 
 const useWebRTC = ({
   currentUser,
   selectedUser,
   socket,
-  video = false,
 }) => {
 
   // ===============================
@@ -21,17 +21,25 @@ const useWebRTC = ({
   // ===============================
 
   const {
-  localStream,
-  startMedia,
-  stopMedia,
-  toggleMic,
-  toggleCamera,
-  micEnabled,
-  cameraEnabled,
-} = useMedia({ video });
+
+    localStream,
+
+    startMedia,
+
+    stopMedia,
+
+    toggleMic,
+
+    toggleCamera,
+
+    micEnabled,
+
+    cameraEnabled,
+
+  } = useMedia();
 
   // ===============================
-  // PEER CONNECTION
+  // PEER
   // ===============================
 
   const {
@@ -46,10 +54,6 @@ const useWebRTC = ({
 
     createPeer,
 
-    destroyPeer,
-
-    resetPeer,
-
     createOffer,
 
     createAnswer,
@@ -58,16 +62,24 @@ const useWebRTC = ({
 
     addIceCandidate,
 
+    destroyPeer,
+
   } = usePeerConnection();
 
   // ===============================
   // CALL STATE
   // ===============================
 
+  const [calling, setCalling] =
+    useState(false);
+
   const [receivingCall, setReceivingCall] =
     useState(false);
 
   const [callAccepted, setCallAccepted] =
+    useState(false);
+
+  const [incomingVideo, setIncomingVideo] =
     useState(false);
 
   const [caller, setCaller] =
@@ -79,12 +91,6 @@ const useWebRTC = ({
   const [callStartedAt, setCallStartedAt] =
     useState(null);
 
-  const [calling, setCalling] =
-    useState(false);
-
-const [incomingVideo,setIncomingVideo] =
-useState(false);
-
   // ===============================
   // REFS
   // ===============================
@@ -95,12 +101,56 @@ useState(false);
   const mountedRef =
     useRef(true);
 
+  const callTypeRef =
+    useRef("voice");
+
+  const initializedRef =
+  useRef(false);
+
+ // ======================================
+// INITIALIZE MEDIA
+// ======================================
+
+useEffect(() => {
+
+  if (initializedRef.current) {
+    return;
+  }
+
+  initializedRef.current = true;
+
+  startMedia();
+
+  return () => {
+
+    stopMedia();
+
+    destroyPeer();
+
+  };
+
+}, [
+  startMedia,
+  stopMedia,
+  destroyPeer,
+]);
+
   // ===============================
-  // INITIALIZE MEDIA USE EFFECTS 
+  // MOUNT
   // ===============================
 
+  useEffect(() => {
 
-  
+    mountedRef.current = true;
+
+    return () => {
+
+      mountedRef.current = false;
+
+    };
+
+  }, []);
+
 
 // ===============================
   // SOCKET EVENTS
@@ -110,9 +160,9 @@ useState(false);
 
     if (!socket) return;
 
-    // -------------------------------
+    // -----------------------------
     // Incoming Call
-    // -------------------------------
+    // -----------------------------
 
     const handleIncomingCall = ({
       from,
@@ -120,34 +170,28 @@ useState(false);
       callType,
     }) => {
 
-      console.log("📥 incoming-call event received");
-console.log({
-  from,
-  signal,
-  callType,
-});
-
-      setReceivingCall(true);
+      console.log(
+        "📥 Incoming Call"
+      );
 
       setCaller(from);
 
       setCallerSignal(signal);
 
       setIncomingVideo(
-      callType === "video"
-    );
+        callType === "video"
+      );
+
+      setReceivingCall(true);
 
     };
 
-    // -------------------------------
+    // -----------------------------
     // Call Accepted
-    // -------------------------------
+    // -----------------------------
 
     const handleCallAccepted =
       async (answer) => {
-
-console.log("✅ call-accepted received");
-console.log(answer);
 
         try {
 
@@ -155,14 +199,15 @@ console.log(answer);
             answer
           );
 
-         if (timeoutRef.current) {
-  clearTimeout(timeoutRef.current);
-  timeoutRef.current = null;
-}
+          clearTimeout(
+            timeoutRef.current
+          );
 
-          setCallAccepted(true);
+          timeoutRef.current = null;
 
           setCalling(false);
+
+          setCallAccepted(true);
 
           setCallStartedAt(
             Date.now()
@@ -170,44 +215,38 @@ console.log(answer);
 
         } catch (err) {
 
-          console.error(
-            "Call Accepted Error:",
-            err
-          );
+          console.error(err);
 
         }
 
       };
 
-    // -------------------------------
-    // ICE Candidate
-    // -------------------------------
+    // -----------------------------
+    // ICE
+    // -----------------------------
 
     const handleIceCandidate =
-async ({ candidate }) => {
+      async ({
+        candidate,
+      }) => {
 
-console.log("🧊 ICE candidate received");
-console.log(candidate);
+        try {
 
-  try {
+          await addIceCandidate(
+            candidate
+          );
 
-    await addIceCandidate(candidate);
+        } catch (err) {
 
-  } catch (err) {
+          console.error(err);
 
-    console.error(
-      "ICE Error:",
-      err
-    );
+        }
 
-  }
+      };
 
-};
-
-
-    // -------------------------------
+    // -----------------------------
     // End Call
-    // -------------------------------
+    // -----------------------------
 
     const handleCallEnded =
       () => {
@@ -216,33 +255,29 @@ console.log(candidate);
           "📴 Call Ended"
         );
 
-       if (peerRef.current) {
-
-  peerRef.current.onicecandidate = null;
-
-}
-
         stopMedia();
 
         destroyPeer();
+
+        setCalling(false);
 
         setReceivingCall(false);
 
         setCallAccepted(false);
 
-        setCalling(false);
-
         setCaller(null);
 
         setCallerSignal(null);
 
-        setCallStartedAt(
-          null
-        );
-       
         setIncomingVideo(false);
 
+        setCallStartedAt(null);
+
       };
+
+    // -----------------------------
+    // Register
+    // -----------------------------
 
     socket.on(
       "incoming-call",
@@ -259,23 +294,15 @@ console.log(candidate);
       handleIceCandidate
     );
 
-
-
     socket.on(
       "call-ended",
       handleCallEnded
     );
 
-
-   socket.on("call-rejected", () => {
-
-  stopMedia();
-
-  destroyPeer();
-
-  setCalling(false);
-
-});
+    socket.on(
+      "call-rejected",
+      handleCallEnded
+    );
 
     return () => {
 
@@ -299,7 +326,10 @@ console.log(candidate);
         handleCallEnded
       );
 
-     socket.off("call-rejected");
+      socket.off(
+        "call-rejected",
+        handleCallEnded
+      );
 
     };
 
@@ -311,303 +341,415 @@ console.log(candidate);
     stopMedia,
   ]);
 
-  // ===============================
-  // CONNECTION TIMEOUT
-  // ===============================
 
-  useEffect(() => {
+// ======================================
+// END CALL
+// ======================================
 
-    if (!calling)
-      return;
+const endCall = useCallback(() => {
 
-    timeoutRef.current =
-      setTimeout(() => {
+  console.log("📴 Ending Call");
 
-        console.log(
-          "⌛ Call Timed Out"
-        );
+  // -----------------------------
+  // Stop timeout
+  // -----------------------------
 
-        stopMedia();
+  if (timeoutRef.current) {
 
-        destroyPeer();
+    clearTimeout(
+      timeoutRef.current
+    );
 
-        setCalling(false);
+    timeoutRef.current = null;
 
-      }, 30000);
+  }
 
-    return () => {
+  // -----------------------------
+  // Notify remote user
+  // -----------------------------
 
-      clearTimeout(
-        timeoutRef.current
-      );
+  const targetUser =
+  selectedUser?._id || caller;
 
-    };
+if (socket && targetUser) {
 
-  }, [
-    calling,
-    stopMedia,
-    destroyPeer,
-  ]);
+  socket.emit("end-call", {
+    to: targetUser,
+  });
 
+}
 
+  // -----------------------------
+  // Stop local media
+  // -----------------------------
 
-// ===============================
-  // START CALL
-  // ===============================
+  stopMedia();
 
-  const callUser =
-  useCallback(async () => {
+  // -----------------------------
+  // Destroy peer connection
+  // -----------------------------
 
-    if (
- !selectedUser ||
- !currentUser ||
- !localStream ||
- !socket
-) {
-      return;
-    }
+  destroyPeer();
+  
 
-    // Prevent duplicate calls
-    if (peerRef.current) {
-      console.log(
-        "Peer connection already exists."
-      );
-      return;
-    }
+  // -----------------------------
+  // Reset call state
+  // -----------------------------
 
-    try {
+  setCalling(false);
 
-      await startMedia();
+  setReceivingCall(false);
 
-const peer = createPeer(localStream);
+  setCallAccepted(false);
 
-      peer.onicecandidate =
-        (event) => {
+  setCaller(null);
 
-          if (!event.candidate)
-            return;
+  setCallerSignal(null);
 
-          socket.emit(
-            "ice-candidate",
-            {
-              to:
-                selectedUser._id,
+  setIncomingVideo(false);
 
-              from:
-                currentUser,
+  setCallStartedAt(null);
 
-              candidate:
-                event.candidate,
-            }
-          );
+}, [
 
-        };
+  socket,
 
-      const offer =
-        await createOffer();
+  selectedUser,
+  caller,
+
+  stopMedia,
+
+  destroyPeer,
+
+]);
 
 
-console.log("📤 Emitting call-user", {
-  to: selectedUser._id,
-  from: currentUser,
-  callType: video ? "video" : "voice",
-});
 
-      socket.emit(
-        "call-user",
-        {
-          to:
-            selectedUser._id,
 
-          from:
-            currentUser,
+// ======================================
+// START CALL
+// ======================================
 
-          signal:
-            offer,
+const callUser = useCallback(async () => {
 
-          callType:
-            video
-              ? "video"
-              : "voice",
-        }
-      );
-
-      setCalling(true);
-
-    } catch (err) {
-
-      console.error(
-        "Call Error:",
-        err
-      );
-
-    }
-
-  }, [
-    peerRef,
-    localStream,
-    currentUser,
-    selectedUser,
-    socket,
-    video,
-    createPeer,
-    createOffer,
-  ]);
-
-  // ===============================
-  // ANSWER CALL
-  // ===============================
-
-  const answerCall = useCallback(async () => {
-
-  if (peerRef.current) {
-    console.log("Peer already exists.");
+  if (
+    !socket ||
+    !selectedUser ||
+    !currentUser
+  ) {
     return;
   }
 
-  if (!callerSignal || !localStream) {
+  if (calling) {
+    return;
+  }
+
+  if (peerRef.current) {
+    console.log(
+      "Peer already exists."
+    );
     return;
   }
 
   try {
 
+    // ----------------------------------
+    // Start Camera/Microphone
+    // ----------------------------------
 
-    await startMedia();
+    const stream =
+      await startMedia();
 
-const peer = createPeer(localStream);
-    peer.onicecandidate = (event) => {
+    if (!stream) {
 
-      if (!event.candidate) return;
+      console.log(
+        "No local stream."
+      );
 
-      socket.emit("ice-candidate", {
-        to: caller,
-        from: currentUser,
-        candidate: event.candidate,
-      });
+      return;
 
-    };
-
-    await setRemoteDescription(callerSignal);
-
-    const answer = await createAnswer();
-
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
     }
 
-console.log("📤 Sending answer-call");
+    // ----------------------------------
+    // Create Peer
+    // ----------------------------------
 
-    socket.emit("answer-call", {
-      to: caller,
-      signal: answer,
-    });
+    createPeer(stream);
 
-    setReceivingCall(false);
-    setCallAccepted(true);
-    setCallStartedAt(Date.now());
+    // ----------------------------------
+    // ICE Candidates
+    // ----------------------------------
+
+    peerRef.current.onicecandidate =
+      (event) => {
+
+        if (!event.candidate) return;
+
+        socket.emit(
+          "ice-candidate",
+          {
+            to: selectedUser._id,
+            candidate:
+              event.candidate,
+          }
+        );
+
+      };
+
+    // ----------------------------------
+    // SDP Offer
+    // ----------------------------------
+
+    const offer =
+      await createOffer();
+
+    socket.emit(
+      "call-user",
+      {
+        to:
+          selectedUser._id,
+
+        from:
+          currentUser,
+
+        signal:
+          offer,
+
+  const startVoiceCall = () => {
+  callTypeRef.current = "voice";
+  callUser();
+};
+
+  const startVideoCall = () => {
+  callTypeRef.current = "video";
+  callUser();
+};
+      }
+    );
+
+    console.log(
+      "📤 Calling",
+      selectedUser.name
+    );
+
+    setCalling(true);
+
+    timeoutRef.current =
+      setTimeout(() => {
+
+        console.log(
+          "⌛ Call Timeout"
+        );
+
+        endCall();
+
+      }, CALL_TIMEOUT);
 
   } catch (err) {
 
-    console.error(err);
+    console.error(
+      "Call Error:",
+      err
+    );
+
+    endCall();
 
   }
 
 }, [
-  peerRef,
-  caller,
-  callerSignal,
-  currentUser,
+
   socket,
-  localStream,
+
+  currentUser,
+
+  selectedUser,
+
+  
+
+  calling,
+
+  startMedia,
+
   createPeer,
-  createAnswer,
-  setRemoteDescription,
+
+  createOffer,
+
+  endCall,
+
 ]);
 
-  // ===============================
-  // END CALL
-  // ===============================
 
-  const endCall =
-    useCallback(() => {
+// ======================================
+// ANSWER CALL
+// ======================================
 
-      if (
-        selectedUser
-      ) {
+const answerCall = useCallback(async () => {
 
+  if (
+    !socket ||
+    !caller ||
+    !callerSignal
+  ) {
+    return;
+  }
 
-console.log("📴 Sending end-call");
+  if (peerRef.current) {
+    console.log(
+      "Peer already exists."
+    );
+    return;
+  }
+
+  try {
+
+    // ----------------------------------
+    // Start Camera/Microphone
+    // ----------------------------------
+
+    const stream =
+      await startMedia();
+
+    if (!stream) {
+
+      console.log(
+        "No local stream."
+      );
+
+      return;
+
+    }
+
+    // ----------------------------------
+    // Create Peer
+    // ----------------------------------
+
+    createPeer(stream);
+
+    // ----------------------------------
+    // ICE Candidates
+    // ----------------------------------
+
+    peerRef.current.onicecandidate =
+      (event) => {
+
+        if (!event.candidate) return;
 
         socket.emit(
-          "end-call",
+          "ice-candidate",
           {
-            to:
-              selectedUser._id,
+            to: caller,
+            candidate:
+              event.candidate,
           }
         );
 
+      };
+
+    // ----------------------------------
+    // Receive Offer
+    // ----------------------------------
+
+    await setRemoteDescription(
+      callerSignal
+    );
+
+    // ----------------------------------
+    // Create Answer
+    // ----------------------------------
+
+    const answer =
+      await createAnswer();
+
+    socket.emit(
+      "answer-call",
+      {
+        to: caller,
+        signal: answer,
       }
+    );
 
-      stopMedia();
+    clearTimeout(
+      timeoutRef.current
+    );
 
-      destroyPeer();
+    setReceivingCall(false);
 
-      setCalling(false);
+    setCallAccepted(true);
 
-      setReceivingCall(false);
+    setCallStartedAt(
+      Date.now()
+    );
 
-      setCallAccepted(false);
+    console.log(
+      "✅ Call Answered"
+    );
 
-      setCaller(null);
+  } catch (err) {
 
-      setCallerSignal(null);
+    console.error(
+      "Answer Error:",
+      err
+    );
 
-      setCallStartedAt(null);
-      
-      setIncomingVideo(false);
+    endCall();
 
-    }, [
-socket,
-  
-selectedUser,
+  }
 
-stopMedia,
+}, [
 
-destroyPeer,
+  socket,
+
+  caller,
+
+  callerSignal,
+
+  startMedia,
+
+  createPeer,
+
+  createAnswer,
+
+  setRemoteDescription,
+
+  endCall,
 
 ]);
 
 
-// ===============================
-  // RETURN
-  // ===============================
 
-  return {
-  localStream,
-  remoteStream,
+// ======================================
+// CLEANUP
+// ======================================
 
-  calling,
-  receivingCall,
-  callAccepted,
-  callStartedAt,
-  caller,
-  incomingVideo,
+useEffect(() => {
 
-  connectionState,
-  iceConnectionState,
+  return () => {
 
-  microphoneEnabled: micEnabled,
-  cameraEnabled,
+    console.log(
+      "🧹 Cleaning up WebRTC"
+    );
 
-  callUser,
-  answerCall,
-  endCall,
+    if (timeoutRef.current) {
 
-  toggleMicrophone: toggleMic,
-  toggleCamera,
-};
+      clearTimeout(
+        timeoutRef.current
+      );
 
-};
+    }
 
-export default useWebRTC;
+    stopMedia();
+
+    destroyPeer();
+
+  };
+
+}, [
+
+  stopMedia,
+
+  destroyPeer,
+
+]);
+
+
+
