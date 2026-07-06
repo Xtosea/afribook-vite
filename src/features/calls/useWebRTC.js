@@ -487,10 +487,7 @@ const callUser = useCallback(async () => {
   callType: callTypeRef.current,
 });
 
-  const startVideoCall = () => {
-  callTypeRef.current = "video";
-  callUser();
-};
+  
       }
     );
 
@@ -546,6 +543,10 @@ const callUser = useCallback(async () => {
 ]);
 
 
+// ======================================
+//  START VIDEO/VOICE CALL
+// ======================================
+
 const startVoiceCall = useCallback(() => {
   callTypeRef.current = "voice";
   callUser();
@@ -558,7 +559,7 @@ const startVideoCall = useCallback(() => {
 
 
 // ======================================
-// ANSWER CALL
+//  ANSWER CALL
 // ======================================
 
 const answerCall = useCallback(async () => {
@@ -730,4 +731,29 @@ useEffect(() => {
 ]);
 
 
+return {
+  localStream,
+  remoteStream,
 
+  calling,
+  receivingCall,
+  callAccepted,
+  incomingVideo,
+
+  micEnabled,
+  cameraEnabled,
+
+  startVoiceCall,
+  startVideoCall,
+
+  answerCall,
+  endCall,
+
+  toggleMic,
+  toggleCamera,
+
+  connectionState,
+  iceConnectionState,
+
+  callStartedAt,
+};
