@@ -28,11 +28,11 @@ const useWebRTC = ({
 
     stopMedia,
 
-    toggleMic,
+    toggleMicrophone,
 
     toggleCamera,
 
-    micEnabled,
+    microphoneEnabled,
 
     cameraEnabled,
 
@@ -734,13 +734,13 @@ return {
   receivingCall,
   callAccepted,
   incomingVideo,
-  micEnabled,
+  microphoneEnabled,
   cameraEnabled,
   startVoiceCall,
   startVideoCall,
   answerCall,
   endCall,
-  toggleMic,
+  toggleMicrophone,
   toggleCamera,
   connectionState,
   iceConnectionState,
