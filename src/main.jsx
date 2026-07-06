@@ -38,9 +38,9 @@ ReactDOM.createRoot(
   <CallProvider>
     <Logout/>
 
-    <App />
+    <App/>
 
+  </CallProvider>
   </AuthProvider>
- </CallProvider>
-</BrowserRouter>
+  </BrowserRouter>
 );
