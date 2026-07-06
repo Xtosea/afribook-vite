@@ -1,17 +1,22 @@
 import {
-  useEffect,
-  useState,
   useRef,
+  useState,
   useCallback,
 } from "react";
 
 import {
   createPeerConnection,
   addLocalTracks,
-  closePeer,
+  closePeerConnection,
 } from "./rtc";
 
 const usePeerConnection = () => {
+
+  // ===============================
+  // REFS
+  // ===============================
+
+  const peerRef = useRef(null);
 
   // ===============================
   // STATE
@@ -23,25 +28,17 @@ const usePeerConnection = () => {
   const [connectionState, setConnectionState] =
     useState("new");
 
-  const [iceConnectionState, setIceConnectionState] =
-    useState("new");
-
-  // ===============================
-  // REFS
-  // ===============================
-
-  const peerRef =
-    useRef(null);
-
-  const remoteCandidatesRef =
-    useRef([]);
+  const [
+    iceConnectionState,
+    setIceConnectionState,
+  ] = useState("new");
 
   // ===============================
   // CREATE PEER
   // ===============================
 
-  const createPeer =
-    useCallback((localStream) => {
+  const createPeer = useCallback(
+    (localStream) => {
 
       if (peerRef.current) {
         return peerRef.current;
@@ -50,28 +47,11 @@ const usePeerConnection = () => {
       const peer =
         createPeerConnection();
 
-      peerRef.current =
-        peer;
+      peerRef.current = peer;
 
-      peer.oniceconnectionstatechange = () => {
-
-  console.log(
-    "ICE:",
-    peer.iceConnectionState
-  );
-
-  if (
-    peer.iceConnectionState === "failed" ||
-    peer.iceConnectionState === "disconnected"
-  ) {
-
-    // Notify the caller (or invoke a callback) to end the call.
-    // Don't call endCall() directly here unless createPeer()
-    // has access to it.
-
-  }
-
-};
+      // -------------------------------
+      // Add local media
+      // -------------------------------
 
       if (localStream) {
         addLocalTracks(
@@ -80,31 +60,34 @@ const usePeerConnection = () => {
         );
       }
 
-      
+      // -------------------------------
+      // Remote stream
+      // -------------------------------
 
-      // ============================
-      // REMOTE TRACK
-      // ============================
+      const incomingStream =
+        new MediaStream();
 
-      peer.ontrack =
-        (event) => {
+      setRemoteStream(
+        incomingStream
+      );
 
-          if (
-            event.streams &&
-            event.streams.length
-          ) {
+      peer.ontrack = (event) => {
 
-            setRemoteStream(
-              event.streams[0]
+        event.streams[0]
+          .getTracks()
+          .forEach((track) => {
+
+            incomingStream.addTrack(
+              track
             );
 
-          }
+          });
 
-        };
+      };
 
-      // ============================
-      // CONNECTION STATE
-      // ============================
+      // -------------------------------
+      // Connection state
+      // -------------------------------
 
       peer.onconnectionstatechange =
         () => {
@@ -115,9 +98,9 @@ const usePeerConnection = () => {
 
         };
 
-      // ============================
-      // ICE STATE
-      // ============================
+      // -------------------------------
+      // ICE state
+      // -------------------------------
 
       peer.oniceconnectionstatechange =
         () => {
@@ -130,69 +113,30 @@ const usePeerConnection = () => {
 
       return peer;
 
-    }, []);
+    },
+    []
+  );
 
   // ===============================
-  // CLOSE PEER
-  // ===============================
-
-  const destroyPeer =
-    useCallback(() => {
-
-      if (!peerRef.current)
-        return;
-
-      closePeer(
-        peerRef.current
-      );
-
-      peerRef.current =
-        null;
-
-      setRemoteStream(
-        null
-      );
-
-      setConnectionState(
-        "closed"
-      );
-
-      setIceConnectionState(
-        "closed"
-      );
-
-      remoteCandidatesRef.current =
-        [];
-
-    }, []);
-
-  // ====================================================
-  // PART 2 STARTS HERE
-  // createOffer()
-  // createAnswer()
-  // setRemoteDescription()
-  // ICE handling
-  // ====================================================
-
-// ===============================
   // CREATE OFFER
   // ===============================
 
   const createOffer =
     useCallback(async () => {
 
-      if (!peerRef.current)
+      const peer =
+        peerRef.current;
+
+      if (!peer) {
         throw new Error(
-          "Peer connection not created."
+          "Peer not created."
         );
+      }
 
       const offer =
-        await peerRef.current.createOffer({
-          offerToReceiveAudio: true,
-          offerToReceiveVideo: true,
-        });
+        await peer.createOffer();
 
-      await peerRef.current.setLocalDescription(
+      await peer.setLocalDescription(
         offer
       );
 
@@ -207,15 +151,19 @@ const usePeerConnection = () => {
   const createAnswer =
     useCallback(async () => {
 
-      if (!peerRef.current)
+      const peer =
+        peerRef.current;
+
+      if (!peer) {
         throw new Error(
-          "Peer connection not created."
+          "Peer not created."
         );
+      }
 
       const answer =
-        await peerRef.current.createAnswer();
+        await peer.createAnswer();
 
-      await peerRef.current.setLocalDescription(
+      await peer.setLocalDescription(
         answer
       );
 
@@ -228,67 +176,47 @@ const usePeerConnection = () => {
   // ===============================
 
   const setRemoteDescription =
-    useCallback(async (description) => {
+    useCallback(
+      async (description) => {
 
-      if (!peerRef.current)
-        throw new Error(
-          "Peer connection not created."
-        );
+        const peer =
+          peerRef.current;
 
-      await peerRef.current.setRemoteDescription(
-        new RTCSessionDescription(
-          description
-        )
-      );
-
-      // Flush queued ICE candidates
-
-      while (
-        remoteCandidatesRef.current.length
-      ) {
-
-        const candidate =
-          remoteCandidatesRef.current.shift();
-
-        try {
-
-          await peerRef.current.addIceCandidate(
-            new RTCIceCandidate(
-              candidate
-            )
-          );
-
-        } catch (err) {
-
-          console.error(
-            "ICE Candidate Error:",
-            err
-          );
-
+        if (!peer) {
+          return;
         }
 
-      }
+        await peer.setRemoteDescription(
+          new RTCSessionDescription(
+            description
+          )
+        );
 
-    }, []);
+      },
+      []
+    );
 
   // ===============================
   // ADD ICE CANDIDATE
   // ===============================
 
   const addIceCandidate =
-    useCallback(async (candidate) => {
+    useCallback(
+      async (candidate) => {
 
-      if (!peerRef.current)
-        return;
+        const peer =
+          peerRef.current;
 
-      if (
-        peerRef.current.remoteDescription &&
-        peerRef.current.remoteDescription.type
-      ) {
+        if (
+          !peer ||
+          !candidate
+        ) {
+          return;
+        }
 
         try {
 
-          await peerRef.current.addIceCandidate(
+          await peer.addIceCandidate(
             new RTCIceCandidate(
               candidate
             )
@@ -297,98 +225,75 @@ const usePeerConnection = () => {
         } catch (err) {
 
           console.error(
-            "Failed to add ICE candidate:",
+            "ICE candidate error:",
             err
           );
 
         }
 
-      } else {
+      },
+      []
+    );
 
-        remoteCandidatesRef.current.push(
-          candidate
+  // ===============================
+  // DESTROY PEER
+  // ===============================
+
+  const destroyPeer =
+    useCallback(() => {
+
+      if (
+        peerRef.current
+      ) {
+
+        closePeerConnection(
+          peerRef.current
         );
+
+        peerRef.current =
+          null;
 
       }
 
+      setRemoteStream(
+        null
+      );
+
+      setConnectionState(
+        "new"
+      );
+
+      setIceConnectionState(
+        "new"
+      );
+
     }, []);
 
   // ===============================
-  // GET PEER INSTANCE
-  // ===============================
-
-  const getPeer =
-    useCallback(() => {
-
-      return peerRef.current;
-
-    }, []);
-
-
-
-
-  // ===============================
-  // RESET PEER
-  // ===============================
-
-  const resetPeer =
-    useCallback(() => {
-
-      destroyPeer();
-
-      peerRef.current = null;
-
-      remoteCandidatesRef.current = [];
-
-      setRemoteStream(null);
-
-      setConnectionState("new");
-
-      setIceConnectionState("new");
-
-    }, [destroyPeer]);
-
-  // ===============================
-  // CLEANUP
-  // ===============================
-
-  useEffect(() => {
-
-    return () => {
-
-      destroyPeer();
-
-    };
-
-  }, [destroyPeer]);
-
-  // ===============================
-  // EXPORT HOOK
+  // RETURN
   // ===============================
 
   return {
 
-    // refs
     peerRef,
 
-    // state
     remoteStream,
+
     connectionState,
+
     iceConnectionState,
 
-    // peer methods
     createPeer,
-    destroyPeer,
-    resetPeer,
-    getPeer,
 
-    // SDP
     createOffer,
+
     createAnswer,
+
     setRemoteDescription,
 
-    // ICE
     addIceCandidate,
+
+    destroyPeer,
 
   };
 
