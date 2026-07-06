@@ -111,29 +111,6 @@ const useWebRTC = ({
 // INITIALIZE MEDIA
 // ======================================
 
-useEffect(() => {
-
-  if (initializedRef.current) {
-    return;
-  }
-
-  initializedRef.current = true;
-
-  startMedia();
-
-  return () => {
-
-    stopMedia();
-
-    destroyPeer();
-
-  };
-
-}, [
-  startMedia,
-  stopMedia,
-  destroyPeer,
-]);
 
   // ===============================
   // MOUNT
@@ -503,22 +480,12 @@ const callUser = useCallback(async () => {
     const offer =
       await createOffer();
 
-    socket.emit(
-      "call-user",
-      {
-        to:
-          selectedUser._id,
-
-        from:
-          currentUser,
-
-        signal:
-          offer,
-
-  const startVoiceCall = () => {
-  callTypeRef.current = "voice";
-  callUser();
-};
+    socket.emit("call-user", {
+  to: selectedUser._id,
+  from: currentUser,
+  signal: offer,
+  callType: callTypeRef.current,
+});
 
   const startVideoCall = () => {
   callTypeRef.current = "video";
@@ -577,6 +544,17 @@ const callUser = useCallback(async () => {
   endCall,
 
 ]);
+
+
+const startVoiceCall = useCallback(() => {
+  callTypeRef.current = "voice";
+  callUser();
+}, [callUser]);
+
+const startVideoCall = useCallback(() => {
+  callTypeRef.current = "video";
+  callUser();
+}, [callUser]);
 
 
 // ======================================
