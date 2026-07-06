@@ -266,6 +266,17 @@ console.log(candidate);
       handleCallEnded
     );
 
+
+   socket.on("call-rejected", () => {
+
+  stopMedia();
+
+  destroyPeer();
+
+  setCalling(false);
+
+});
+
     return () => {
 
       socket.off(
@@ -287,6 +298,8 @@ console.log(candidate);
         "call-ended",
         handleCallEnded
       );
+
+     socket.off("call-rejected");
 
     };
 
