@@ -90,6 +90,7 @@ const useWebRTC = ({
 
   const [callStartedAt, setCallStartedAt] =
     useState(null);
+const [video, setVideo] =     useState(false);
 
   // ===============================
   // REFS
@@ -142,26 +143,26 @@ const useWebRTC = ({
     // -----------------------------
 
     const handleIncomingCall = ({
-      from,
-      signal,
-      callType,
-    }) => {
+  from,
+  signal,
+  callType,
+}) => {
 
-      console.log(
-        "📥 Incoming Call"
-      );
+  console.log("📥 Incoming Call");
 
-      setCaller(from);
+  setCaller(from);
 
-      setCallerSignal(signal);
+  setCallerSignal(signal);
 
-      setIncomingVideo(
-        callType === "video"
-      );
+  const isVideo = callType === "video";
 
-      setReceivingCall(true);
+  setIncomingVideo(isVideo);
 
-    };
+  setVideo(isVideo);
+
+  setReceivingCall(true);
+
+};
 
     // -----------------------------
     // Call Accepted
@@ -545,11 +546,13 @@ console.log(
 
 const startVoiceCall = useCallback(() => {
   callTypeRef.current = "voice";
+  setVideo(false);
   callUser();
 }, [callUser]);
 
 const startVideoCall = useCallback(() => {
   callTypeRef.current = "video";
+  setVideo(true);
   callUser();
 }, [callUser]);
 
@@ -735,6 +738,9 @@ return {
   callAccepted,
   incomingVideo,
   microphoneEnabled,
+  video,
+  incomingVideo,
+  
   cameraEnabled,
   startVoiceCall,
   startVideoCall,
