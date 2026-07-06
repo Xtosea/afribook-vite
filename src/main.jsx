@@ -15,7 +15,7 @@ import { AuthProvider } from "./context/AuthContext";
 import { registerSW } from "virtual:pwa-register";
 
 import Logout from "./components/inactivity/Logout";
-import { CallProvider } from "./context/CallProvider";
+import CallProvider from "../features/calls/CallProvider";
 
 
 window.global = window;
