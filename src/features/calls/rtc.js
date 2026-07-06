@@ -1,220 +1,92 @@
 // src/features/calls/rtc.js
 
 // =====================================
-// AfriBook WebRTC Utilities
+// ICE SERVERS
 // =====================================
 
-// Public STUN server.
-// Later we'll add TURN servers here.
+// STUN servers help peers discover their
+// public IP addresses.
+//
+// TURN servers will be added later for
+// production reliability.
 export const ICE_SERVERS = [
   {
-    urls: "stun:stun.l.google.com:19302",
+    urls: [
+      "stun:stun.l.google.com:19302",
+      "stun:stun1.l.google.com:19302",
+      "stun:stun2.l.google.com:19302",
+    ],
   },
 ];
 
 // =====================================
-// Create Peer Connection
+// PEER CONNECTION CONFIG
 // =====================================
-export const createPeerConnection = () => {
-  const peer = new RTCPeerConnection({
-    iceServers: ICE_SERVERS,
-    iceCandidatePoolSize: 10,
-  });
 
-  return peer;
+export const RTC_CONFIGURATION = {
+  iceServers: ICE_SERVERS,
+
+  iceCandidatePoolSize: 10,
 };
 
 // =====================================
-// Add Local Tracks
+// CREATE PEER CONNECTION
 // =====================================
+
+export const createPeerConnection = () => {
+  return new RTCPeerConnection(
+    RTC_CONFIGURATION
+  );
+};
+
+// =====================================
+// ADD LOCAL TRACKS
+// =====================================
+
 export const addLocalTracks = (
   peer,
   stream
 ) => {
   if (!peer || !stream) return;
 
-  stream
-    .getTracks()
-    .forEach((track) => {
-      peer.addTrack(track, stream);
-    });
+  stream.getTracks().forEach((track) => {
+    peer.addTrack(track, stream);
+  });
 };
 
 // =====================================
-// Get User Media
+// CLOSE PEER CONNECTION
 // =====================================
-export const getLocalStream = async ({
-  video = false,
-  audio = true,
-} = {}) => {
-  try {
-    const stream =
-      await navigator.mediaDevices.getUserMedia({
-        video,
-        audio,
-      });
 
-    return stream;
-  } catch (err) {
-    console.error(
-      "Failed to get media:",
-      err
-    );
-
-    throw err;
-  }
-};
-
-// =====================================
-// Stop Stream
-// =====================================
-export const stopStream = (
-  stream
-) => {
-  if (!stream) return;
-
-  stream
-    .getTracks()
-    .forEach((track) =>
-      track.stop()
-    );
-};
-
-// =====================================
-// Close Peer
-// =====================================
-export const closePeer = (
+export const closePeerConnection = (
   peer
 ) => {
   if (!peer) return;
 
-  peer.ontrack = null;
-  peer.onicecandidate = null;
-  peer.onconnectionstatechange =
-    null;
-  peer.oniceconnectionstatechange =
-    null;
+  try {
+    peer.ontrack = null;
 
-  peer.close();
-};
+    peer.onicecandidate = null;
 
-// =====================================
-// Toggle Microphone
-// =====================================
-export const toggleMicrophone = (
-  stream,
-  enabled
-) => {
-  if (!stream) return;
+    peer.onconnectionstatechange =
+      null;
 
-  stream
-    .getAudioTracks()
-    .forEach((track) => {
-      track.enabled = enabled;
-    });
-};
+    peer.oniceconnectionstatechange =
+      null;
 
-// =====================================
-// Toggle Camera
-// =====================================
-export const toggleCamera = (
-  stream,
-  enabled
-) => {
-  if (!stream) return;
+    peer.getSenders().forEach(
+      (sender) => {
+        try {
+          peer.removeTrack(sender);
+        } catch {}
+      }
+    );
 
-  stream
-    .getVideoTracks()
-    .forEach((track) => {
-      track.enabled = enabled;
-    });
-};
-
-// =====================================
-// Replace Track
-// (Used when switching cameras)
-// =====================================
-export const replaceTrack = async (
-  peer,
-  oldTrack,
-  newTrack
-) => {
-  if (!peer) return;
-
-  const sender =
-    peer
-      .getSenders()
-      .find(
-        (sender) =>
-          sender.track === oldTrack
-      );
-
-  if (sender) {
-    await sender.replaceTrack(
-      newTrack
+    peer.close();
+  } catch (err) {
+    console.error(
+      "Failed to close peer:",
+      err
     );
   }
 };
-
-// =====================================
-// Get Connection State
-// =====================================
-export const getConnectionState =
-  (peer) => {
-    if (!peer)
-      return "disconnected";
-
-    return (
-      peer.connectionState ||
-      "new"
-    );
-  };
-
-// =====================================
-// Is Browser Supported
-// =====================================
-export const isWebRTCSupported =
-  () => {
-    return !!(
-      window.RTCPeerConnection &&
-      navigator.mediaDevices &&
-      navigator.mediaDevices
-        .getUserMedia
-    );
-  };
-
-// =====================================
-// Default Call Timeout
-// =====================================
-export const CALL_TIMEOUT =
-  30000;
-
-// =====================================
-// ICE Gathering Timeout
-// =====================================
-export const ICE_TIMEOUT =
-  10000;
-
-// =====================================
-// Default Audio Constraints
-// =====================================
-export const AUDIO_CONSTRAINTS =
-  {
-    echoCancellation: true,
-    noiseSuppression: true,
-    autoGainControl: true,
-  };
-
-// =====================================
-// Default Video Constraints
-// =====================================
-export const VIDEO_CONSTRAINTS =
-  {
-    width: {
-      ideal: 1280,
-    },
-    height: {
-      ideal: 720,
-    },
-    facingMode: "user",
-  };
