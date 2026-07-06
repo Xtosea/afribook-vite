@@ -16,6 +16,9 @@ export const CallProvider = ({
   const [showIncomingCall, setShowIncomingCall] =
     useState(false);
 
+const [pendingCall, setPendingCall] =
+  useState(null);
+
   return (
     <CallContext.Provider
       value={{
@@ -23,6 +26,8 @@ export const CallProvider = ({
         setIncomingCall,
         showIncomingCall,
         setShowIncomingCall,
+        pendingCall,
+        setPendingCall,
       }}
     >
       {children}
