@@ -228,30 +228,6 @@ useEffect(() => {
 ]);
 
 
-useEffect(() => {
-
-  if (!isOutgoing)
-    return;
-
-  if (startedCallRef.current)
-    return;
-
-  if (!selectedUser)
-    return;
-
-  startedCallRef.current = true;
-
-  callUser();
-
-}, [
-
-  isOutgoing,
-
-  selectedUser,
-
-  callUser,
-
-]);
 
 
 useEffect(() => {
