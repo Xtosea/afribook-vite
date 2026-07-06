@@ -250,6 +250,8 @@ const [video, setVideo] =     useState(false);
         setIncomingVideo(false);
 
         setCallStartedAt(null);
+        
+        setVideo(false);
 
       };
 
@@ -435,8 +437,9 @@ const callUser = useCallback(async () => {
     // Start Camera/Microphone
     // ----------------------------------
 
-    const stream =
-      await startMedia();
+    const stream = await startMedia({
+  video: callTypeRef.current === "video",
+});
 
     if (!stream) {
 
@@ -584,8 +587,9 @@ const answerCall = useCallback(async () => {
     // Start Camera/Microphone
     // ----------------------------------
 
-    const stream =
-      await startMedia();
+    const stream = await startMedia({
+  video,
+});
 
     if (!stream) {
 
@@ -736,7 +740,7 @@ return {
   calling,
   receivingCall,
   callAccepted,
-  incomingVideo,
+  
   microphoneEnabled,
   video,
   incomingVideo,
