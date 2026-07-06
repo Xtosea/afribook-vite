@@ -379,12 +379,7 @@ console.log(candidate);
 
       await startMedia();
 
-      const stream = await startMedia();
-
-      const peer = createPeer(stream);
-
-      const peer =
-        createPeer(localStream);
+const peer = createPeer(localStream);
 
       peer.onicecandidate =
         (event) => {
@@ -478,13 +473,8 @@ console.log("📤 Emitting call-user", {
 
 
     await startMedia();
-    
-   const stream = await startMedia();
 
-   const peer = createPeer(stream);
-
-    const peer = createPeer(localStream);
-
+const peer = createPeer(localStream);
     peer.onicecandidate = (event) => {
 
       if (!event.candidate) return;
