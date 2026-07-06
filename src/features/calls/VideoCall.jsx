@@ -17,17 +17,23 @@ const VideoCall = ({
   defaultProfile,
   onClose,
 
+  localStream,
   remoteStream,
+
   calling,
   receivingCall,
   callAccepted,
   callStartedAt,
 
   microphoneEnabled,
+  cameraEnabled,
+
   callUser,
   answerCall,
   endCall,
-  toggleMicr
+
+  toggleMicrophone,
+  toggleCamera,
 }) => {
 
 
