@@ -14,8 +14,11 @@ const CallControls = ({
   onToggleMicrophone,
   onToggleCamera,
   onToggleSpeaker,
+
   onEndCall,
-  onAnswer
+  onAnswer,
+
+  incoming,
 }) => {
 
   return (
@@ -64,6 +67,17 @@ const CallControls = ({
         </button>
 
       )}
+
+
+      {/* Answer */}
+{incoming && (
+  <button
+    onClick={onAnswer}
+    className="w-16 h-16 rounded-full bg-green-600 hover:bg-green-700 flex items-center justify-center text-2xl transition"
+  >
+    ✅
+  </button>
+)}
 
       {/* End Call */}
 
