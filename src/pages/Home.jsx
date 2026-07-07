@@ -699,10 +699,8 @@ Retry
 
 
 
-// ================= RENDER =================
+// =================UI RENDER =================
 
-
-return (
 
 
 const feedSections = {
@@ -764,6 +762,9 @@ const feedSections = {
   ),
 };
 
+
+
+return (
 
 <div className="
 w-full
