@@ -36,6 +36,10 @@ import {
   Bookmark,
   UserPlus,
   Trophy,
+  CalendarDays,
+  Store,
+  Megaphone,
+  Clapperboard,
 } from "lucide-react";
 
 
@@ -286,47 +290,41 @@ const Navbar = () => {
 
             
 
-            <div className="flex flex-col gap-3">
+           <h3 className="font-semibold text-gray-500 uppercase text-xs mb-3">
+  👥 Social
+</h3>
 
-              <Link onClick={() => setMobileOpen(false)} to="/" className="flex items-center gap-2">
-                <Home size={18} /> Home
-              </Link>
+<div className="grid grid-cols-2 gap-4 mb-6">
 
-              <Link onClick={() => setMobileOpen(false)} to="/reels" className="flex items-center gap-2">
-                <Video size={18} /> Reels
-              </Link>
+  <Link ...>
+    <Home size={32} />
+    <span className="mt-2 text-sm font-medium">
+      Home
+    </span>
+  </Link>
 
-              <Link onClick={() => setMobileOpen(false)} to="/messages" className="flex items-center gap-2">
-                <MessageCircle size={18} /> Messages
-              </Link>
+  <Link ...>
+    <User size={32} />
+    <span className="mt-2 text-sm font-medium">
+      Profile
+    </span>
+  </Link>
 
-              <Link onClick={() => setMobileOpen(false)} to="/friends" className="flex items-center gap-2">
-                <Users size={18} /> Friends
-              </Link>
+  <Link ...>
+    <Users size={32} />
+    <span className="mt-2 text-sm font-medium">
+      Friends
+    </span>
+  </Link>
 
-              <Link onClick={() => setMobileOpen(false)} to="/friend-requests" className="flex items-center gap-2">
-                <UserPlus size={18} /> Requests
-              </Link>
+  <Link ...>
+    <Users size={32} />
+    <span className="mt-2 text-sm font-medium">
+      Discover
+    </span>
+  </Link>
 
-              <Link onClick={() => setMobileOpen(false)} to="/saved" className="flex items-center gap-2">
-                <Bookmark size={18} /> Saved
-              </Link>
-
-              <Link onClick={() => setMobileOpen(false)} to="/profile" className="flex items-center gap-2">
-                <User size={18} /> Profile
-              </Link>
-
-              <Link onClick={() => setMobileOpen(false)} to="/wallet" className="flex items-center gap-2">
-                <Wallet size={18} /> Wallet
-              </Link>
-
-              <button
-                onClick={handleLogout}
-                className="mt-4 bg-red-500 text-white py-2 rounded"
-              >
-                Logout
-              </button>
-            </div>
+</div>
 
           </div>
         </div>
