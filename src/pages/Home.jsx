@@ -887,7 +887,7 @@ reels.length>0 &&
 
 (
 
-<FeedSection
+{/*<FeedSection
 
 title="🎬 Trending Reels"
 
@@ -898,7 +898,7 @@ title="🎬 Trending Reels"
 
 reels={reels}
 
-/>
+/>*/}
 
 
 </FeedSection>
