@@ -6,7 +6,7 @@ import {
 
 import {
   useCall,
-} from "../../context/CallContext";
+} from "../../context/CallProvider";
 
 const IncomingCallListener = () => {
 
