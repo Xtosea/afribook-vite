@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 
 import {
   useCall,
-} from "../../context/CallProvider.jsx";
+} from "../../context/CallProvider";
 
 const defaultProfile =
   "https://afribook-backend.onrender.com/uploads/profiles/default-profile.png";
