@@ -724,7 +724,7 @@ const feedSections = {
 
   5: (
     <FeedSection title="💰 Top Earners">
-      <TopEarners />
+       <TopEarners />
     </FeedSection>
   ),
 
