@@ -307,35 +307,53 @@ Menu
 
 
 
-  <div className="flex items-center gap-2">
+   <div
+  className="
+    absolute
+    top-2
+    left-1
+    z-50
+    flex
+    items-center
+    gap-2
+    bg-black/40
+    backdrop-blur-sm
+    px-3
+    py-2
+    rounded-xl
+  "
+>
+  <img
+    src={
+      currentUser?.profilePic ||
+      "/default-avatar.png"
+    }
+    alt=""
+    className="
+      w-10
+      h-10
+      rounded-full
+      object-cover
+      border
+      border-white
+    "
+  />
 
-    <img
-      src={
-        currentUser?.profilePicture ||
-        "/default-avatar.png"
-      }
-      alt=""
-      className="w-14 h-14 rounded-full object-cover border-2 border-white"
-    />
+  <div>
+    <p className="text-white font-semibold text-sm">
+      {currentUser?.name}
+    </p>
 
-    <div>
-      <p className="text-white font-semibold text-sm">
-        {currentUser?.name}
-      </p>
-
-      <span
-        className="
-          text-xs
-          bg-black/50
-          text-white
-          px-2
-          py-1
-          rounded-full
-        "
-      >
-        🌎 Public
-      </span>
-    </div>
+    <span
+      className="
+        text-xs
+        text-white/80
+      "
+    >
+      🌎 Public
+    </span>
+  </div>
+</div>
 
 
 <div className="mb-4">
