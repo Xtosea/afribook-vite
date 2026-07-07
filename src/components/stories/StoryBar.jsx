@@ -177,6 +177,15 @@ const StoryBar = ({ user }) => {
     return () => delete window.nextStory;
   }, [selectedStory, activeStories]);
 
+
+useEffect(() => {
+  console.log("StoryCreator mounted");
+
+  return () => {
+    console.log("StoryCreator unmounted");
+  };
+}, []);
+
   return (
     <>
       <div className="flex gap-4 overflow-x-auto py-3 px-3 scrollbar-hide">
