@@ -430,12 +430,12 @@ className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"
 
 {/* 💼 BUSINESS */}
 
-import { BriefcaseBusiness } from "lucide-react";
 
 <h1 className="flex items-center justify-center gap-2 mt-6 mb-3 font-bold text-lg text-gray-800 uppercase">
   <BriefcaseBusiness
     size={50}
-    className="text-rust-600"
+    className="text-[#B7410E]"
+
   />
   <span>Business</span>
 </h1>
