@@ -16,6 +16,9 @@ import {
 } from "../../api/api";
 
 const AdminCampaigns = () => {
+const data = await res.json();
+
+console.log("Campaign API:", data);
 
   const [campaigns,
     setCampaigns] =
@@ -47,7 +50,11 @@ const AdminCampaigns = () => {
         const data =
           await res.json();
 
-        setCampaigns(data);
+        setCampaigns(
+  Array.isArray(data)
+    ? data
+    : data.campaigns || data.data || []
+);
 
       } catch (err) {
 
@@ -151,8 +158,8 @@ const AdminCampaigns = () => {
 
       <div className="space-y-4">
 
-        {campaigns.map(
-          campaign => (
+       {Array.isArray(campaigns) &&
+       campaigns.map((campaign) => (
 
             <div
               key={
