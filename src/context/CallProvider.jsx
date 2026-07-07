@@ -36,4 +36,4 @@ const [pendingCall, setPendingCall] =
 };
 
 export const useCall = () =>
-  useContext(CallContext);
+  useContext(CallProvider);
