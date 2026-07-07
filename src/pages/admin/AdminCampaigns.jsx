@@ -16,11 +16,7 @@ import {
 } from "../../api/api";
 
 const AdminCampaigns = () => {
-const data = await res.json();
-
-console.log("Campaign API:", data);
-
-  const [campaigns,
+    const [campaigns,
     setCampaigns] =
     useState([]);
 
@@ -49,6 +45,8 @@ console.log("Campaign API:", data);
 
         const data =
           await res.json();
+
+console.log("Campaign API:", data);
 
         setCampaigns(
   Array.isArray(data)
