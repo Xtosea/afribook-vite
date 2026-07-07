@@ -760,16 +760,18 @@ loading="lazy"
 
 src={
 currentUser?.profilePic ||
-"/default-avatar.png"
-}
-
-className="
-w-16
-h-16
-rounded-full
-"
-
-/>
+      "/default-avatar.png"
+    }
+    alt=""
+    className="
+      w-12
+      h-12
+      rounded-full
+      object-cover
+      border
+      border-white
+    "
+  />
 
 
 <textarea
