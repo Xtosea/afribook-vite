@@ -607,7 +607,7 @@ const feedSections = {
 
   15: (
     <FeedSection title="🎉 Upcoming Events">
-      <UpcCmingEvents />
+      <UpComingEvents />
     </FeedSection>
   ),
 
