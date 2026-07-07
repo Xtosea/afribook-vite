@@ -25,6 +25,8 @@ import FeedSection from "../components/feed/FeedSection";
 import TopCreators from "../components/feed/TopCreators";
 import ChallengesWidget from "../components/feed/ChallengesWidget";
 import PageLoader from "../components/common/PageLoader";
+import Leaderboard from "../pages/Leaderboard";
+
 
 
 const PostCard = lazy(() => import("../components/PostCard"));
