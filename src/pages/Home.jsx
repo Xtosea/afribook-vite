@@ -27,6 +27,7 @@ import ChallengesWidget from "../components/feed/ChallengesWidget";
 import PageLoader from "../components/common/PageLoader";
 import UpcomingEvents from "../events/UpcomingEvents";
 import TopEarners from "../events/TopEarners";
+import TrendingHashtags from "../events/TrendingHashtags";
 
 
 
