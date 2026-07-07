@@ -704,6 +704,67 @@ Retry
 
 return (
 
+
+const feedSections = {
+  1: (
+    <FeedSection title="🎬 Trending Reels">
+      <ReelsHorizontal reels={reels} />
+    </FeedSection>
+  ),
+
+  3: (
+    <FeedSection title="🏆 Top Leaderboard">
+      <Leaderboard />
+    </FeedSection>
+  ),
+
+  5: (
+    <FeedSection title="💰 Top Earners">
+      <TopEarners />
+    </FeedSection>
+  ),
+
+  7: (
+    <FeedSection title="📖 Top Stories">
+       <StoryBar
+        user={currentUser}
+        stories={stories}
+      />
+    </FeedSection>
+  ),
+
+  9: (
+    <FeedSection title="⭐ Top Creators">
+      <TopCreators />
+    </FeedSection>
+  ),
+
+  11: (
+    <FeedSection title="👥 People You May Know">
+      <SuggestedFriends limit={10} />
+    </FeedSection>
+  ),
+
+  13: (
+    <FeedSection title="🔥 Trending Hashtags">
+      <TrendingHashtags />
+    </FeedSection>
+  ),
+
+  15: (
+    <FeedSection title="🎉 Upcoming Events">
+      <UpcomingEvents />
+    </FeedSection>
+  ),
+
+  17: (
+    <FeedSection title="📢 Sponsored">
+      <Adsterra containerId="feed-ad-1" />
+    </FeedSection>
+  ),
+};
+
+
 <div className="
 w-full
 min-h-screen
@@ -881,7 +942,7 @@ currentUserId={currentUserId}
 </Suspense>
 
 
-
+{feedSections[index]}
 
 
 {index===1 &&
