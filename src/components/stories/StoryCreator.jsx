@@ -183,6 +183,8 @@ setCloudinaryUrl(newUrl);
 };
 // ================= POST STORY =================
 const handlePost = async () => {
+
+console.log("POST BUTTON CLICKED");
   if (
     !media &&
     !text &&
