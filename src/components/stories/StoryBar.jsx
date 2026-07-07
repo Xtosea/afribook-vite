@@ -14,7 +14,7 @@ import StoryCreator from "./StoryCreator";
 
 const StoryBar = ({ user }) => {
   const socket = getSocket();
-  const fileRef = useRef();
+  
 
   const {
     uploadStory,
@@ -205,24 +205,9 @@ const StoryBar = ({ user }) => {
             </p>
           </div>
 
-          <input
-            type="file"
-            ref={fileRef}
-            className="hidden"
-            accept="image/*,video/*,audio/*"
-            onChange={(e) => {
-              const file = e.target.files[0];
-              if (!file) return;
+          
 
-              handleUpload({
-                file,
-                text: "",
-                music: null,
-                stickers: [],
-                backgroundColor: "#000000",
-              });
-            }}
-          />
+
         </div>
 
         {/* STORIES */}
