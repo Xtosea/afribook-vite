@@ -431,7 +431,8 @@ className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"
 {/* 💼 BUSINESS */}
 
 <h1 className="text-xs font-bold text-gray-500 uppercase mt-6 mb-3">
-<BriefcaseBusiness size={40} />
+<BriefcaseBusiness size={40}className="text-braun-600" />
+BUSINESS 
 </h1>
 
 <div className="grid grid-cols-2 gap-4">
