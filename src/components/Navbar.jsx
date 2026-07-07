@@ -369,7 +369,7 @@ Logout
 
 )}
           
-        </div>
+        
       )}
 
       <InstallPWAButton />
