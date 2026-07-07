@@ -28,6 +28,7 @@ import PageLoader from "../components/common/PageLoader";
 import UpComingEvents from "../events/UpComingEvents";
 import TopEarners from "../events/TopEarners";
 import TrendingHashtags from "../events/TrendingHashtags";
+import Leaderboard from "./Leaderboard";
 
 
 
