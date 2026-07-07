@@ -25,7 +25,9 @@ import FeedSection from "../components/feed/FeedSection";
 import TopCreators from "../components/feed/TopCreators";
 import ChallengesWidget from "../components/feed/ChallengesWidget";
 import PageLoader from "../components/common/PageLoader";
-import Leaderboard from "../pages/Leaderboard";
+import UpcomingEvents from "../events/UpcomingEvents";
+import TopEarners from "../events/TopEarners";
+
 
 
 
