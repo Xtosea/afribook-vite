@@ -355,7 +355,7 @@ style={{ backgroundColor }}
     Post
   </button>
 )}
-</div>
+
 
 {/* TOOLBAR */}
 <div
@@ -363,7 +363,7 @@ style={{ backgroundColor }}
     absolute
     top-20
     right-4
-    z-50
+    z-[100]
     flex
     flex-col
     gap-3
@@ -886,7 +886,7 @@ textShadow:
 </Draggable>
 )}
 </div>
-
+</div>
 
 {/* HIDDEN FILE INPUT */}  
 
