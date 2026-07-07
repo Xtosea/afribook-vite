@@ -381,17 +381,12 @@ style={{ backgroundColor }}
 >
 
 <button
-  onClick={() => fileRef.current?.click()}
-  className="
-    bg-black/60
-    text-white
-    p-2
-    rounded-xl
-    flex
-    flex-col
-    items-center
-    text-xs
-  "
+  onClick={() => {
+    console.log("Media button clicked");
+    console.log(fileRef.current);
+    fileRef.current?.click();
+  }}
+  className="..."
 >
   <span className="text-2xl">📷</span>
   <span>Media</span>
@@ -898,17 +893,12 @@ textShadow:
 {/* HIDDEN FILE INPUT */}  
 
 <input
-
-type="file"
-ref={fileRef}
-className="hidden"
-accept="video/*,image/*,audio/*"
-onChange={handleFile}
+  ref={fileRef}
+  type="file"
+  accept="image/*,video/*,audio/*"
+  className="hidden"
+  onClick={() => console.log("Input clicked")}
+  onChange={handleFile}
 />
-
-</div>
-
-);
-};
 
 export default StoryCreator;
