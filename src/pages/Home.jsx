@@ -19,15 +19,25 @@ import { API_BASE, fetchWithToken } from "../api/api";
 import { getSocket, connectSocket } from "../socket";
 
 import Adsterra from "../components/Adsterra.jsx";
+
 import SuggestedFriends from "../components/friends/SuggestedFriends";
+
 import ReelsHorizontal from "../components/reels/ReelsHorizontal";
+
 import FeedSection from "../components/feed/FeedSection";
+
 import TopCreators from "../components/feed/TopCreators";
+
 import ChallengesWidget from "../components/feed/ChallengesWidget";
+
 import PageLoader from "../components/common/PageLoader";
+
 import UpComingEvents from "../components/events/UpComingEvents";
+
 import TopEarners from "../components/events/TopEarners";
+
 import TrendingHashtags from "../components/events/TrendingHashtags";
+
 import Leaderboard from "./Leaderboard";
 
 
@@ -549,6 +559,70 @@ hasMore
 
 
 
+const feedSections = {
+  1: (
+    <FeedSection title="🎬 Trending Reels">
+      <ReelsHorizontal reels={reels} />
+    </FeedSection>
+  ),
+
+  3: (
+    <FeedSection title="🏆 Top Leaderboard">
+      <Leaderboard />
+    </FeedSection>
+  ),
+
+  5: (
+    <FeedSection title="💰 Top Earners">
+       <TopEarners />
+    </FeedSection>
+  ),
+
+  7: (
+    <FeedSection title="📖 Top Stories">
+       <StoryBar
+        user={currentUser}
+        stories={stories}
+      />
+    </FeedSection>
+  ),
+
+  9: (
+    <FeedSection title="⭐ Top Creators">
+      <TopCreators />
+    </FeedSection>
+  ),
+
+  11: (
+    <FeedSection title="👥 People You May Know">
+      <SuggestedFriends limit={10} />
+    </FeedSection>
+  ),
+
+  13: (
+    <FeedSection title="🔥 Trending Hashtags">
+      <TrendingHashtags />
+    </FeedSection>
+  ),
+
+  15: (
+    <FeedSection title="🎉 Upcoming Events">
+      <UpcCmingEvents />
+    </FeedSection>
+  ),
+
+  17: (
+    <FeedSection title="📢 Sponsored">
+      <Adsterra containerId="feed-ad-1" />
+    </FeedSection>
+  ),
+};
+
+
+
+
+
+
 
 // ================= OFFLINE SCREEN =================
 
@@ -705,70 +779,8 @@ Retry
 
 
 
+
 // =================UI RENDER =================
-
-
-
-const feedSections = {
-  1: (
-    <FeedSection title="🎬 Trending Reels">
-      <ReelsHorizontal reels={reels} />
-    </FeedSection>
-  ),
-
-  3: (
-    <FeedSection title="🏆 Top Leaderboard">
-      <Leaderboard />
-    </FeedSection>
-  ),
-
-  5: (
-    <FeedSection title="💰 Top Earners">
-       <TopEarners />
-    </FeedSection>
-  ),
-
-  7: (
-    <FeedSection title="📖 Top Stories">
-       <StoryBar
-        user={currentUser}
-        stories={stories}
-      />
-    </FeedSection>
-  ),
-
-  9: (
-    <FeedSection title="⭐ Top Creators">
-      <TopCreators />
-    </FeedSection>
-  ),
-
-  11: (
-    <FeedSection title="👥 People You May Know">
-      <SuggestedFriends limit={10} />
-    </FeedSection>
-  ),
-
-  13: (
-    <FeedSection title="🔥 Trending Hashtags">
-      <TrendingHashtags />
-    </FeedSection>
-  ),
-
-  15: (
-    <FeedSection title="🎉 Upcoming Events">
-      <UpcCmingEvents />
-    </FeedSection>
-  ),
-
-  17: (
-    <FeedSection title="📢 Sponsored">
-      <Adsterra containerId="feed-ad-1" />
-    </FeedSection>
-  ),
-};
-
-
 
 return (
 
