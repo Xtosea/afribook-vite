@@ -964,7 +964,7 @@ currentUserId={currentUserId}
 {feedSections[index]}
 
 
-{index===1 &&
+{index===19 &&
 reels.length>0 &&
 
 (
@@ -993,7 +993,7 @@ reels={reels}
 
 
 
-{index===3 &&
+{index===21 &&
 
 (
 
@@ -1005,7 +1005,7 @@ title="👥 People You May Know"
 
 <SuggestedFriends
 
-limit={10}
+limit={23}
 
 />
 
@@ -1020,7 +1020,7 @@ limit={10}
 
 
 
-{index===5 &&
+{index===25 &&
 
 (
 
@@ -1048,7 +1048,7 @@ containerId="feed-ad-1"
 
 
 
-{index===7 &&
+{index===27 &&
 
 (
 
@@ -1072,7 +1072,7 @@ title="⭐ Top Creators"
 
 
 
-{index===9 &&
+{index===29 &&
 
 (
 
