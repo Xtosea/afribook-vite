@@ -324,7 +324,7 @@ className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"
     onClick={() => setMobileOpen(false)}
     className="flex flex-col items-center justify-center rounded-xl p-4 bg-gray-50 hover:bg-gray-100"
   >
-    <Home size={30} />
+    <Home size={30} className="text-blue-500" />
     <span className="mt-2 text-sm font-medium">Home</span>
   </Link>
 
@@ -333,7 +333,7 @@ className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"
     onClick={() => setMobileOpen(false)}
     className="flex flex-col items-center justify-center rounded-xl p-4 bg-gray-50 hover:bg-gray-100"
   >
-    <User size={30} />
+    <User size={30} className="text-sky-500" />
     <span className="mt-2 text-sm font-medium">Profile</span>
   </Link>
 
@@ -342,7 +342,7 @@ className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"
     onClick={() => setMobileOpen(false)}
     className="flex flex-col items-center justify-center rounded-xl p-4 bg-gray-50 hover:bg-gray-100"
   >
-    <Users size={30} />
+    <Users size={30} className="text-green-600" />
     <span className="mt-2 text-sm font-medium">Friends</span>
   </Link>
 
@@ -351,7 +351,7 @@ className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"
     onClick={() => setMobileOpen(false)}
     className="flex flex-col items-center justify-center rounded-xl p-4 bg-gray-50 hover:bg-gray-100"
   >
-    <Users size={30} />
+    <Users size={30} className="text-teal-500" />
     <span className="mt-2 text-sm font-medium">Discover Friends</span>
   </Link>
 
@@ -360,7 +360,7 @@ className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"
     onClick={() => setMobileOpen(false)}
     className="flex flex-col items-center justify-center rounded-xl p-4 bg-gray-50 hover:bg-gray-100"
   >
-    <UserPlus size={30} />
+    <UserPlus size={30} className="text-purple-600" />
     <span className="mt-2 text-sm font-medium">Friends Request</span>
   </Link>
 
@@ -369,7 +369,7 @@ className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"
     onClick={() => setMobileOpen(false)}
     className="flex flex-col items-center justify-center rounded-xl p-4 bg-gray-50 hover:bg-gray-100"
   >
-    <MessageCircle size={30} />
+    <MessageCircle size={30} className="text-emerald-500" />
     <span className="mt-2 text-sm font-medium">Massages</span>
   </Link>
 
@@ -378,8 +378,8 @@ className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"
     onClick={() => setMobileOpen(false)}
     className="flex flex-col items-center justify-center rounded-xl p-4 bg-gray-50 hover:bg-gray-100"
   >
-    <Video size={30} />
-    <span className="mt-2 text-sm font-medium">Reels</span>
+    <Video size={30} className="text-red-500" />
+    <span className="mt-2 text-sm font-medium">Create Reels</span>
   </Link>
 
 
@@ -400,7 +400,7 @@ className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"
     onClick={() => setMobileOpen(false)}
     className="flex flex-col items-center justify-center rounded-xl p-4 bg-gray-50 hover:bg-gray-100"
   >
-    <Megaphone size={30} />
+    <Megaphone size={30} className="text-orange-500" />
     <span className="mt-2 text-sm font-medium">Create Ads</span>
   </Link>
 
@@ -409,7 +409,7 @@ className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"
     onClick={() => setMobileOpen(false)}
     className="flex flex-col items-center justify-center rounded-xl p-4 bg-gray-50 hover:bg-gray-100"
   >
-    <CalendarDays size={30} />
+    <CalendarDays size={30} className="text-indigo-500" />
     <span className="mt-2 text-sm font-medium">Create Events</span>
   </Link>
 
@@ -418,7 +418,7 @@ className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"
     onClick={() => setMobileOpen(false)}
     className="flex flex-col items-center justify-center rounded-xl p-4 bg-gray-50 hover:bg-gray-100"
   >
-    <Clapperboard size={30} />
+    <Clapperboard size={30} className="text-pink-500" />
     <span className="mt-2 text-sm font-medium">Monetization</span>
   </Link>
 
@@ -441,7 +441,7 @@ className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"
     onClick={() => setMobileOpen(false)}
     className="flex flex-col items-center justify-center rounded-xl p-4 bg-gray-50 hover:bg-gray-100"
   >
-    <Store size={30} />
+    <Store size={30} className="text-violet-600" />
     <span className="mt-2 text-sm font-medium">Marketplace</span>
   </Link>
 
@@ -459,7 +459,7 @@ className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"
     onClick={() => setMobileOpen(false)}
     className="flex flex-col items-center justify-center rounded-xl p-4 bg-gray-50 hover:bg-gray-100"
   >
-    <Trophy size={30} />
+    <Trophy size={30} className="text-gold-500" />
     <span className="mt-2 text-sm font-medium">Top Earners</span>
   </Link>
 
@@ -481,7 +481,7 @@ className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"
     onClick={() => setMobileOpen(false)}
     className="flex flex-col items-center justify-center rounded-xl p-4 bg-gray-50 hover:bg-gray-100"
   >
-    <Bookmark size={30} />
+    <Bookmark size={30} className="text-cyan-600" />
     <span className="mt-2 text-sm font-medium">Saved</span>
   </Link>
 
