@@ -901,4 +901,10 @@ textShadow:
   onChange={handleFile}
 />
 
+
+</div>
+
+);
+};
+
 export default StoryCreator;
