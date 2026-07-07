@@ -25,6 +25,8 @@ export function useStoryUpload() {
     backgroundColor,
   }) => {
 
+console.log("uploadStory() called");
+
     try {
 
       setLoading(true);
