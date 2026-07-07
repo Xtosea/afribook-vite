@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { API_BASE } from "../../api/api";
 
-const UpcomingEvents = () => {
+const UpComingEvents = () => {
   const [events, setEvents] = useState([]);
 
   useEffect(() => {
@@ -46,4 +46,4 @@ const UpcomingEvents = () => {
   );
 };
 
-export default UpcomingEvents;
+export default UpComingEvents;
