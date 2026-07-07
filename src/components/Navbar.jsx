@@ -298,7 +298,7 @@ const Navbar = () => {
   </button>
 
 
-className="grid grid-cols-2 gap-4 mt-4">
+className="grid grid-cols-2 gap-4 mt-4"
 
   <Link
     to="/"
