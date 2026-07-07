@@ -75,6 +75,9 @@ const handleFile = (e) => {
 
   if (!file) return;
 
+
+console.log("Selected file:", file);
+console.log("Type:", file.type);
   setMedia(file);
 
   // Reset any previous Cloudinary URL
@@ -82,6 +85,8 @@ const handleFile = (e) => {
 
   // Local preview for all media types
   const localUrl = URL.createObjectURL(file);
+
+console.log("Setting preview...");
   setPreview(localUrl);
 
   // Allow selecting the same file again later
