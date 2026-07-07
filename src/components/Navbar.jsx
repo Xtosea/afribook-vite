@@ -352,7 +352,7 @@ className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"
     className="flex flex-col items-center justify-center rounded-xl p-4 bg-gray-50 hover:bg-gray-100"
   >
     <Users size={30} />
-    <span className="mt-2 text-sm font-medium">Discover</span>
+    <span className="mt-2 text-sm font-medium">Discover Friends</span>
   </Link>
 
   <Link
@@ -361,7 +361,7 @@ className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"
     className="flex flex-col items-center justify-center rounded-xl p-4 bg-gray-50 hover:bg-gray-100"
   >
     <UserPlus size={30} />
-    <span className="mt-2 text-sm font-medium">Requests</span>
+    <span className="mt-2 text-sm font-medium">Friends Request</span>
   </Link>
 
   <Link
@@ -370,7 +370,7 @@ className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"
     className="flex flex-col items-center justify-center rounded-xl p-4 bg-gray-50 hover:bg-gray-100"
   >
     <MessageCircle size={30} />
-    <span className="mt-2 text-sm font-medium">Messages</span>
+    <span className="mt-2 text-sm font-medium">Massages</span>
   </Link>
 
   <Link
@@ -401,7 +401,7 @@ className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"
     className="flex flex-col items-center justify-center rounded-xl p-4 bg-gray-50 hover:bg-gray-100"
   >
     <Megaphone size={30} />
-    <span className="mt-2 text-sm font-medium">Ads</span>
+    <span className="mt-2 text-sm font-medium">Create Ads</span>
   </Link>
 
   <Link
@@ -410,7 +410,7 @@ className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"
     className="flex flex-col items-center justify-center rounded-xl p-4 bg-gray-50 hover:bg-gray-100"
   >
     <CalendarDays size={30} />
-    <span className="mt-2 text-sm font-medium">Events</span>
+    <span className="mt-2 text-sm font-medium">Create Events</span>
   </Link>
 
   <Link
@@ -419,7 +419,7 @@ className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"
     className="flex flex-col items-center justify-center rounded-xl p-4 bg-gray-50 hover:bg-gray-100"
   >
     <Clapperboard size={30} />
-    <span className="mt-2 text-sm font-medium">Creator</span>
+    <span className="mt-2 text-sm font-medium">Monetization</span>
   </Link>
 
 
@@ -450,7 +450,7 @@ className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"
     onClick={() => setMobileOpen(false)}
     className="flex flex-col items-center justify-center rounded-xl p-4 bg-gray-50 hover:bg-gray-100"
   >
-    <Wallet size={30} />
+     <Wallet size={30} className="text-yellow-500" />
     <span className="mt-2 text-sm font-medium">Wallet</span>
   </Link>
 
@@ -460,7 +460,7 @@ className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"
     className="flex flex-col items-center justify-center rounded-xl p-4 bg-gray-50 hover:bg-gray-100"
   >
     <Trophy size={30} />
-    <span className="mt-2 text-sm font-medium">Leaderboard</span>
+    <span className="mt-2 text-sm font-medium">Top Earners</span>
   </Link>
 
 
