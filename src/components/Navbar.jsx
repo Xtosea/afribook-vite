@@ -370,7 +370,6 @@ Logout
 )}
           
         
-      )}
 
       <InstallPWAButton />
     </>
