@@ -70,41 +70,22 @@ const [cloudinaryUrl, setCloudinaryUrl] = useState(null);
 
 
 // ================= HANDLE FILE =================
-const handleFile = async (e) => {
-const file = e.target.files[0];
+const handleFile = (e) => {
+  const file = e.target.files[0];
 
-if (!file) return;
+  if (!file) return;
 
-setMedia(file);
+  setMedia(file);
 
-try {
-if (file.type.startsWith("image/")) {
-const url = await uploadToCloudinary(file);
+  // Reset any previous Cloudinary URL
+  setCloudinaryUrl(null);
 
-setCloudinaryUrl(url);
-setPreview(url);
-} else {
-// video/audio local preview
-setCloudinaryUrl(null);
+  // Local preview for all media types
+  const localUrl = URL.createObjectURL(file);
+  setPreview(localUrl);
 
-setPreview(
-URL.createObjectURL(file)
-);
-}
-} catch (error) {
-console.error(
-"IMAGE UPLOAD FAILED:",
-error
-);
-
-setPreview(null);
-setCloudinaryUrl(null);
-
-alert("Image upload failed");
-}
-
-// allow selecting same file again
-e.target.value = "";
+  // Allow selecting the same file again later
+  e.target.value = "";
 };
 
 // ================= APPLY AI =================
