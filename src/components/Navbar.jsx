@@ -43,6 +43,8 @@ import {
   Briefcase,
   BriefcaseBusiness,
   Building2,
+  Palette, 
+  Folder,
 } from "lucide-react";
 
 
@@ -260,7 +262,7 @@ const Navbar = () => {
 
   <Link to="/messages" className="flex flex-col items-center text-xs">
     <MessageCircle size={20} />
-    <span>Chats</span>
+    <span>messages</span>
   </Link>
 
   <Link to="/profile" className="flex flex-col items-center text-xs">
@@ -313,9 +315,10 @@ className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"
 
 {/* 👥 SOCIAL */}
 
-<h3 className="text-xs font-bold text-gray-500 uppercase mb-3">
-👥 Social
-</h3>
+<h1 className="flex items-center justify-center gap-2 mt-6 mb-3 text-lg font-bold uppercase">
+  <Clapperboard size={34} className="text-pink-600" />
+  <span>Creator</span>
+</h1>
 
 <div className="grid grid-cols-2 gap-4">
 
@@ -390,9 +393,10 @@ className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"
 
 {/* 🎨 CREATOR */}
 
-<h3 className="text-xs font-bold text-gray-500 uppercase mt-6 mb-3">
-🎨 Creator
-</h3>
+<h1 className="flex items-center justify-center gap-2 mt-6 mb-3 text-lg font-bold uppercase">
+  <BriefcaseBusiness size={34} className="text-orange-600" />
+  <span>Business</span>
+</h1>
 
 <div className="grid grid-cols-2 gap-4">
 
@@ -477,9 +481,10 @@ className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"
 
 {/* 📁 PERSONAL */}
 
-<h3 className="text-xs font-bold text-gray-500 uppercase mt-6 mb-3">
-📁 Personal
-</h3>
+<h1 className="flex items-center justify-center gap-2 mt-6 mb-3 text-lg font-bold uppercase">
+  <User size={34} className="text-green-600" />
+  <span>Personal</span>
+</h1>
 
 <div className="grid grid-cols-2 gap-4">
 
