@@ -45,6 +45,7 @@ import {
   Building2,
   Palette, 
   Folder,
+  Search,
 } from "lucide-react";
 
 
@@ -72,6 +73,7 @@ const Navbar = () => {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [onlineUsers, setOnlineUsers] = useState([]);
+const [showSearch, setShowSearch] = useState(false);
 
   const currentUserId = localStorage.getItem("userId");
 
@@ -302,6 +304,56 @@ const Navbar = () => {
 Menu
 </h2>
 
+
+
+
+  <div className="flex items-center gap-2">
+
+    <img
+      src={
+        currentUser?.profilePicture ||
+        "/default-avatar.png"
+      }
+      alt=""
+      className="w-14 h-14 rounded-full object-cover border-2 border-white"
+    />
+
+    <div>
+      <p className="text-white font-semibold text-sm">
+        {currentUser?.name}
+      </p>
+
+      <span
+        className="
+          text-xs
+          bg-black/50
+          text-white
+          px-2
+          py-1
+          rounded-full
+        "
+      >
+        🌎 Public
+      </span>
+    </div>
+
+
+<div className="mb-4">
+  <button
+    onClick={() => setShowSearch(!showSearch)}
+    className="w-full flex items-center justify-center gap-2 bg-blue-50 text-blue-600 rounded-xl py-3 hover:bg-blue-100"
+  >
+    <Search size={22} />
+    <span className="font-medium">Search</span>
+  </button>
+
+  {showSearch && (
+    <div className="mt-3">
+      <SearchBar />
+    </div>
+  )}
+</div>
+
 <button
 onClick={() => setMobileOpen(false)}
 className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"
@@ -316,7 +368,7 @@ className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"
 {/* 👥 SOCIAL */}
 
 <h1 className="flex items-center justify-center gap-2 mt-6 mb-3 text-lg font-bold uppercase">
-  <Clapperboard size={34} className="text-pink-600" />
+  <Clapperboard size={50} className="text-pink-600" />
   <span>Creator</span>
 </h1>
 
@@ -376,7 +428,7 @@ className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"
     className="flex flex-col items-center justify-center rounded-xl p-4 bg-gray-50 hover:bg-gray-100"
   >
     <MessageCircle size={30} className="text-emerald-500" />
-    <span className="mt-2 text-sm font-medium">Massages</span>
+    <span className="mt-2 text-sm font-medium">Messages</span>
   </Link>
 
   <Link
@@ -394,8 +446,8 @@ className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"
 {/* 🎨 CREATOR */}
 
 <h1 className="flex items-center justify-center gap-2 mt-6 mb-3 text-lg font-bold uppercase">
-  <BriefcaseBusiness size={34} className="text-orange-600" />
-  <span>Business</span>
+  <Clapperboard size={50} className="text-pink-600" />
+  <span>Creator</span>
 </h1>
 
 <div className="grid grid-cols-2 gap-4">
@@ -472,7 +524,7 @@ className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"
     onClick={() => setMobileOpen(false)}
     className="flex flex-col items-center justify-center rounded-xl p-4 bg-gray-50 hover:bg-gray-100"
   >
-    <Trophy size={30} className="text-gold-500" />
+    <Trophy size={30} className="text-amber-500" />
     <span className="mt-2 text-sm font-medium">Top Earners</span>
   </Link>
 
@@ -482,7 +534,7 @@ className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"
 {/* 📁 PERSONAL */}
 
 <h1 className="flex items-center justify-center gap-2 mt-6 mb-3 text-lg font-bold uppercase">
-  <User size={34} className="text-green-600" />
+  <User size={50} className="text-green-600" />
   <span>Personal</span>
 </h1>
 
