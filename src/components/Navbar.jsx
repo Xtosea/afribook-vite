@@ -284,47 +284,163 @@ const Navbar = () => {
 </div>
 )}
       {/* ================= MOBILE DRAWER ================= */}
-      {mobileOpen && (
-        <div className="fixed inset-0 bg-black/40 z-50">
-          <div className="w-72 h-full bg-white p-4">
+      <div className="flex items-center justify-between mb-4">
 
-            
+  <h2 className="text-xl font-bold">
+    Menu
+  </h2>
 
-           <h3 className="font-semibold text-gray-500 uppercase text-xs mb-3">
-  👥 Social
-</h3>
+  <button
+    onClick={() => setMobileOpen(false)}
+    className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center"
+  >
+    <X size={24} />
+  </button>
 
-<div className="grid grid-cols-2 gap-4 mb-6">
 
-  <Link ...>
-    <Home size={32} />
-    <span className="mt-2 text-sm font-medium">
-      Home
-    </span>
+className="grid grid-cols-2 gap-4 mt-4">
+
+  <Link
+    to="/"
+    onClick={() => setMobileOpen(false)}
+    className="flex flex-col items-center justify-center rounded-xl p-4 bg-gray-50 hover:bg-gray-100"
+  >
+    <Home size={30} />
+    <span className="mt-2 text-sm font-medium">Home</span>
   </Link>
 
-  <Link ...>
-    <User size={32} />
-    <span className="mt-2 text-sm font-medium">
-      Profile
-    </span>
+  <Link
+    to="/profile"
+    onClick={() => setMobileOpen(false)}
+    className="flex flex-col items-center justify-center rounded-xl p-4 bg-gray-50 hover:bg-gray-100"
+  >
+    <User size={30} />
+    <span className="mt-2 text-sm font-medium">Profile</span>
   </Link>
 
-  <Link ...>
-    <Users size={32} />
-    <span className="mt-2 text-sm font-medium">
-      Friends
-    </span>
+  <Link
+    to="/friends"
+    onClick={() => setMobileOpen(false)}
+    className="flex flex-col items-center justify-center rounded-xl p-4 bg-gray-50 hover:bg-gray-100"
+  >
+    <Users size={30} />
+    <span className="mt-2 text-sm font-medium">Friends</span>
   </Link>
 
-  <Link ...>
-    <Users size={32} />
-    <span className="mt-2 text-sm font-medium">
-      Discover
-    </span>
+  <Link
+    to="/friends/discover"
+    onClick={() => setMobileOpen(false)}
+    className="flex flex-col items-center justify-center rounded-xl p-4 bg-gray-50 hover:bg-gray-100"
+  >
+    <Users size={30} />
+    <span className="mt-2 text-sm font-medium">Discover</span>
   </Link>
+
+  <Link
+    to="/friend-requests"
+    onClick={() => setMobileOpen(false)}
+    className="flex flex-col items-center justify-center rounded-xl p-4 bg-gray-50 hover:bg-gray-100"
+  >
+    <UserPlus size={30} />
+    <span className="mt-2 text-sm font-medium">Requests</span>
+  </Link>
+
+  <Link
+    to="/messages"
+    onClick={() => setMobileOpen(false)}
+    className="flex flex-col items-center justify-center rounded-xl p-4 bg-gray-50 hover:bg-gray-100"
+  >
+    <MessageCircle size={30} />
+    <span className="mt-2 text-sm font-medium">Messages</span>
+  </Link>
+
+  <Link
+    to="/reels"
+    onClick={() => setMobileOpen(false)}
+    className="flex flex-col items-center justify-center rounded-xl p-4 bg-gray-50 hover:bg-gray-100"
+  >
+    <Video size={30} />
+    <span className="mt-2 text-sm font-medium">Reels</span>
+  </Link>
+
+  <Link
+    to="/marketplace"
+    onClick={() => setMobileOpen(false)}
+    className="flex flex-col items-center justify-center rounded-xl p-4 bg-gray-50 hover:bg-gray-100"
+  >
+    <Store size={30} />
+    <span className="mt-2 text-sm font-medium">Marketplace</span>
+  </Link>
+
+  <Link
+    to="/events"
+    onClick={() => setMobileOpen(false)}
+    className="flex flex-col items-center justify-center rounded-xl p-4 bg-gray-50 hover:bg-gray-100"
+  >
+    <CalendarDays size={30} />
+    <span className="mt-2 text-sm font-medium">Events</span>
+  </Link>
+
+  <Link
+    to="/creator"
+    onClick={() => setMobileOpen(false)}
+    className="flex flex-col items-center justify-center rounded-xl p-4 bg-gray-50 hover:bg-gray-100"
+  >
+    <Clapperboard size={30} />
+    <span className="mt-2 text-sm font-medium">Creator</span>
+  </Link>
+
+  <Link
+    to="/ads"
+    onClick={() => setMobileOpen(false)}
+    className="flex flex-col items-center justify-center rounded-xl p-4 bg-gray-50 hover:bg-gray-100"
+  >
+    <Megaphone size={30} />
+    <span className="mt-2 text-sm font-medium">Ads</span>
+  </Link>
+
+  <Link
+    to="/wallet"
+    onClick={() => setMobileOpen(false)}
+    className="flex flex-col items-center justify-center rounded-xl p-4 bg-gray-50 hover:bg-gray-100"
+  >
+    <Wallet size={30} />
+    <span className="mt-2 text-sm font-medium">Wallet</span>
+  </Link>
+
+  <Link
+    to="/leaderboard"
+    onClick={() => setMobileOpen(false)}
+    className="flex flex-col items-center justify-center rounded-xl p-4 bg-gray-50 hover:bg-gray-100"
+  >
+    <Trophy size={30} />
+    <span className="mt-2 text-sm font-medium">Leaderboard</span>
+  </Link>
+
+  <Link
+    to="/saved"
+    onClick={() => setMobileOpen(false)}
+    className="flex flex-col items-center justify-center rounded-xl p-4 bg-gray-50 hover:bg-gray-100"
+  >
+    <Bookmark size={30} />
+    <span className="mt-2 text-sm font-medium">Saved</span>
+  </Link>
+
+  <button
+    onClick={handleLogout}
+    className="col-span-2 mt-2 rounded-xl bg-red-500 py-3 text-white font-semibold"
+  >
+    Logout
+  </button>
 
 </div>
+
+
+</div>
+
+
+
+
 
           </div>
         </div>
