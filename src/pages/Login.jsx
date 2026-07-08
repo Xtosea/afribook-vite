@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { API_BASE } from "../api/api";
+import { useAuth } from "../context/AuthContext";.
+
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -8,6 +10,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+const { login } = useAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -43,37 +46,7 @@ export default function Login() {
       }
 
       // ✅ Save user session
-localStorage.setItem("token", data.token);
-
-localStorage.setItem(
-  "user",
-  JSON.stringify(data.user)
-);
-
-localStorage.setItem(
-  "userId",
-  data.user._id
-);
-
-localStorage.setItem(
-  "name",
-  data.user.name || ""
-);
-
-localStorage.setItem(
-  "profilePic",
-  data.user.profilePic || ""
-);
-
-localStorage.setItem(
-  "verified",
-  data.user.verified || false
-);
-
-localStorage.setItem(
-  "verificationBadge",
-  data.user.verificationBadge || ""
-);
+login(data.token, data.user);
 
       // ✅ Navigate to Home
       navigate("/", { replace: true });
