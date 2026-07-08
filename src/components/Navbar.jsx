@@ -261,13 +261,7 @@ const currentUserId = currentUser?._id;
     </div>
 
     {/* MOBILE MENU */}
-    <button
-      className="md:hidden p-2"
-      onClick={() => setMobileOpen(true)}
-    >
-      <Menu />
-    </button>
-
+    
   </div>
 
 
