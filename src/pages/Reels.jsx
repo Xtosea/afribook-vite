@@ -29,7 +29,8 @@ const [selectedFile, setSelectedFile] = useState(null);
 
   /* ================= FETCH REELS ================= */
   useEffect(() => {
-    fetchReels();
+    await fetchReels();
+navigate("/");
   }, []);
 
   const fetchReels = async () => {
