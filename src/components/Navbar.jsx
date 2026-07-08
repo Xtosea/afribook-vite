@@ -435,7 +435,7 @@ const currentUserId = localStorage.getItem("userId");
 <h2 className="flex items-center justify-center gap-2 mt-6 mb-3 text-lg font-bold uppercase">
   <Clapperboard size={40} className="text-pink-600" />
   <span>Creator</span>
-</h1>
+</h2>
 
 <div className="grid grid-cols-2 gap-4">
 
