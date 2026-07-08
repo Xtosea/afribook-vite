@@ -179,73 +179,110 @@ const currentUserId = localStorage.getItem("userId");
           <SearchBar />
         </div>
 
-        {/* RIGHT ICONS */}
-        <div className="flex items-center gap-3">
+        {/* RIGHT SIDE */}
 
-          {/* ONLINE */}
-          <div className="hidden md:flex items-center gap-1 text-sm text-gray-600">
-            <Users size={18} />
-            <span>{onlineUsers.length}</span>
-          </div>
+{isLoggedIn ? (
 
-          {/* HOME ICON */}
-          <Link to="/" className="hidden md:block p-2 hover:bg-gray-100 rounded">
-            <Home size={20} />
-          </Link>
+  <div className="flex items-center gap-3">
 
-          <Link to="/reels" className="hidden md:block p-2 hover:bg-gray-100 rounded">
-            <Video size={20} />
-          </Link>
+    {/* ONLINE */}
+    <div className="hidden md:flex items-center gap-1 text-sm text-gray-600">
+      <Users size={18} />
+      <span>{onlineUsers.length}</span>
+    </div>
 
-          <Link to="/messages" className="hidden md:block p-2 hover:bg-gray-100 rounded">
-            <MessageCircle size={20} />
-          </Link>
+    {/* HOME */}
+    <Link to="/" className="hidden md:block p-2 hover:bg-gray-100 rounded">
+      <Home size={20} />
+    </Link>
 
-          <Link to="/friends" className="hidden md:block p-2 hover:bg-gray-100 rounded">
-            <Users size={20} />
-          </Link>
+    {/* REELS */}
+    <Link to="/reels" className="hidden md:block p-2 hover:bg-gray-100 rounded">
+      <Video size={20} />
+    </Link>
 
-          <Link to="/wallet" className="hidden md:block p-2 hover:bg-gray-100 rounded">
-            <Wallet size={20} />
-          </Link>
+    {/* MESSAGES */}
+    <Link to="/messages" className="hidden md:block p-2 hover:bg-gray-100 rounded">
+      <MessageCircle size={20} />
+    </Link>
 
+    {/* FRIENDS */}
+    <Link to="/friends" className="hidden md:block p-2 hover:bg-gray-100 rounded">
+      <Users size={20} />
+    </Link>
+
+    {/* WALLET */}
+    <Link to="/wallet" className="hidden md:block p-2 hover:bg-gray-100 rounded">
+      <Wallet size={20} />
+    </Link>
+
+    {/* NOTIFICATIONS */}
+    <button
+      onClick={() => navigate("/notifications")}
+      className="relative p-2"
+    >
+      <Bell size={25} />
+
+      {unreadCount > 0 && (
+        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1 rounded-full">
+          {unreadCount}
+        </span>
+      )}
+    </button>
+
+    {/* SETTINGS */}
+    <div ref={settingsRef} className="relative">
+      <button
+        onClick={() => setShowSettings(!showSettings)}
+        className="p-2"
+      >
+        <Settings size={20} />
+      </button>
+
+      {showSettings && (
+        <div className="absolute right-0 mt-2 w-40 bg-white border shadow rounded-lg">
           <button
-  onClick={() => navigate("/notifications")}
-  className="relative p-2"
->
-  <Bell size={25} />
-
-  {unreadCount > 0 && (
-    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1 rounded-full">
-      {unreadCount}
-    </span>
-  )}
-</button>
-
-          {/* SETTINGS */}
-          <div ref={settingsRef} className="relative">
-            <button onClick={() => setShowSettings(!showSettings)} className="p-2">
-              <Settings size={20} />
-            </button>
-
-            {showSettings && (
-              <div className="absolute right-0 mt-2 w-40 bg-white border shadow rounded-lg">
-                <button
-                  onClick={handleLogout}
-                  className="w-full text-left px-3 py-2 hover:bg-gray-100 flex items-center gap-2"
-                >
-                  <LogOut size={16} />
-                  Logout
-                </button>
-              </div>
-            )}
-          </div>
-
-            {/* MOBILE MENU */}
-          <button className="md:hidden p-2" onClick={() => setMobileOpen(true)}>
-            <Menu />
+            onClick={handleLogout}
+            className="w-full text-left px-3 py-2 hover:bg-gray-100 flex items-center gap-2"
+          >
+            <LogOut size={16} />
+            Logout
           </button>
         </div>
+      )}
+    </div>
+
+    {/* MOBILE MENU */}
+    <button
+      className="md:hidden p-2"
+      onClick={() => setMobileOpen(true)}
+    >
+      <Menu />
+    </button>
+
+  </div>
+
+) : (
+
+  <div className="flex items-center gap-2">
+
+    <Link
+      to="/login"
+      className="px-4 py-2 text-blue-600 font-medium"
+    >
+      Login
+    </Link>
+
+    <Link
+      to="/register"
+      className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+    >
+      Register
+    </Link>
+
+  </div>
+
+)}
       </nav>
 
      
