@@ -315,7 +315,7 @@ const currentUserId = localStorage.getItem("userId");
         🌎 Public
       </p>
     </div>
-  </div>
+  
 
   {/* HEADER */}
   <div className="flex items-center justify-between mb-5">
