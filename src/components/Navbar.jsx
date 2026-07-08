@@ -294,7 +294,13 @@ const currentUserId = localStorage.getItem("userId");
 </div>
 </div>
 )}
-      {/* ================= MOBILE DRAWER ================= */}
+      
+
+{/* ================= MOBILE DRAWER ================= */}
+
+{isLoggedIn && mobileOpen && (
+
+<div className="fixed inset-0 bg-black/40 z-50">
 
 <div className="w-80 h-full bg-white p-4 overflow-y-auto">
 
@@ -434,7 +440,7 @@ const currentUserId = localStorage.getItem("userId");
 
 <h2 className="flex items-center justify-center gap-2 mt-6 mb-3 text-lg font-bold uppercase">
   <Clapperboard size={40} className="text-pink-600" />
-  <span>Creator</span>
+  <span>Content Creators</span>
 </h2>
 
 <div className="grid grid-cols-2 gap-4">
@@ -552,10 +558,12 @@ Logout
 
 
 
+</div>
 
+</div>
+
+)}
           
-        
-
       <InstallPWAButton />
     </>
   );
