@@ -17,6 +17,8 @@ const Reels = () => {
   const [preview, setPreview] = useState(null);
 
   const [activeIndex, setActiveIndex] = useState(0);
+const [selectedFile, setSelectedFile] = useState(null);
+
 
   const videoRefs = useRef([]);
   const observerRef = useRef(null);
@@ -164,6 +166,44 @@ const Reels = () => {
     }
   };
 
+const uploadReel = async () => {
+  try {
+    if (!selectedFile) {
+      alert("Please select a video.");
+      return;
+    }
+
+    const { videoUrl } = await uploadFile(selectedFile);
+
+    const res = await fetch(`${API_BASE}/api/posts/reels`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        caption,
+        videoUrl,
+      }),
+    });
+
+    if (!res.ok) {
+      throw new Error("Failed to upload reel.");
+    }
+
+    setCaption("");
+    setPreview(null);
+    setSelectedFile(null);
+    setShowUpload(false);
+
+    fetchReels();
+  } catch (err) {
+    console.error(err);
+    alert(err.message);
+  }
+};
+
+
   return (
     <div className="h-screen overflow-y-scroll snap-y snap-mandatory bg-black">
 
@@ -195,8 +235,14 @@ const Reels = () => {
           caption={caption}
           setCaption={setCaption}
           fileRef={fileRef}
-          handleFileChange={(e) => setPreview(URL.createObjectURL(e.target.files[0]))}
-          uploadReel={async () => {}}
+          handleFileChange={(e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  setSelectedFile(file);
+  setPreview(URL.createObjectURL(file));
+}}
+          uploadReel={uploadReel}
           setShowUpload={setShowUpload}
           progress={progress}
           loading={loading}
