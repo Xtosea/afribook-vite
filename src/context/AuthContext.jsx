@@ -57,6 +57,19 @@ export const AuthProvider = ({ children }) => {
   setCurrentUser(user);
 };
 
+const logout = () => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+  localStorage.removeItem("userId");
+  localStorage.removeItem("name");
+  localStorage.removeItem("profilePic");
+  localStorage.removeItem("verified");
+  localStorage.removeItem("verificationBadge");
+
+  setToken(null);
+  setCurrentUser(null);
+};
+
   return (
     <AuthContext.Provider
       value={{
