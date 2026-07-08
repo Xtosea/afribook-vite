@@ -350,17 +350,8 @@ const currentUserId = localStorage.getItem("userId");
   )}
 </div>
 
-<button
-onClick={() => setMobileOpen(false)}
-className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"
->
 
-<X size={24} />
 
-</button>
-
-</div>
-<
 {/* 👥 SOCIAL */}
 
 <h2 className="flex items-center justify-center gap-2 mt-6 mb-3 text-lg font-bold uppercase">
@@ -559,7 +550,7 @@ Logout
 
 </div>
 
-
+</div>
 
 )}
           
