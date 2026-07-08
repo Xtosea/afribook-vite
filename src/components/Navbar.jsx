@@ -18,6 +18,7 @@ import InstallPWAButton from "./InstallPWAButton";
 import { connectSocket, safeEmit } from
  "../socket";
 import  Notifications from "../pages/Notifications";
+import { useAuth } from "../context/AuthContext";
 
 
 
@@ -62,9 +63,7 @@ const Navbar = () => {
   const dropdownRef = useRef(null);
 
 
-  const [isLoggedIn, setIsLoggedIn] = useState(
-    !!localStorage.getItem("token")
-  );
+  
 
   const [mobileOpen, setMobileOpen] = useState(false);
   
@@ -75,11 +74,16 @@ const Navbar = () => {
   const [onlineUsers, setOnlineUsers] = useState([]);
 const [showSearch, setShowSearch] = useState(false);
 
-  const currentUser = JSON.parse(
-  localStorage.getItem("user") || "null"
-);
+  
 
-const currentUserId = localStorage.getItem("userId");
+const {
+  currentUser,
+  token,
+  isLoggedIn,
+  logout,
+} = useAuth();
+
+const currentUserId = currentUser?._id;
 
   const isActive = (path) => location.pathname === path;
 
@@ -159,9 +163,13 @@ const currentUserId = localStorage.getItem("userId");
   const handleLogout = () => {
   setMobileOpen(false);
   setShowSettings(false);
+  setShowSearch(false);
 
-  localStorage.clear();
-  navigate("/login", { replace: true });
+  logout();
+
+  navigate("/login", {
+    replace: true,
+  });
 };
 
   // ================= UI =================
