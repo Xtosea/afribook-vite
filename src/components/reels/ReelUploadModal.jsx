@@ -72,11 +72,12 @@ const ReelUploadModal = ({
           </button>
 
           <button
-            onClick={uploadReel}
-            className="flex-1 bg-blue-500 py-3 rounded-xl hover:bg-blue-600 transition"
-          >
-            Post
-          </button>
+  onClick={uploadReel}
+  disabled={loading}
+  className="flex-1 bg-blue-500 py-3 rounded-xl disabled:opacity-50"
+>
+  {loading ? "Uploading..." : "Post"}
+</button>
 
         </div>
 
