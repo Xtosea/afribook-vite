@@ -315,6 +315,7 @@ const currentUserId = localStorage.getItem("userId");
         🌎 Public
       </p>
     </div>
+   </div>
   
 
   {/* HEADER */}
@@ -558,6 +559,7 @@ Logout
 
 </div>
 
+</div>
 </div>
 
 )}
