@@ -262,7 +262,7 @@ const currentUserId = currentUser?._id;
     </div>
 
     
-    )}
+    
   </nav>
 
      
