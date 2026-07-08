@@ -227,6 +227,22 @@ const currentUserId = currentUser?._id;
       <Wallet size={20} />
     </Link>
 
+<button
+  onClick={() => setMobileOpen(true)}
+  className="md:hidden p-2 rounded hover:bg-gray-100"
+>
+  <Menu size={24} />
+</button>
+
+
+<img
+  src={currentUser?.profilePic || defaultProfile}
+  alt="Profile"
+  className="w-9 h-9 rounded-full object-cover"
+/>
+
+
+
     {/* NOTIFICATIONS */}
     <button
       onClick={() => navigate("/notifications")}
