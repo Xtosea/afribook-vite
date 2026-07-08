@@ -25,7 +25,7 @@ import useWebRTC from "../features/calls/useWebRTC";
 import CallScreen from "../features/calls/CallScreen";
 import { useCall } from "../context/CallContext";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Arrowright } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 
 
