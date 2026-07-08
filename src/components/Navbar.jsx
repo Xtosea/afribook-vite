@@ -264,7 +264,7 @@ const currentUserId = currentUser?._id;
     </div>
     </div>
 
-    ))
+    )}
     </nav>
 
      
