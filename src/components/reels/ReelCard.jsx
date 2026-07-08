@@ -66,7 +66,7 @@ const ReelCard = ({
         )}
 
         {/* OVERLAY */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-end p-4">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-end pb-28 px-4">
 
           <p className="text-white text-sm mb-4">
             {reel.content || "No caption"}
