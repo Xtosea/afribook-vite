@@ -24,6 +24,8 @@ import { formatMessageDate } from "../utils/dateHelpers";
 import useWebRTC from "../features/calls/useWebRTC";
 import CallScreen from "../features/calls/CallScreen";
 import { useCall } from "../context/CallContext";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 
 
 
@@ -40,6 +42,8 @@ const AudioMessage = ({
 
   const audioRef =
     useRef(null);
+
+const navigate = useNavigate();
 
 
 
@@ -832,6 +836,35 @@ console.log(
           ))}
         </div>
       </div>
+
+
+<button
+  onClick={() => navigate("/")}
+  className="
+    fixed
+    top-[max(env(safe-area-inset-top),16px)]
+    left-4
+    z-[100]
+    w-12
+    h-12
+    rounded-full
+    bg-black/40
+    backdrop-blur-md
+    border
+    border-white/20
+    flex
+    items-center
+    justify-center
+    text-white
+    transition-all
+    active:scale-95
+  "
+  aria-label="Back to Home"
+>
+  <ArrowLeft size={24} strokeWidth={2.5} />
+</button>
+
+
 
       {/* CHAT AREA */}
       <div className="flex-1 flex flex-col h-[calc(90vh-80px)] overflow-hidden">
