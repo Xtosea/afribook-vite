@@ -102,7 +102,7 @@ function App() {
 const location = useLocation();
 
 const hideNavbar =
-  location.pathname.startsWith("/.  messages") ||
+  location.pathname.startsWith("/messages") ||
   location.pathname.startsWith("/reels");
 
 
@@ -138,7 +138,7 @@ useEffect(() => {
  return (
     <HelmetProvider>
       
-        
+  {!hideNavbar && <Navbar />}
 
 
         <div className="min-h-[calc(100vh-80px)] w-full">
@@ -146,7 +146,7 @@ useEffect(() => {
         
        <IncomingCallModal />
       <IncomingCallListener />
-      {!hideNavbar && <Navbar />}
+      
 
       <Routes>
             {/* PUBLIC */}
