@@ -559,9 +559,8 @@ Logout
 
 </div>
 
-</div>
 
-</div>
+
 )}
           
         
