@@ -554,9 +554,6 @@ className="w-full mt-8 bg-red-500 text-white py-3 rounded-xl font-semibold"
 Logout
 </button>
 
-</div>
-
-
 
 </div>
 
