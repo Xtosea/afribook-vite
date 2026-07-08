@@ -21,23 +21,41 @@ export const AuthProvider = ({ children }) => {
     );
 
   const login = (token, user) => {
-    localStorage.setItem("token", token);
-    localStorage.setItem(
-      "user",
-      JSON.stringify(user)
-    );
-    localStorage.setItem("userId", user._id);
+  localStorage.setItem("token", token);
 
-    setToken(token);
-    setCurrentUser(user);
-  };
+  localStorage.setItem(
+    "user",
+    JSON.stringify(user)
+  );
 
-  const logout = () => {
-    localStorage.clear();
+  localStorage.setItem(
+    "userId",
+    user._id
+  );
 
-    setToken(null);
-    setCurrentUser(null);
-  };
+  localStorage.setItem(
+    "name",
+    user.name || ""
+  );
+
+  localStorage.setItem(
+    "profilePic",
+    user.profilePic || ""
+  );
+
+  localStorage.setItem(
+    "verified",
+    user.verified || false
+  );
+
+  localStorage.setItem(
+    "verificationBadge",
+    user.verificationBadge || ""
+  );
+
+  setToken(token);
+  setCurrentUser(user);
+};
 
   return (
     <AuthContext.Provider
