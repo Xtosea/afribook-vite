@@ -25,7 +25,7 @@ import useWebRTC from "../features/calls/useWebRTC";
 import CallScreen from "../features/calls/CallScreen";
 import { useCall } from "../context/CallContext";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 
 
@@ -843,7 +843,7 @@ console.log(
   className="
     fixed
     top-[max(env(safe-area-inset-top),16px)]
-    left-4
+    right-4
     z-[100]
     w-12
     h-12
@@ -861,7 +861,7 @@ console.log(
   "
   aria-label="Back to Home"
 >
-  <ArrowRight size={24} strokeWidth={2.5} />
+  <ArrowLeft size={24} strokeWidth={2.5} />
 </button>
 
 
