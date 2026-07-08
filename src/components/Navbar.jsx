@@ -296,69 +296,42 @@ const currentUserId = localStorage.getItem("userId");
 )}
       {/* ================= MOBILE DRAWER ================= */}
 
-{mobileOpen && (
-
-<div className="fixed inset-0 bg-black/40 z-50">
-
 <div className="w-80 h-full bg-white p-4 overflow-y-auto">
 
-<div className="flex items-center justify-between mb-5">
+  {/* PROFILE */}
+  <div className="flex items-center gap-3 mb-6 pb-4 border-b">
+    <img
+      src={currentUser?.profilePic || defaultProfile}
+      alt={currentUser?.name}
+      className="w-14 h-14 rounded-full object-cover border"
+    />
 
-<h2 className="text-xl font-bold">
-Menu
-</h2>
+    <div>
+      <h3 className="font-bold text-lg">
+        {currentUser?.name}
+      </h3>
 
-
-
-
-   <div
-  className="
-    absolute
-    top-2
-    left-1
-    z-50
-    flex
-    items-center
-    gap-2
-    bg-black/40
-    backdrop-blur-sm
-    px-3
-    py-2
-    rounded-xl
-  "
->
-  <img
-    src={
-      currentUser?.profilePic ||
-      "/default-avatar.png"
-    }
-    alt=""
-    className="
-      w-10
-      h-10
-      rounded-full
-      object-cover
-      border
-      border-white
-    "
-  />
-
-  <div>
-    <p className="text-white font-semibold text-sm">
-      {currentUser?.name}
-    </p>
-
-    <span
-      className="
-        text-xs
-        text-white/80
-      "
-    >
-      🌎 Public
-    </span>
+      <p className="text-sm text-gray-500">
+        🌎 Public
+      </p>
+    </div>
   </div>
-</div>
 
+  {/* HEADER */}
+  <div className="flex items-center justify-between mb-5">
+    <h2 className="text-xl font-bold">
+      Menu
+    </h2>
+
+    <button
+      onClick={() => setMobileOpen(false)}
+      className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"
+    >
+      <X size={24} />
+    </button>
+  </div>
+
+  
 
 <div className="mb-4">
   <button
@@ -389,10 +362,10 @@ className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"
 
 {/* 👥 SOCIAL */}
 
-<h1 className="flex items-center justify-center gap-2 mt-6 mb-3 text-lg font-bold uppercase">
-  <Clapperboard size={50} className="text-pink-600" />
-  <span>Creator</span>
-</h1>
+<h2 className="flex items-center justify-center gap-2 mt-6 mb-3 text-lg font-bold uppercase">
+  <Users size={40} className="text-blue-600" />
+  <span>Social</span>
+</h2>
 
 <div className="grid grid-cols-2 gap-4">
 
@@ -467,8 +440,8 @@ className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"
 
 {/* 🎨 CREATOR */}
 
-<h1 className="flex items-center justify-center gap-2 mt-6 mb-3 text-lg font-bold uppercase">
-  <Clapperboard size={50} className="text-pink-600" />
+<h2 className="flex items-center justify-center gap-2 mt-6 mb-3 text-lg font-bold uppercase">
+  <Clapperboard size={40} className="text-pink-600" />
   <span>Creator</span>
 </h1>
 
@@ -509,14 +482,14 @@ className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"
 {/* 💼 BUSINESS */}
 
 
-<h1 className="flex items-center justify-center gap-2 mt-6 mb-3 font-bold text-lg text-gray-800 uppercase">
+<h2 className="flex items-center justify-center gap-2 mt-6 mb-3 font-bold text-lg text-gray-800 uppercase">
   <BriefcaseBusiness
-    size={50}
+    size={40}
     className="text-[#B7410E]"
 
   />
   <span>Business</span>
-</h1>
+</h2>
 
 <div className="grid grid-cols-2 gap-4">
 
@@ -555,10 +528,10 @@ className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"
 
 {/* 📁 PERSONAL */}
 
-<h1 className="flex items-center justify-center gap-2 mt-6 mb-3 text-lg font-bold uppercase">
-  <User size={50} className="text-green-600" />
+<h2 className="flex items-center justify-center gap-2 mt-6 mb-3 text-lg font-bold uppercase">
+  <User size={40} className="text-green-600" />
   <span>Personal</span>
-</h1>
+</h2>
 
 <div className="grid grid-cols-2 gap-4">
 
