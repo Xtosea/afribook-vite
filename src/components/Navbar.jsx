@@ -262,10 +262,7 @@ const currentUserId = currentUser?._id;
 
     {/* MOBILE MENU */}
     
-  </div>
-
-
-   </nav>
+  </nav>
 
      
 {/* MOBILE QUICK MENU */}
