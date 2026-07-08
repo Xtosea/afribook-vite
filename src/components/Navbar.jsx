@@ -263,7 +263,7 @@ const currentUserId = currentUser?._id;
 
     
     </nav>
-}}
+
      
 {/* MOBILE QUICK MENU */}
 
