@@ -272,23 +272,7 @@ const currentUserId = currentUser?._id;
 
 ) : (
 
-  <div className="flex items-center gap-2">
-
-    <Link
-      to="/login"
-      className="px-4 py-2 text-blue-600 font-medium"
-    >
-      Login
-    </Link>
-
-    <Link
-      to="/register"
-      className="px-4 py-2 bg-blue-600 text-white rounded-lg"
-    >
-      Register
-    </Link>
-
-  </div>
+  
 
 )}
       </nav>
