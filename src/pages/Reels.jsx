@@ -6,6 +6,8 @@ import { use2Upload } from "../hooks/use2Upload";
 
 import ReelCard from "../components/reels/ReelCard";
 import ReelUploadModal from "../components/reels/ReelUploadModal";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 
 const Reels = () => {
   const [reels, setReels] = useState([]);
@@ -23,15 +25,16 @@ const [selectedFile, setSelectedFile] = useState(null);
   const videoRefs = useRef([]);
   const observerRef = useRef(null);
   const fileRef = useRef();
+  const navigate = useNavigate();
+
 
   const { uploadFile, loading, progress } = use2Upload();
   const token = localStorage.getItem("token");
 
   /* ================= FETCH REELS ================= */
   useEffect(() => {
-    await fetchReels();
-navigate("/");
-  }, []);
+  fetchReels();
+}, []);
 
   const fetchReels = async () => {
     try {
@@ -207,6 +210,8 @@ const uploadReel = async () => {
 
   return (
     <div className="h-screen overflow-y-scroll snap-y snap-mandatory bg-black">
+
+      
 
       {reels.map((reel, i) => (
         <ReelCard
