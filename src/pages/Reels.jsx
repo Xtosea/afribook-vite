@@ -212,6 +212,31 @@ const uploadReel = async () => {
     <div className="h-screen overflow-y-scroll snap-y snap-mandatory bg-black">
 
       
+      <button
+  onClick={() => navigate("/")}
+  className="
+    fixed
+    top-[max(env(safe-area-inset-top),16px)]
+    left-4
+    z-[100]
+    w-12
+    h-12
+    rounded-full
+    bg-black/40
+    backdrop-blur-md
+    border
+    border-white/20
+    flex
+    items-center
+    justify-center
+    text-white
+    transition-all
+    active:scale-95
+  "
+  aria-label="Back to Home"
+>
+  <ArrowLeft size={24} strokeWidth={2.5} />
+</button>
 
       {reels.map((reel, i) => (
         <ReelCard
