@@ -139,7 +139,6 @@ useEffect(() => {
     <HelmetProvider>
       
   {!hideNavbar && <Navbar />}
-{!hideNavbar && <BottomNavbar />}
 
 
         <div className="min-h-[calc(100vh-80px)] w-full">
