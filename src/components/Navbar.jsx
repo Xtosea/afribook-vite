@@ -189,7 +189,10 @@ const currentUserId = currentUser?._id;
 
         {/* RIGHT SIDE */}
 
-{isLoggedIn ? (
+
+ 
+ {isLoggedIn && (
+
 
   <div className="flex items-center gap-3">
 
@@ -261,7 +264,7 @@ const currentUserId = currentUser?._id;
     </div>
     </div>
 
-    
+    ))
     </nav>
 
      
