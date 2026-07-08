@@ -861,7 +861,7 @@ console.log(
   "
   aria-label="Back to Home"
 >
-  <Arrowright size={24} strokeWidth={2.5} />
+  <ArrowRight size={24} strokeWidth={2.5} />
 </button>
 
 
