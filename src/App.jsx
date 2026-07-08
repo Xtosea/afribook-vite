@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
+
 import { HelmetProvider } from "react-helmet-async";
 
 import Navbar from "./components/Navbar";
@@ -94,13 +95,16 @@ from "./features/calls/IncomingCallModal";
 
 
 
+
 function App() {
   console.log("API:", import.meta.env.VITE_API_BASE);
 
 const location = useLocation();
 
 const hideNavbar =
-  location.pathname.startsWith("/messages");
+  location.pathname.startsWith("/.  messages") ||
+  location.pathname.startsWith("/reels");
+
 
 
 useEffect(() => {
@@ -142,6 +146,7 @@ useEffect(() => {
         
        <IncomingCallModal />
       <IncomingCallListener />
+      {!hideNavbar && <Navbar />}
 
       <Routes>
             {/* PUBLIC */}
