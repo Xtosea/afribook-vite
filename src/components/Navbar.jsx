@@ -75,7 +75,11 @@ const Navbar = () => {
   const [onlineUsers, setOnlineUsers] = useState([]);
 const [showSearch, setShowSearch] = useState(false);
 
-  const currentUserId = localStorage.getItem("userId");
+  const currentUser = JSON.parse(
+  localStorage.getItem("user") || "null"
+);
+
+const currentUserId = localStorage.getItem("userId");
 
   const isActive = (path) => location.pathname === path;
 
