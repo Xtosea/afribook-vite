@@ -869,7 +869,7 @@ console.log(
 
       
       {/* CHAT AREA */}
-<div className="flex-1 flex flex-col h-[calc(100vh-80px)] overflow-hidden">
+<div className="flex-1 flex flex-col h-screen overflow-hidden">
 
         {selectedUser ? (
           <>
@@ -1314,7 +1314,7 @@ console.log(
   className="w-14 h-14 rounded-full bg-blue-500 text-white flex items-center justify-center shadow active:scale-95"
 >
   <span>📞</span>
-  <span className="text-[10px]">Video</span>
+  <span className="text-[10px]">Call</span>
 </button>
 
 
@@ -1333,7 +1333,7 @@ console.log(
   }}
   className="w-14 h-14 rounded-full bg-green-500 text-white flex items-center justify-center shadow active:scale-95"
 >
-  <span>📹</span>
+ <span>📞</span>
   <span className="text-[10px]">Video</span>
 </button>
  </div>
