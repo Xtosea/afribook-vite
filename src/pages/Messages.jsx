@@ -1224,7 +1224,7 @@ console.log(
 
 
 <span>📎</span>
-  <span className="text-[10px] font-bold">Post Media</span>
+  <span className="text-[10px] font-bold">Media</span>
 
 
                       <input
@@ -1352,7 +1352,7 @@ console.log(
                   >
                     {uploading
                       ? "..."
-                      : "post Chat"}
+                      : "Chat"}
                   </button>
                 </div>
 
