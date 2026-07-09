@@ -879,11 +879,11 @@ console.log(
               <div className="flex items-center gap-3">
 
                 <button
-                  onClick={() =>
-                    setShowSidebar(true)
-                  }
-                  className="md:hidden text-2xl"
-                >
+    onClick={() => setShowSidebar(true)}
+    className="md:hidden text-2xl mr-2"
+  >
+    ☰
+  </button>
                   ☰
                 </button>
 
@@ -932,10 +932,9 @@ console.log(
   setShowCall(true);
   webRTC.startVoiceCall();
 }}
-  className="bg-blue-500 hover:bg-blue-600 text-white w-11 h-11 rounded-full flex items-center justify-center shadow-lg"
->
-  📞
-voice 
+  className="flex flex-col items-center justify-center bg-blue-500 text-white w-14 h-14 rounded-full">
+  <span>📞</span>
+  <span className="text-[10px]">Voice</span>
 </button>
 
        {/* VIDEO */}
@@ -950,16 +949,15 @@ voice
   setShowCall(true);
   webRTC.startVideoCall();
 }}
-  className="bg-green-500 hover:bg-green-600 text-white w-11 h-11 rounded-full flex items-center justify-center shadow-lg"
->
-  📹
-video 
+  className="flex flex-col items-center justify-center bg-green-500 text-white w-14 h-14 rounded-full">
+  <span>📹</span>
+  <span className="text-[10px]">Video</span>
 </button>
 </div>
 </div>
 
 
-            {/* MESSAGES */}
+            
             {/* Messages */}
 <div className="flex-1 overflow-y-auto px-3 py-4">
 
