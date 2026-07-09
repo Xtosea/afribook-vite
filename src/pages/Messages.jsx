@@ -43,7 +43,7 @@ const AudioMessage = ({
   const audioRef =
     useRef(null);
 
-const navigate = useNavigate();
+
 
 
 
@@ -207,6 +207,7 @@ const navigate = useNavigate();
 };
 
 const Messages = () => {
+const navigate = useNavigate();
   const socketRef = useRef(null);
 
   const messagesEndRef = useRef(null);
@@ -884,8 +885,8 @@ console.log(
   >
     ☰
   </button>
-                  ☰
-                </button>
+                  
+              
 
                 <img
                   src={
