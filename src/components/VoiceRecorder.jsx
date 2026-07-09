@@ -352,7 +352,7 @@ return (
   onTouchEnd={isTouchDevice ? stopRecording : undefined}
   onMouseDown={!isTouchDevice ? startRecording : undefined}
   onMouseUp={!isTouchDevice ? stopRecording : undefined}
-  className={`w-12 h-12 rounded-full text-white shadow-lg flex items-center justify-center text-xl transition-all duration-300 ${
+  className={`w-14 h-14 rounded-full text-white shadow-lg flex items-center justify-center text-xl transition-all duration-300 ${
     recording
       ? isCancelling
         ? "bg-red-700 scale-125"
@@ -366,7 +366,7 @@ return (
 </button>
 
 <span className="mt-1 text-[10px] font-bold text-gray-700">
-  Voice note
+  Recorder
 </span>
 
   {recording && (
