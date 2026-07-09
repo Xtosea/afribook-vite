@@ -844,7 +844,7 @@ console.log(
   className="
     fixed
     top-[max(env(safe-area-inset-top),16px)]
-    right-30
+    left-6
     z-[100]
     w-12
     h-12
