@@ -843,7 +843,7 @@ console.log(
   className="
     fixed
     top-[max(env(safe-area-inset-top),16px)]
-    right-10
+    right-20
     z-[100]
     w-12
     h-12
@@ -867,7 +867,7 @@ console.log(
 
 
       {/* CHAT AREA */}
-      <div className="flex-1 sticky top-0 flex-col h-[calc(90vh-80px)] overflow-hidden">
+      <div className="flex-1 fixed top-0 flex-col h-[calc(90vh-80px)] overflow-hidden">
 
         {selectedUser ? (
           <>
