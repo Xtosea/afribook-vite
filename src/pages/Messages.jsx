@@ -867,12 +867,12 @@ console.log(
 
 
       {/* CHAT AREA */}
-      <div className="flex-1 fixed flex-col h-[calc(90vh-80px)] overflow-hidden">
+      <div className="flex-1 flex flex-col h-screen overflow-hidden">
 
         {selectedUser ? (
           <>
             {/* HEADER */}
-            <div className="shrink-0 bg-white border-b px-4 py-3 flex items-center justify-between">
+            div className="shrink-0 bg-white border-b px-4 py-3 flex items-center justify-between">
 
               <div className="flex items-center gap-3">
 
