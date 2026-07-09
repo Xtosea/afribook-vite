@@ -867,7 +867,7 @@ console.log(
 
 
       {/* CHAT AREA */}
-      <div className="flex-1 fixed top-0 flex-col h-[calc(90vh-80px)] overflow-hidden">
+      <div className="flex-1 fixed flex-col h-[calc(90vh-80px)] overflow-hidden">
 
         {selectedUser ? (
           <>
