@@ -347,47 +347,27 @@ stopWaveform();
 return (
 <div className="flex flex-col items-center">
 <button
-onTouchStart={
-isTouchDevice
-? handleTouchStart
-: undefined
-}
-onTouchMove={
-isTouchDevice
-? handleTouchMove
-: undefined
-}
-onTouchEnd={
-isTouchDevice
-? stopRecording
-: undefined
-}
-onMouseDown={
-!isTouchDevice
-? startRecording
-: undefined
-}
-onMouseUp={
-!isTouchDevice
-? stopRecording
-: undefined
-}
-className={`w-12 h-12 rounded-full text-white shadow-lg flex items-center justify-center text-xl transition-all duration-300 ${
-  recording
-    ? isCancelling
-      ? "bg-red-700 scale-125"
-      : "bg-red-500 animate-pulse scale-110"
-    : uploading
-    ? "bg-gray-400"
-    : "bg-green-500"
-}`}
+  onTouchStart={isTouchDevice ? handleTouchStart : undefined}
+  onTouchMove={isTouchDevice ? handleTouchMove : undefined}
+  onTouchEnd={isTouchDevice ? stopRecording : undefined}
+  onMouseDown={!isTouchDevice ? startRecording : undefined}
+  onMouseUp={!isTouchDevice ? stopRecording : undefined}
+  className={`w-12 h-12 rounded-full text-white shadow-lg flex items-center justify-center text-xl transition-all duration-300 ${
+    recording
+      ? isCancelling
+        ? "bg-red-700 scale-125"
+        : "bg-red-500 animate-pulse scale-110"
+      : uploading
+      ? "bg-gray-400"
+      : "bg-green-500"
+  }`}
 >
-{uploading
-? "..."
-: recording
-? "⏺"
-: "🎤"}
+  {uploading ? "..." : recording ? "⏺" : "🎤"}
 </button>
+
+<span className="mt-1 text-[10px] font-bold text-gray-700">
+  Voice note
+</span>
 
   {recording && (
     <>
