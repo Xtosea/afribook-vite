@@ -843,7 +843,7 @@ console.log(
   className="
     fixed
     top-[max(env(safe-area-inset-top),16px)]
-    right-4
+    right-10
     z-[100]
     w-12
     h-12
@@ -867,7 +867,7 @@ console.log(
 
 
       {/* CHAT AREA */}
-      <div className="flex-1 flex flex-col h-[calc(90vh-80px)] overflow-hidden">
+      <div className="flex-1 sticky flex-col h-[calc(90vh-80px)] overflow-hidden">
 
         {selectedUser ? (
           <>
@@ -933,6 +933,7 @@ console.log(
   className="bg-blue-500 hover:bg-blue-600 text-white w-11 h-11 rounded-full flex items-center justify-center shadow-lg"
 >
   📞
+voice call 
 </button>
 
        {/* VIDEO */}
@@ -950,6 +951,7 @@ console.log(
   className="bg-green-500 hover:bg-green-600 text-white w-11 h-11 rounded-full flex items-center justify-center shadow-lg"
 >
   📹
+video call 
 </button>
 </div>
 </div>
