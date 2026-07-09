@@ -1314,7 +1314,7 @@ console.log(
   className="w-14 h-14 rounded-full bg-blue-500 text-white flex items-center justify-center shadow active:scale-95"
 >
   <span>📞</span>
-  <span className="text-[10px]">Call</span>
+  <span className="text-[10px] font-bold">Voice</span>
 </button>
 
 
@@ -1331,7 +1331,7 @@ console.log(
     setShowCall(true);
     webRTC.startVideoCall();
   }}
-  className="w-14 h-14 rounded-full bg-green-500 text-white flex items-center justify-center shadow active:scale-95"
+  className="w-14 h-14 rounded-full bg-green-500 text-white flex flex-col items-center justify-center shadow active:scale-95"
 >
  <span>📞</span>
   <span className="text-[10px]">Video</span>
