@@ -749,7 +749,7 @@ console.log(
 
 
     return (
-  <div className="flex flex-1 bg-gray-100 overflow-hidden">
+  <div className="flex h-screen overflow-hidden">
 
       {/* MOBILE OVERLAY */}
       {showSidebar && (
@@ -871,8 +871,9 @@ console.log(
 
         {selectedUser ? (
           <>
+            
             {/* HEADER */}
-            div className="shrink-0 bg-white border-b px-4 py-3 flex items-center justify-between">
+<div className="shrink-0 bg-white border-b px-4 py-3 flex items-center justify-between">
 
               <div className="flex items-center gap-3">
 
@@ -958,7 +959,8 @@ video call
 
 
             {/* MESSAGES */}
-            <div className="flex-1 overflow-y-auto px-3 py-4 space-y-4">
+            {/* Messages */}
+<div className="flex-1 overflow-y-auto px-3 py-4">
 
               {Object.entries(groupedMessages).map(
   ([date, dayMessages]) => (
@@ -1222,8 +1224,9 @@ video call
               />
             </div>
 
-            {/* INPUT AREA */}
-            <div className="shrink-0 bg-white border-t px-3 py-3 shadow-lg">
+            
+            {/* Input */}
+<div className="shrink-0 bg-white border-t px-3 py-3">
 
               <div className="space-y-2">
 
