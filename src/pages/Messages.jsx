@@ -844,7 +844,7 @@ console.log(
   className="
     fixed
     top-[max(env(safe-area-inset-top),16px)]
-    left-10
+    right-4
     z-[100]
     w-12
     h-12
@@ -875,7 +875,7 @@ console.log(
           <>
             
             {/* HEADER */}
-<div className="shrink-0 bg-white border-b px-4 py-3 flex items-center justify-between">
+<div className="sticky top-0 z-20 shrink-0 bg-white border-b px-4 py-3 flex items-center justify-between">
 
               <div className="flex items-center gap-3">
 
@@ -1259,7 +1259,10 @@ console.log(
                     {/* FILE */}
                     <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 w-12 h-12 rounded-full flex items-center justify-center text-xl shadow">
 
-                      📎
+
+<span>📎</span>
+  <span className="text-[10px]">Video</span>
+
 
                       <input
                         type="file"
@@ -1331,7 +1334,48 @@ console.log(
                         }}
                       />
                     </div>
-                  </div>
+                 
+
+{/* Voice Call */}
+<button
+  onClick={() => {
+    if (!onlineUsers.includes(selectedUser._id)) {
+      alert("This user is currently offline.");
+      return;
+    }
+
+    setIsOutgoingCall(true);
+    setShowCall(true);
+    webRTC.startVoiceCall();
+  }}
+  className="w-12 h-12 rounded-full bg-blue-500 text-white flex items-center justify-center shadow active:scale-95"
+>
+  <span>📞</span>
+  <span className="text-[10px]">Video</span>
+</button>
+
+
+
+{/* Video Call */}
+<button
+  onClick={() => {
+    if (!onlineUsers.includes(selectedUser._id)) {
+      alert("This user is currently offline.");
+      return;
+    }
+
+    setIsOutgoingCall(true);
+    setShowCall(true);
+    webRTC.startVideoCall();
+  }}
+  className="w-12 h-12 rounded-full bg-green-500 text-white flex items-center justify-center shadow active:scale-95"
+>
+  <span>📹</span>
+  <span className="text-[10px]">Video</span>
+</button>
+ </div>
+
+
 
                   {/* SEND */}
                   <button
@@ -1345,9 +1389,11 @@ console.log(
                   >
                     {uploading
                       ? "..."
-                      : "Send"}
+                      : "Chat"}
                   </button>
                 </div>
+
+
 
                 {/* FILE NAME */}
                 {media && (
