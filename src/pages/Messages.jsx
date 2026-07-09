@@ -918,44 +918,7 @@ console.log(
                 </div>
               </div>
 
-              {/* CALL BUTTONS */}
-              <div className="flex items-center gap-2">
-
-          {/* VOICE */}
-   <button
-  onClick={() => {
-  if (!onlineUsers.includes(selectedUser._id)) {
-    alert("This user is currently offline.");
-    return;
-  }
-
-  setIsOutgoingCall(true);
-  setShowCall(true);
-  webRTC.startVoiceCall();
-}}
-  className="flex flex-col items-center justify-center bg-blue-500 text-white w-14 h-14 rounded-full">
-  <span>📞</span>
-  <span className="text-[10px]">Voice</span>
-</button>
-
-       {/* VIDEO */}
-   <button
-  onClick={() => {
-  if (!onlineUsers.includes(selectedUser._id)) {
-    alert("This user is currently offline.");
-    return;
-  }
-
-  setIsOutgoingCall(true);
-  setShowCall(true);
-  webRTC.startVideoCall();
-}}
-  className="flex flex-col items-center justify-center bg-green-500 text-white w-14 h-14 rounded-full">
-  <span>📹</span>
-  <span className="text-[10px]">Video</span>
-</button>
-</div>
-</div>
+              
 
 
             
@@ -1257,11 +1220,11 @@ console.log(
                   <div className="flex items-center gap-2">
 
                     {/* FILE */}
-                    <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 w-12 h-12 rounded-full flex items-center justify-center text-xl shadow">
+                    <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 w-14 h-14 rounded-full flex items-center justify-center text-xl shadow">
 
 
 <span>📎</span>
-  <span className="text-[10px]">Video</span>
+  <span className="text-[10px] font-bold">Post Media</span>
 
 
                       <input
@@ -1348,7 +1311,7 @@ console.log(
     setShowCall(true);
     webRTC.startVoiceCall();
   }}
-  className="w-12 h-12 rounded-full bg-blue-500 text-white flex items-center justify-center shadow active:scale-95"
+  className="w-14 h-14 rounded-full bg-blue-500 text-white flex items-center justify-center shadow active:scale-95"
 >
   <span>📞</span>
   <span className="text-[10px]">Video</span>
@@ -1368,7 +1331,7 @@ console.log(
     setShowCall(true);
     webRTC.startVideoCall();
   }}
-  className="w-12 h-12 rounded-full bg-green-500 text-white flex items-center justify-center shadow active:scale-95"
+  className="w-14 h-14 rounded-full bg-green-500 text-white flex items-center justify-center shadow active:scale-95"
 >
   <span>📹</span>
   <span className="text-[10px]">Video</span>
@@ -1389,7 +1352,7 @@ console.log(
                   >
                     {uploading
                       ? "..."
-                      : "Chat"}
+                      : "post Chat"}
                   </button>
                 </div>
 
