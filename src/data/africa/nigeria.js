@@ -1,3 +1,51 @@
+const nigeria = {
+
+  Lagos: {
+    Ikeja: [
+      "Ikeja",
+      "Computer Village",
+      "Alausa",
+      "Allen Avenue",
+    ],
+
+    Eti_Osa: [
+      "Lekki",
+      "Ajah",
+      "Victoria Island",
+      "Ikoyi",
+      "Chevron",
+      "Osborne",
+    ],
+
+    Surulere: [
+      "Surulere",
+      "Iponri",
+      "Bode Thomas",
+    ],
+
+    Lagos_Island: [
+      "Lagos Island",
+      "Marina",
+      "CMS",
+      "Idumota",
+    ],
+
+    Yaba: [
+      "Yaba",
+      "Sabo",
+      "Tejuosho",
+      "Jibowu",
+    ],
+
+    Ikorodu: [
+      "Ikorodu",
+      "Ipakodo",
+      "Owode",
+    ],
+  },
+
+  // Next state starts here
+
 Anambra: {
     Awka_South: [
       "Awka",
