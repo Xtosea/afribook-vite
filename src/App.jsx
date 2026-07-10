@@ -426,6 +426,15 @@ useEffect(() => {
     </ProtectedRoute>
   }
 />
+
+<Route
+  path="/marketplace/:id/edit"
+  element={
+    <ProtectedRoute>
+      <EditListing />
+    </ProtectedRoute>
+  }
+/>
            
 
 
