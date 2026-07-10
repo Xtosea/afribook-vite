@@ -38,10 +38,10 @@ export default function ImageUploader({
   // Remove Image
   // ===============================
   const removeImage = (index) => {
-    setImages((prev) =>
-      prev.filter((_, i) => i !== index)
-    );
-  };
+  setImages(
+    images.filter((_, i) => i !== index)
+  );
+};
 
   // ===============================
   // Upload
@@ -105,10 +105,10 @@ export default function ImageUploader({
         });
       }
 
-      setImages((prev) => [
-        ...prev,
-        ...uploaded,
-      ]);
+      setImages([
+  ...images,
+  ...uploaded,
+]);
     } catch (err) {
       console.error(err);
 
@@ -163,10 +163,12 @@ export default function ImageUploader({
         )}
       </button>
 
-      {images.length > 0 && (
+      {Array.isArray(images) &&
+ images.length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
 
-          {images.map((image, index) => (
+          {Array.isArray(images) &&
+ images.map((image, index) => (
             <div
               key={index}
               className="relative rounded-xl overflow-hidden border"
