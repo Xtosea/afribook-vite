@@ -55,26 +55,23 @@ export default function Marketplace() {
   }, [token]);
 
   const filtered = useMemo(() => {
+  const q = search.toLowerCase();
 
-    return listings.filter((item) => {
+  return listings.filter((item) => {
+    const matchCategory =
+      category === "All" ||
+      item.category === category;
 
-      const matchCategory =
-        category === "All" ||
-        item.category === category;
+    const matchSearch =
+      item.title?.toLowerCase().includes(q) ||
+      item.description?.toLowerCase().includes(q) ||
+      item.category?.toLowerCase().includes(q) ||
+      item.location?.city?.toLowerCase().includes(q) ||
+      item.location?.state?.toLowerCase().includes(q);
 
-      const matchSearch =
-        item.title
-          .toLowerCase()
-          .includes(search.toLowerCase());
-
-      return (
-        matchCategory &&
-        matchSearch
-      );
-
-    });
-
-  }, [listings, search, category]);
+    return matchCategory && matchSearch;
+  });
+}, [listings, search, category]);
 
   return (
 
