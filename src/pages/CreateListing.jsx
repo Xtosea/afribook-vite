@@ -56,38 +56,7 @@ export default function CreateListing() {
   // Upload images to Cloudinary
   // ==========================
 
-  const uploadImages = async () => {
-    const uploaded = [];
-
-    for (const file of formData.images) {
-      const body = new FormData();
-
-      body.append("file", file);
-
-      body.append(
-        "upload_preset",
-        UPLOAD_PRESET
-      );
-
-      const res = await fetch(
-        CLOUDINARY_URL,
-        {
-          method: "POST",
-          body,
-        }
-      );
-
-      const data = await res.json();
-
-      uploaded.push({
-        url: data.secure_url,
-        public_id: data.public_id,
-      });
-    }
-
-    return uploaded;
-  };
-
+  
   // ==========================
   // Submit Listing
   // ==========================
@@ -99,22 +68,14 @@ export default function CreateListing() {
       setLoading(true);
 
       // Upload images first
-      const images =
-        await uploadImages();
-
-      // Save listing
       await fetchWithToken(
-        "/api/marketplace",
-        token,
-        {
-          method: "POST",
-
-          body: JSON.stringify({
-            ...formData,
-            images,
-          }),
-        }
-      );
+  "/api/marketplace",
+  token,
+  {
+    method: "POST",
+    body: JSON.stringify(formData),
+  }
+);
 
       alert(
         "Listing created successfully!"
