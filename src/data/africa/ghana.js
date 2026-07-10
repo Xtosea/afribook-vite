@@ -1,151 +1,64 @@
 const ghana = {
-  "Greater Accra": [
-    "Accra",
-    "Tema",
-    "Madina",
-    "Kasoa",
-    "Adenta",
-    "Teshie",
-    "Nungua",
-    "Amasaman",
-    "Ashaiman",
-    "Dansoman",
-  ],
+  "Greater Accra": {
+    Accra: [
+      "Osu",
+      "Labone",
+      "Airport Residential",
+      "East Legon",
+      "Cantonments",
+      "Dansoman",
+    ],
 
-  Ashanti: [
-    "Kumasi",
-    "Obuasi",
-    "Ejisu",
-    "Mampong",
-    "Konongo",
-    "Bekwai",
-    "Offinso",
-    "Asokwa",
-    "Tafo",
-    "Effiduase",
-  ],
+    Tema: [
+      "Community 1",
+      "Community 2",
+      "Community 3",
+      "Community 4",
+    ],
 
-  Central: [
-    "Cape Coast",
-    "Winneba",
-    "Kasoa",
-    "Elmina",
-    "Mankessim",
-    "Saltpond",
-    "Swedru",
-    "Dunkwa-on-Offin",
-  ],
+    Ga: [
+      "Madina",
+      "Adenta",
+      "Amasaman",
+      "Ablekuma",
+    ],
+  },
 
-  Eastern: [
-    "Koforidua",
-    "Nkawkaw",
-    "Akosombo",
-    "Akim Oda",
-    "Nsawam",
-    "Suhum",
-    "Aburi",
-    "Begoro",
-  ],
+  Ashanti: {
+    Kumasi: [
+      "Adum",
+      "Suame",
+      "Asokwa",
+      "Tafo",
+      "Kwadaso",
+    ],
 
-  Western: [
-    "Sekondi",
-    "Takoradi",
-    "Axim",
-    "Tarkwa",
-    "Prestea",
-    "Shama",
-    "Mpohor",
-  ],
+    Obuasi: [
+      "Tutuka",
+      "Anyinam",
+      "Bediem",
+    ],
 
-  "Western North": [
-    "Sefwi Wiawso",
-    "Bibiani",
-    "Juaboso",
-    "Bodi",
-    "Aowin",
-  ],
+    Ejisu: [
+      "Ejisu Central",
+      "Fumesua",
+      "Besease",
+    ],
+  },
 
-  Volta: [
-    "Ho",
-    "Hohoe",
-    "Keta",
-    "Anloga",
-    "Aflao",
-    "Dzodze",
-    "Kpando",
-  ],
+  Central: {
+    "Cape Coast": [
+      "Pedu",
+      "Abura",
+      "Bakaano",
+    ],
 
-  Oti: [
-    "Dambai",
-    "Jasikan",
-    "Nkwanta",
-    "Kadjebi",
-    "Kete Krachi",
-  ],
-
-  Northern: [
-    "Tamale",
-    "Savelugu",
-    "Yendi",
-    "Walewale",
-    "Karaga",
-    "Kpandai",
-  ],
-
-  Savannah: [
-    "Damongo",
-    "Bole",
-    "Sawla",
-    "Salaga",
-    "Larabanga",
-  ],
-
-  "North East": [
-    "Nalerigu",
-    "Walewale",
-    "Gambaga",
-    "Bunkpurugu",
-  ],
-
-  Upper East: [
-    "Bolgatanga",
-    "Navrongo",
-    "Bawku",
-    "Zebilla",
-    "Paga",
-  ],
-
-  Upper West: [
-    "Wa",
-    "Lawra",
-    "Tumu",
-    "Nadowli",
-    "Jirapa",
-  ],
-
-  Bono: [
-    "Sunyani",
-    "Berekum",
-    "Dormaa Ahenkro",
-    "Wenchi",
-    "Fiapre",
-  ],
-
-  Bono East: [
-    "Techiman",
-    "Kintampo",
-    "Atebubu",
-    "Nkoranza",
-    "Prang",
-  ],
-
-  Ahafo: [
-    "Goaso",
-    "Bechem",
-    "Duayaw Nkwanta",
-    "Kenyasi",
-    "Hwidiem",
-  ],
+    Winneba: [
+      "South Campus",
+      "North Campus",
+      "New Winneba",
+    ],
+  },
 };
 
 export default ghana;
