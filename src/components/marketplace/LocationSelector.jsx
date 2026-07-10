@@ -32,14 +32,16 @@ const LocationSelector = ({
 
   const states = Object.keys(data);
 
-  const lgas = state
-    ? Object.keys(data[state] || {})
-    : [];
+  const lgas = state && data[state]
+  ? Object.keys(data[state])
+  : [];
 
   const cities =
-    state && lga
-      ? data[state]?.[lga] || []
-      : [];
+  state && lga
+    ? Array.isArray(data[state]?.[lga])
+      ? data[state][lga]
+      : []
+    : [];
 
   return (
     <div className="space-y-4">
