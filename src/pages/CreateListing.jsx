@@ -62,37 +62,35 @@ export default function CreateListing() {
   // ==========================
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
-      setLoading(true);
+  try {
+    setLoading(true);
 
-      // Upload images first
-      await fetchWithToken(
-  "/api/marketplace",
-  token,
-  {
-    method: "POST",
-    body: JSON.stringify(formData),
+    console.log("Submitting listing:", formData);
+
+    await fetchWithToken(
+      "/api/marketplace",
+      token,
+      {
+        method: "POST",
+        body: JSON.stringify(formData),
+      }
+    );
+
+    alert("Listing created successfully!");
+    navigate("/marketplace");
+
+  } catch (err) {
+    console.error(err);
+
+    alert(
+      err.message || "Failed to create listing."
+    );
+  } finally {
+    setLoading(false);
   }
-);
-
-      alert(
-        "Listing created successfully!"
-      );
-
-      navigate("/marketplace");
-    } catch (err) {
-      console.error(err);
-
-      alert(
-        err.message ||
-          "Failed to create listing."
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+};
 
   return (
     <div className="max-w-3xl mx-auto p-5">
