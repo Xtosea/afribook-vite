@@ -80,7 +80,9 @@ export default function Marketplace() {
 
     <div className="max-w-7xl mx-auto p-4">
 
-      <MarketplaceHeader />
+      <MarketplaceHeader
+    total={listings.length}
+   />
 
       <MarketplaceSearch
         value={search}
