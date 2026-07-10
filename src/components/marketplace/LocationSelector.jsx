@@ -2,12 +2,15 @@ import React from "react";
 
 import countries from "../../data/africa/countries";
 import nigeria from "../../data/africa/nigeria";
+import ghana from "../../data/africa/ghana";
+import kenya from "../../data/africa/kenya";
+import southAfrica from "../../data/africa/southAfrica";
 
 const countryData = {
   Nigeria: nigeria,
-  // Ghana: ghana,
-  // Kenya: kenya,
-  // "South Africa": southAfrica,
+  Ghana: ghana,
+  Kenya: kenya,
+  "South Africa": southAfrica,
 };
 
 const LocationSelector = ({
@@ -24,6 +27,8 @@ const LocationSelector = ({
   setArea,
 }) => {
   const data = countryData[country] || {};
+
+  const hasLocationData = !!countryData[country];
 
   const states = Object.keys(data);
 
@@ -74,98 +79,131 @@ const LocationSelector = ({
 
       {/* STATE */}
 
-      <div>
-        <label className="block mb-1 font-medium">
-          State / Region
-        </label>
+      {hasLocationData ? (
+        <div>
+          <label className="block mb-1 font-medium">
+            State / Region
+          </label>
 
-        <select
-          value={state}
-          onChange={(e) => {
-            setState(e.target.value);
-            setLga("");
-            setCity("");
-            setArea("");
-          }}
-          disabled={!country}
-          className="w-full border rounded-lg p-3"
-        >
-          <option value="">
-            Select State
-          </option>
-
-          {states.map((item) => (
-            <option
-              key={item}
-              value={item}
-            >
-              {item}
+          <select
+            value={state}
+            onChange={(e) => {
+              setState(e.target.value);
+              setLga("");
+              setCity("");
+              setArea("");
+            }}
+            className="w-full border rounded-lg p-3"
+          >
+            <option value="">
+              Select State
             </option>
-          ))}
-        </select>
-      </div>
+
+            {states.map((item) => (
+              <option
+                key={item}
+                value={item}
+              >
+                {item}
+              </option>
+            ))}
+          </select>
+        </div>
+      ) : (
+        <div>
+          <label className="block mb-1 font-medium">
+            State / Region
+          </label>
+
+          <input
+            type="text"
+            value={state}
+            onChange={(e) => setState(e.target.value)}
+            placeholder="Enter State / Region"
+            disabled={!country}
+            className="w-full border rounded-lg p-3"
+          />
+        </div>
+      )}
 
       {/* LGA / DISTRICT */}
 
-      <div>
-        <label className="block mb-1 font-medium">
-          LGA / District
-        </label>
+      {hasLocationData && (
+        <div>
+          <label className="block mb-1 font-medium">
+            LGA / District
+          </label>
 
-        <select
-          value={lga}
-          onChange={(e) => {
-            setLga(e.target.value);
-            setCity("");
-            setArea("");
-          }}
-          disabled={!state}
-          className="w-full border rounded-lg p-3"
-        >
-          <option value="">
-            Select LGA
-          </option>
-
-          {lgas.map((item) => (
-            <option
-              key={item}
-              value={item}
-            >
-              {item}
+          <select
+            value={lga}
+            onChange={(e) => {
+              setLga(e.target.value);
+              setCity("");
+              setArea("");
+            }}
+            disabled={!state}
+            className="w-full border rounded-lg p-3"
+          >
+            <option value="">
+              Select LGA
             </option>
-          ))}
-        </select>
-      </div>
+
+            {lgas.map((item) => (
+              <option
+                key={item}
+                value={item}
+              >
+                {item}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       {/* CITY */}
 
-      <div>
-        <label className="block mb-1 font-medium">
-          City / Town
-        </label>
+      {hasLocationData ? (
+        <div>
+          <label className="block mb-1 font-medium">
+            City / Town
+          </label>
 
-        <select
-          value={city}
-          onChange={(e) =>
-            setCity(e.target.value)
-          }
-          disabled={!lga}
-          className="w-full border rounded-lg p-3"
-        >
-          <option value="">
-            Select Town
-          </option>
-
-          {cities.map((item) => (
-            <option
-              key={item}
-              value={item}
-            >
-              {item}
+          <select
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+            disabled={!lga}
+            className="w-full border rounded-lg p-3"
+          >
+            <option value="">
+              Select Town
             </option>
-          ))}
-        </select>
-      </div>
+
+            {cities.map((item) => (
+              <option
+                key={item}
+                value={item}
+              >
+                {item}
+              </option>
+            ))}
+          </select>
+        </div>
+      ) : (
+        <div>
+          <label className="block mb-1 font-medium">
+            City / Town
+          </label>
+
+          <input
+            type="text"
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+            placeholder="Enter City / Town"
+            disabled={!state}
+            className="w-full border rounded-lg p-3"
+          />
+        </div>
+      )}
 
       {/* AREA */}
 
@@ -177,9 +215,7 @@ const LocationSelector = ({
         <input
           type="text"
           value={area}
-          onChange={(e) =>
-            setArea(e.target.value)
-          }
+          onChange={(e) => setArea(e.target.value)}
           placeholder="Example: Lekki Phase 1"
           className="w-full border rounded-lg p-3"
         />
