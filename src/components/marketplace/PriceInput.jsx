@@ -1,79 +1,70 @@
 import React from "react";
 
-const currencies = [
-  { code: "NGN", symbol: "₦" },
-  { code: "USD", symbol: "$" },
-  { code: "EUR", symbol: "€" },
-  { code: "GBP", symbol: "£" },
-  { code: "GHS", symbol: "GH₵" },
-  { code: "KES", symbol: "KSh" },
-  { code: "ZAR", symbol: "R" },
-];
-
-const formatPrice = (value) => {
-  if (!value) return "";
-
-  const number = value.toString().replace(/\D/g, "");
-
-  return Number(number).toLocaleString();
-};
-
 const PriceInput = ({
   price,
-  setPrice,
   currency,
-  setCurrency,
+  onPriceChange,
+  onCurrencyChange,
 }) => {
-  const handlePriceChange = (e) => {
-    const raw = e.target.value.replace(/\D/g, "");
-
-    setPrice(raw);
-  };
-
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
 
-      <label className="block font-semibold text-gray-700">
-        Price
-      </label>
-
-      <div className="flex gap-3">
-
-        {/* Currency */}
+      <div>
+        <label className="block mb-1 font-medium">
+          Currency
+        </label>
 
         <select
           value={currency}
           onChange={(e) =>
-            setCurrency(e.target.value)
+            onCurrencyChange(e.target.value)
           }
-          className="border rounded-xl px-3 py-3 bg-white"
+          className="w-full border rounded-lg p-3"
         >
-          {currencies.map((item) => (
-            <option
-              key={item.code}
-              value={item.code}
-            >
-              {item.symbol} {item.code}
-            </option>
-          ))}
-        </select>
+          <option value="">
+            Select Currency
+          </option>
 
-        {/* Price */}
+          <option value="NGN">
+            NGN ₦
+          </option>
+
+          <option value="GHS">
+            GHS ₵
+          </option>
+
+          <option value="KES">
+            KES
+          </option>
+
+          <option value="ZAR">
+            ZAR
+          </option>
+
+          <option value="USD">
+            USD $
+          </option>
+
+        </select>
+      </div>
+
+
+      <div>
+        <label className="block mb-1 font-medium">
+          Price
+        </label>
 
         <input
           type="text"
           inputMode="numeric"
-          placeholder="Enter price"
-          value={formatPrice(price)}
-          onChange={handlePriceChange}
-          className="flex-1 border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          value={price}
+          onChange={(e) =>
+            onPriceChange(e.target.value)
+          }
+          placeholder="Enter amount"
+          className="w-full border rounded-lg p-3"
         />
-
       </div>
-
-      <p className="text-xs text-gray-500">
-        Example: ₦250,000
-      </p>
 
     </div>
   );
