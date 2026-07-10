@@ -19,37 +19,41 @@ const LocationSelector = ({
   lga,
   city,
   area,
-
   setCountry,
   setState,
   setLga,
   setCity,
   setArea,
 }) => {
-  const data = countryData[country] || {};
+  const data =
+    countryData[country] &&
+    typeof countryData[country] === "object"
+      ? countryData[country]
+      : {};
 
   const hasLocationData = !!countryData[country];
 
   const states = Object.keys(data).filter(
-  (key) =>
-    typeof data[key] === "object" &&
-    !Array.isArray(data[key])
-);
+    (key) =>
+      data[key] &&
+      typeof data[key] === "object" &&
+      !Array.isArray(data[key])
+  );
 
-
-const lgas =
-  state &&
-  data[state] &&
-  typeof data[state] === "object"
-    ? Object.keys(data[state])
-    : [];
+  const lgas =
+    state &&
+    data[state] &&
+    typeof data[state] === "object" &&
+    !Array.isArray(data[state])
+      ? Object.keys(data[state])
+      : [];
 
   const cities =
-  state && lga
-    ? Array.isArray(data[state]?.[lga])
+    state &&
+    lga &&
+    Array.isArray(data[state]?.[lga])
       ? data[state][lga]
-      : []
-    : [];
+      : [];
 
   return (
     <div className="space-y-4">
@@ -76,14 +80,15 @@ const lgas =
             Select Country
           </option>
 
-          {countries.map((item) => (
-            <option
-              key={item.code}
-              value={item.name}
-            >
-              {item.name}
-            </option>
-          ))}
+          {Array.isArray(countries) &&
+            countries.map((item) => (
+              <option
+                key={item.code}
+                value={item.name}
+              >
+                {item.name}
+              </option>
+            ))}
         </select>
       </div>
 
@@ -136,7 +141,7 @@ const lgas =
         </div>
       )}
 
-      {/* LGA / DISTRICT */}
+      {/* LGA */}
 
       {hasLocationData && (
         <div>
@@ -188,8 +193,7 @@ const lgas =
               Select Town
             </option>
 
-            {Array.isArray(cities) &&
-  cities.map((item) => (
+            {cities.map((item) => (
               <option
                 key={item}
                 value={item}
@@ -214,7 +218,7 @@ const lgas =
             className="w-full border rounded-lg p-3"
           />
         </div>
-      ))}
+      )}
 
       {/* AREA */}
 
