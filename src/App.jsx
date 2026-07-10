@@ -90,6 +90,12 @@ import IncomingCallListener from "./features/calls/IncomingCallListener";
 import IncomingCallModal
 from "./features/calls/IncomingCallModal";
 import CreateListing from "./pages/CreateListing";
+import Marketplace from "./pages/Marketplace";
+import MarketplaceListing from "./pages/MarketplaceListing";
+import EditListing from "./pages/EditListing";
+import MyListings from "./pages/MyListings";
+import SavedListings from "./pages/SavedListings";
+
 
 
 
@@ -366,6 +372,60 @@ useEffect(() => {
               }
             />
 
+
+<Route
+  path="/marketplace"
+  element={
+    <ProtectedRoute>
+      <Marketplace />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/marketplace/create"
+  element={
+    <ProtectedRoute>
+      <CreateListing />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/marketplace/my-listings"
+  element={
+    <ProtectedRoute>
+      <MyListings />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/marketplace/saved"
+  element={
+    <ProtectedRoute>
+      <SavedListings />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/marketplace/:id"
+  element={
+    <ProtectedRoute>
+      <MarketplaceListing />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/marketplace/:id/edit"
+  element={
+    <ProtectedRoute>
+      <EditListing />
+    </ProtectedRoute>
+  }
+/>
            
 
 
