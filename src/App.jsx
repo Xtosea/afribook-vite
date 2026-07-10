@@ -89,6 +89,8 @@ import FriendCarousel from "./components/friends/FriendCarousel";
 import IncomingCallListener from "./features/calls/IncomingCallListener";
 import IncomingCallModal
 from "./features/calls/IncomingCallModal";
+import CreateListing from "./pages/CreateListing";
+
 
 
 
@@ -264,6 +266,11 @@ useEffect(() => {
       
     />}
   
+/>
+
+<Route
+  path="/marketplace/create"
+  element={<CreateListing />}
 />
 
 
