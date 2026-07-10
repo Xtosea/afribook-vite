@@ -30,11 +30,19 @@ const LocationSelector = ({
 
   const hasLocationData = !!countryData[country];
 
-  const states = Object.keys(data);
+  const states = Object.keys(data).filter(
+  (key) =>
+    typeof data[key] === "object" &&
+    !Array.isArray(data[key])
+);
 
-  const lgas = state && data[state]
-  ? Object.keys(data[state])
-  : [];
+
+const lgas =
+  state &&
+  data[state] &&
+  typeof data[state] === "object"
+    ? Object.keys(data[state])
+    : [];
 
   const cities =
   state && lga
@@ -180,7 +188,8 @@ const LocationSelector = ({
               Select Town
             </option>
 
-            {cities.map((item) => (
+            {Array.isArray(cities) &&
+  cities.map((item) => (
               <option
                 key={item}
                 value={item}
@@ -205,7 +214,7 @@ const LocationSelector = ({
             className="w-full border rounded-lg p-3"
           />
         </div>
-      )}
+      ))}
 
       {/* AREA */}
 
