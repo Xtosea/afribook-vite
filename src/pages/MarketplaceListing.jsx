@@ -13,7 +13,7 @@ import OwnerActions from "../components/marketplace/OwnerActions";
 export default function MarketplaceListing() {
   const { id } = useParams();
 
-  const { token, user } = useAuth();
+  const { token, currentUser } = useAuth();
 
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -43,7 +43,7 @@ export default function MarketplaceListing() {
   };
 
   const isOwner =
-    user?._id === listing?.seller?._id;
+  currentUser?._id === listing?.seller?._id;
 
   if (loading) {
     return (
