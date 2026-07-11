@@ -8,11 +8,12 @@ import ListingGallery from "../components/marketplace/ListingGallery";
 import ListingInfo from "../components/marketplace/ListingInfo";
 import SellerCard from "../components/marketplace/SellerCard";
 import ContactButtons from "../components/marketplace/ContactButtons";
+import OwnerActions from "../components/marketplace/OwnerActions";
 
 export default function MarketplaceListing() {
   const { id } = useParams();
 
-  const { token } = useAuth();
+  const { token, user } = useAuth();
 
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -41,32 +42,25 @@ export default function MarketplaceListing() {
     }
   };
 
+  const isOwner =
+    user?._id === listing?.seller?._id;
+
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto p-6">
-
         <div className="animate-pulse space-y-6">
-
           <div className="bg-gray-200 h-96 rounded-2xl"></div>
 
           <div className="grid lg:grid-cols-3 gap-6">
-
             <div className="lg:col-span-2 space-y-4">
-
               <div className="bg-gray-200 h-10 rounded"></div>
-
               <div className="bg-gray-200 h-6 rounded w-1/2"></div>
-
               <div className="bg-gray-200 h-40 rounded"></div>
-
             </div>
 
             <div className="bg-gray-200 h-80 rounded-2xl"></div>
-
           </div>
-
         </div>
-
       </div>
     );
   }
@@ -74,11 +68,9 @@ export default function MarketplaceListing() {
   if (error) {
     return (
       <div className="max-w-4xl mx-auto p-8 text-center">
-
         <h2 className="text-2xl font-bold text-red-600">
           {error}
         </h2>
-
       </div>
     );
   }
@@ -86,11 +78,9 @@ export default function MarketplaceListing() {
   if (!listing) {
     return (
       <div className="max-w-4xl mx-auto p-8 text-center">
-
         <h2 className="text-2xl font-bold">
           Listing not found.
         </h2>
-
       </div>
     );
   }
@@ -100,8 +90,7 @@ export default function MarketplaceListing() {
 
       <div className="grid lg:grid-cols-3 gap-8">
 
-        {/* Left Side */}
-
+        {/* Left */}
         <div className="lg:col-span-2 space-y-8">
 
           <ListingGallery
@@ -111,10 +100,13 @@ export default function MarketplaceListing() {
 
           <ListingInfo listing={listing} />
 
+          {isOwner && (
+            <OwnerActions listing={listing} />
+          )}
+
         </div>
 
-        {/* Right Side */}
-
+        {/* Right */}
         <div className="space-y-6">
 
           <SellerCard listing={listing} />
