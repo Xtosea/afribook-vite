@@ -435,6 +435,15 @@ useEffect(() => {
     </ProtectedRoute>
   }
 />
+
+<Route
+  path="/marketplace/saved"
+  element={
+    <ProtectedRoute>
+      <SavedListings />
+    </ProtectedRoute>
+  }
+/>
            
 
 
