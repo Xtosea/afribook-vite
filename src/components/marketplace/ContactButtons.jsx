@@ -1,90 +1,43 @@
-import React from "react";
 import { useNavigate } from "react-router-dom";
+import { MessageCircle, Phone, Send } from "lucide-react";
 
-import {
-  Heart,
-  Share2,
-  MessageCircle,
-  Flag,
-} from "lucide-react";
-
-export default function ContactButtons({
-  listing,
-}) {
+export default function ContactButtons({ listing }) {
   const navigate = useNavigate();
 
-  if (!listing) return null;
-
-  const shareListing = async () => {
-    const url = window.location.href;
-
-    try {
-      if (navigator.share) {
-        await navigator.share({
-          title: listing.title,
-          text: listing.description,
-          url,
-        });
-      } else {
-        await navigator.clipboard.writeText(url);
-        alert("Listing link copied.");
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const messageSeller = () => {
-    if (!listing.seller?._id) return;
-
-    navigate(`/messages/${listing.seller._id}`);
-  };
-
-  const saveListing = () => {
-    // We'll connect this to the backend later.
-    alert("Save feature coming soon.");
-  };
-
-  const reportListing = () => {
-    // We'll connect this to the backend later.
-    alert("Report feature coming soon.");
-  };
-
   return (
-    <div className="grid grid-cols-2 gap-3">
+    <div className="bg-white rounded-2xl shadow p-5 space-y-3">
 
       <button
-        onClick={saveListing}
-        className="flex items-center justify-center gap-2 border rounded-xl py-3 hover:bg-gray-100"
-      >
-        <Heart size={20} />
-        Save
-      </button>
-
-      <button
-        onClick={shareListing}
-        className="flex items-center justify-center gap-2 border rounded-xl py-3 hover:bg-gray-100"
-      >
-        <Share2 size={20} />
-        Share
-      </button>
-
-      <button
-        onClick={messageSeller}
-        className="flex items-center justify-center gap-2 bg-blue-600 text-white rounded-xl py-3 hover:bg-blue-700"
+        onClick={() =>
+          navigate(`/messages/${listing.seller._id}`)
+        }
+        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl flex items-center justify-center gap-2"
       >
         <MessageCircle size={20} />
-        Message
+        Chat Seller
       </button>
 
-      <button
-        onClick={reportListing}
-        className="flex items-center justify-center gap-2 bg-red-600 text-white rounded-xl py-3 hover:bg-red-700"
-      >
-        <Flag size={20} />
-        Report
-      </button>
+      {listing.phone && (
+        <a
+          href={`tel:${listing.phone}`}
+          className="w-full border py-3 rounded-xl flex items-center justify-center gap-2"
+        >
+          <Phone size={18} />
+          Call Seller
+        </a>
+      )}
 
+      {listing.whatsapp && (
+        <a
+          href={`https://wa.me/${listing.whatsapp.replace(/\D/g, "")}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl flex items-center justify-center gap-2"
+        >
+          <Send size={18} />
+          WhatsApp
+        </a>
+      )}
     </div>
   );
 }
