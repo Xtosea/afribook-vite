@@ -13,35 +13,43 @@ const PostView = () => {
 
   const [post, setPost] = useState(null);
 
+const [post, setPost] = useState(null);
+const [loading, setLoading] = useState(true);
+const [error, setError] = useState("");
+
   useEffect(() => {
+  const fetchPost = async () => {
+    try {
+      const res = await fetch(
+        `${API_BASE}/api/posts/${id}`
+      );
 
-    const fetchPost = async () => {
-
-      try {
-
-        const res = await fetch(
-          `${API_BASE}/api/posts/${id}`
-        );
-
-        if (!res.ok) {
-          throw new Error("Failed to fetch post");
-        }
-
-        const data = await res.json();
-
-        setPost(data);
-
-      } catch (err) {
-
-        console.error(err);
-
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
       }
 
-    };
+      const data = await res.json();
 
-    fetchPost();
+      console.log(data);
 
-  }, [id]);
+      setPost(data);
+
+    } catch (err) {
+
+      console.error(err);
+      setError(err.message);
+
+    } finally {
+
+      setLoading(false);
+
+    }
+  };
+
+  fetchPost();
+
+}, [id]);
+
 
   if (!post) {
     return (
@@ -69,6 +77,28 @@ const image = rawImage
 
   const url =
     `https://africsocial.globelynks.com/post/${post._id}`;
+
+
+if (loading) {
+  return <div className="p-4">Loading...</div>;
+}
+
+if (error) {
+  return (
+    <div className="p-4 text-red-500">
+      Error: {error}
+    </div>
+  );
+}
+
+if (!post) {
+  return (
+    <div className="p-4">
+      Post not found.
+    </div>
+  );
+}
+
 
   return (
     <>
