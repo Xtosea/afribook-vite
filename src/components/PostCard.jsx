@@ -620,35 +620,23 @@ return (
 
 
 
-  className={`
-  w-full
-  rounded-lg
-  ${
-    mediaOrientation[i] === "portrait"
-      ? "max-h-[500px] object-contain bg-black"
-      : "h-56 object-cover"
-  }
-`}
-
-
-        ) : (
+ ) : (
 
  <img
   key={i}
   src={m.url}
   loading="lazy"
-
-
-  
-    className={`
-  w-full
-  rounded-lg
-  ${
-    mediaOrientation[i] === "portrait"
-      ? "max-h-[500px] object-contain bg-black"
-      : "h-56 object-cover"
-  }
-`}
+  className={`
+    w-full
+    rounded-lg
+    ${
+      mediaOrientation[i] === "portrait"
+        ? "max-h-[500px] object-contain bg-black"
+        : "h-56 object-cover"
+    }
+  `}
+  alt=""
+/>
 
         )
 
