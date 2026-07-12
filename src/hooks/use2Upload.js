@@ -25,7 +25,7 @@ export function use2Upload() {
 
       const signedData = await signedRes.json();
 
-
+//JUST FOR LOGGING ERROR 
 console.log("UPLOAD URL:", signedData.uploadUrl);
 
 
