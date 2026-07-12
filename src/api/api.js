@@ -1,7 +1,7 @@
 // src/api/api.js
 
 const MAIN_API = import.meta.env.VITE_API_BASE;
-const BACKUP_API = "https://afribook-backend.onrender.com";
+const BACKUP_API = "https://site--afribook-backen--26q2cj27zn75.code.run";
 
 export const API_BASE = MAIN_API || BACKUP_API;
 
