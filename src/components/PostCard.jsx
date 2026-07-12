@@ -422,9 +422,6 @@ const [mediaOrientation, setMediaOrientation] =
 
 
 
-const [mediaOrientation, setMediaOrientation] =
-  useState({});
-
 
   // ================= RENDER =================
 
@@ -631,7 +628,8 @@ return (
     />
   )
 ))}
-
+</div>
+  )}
 
   {/* EDITOR TEXT */}
 {isBackgroundPost && (
