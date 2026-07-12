@@ -11,8 +11,7 @@ const PostView = () => {
 
   const { id } = useParams();
 
-  const [post, setPost] = useState(null);
-
+  
 const [post, setPost] = useState(null);
 const [loading, setLoading] = useState(true);
 const [error, setError] = useState("");
@@ -51,14 +50,7 @@ const [error, setError] = useState("");
 }, [id]);
 
 
-  if (!post) {
-    return (
-      <div className="p-4">
-        Loading...
-      </div>
-    );
-  }
-
+  
   const rawImage = post?.media?.[0]?.url;
 
 const image = rawImage
