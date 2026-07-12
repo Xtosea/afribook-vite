@@ -606,8 +606,8 @@ return (
         rounded-lg
         ${
           mediaOrientation[i] === "portrait"
-  ? "w-auto max-w-full max-h-[500px] mx-auto object-contain"
-  : "w-screen h-96 object-cover"
+  ? "w-auto max-w-full max-h-full object-contain"
+  : "w-full h-full object-cover"
         }
       `}
     />
@@ -635,8 +635,8 @@ return (
     rounded-lg
     ${
       mediaOrientation[i] === "portrait"
-  ? "w-auto max-w-full max-h-[500px] mx-auto object-contain"
-  : "w-screen h-96 object-cover"
+  ? "w-auto max-w-full max-h-full object-contain"
+  : "w-full h-full object-cover"
     }
   `}
   alt=""
