@@ -605,8 +605,8 @@ return (
         rounded-lg
         ${
           mediaOrientation[i] === "portrait"
-  ? "max-h-[500px] mx-auto object-contain"
-  : "h-56 object-cover"
+  ? "w-auto max-w-full max-h-[500px] mx-auto object-contain"
+  : "w-full h-56 object-cover"
         }
       `}
     />
