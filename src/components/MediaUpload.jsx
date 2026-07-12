@@ -105,7 +105,9 @@ const MediaUpload = ({
     };
   }, []);
 
-  console.log("MEDIA FILES:", mediaFiles);
+  
+
+
 
   return (
     <div className="space-y-4">
@@ -197,7 +199,12 @@ const MediaUpload = ({
                 src={preview}
                 controls
                 muted
-                className="w-10 max-h-[1px] object-cover"
+                className="
+w-full
+h-40
+object-cover
+rounded-lg
+"
               />
             )}
           </div>
@@ -206,7 +213,8 @@ const MediaUpload = ({
     </div>
   ) : (
     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
-      {mediaFiles.map((file, i) => {
+
+      {mediaFiles.slice(0, 4).map((file, i) => {
         const preview = previewUrls[i];
 
         const isImage =
@@ -250,7 +258,12 @@ const MediaUpload = ({
               <img
                 src={preview}
                 alt=""
-                className="w-2 h-[7vh] object-cover"
+                className="
+w-full
+h-24
+object-cover
+rounded-lg
+"
   />
               
             )}
