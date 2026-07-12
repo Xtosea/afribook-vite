@@ -96,8 +96,8 @@ const isBackgroundPost =
   const [liking, setLiking] =
     useState(false);
 
-const [isLandscape, setIsLandscape] = useState(false);
-const [isPortrait, setIsPortrait] = useState(false);
+const [mediaOrientation, setMediaOrientation] =
+  useState({});
 
   // ================= AUTH =================
 
@@ -422,24 +422,8 @@ const [isPortrait, setIsPortrait] = useState(false);
 
 
 
-useEffect(() => {
-  if (!media[0]?.url) return;
-
-  const img = new Image();
-
-  img.onload = () => {
-    setIsLandscape(
-      img.width > img.height
-    );
-
-    setIsPortrait(
-      img.height > img.width
-    );
-  };
-
-  img.src = media[0].url;
-
-}, [media]);
+const [mediaOrientation, setMediaOrientation] =
+  useState({});
 
 
   // ================= RENDER =================
@@ -604,39 +588,67 @@ return (
 
         m.type === "video" ? (
 
-          <video
-            key={i}
-            ref={(el)=>
-              videoRefs.current[i]=el
-            }
-            src={m.url}
-            controls
-            playsInline
-            className="
-w-full
-h-44
-object-cover
-rounded-lg
-"
+ <video
+  key={i}
+  ref={(el) => (videoRefs.current[i] = el)}
+  src={m.url}
+  controls
+  playsInline
 
-          />
+  onLoadedMetadata={(e) => {
+    const video = e.target;
+
+    setMediaOrientation((prev) => ({
+      ...prev,
+      [i]:
+        video.videoHeight > video.videoWidth
+          ? "portrait"
+          : "landscape",
+    }));
+  }}
+
+  className={`
+    w-full
+    rounded-lg
+    ${
+      mediaOrientation[i] === "portrait"
+        ? "max-h-[500px] object-contain bg-black"
+        : "h-56 object-cover"
+    }
+  `}
+/>
+
+
+
+  className={`
+  w-full
+  rounded-lg
+  ${
+    mediaOrientation[i] === "portrait"
+      ? "max-h-[500px] object-contain bg-black"
+      : "h-56 object-cover"
+  }
+`}
+
 
         ) : (
 
-          <img
-            key={i}
-            src={m.url}
-            loading="lazy"
+ <img
+  key={i}
+  src={m.url}
+  loading="lazy"
 
-            className="
-w-full
-h-44
-object-cover
-rounded-lg
-"
 
-            alt=""
-          />
+  
+    className={`
+  w-full
+  rounded-lg
+  ${
+    mediaOrientation[i] === "portrait"
+      ? "max-h-[500px] object-contain bg-black"
+      : "h-56 object-cover"
+  }
+`}
 
         )
 
