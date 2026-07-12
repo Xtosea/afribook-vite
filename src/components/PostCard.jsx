@@ -593,18 +593,14 @@ return (
   {/* MEDIA */}
 {media.length > 0 && (
   <div
-    className={
-      !isMulti
-        ? "w-full"
-        : layout === "featured"
-        ? "grid grid-cols-2 grid-rows-2 gap-1"
-        : layout === "vertical"
-        ? "grid grid-cols-1 gap-1"
-        : "grid grid-cols-2 gap-1"
-    }
-  >
+  className={
+    media.length > 1
+      ? "grid grid-cols-2 gap-1"
+      : "w-full"
+  }
+>
 
-      {media.map((m,i)=>(
+      {media.slice(0, 4).map((m, i) => (
 
         m.type === "video" ? (
 
@@ -616,16 +612,12 @@ return (
             src={m.url}
             controls
             playsInline
-            className={`
-  w-full
-  ${
-    isLandscape
-      ? "max-h-[1600px] object-contain"
-      : isPortrait
-      ? "max-h-[500px] object-cover"
-      : "max-h-[700px] object-cover"
-  }
-`}
+            className="
+w-full
+h-44
+object-cover
+rounded-lg
+"
 
           />
 
@@ -636,16 +628,12 @@ return (
             src={m.url}
             loading="lazy"
 
-            className={`
+            className="
 w-full
+h-44
 object-cover
 rounded-lg
-${
- layout === "featured" && i === 0
- ? "row-span-2 h-[500px]"
- : "h-[250px]"
-}
-`}
+"
 
             alt=""
           />
