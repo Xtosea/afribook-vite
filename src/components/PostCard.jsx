@@ -573,7 +573,7 @@ return (
   
   {/* MEDIA */}
 {media.length > 0 && (
-  <div
+  
   <div
   className={
     media.length > 1
