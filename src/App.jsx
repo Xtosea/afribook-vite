@@ -352,8 +352,7 @@ useEffect(() => {
 
 
             <Route path="/leaderboard" element={<Leaderboard />} />
-            <Route path="/post/:id" element={<PostPage />} />
-
+            
             <Route
               path="/saved"
               element={
