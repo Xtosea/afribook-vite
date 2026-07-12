@@ -584,67 +584,53 @@ return (
   }
 >
 
-      {media.slice(0, 4).map((m, i) => (
+ {media.slice(0, 4).map((m, i) => (
+  m.type === "video" ? (
+    <video
+      key={i}
+      ref={(el) => (videoRefs.current[i] = el)}
+      src={m.url}
+      controls
+      playsInline
+      onLoadedMetadata={(e) => {
+        const video = e.target;
 
-        m.type === "video" ? (
-
- <video
-  key={i}
-  ref={(el) => (videoRefs.current[i] = el)}
-  src={m.url}
-  controls
-  playsInline
-
-  onLoadedMetadata={(e) => {
-    const video = e.target;
-
-    setMediaOrientation((prev) => ({
-      ...prev,
-      [i]:
-        video.videoHeight > video.videoWidth
-          ? "portrait"
-          : "landscape",
-    }));
-  }}
-
-  className={`
-    w-full
-    rounded-lg
-    ${
-      mediaOrientation[i] === "portrait"
-        ? "max-h-[500px] object-contain bg-black"
-        : "h-56 object-cover"
-    }
-  `}
-/>
-
-
-
- ) : (
-
- <img
-  key={i}
-  src={m.url}
-  loading="lazy"
-  className={`
-    w-full
-    rounded-lg
-    ${
-      mediaOrientation[i] === "portrait"
-        ? "max-h-[500px] object-contain bg-black"
-        : "h-56 object-cover"
-    }
-  `}
-  alt=""
-/>
-
-        )
-
-      ))}
-
-    </div>
-  )}
-
+        setMediaOrientation((prev) => ({
+          ...prev,
+          [i]:
+            video.videoHeight > video.videoWidth
+              ? "portrait"
+              : "landscape",
+        }));
+      }}
+      className={`
+        w-full
+        rounded-lg
+        ${
+          mediaOrientation[i] === "portrait"
+            ? "max-h-[500px] object-contain bg-black"
+            : "h-56 object-cover"
+        }
+      `}
+    />
+  ) : (
+    <img
+      key={i}
+      src={m.url}
+      loading="lazy"
+      className={`
+        w-full
+        rounded-lg
+        ${
+          mediaOrientation[i] === "portrait"
+            ? "max-h-[500px] object-contain bg-black"
+            : "h-56 object-cover"
+        }
+      `}
+      alt=""
+    />
+  )
+))}
 
 
   {/* EDITOR TEXT */}
