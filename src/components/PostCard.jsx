@@ -574,10 +574,11 @@ return (
   {/* MEDIA */}
 {media.length > 0 && (
   <div
+  <div
   className={
     media.length > 1
-      ? "grid grid-cols-2 gap-1"
-      : "w-full"
+      ? "grid grid-cols-2 gap-1 bg-black"
+      : "w-full bg-black flex justify-center"
   }
 >
 
@@ -605,8 +606,8 @@ return (
         rounded-lg
         ${
           mediaOrientation[i] === "portrait"
-  ? "w-auto max-w-full max-h-[600px] mx-auto object-contain"
-  : "w-screen h-56 object-cover"
+  ? "w-auto max-w-full max-h-[500px] mx-auto object-contain"
+  : "w-screen h-96 object-cover"
         }
       `}
     />
@@ -623,7 +624,8 @@ return (
     setMediaOrientation((prev) => ({
       ...prev,
       [i]:
-        img.naturalHeight > img.naturalWidth
+   
+     img.naturalHeight > img.naturalWidth
           ? "portrait"
           : "landscape",
     }));
@@ -633,8 +635,8 @@ return (
     rounded-lg
     ${
       mediaOrientation[i] === "portrait"
-        ? "max-h-[500px] object-contain bg-black"
-        : "h-56 object-cover"
+  ? "w-auto max-w-full max-h-[500px] mx-auto object-contain"
+  : "w-screen h-96 object-cover"
     }
   `}
   alt=""
