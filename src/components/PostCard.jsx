@@ -611,21 +611,34 @@ return (
       `}
     />
   ) : (
+
+
     <img
-      key={i}
-      src={m.url}
-      loading="lazy"
-      className={`
-        w-full
-        rounded-lg
-        ${
-          mediaOrientation[i] === "portrait"
-            ? "max-h-[500px] object-contain bg-black"
-            : "h-56 object-cover"
-        }
-      `}
-      alt=""
-    />
+  key={i}
+  src={m.url}
+  loading="lazy"
+  onLoad={(e) => {
+    const img = e.target;
+
+    setMediaOrientation((prev) => ({
+      ...prev,
+      [i]:
+        img.naturalHeight > img.naturalWidth
+          ? "portrait"
+          : "landscape",
+    }));
+  }}
+  className={`
+    w-full
+    rounded-lg
+    ${
+      mediaOrientation[i] === "portrait"
+        ? "max-h-[500px] object-contain bg-black"
+        : "h-56 object-cover"
+    }
+  `}
+  alt=""
+/>
   )
 ))}
 </div>
