@@ -25,6 +25,10 @@ export function use2Upload() {
 
       const signedData = await signedRes.json();
 
+
+console.log("UPLOAD URL:", signedData.uploadUrl);
+
+
       const uploadRes = await axios.put(
         signedData.uploadUrl,
         file,
