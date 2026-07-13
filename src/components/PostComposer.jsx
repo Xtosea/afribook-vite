@@ -232,6 +232,7 @@ useEffect(() => {
 }, []);
 
 
+
 // =========================
 // SUBMIT POST
 // =========================
@@ -242,6 +243,13 @@ const handleSubmitPost = async (e) => {
   if (e) e.preventDefault();
 
   if (!newPost && mediaFiles.length === 0) return;
+
+const urlRegex = /(https?:\/\/[^\s]+)/i;
+
+const link = newPost.match(urlRegex)?.[0] || null;
+
+
+
 
   setIsPosting(true);
 
@@ -306,25 +314,29 @@ const handleSubmitPost = async (e) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          content: newPost,
-          media: uploadedMedia,
+  content: newPost,
+  media: uploadedMedia,
+
+  type: link ? "link" : uploadedMedia.length ? "media" : "text",
+
+  link,
+
+  editor: editorData,
+
+  location,
+  feeling,
+  taggedFriends,
+})
 
           editor: {
-            textPosition,
-            textRotation,
-            textSize: size,
-            textColor,
-            stickers,
-            backgroundColor,
-
-            music: music
-              ? {
-                  _id: music._id,
-                  title: music.title,
-                  url: music.url,
-                }
-              : null,
-          },
+  textPosition,
+  textRotation,
+  textSize: size,
+  textColor,
+  stickers,
+  backgroundColor,
+  music: ...
+},
 
           location,
           feeling,
