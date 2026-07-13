@@ -433,6 +433,10 @@ const openMedia = (index) => {
   }, [media]);
 
 
+console.log(post.type);
+console.log(post.link);
+console.log(post.editor);
+
 
 
   // ================= RENDER =================
