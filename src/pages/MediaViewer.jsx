@@ -65,14 +65,9 @@ const MediaViewer = () => {
     try{
       const token = localStorage.getItem("token");
 
-      await fetch(`${API_BASE}/api/posts/${post._id}/reaction`,{
-        method:"PUT",
-        headers:{
-          "Content-Type":"application/json",
-          Authorization:`Bearer ${token}`
-        },
-        body:JSON.stringify({ type:reaction })
-      });
+      body: JSON.stringify({
+  type: reaction,
+})
 
       fetchPost();
 
@@ -176,9 +171,9 @@ const MediaViewer = () => {
             💬 {post.comments?.length || 0}
           </button>
 
-          <button>
-            🔗 Share
-          </button>
+    <button onClick={handleShare}>
+  🔗 Share
+    </button>
 
         </div>
 
