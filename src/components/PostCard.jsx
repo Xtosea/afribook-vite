@@ -68,6 +68,15 @@ const isBackgroundPost =
 
 const isLinkPost = post?.type === "link";
 
+const MAX_PREVIEW_LENGTH = 180;
+
+const displayContent =
+  post?.content?.length > MAX_PREVIEW_LENGTH
+    ? `${post.content.slice(0, MAX_PREVIEW_LENGTH)}...`
+    : post?.content || "";
+
+
+
 
 
   // ================= STATE =================
@@ -433,9 +442,7 @@ const openMedia = (index) => {
   }, [media]);
 
 
-console.log(post.type);
-console.log(post.link);
-console.log(post.editor);
+
 
 
 
@@ -553,7 +560,7 @@ return (
         text-[15px]
       "
     >
-      {renderContentWithLinks(post.content)}
+      renderContentWithLinks(post.content)
     </div>
   )}
 
@@ -568,7 +575,7 @@ return (
       text-[15px]
     "
   >
-    {renderContentWithLinks(post.content)}
+    renderContentWithLinks(displayContent)
   </div>
 )}
 
@@ -585,7 +592,7 @@ return (
       text-[15px]
     "
   >
-    {renderContentWithLinks(post.content)}
+    renderContentWithLinks(displayContent)
   </div>
 )}
 
