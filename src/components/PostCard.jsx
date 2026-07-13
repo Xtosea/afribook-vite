@@ -216,7 +216,7 @@ const [mediaOrientation, setMediaOrientation] =
 
     try {
 
-      const url =
+     
   const url =
   `https://africbook.globelynks.com/post/${post?._id}`;
 
