@@ -29,7 +29,7 @@ import { BadgeCheck } from "lucide-react";
 
 
 const defaultProfile =
-  "https://afribook-backend.onrender.com/uploads/profiles/default-profile.png";
+  "https://afribook-backen--26q2cj27zn75.code.run/uploads/profiles/default-profile.png";
 
 const PostCard = ({
   post,
@@ -206,7 +206,7 @@ const [mediaOrientation, setMediaOrientation] =
     try {
 
       const url =
-        `https://afribook-backend.onrender.com/post/${post?._id}`;
+  `https://africsocial.globelynks.com/post/${post?._id}`;
 
       const text =
         post?.content ||
@@ -317,6 +317,11 @@ const [mediaOrientation, setMediaOrientation] =
 
     }, [navigate, post]);
 
+
+
+const openPost = () => {
+  navigate(`/post/${post._id}`);
+};
   // ================= VIDEO AUTOPLAY =================
 
   useEffect(() => {
@@ -511,15 +516,16 @@ return (
 {/* POST CONTENT CANVAS */}
 
 <div
-  className="relative overflow-hidden rounded-xl"
+  onClick={openPost}
+  className="relative overflow-hidden rounded-xl cursor-pointer"
   style={{
-  backgroundColor: isBackgroundPost
-    ? postBackground
-    : "transparent",
-  minHeight: isBackgroundPost
-    ? "400px"
-    : "auto",
-}}
+    backgroundColor: isBackgroundPost
+      ? postBackground
+      : "transparent",
+    minHeight: isBackgroundPost
+      ? "400px"
+      : "auto",
+  }}
 >
 
   {/* NORMAL TEXT ABOVE MEDIA (Facebook style) */}
