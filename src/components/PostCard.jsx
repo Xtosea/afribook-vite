@@ -322,6 +322,11 @@ const [mediaOrientation, setMediaOrientation] =
 const openPost = () => {
   navigate(`/post/${post._id}`);
 };
+
+const openMedia = (index) => {
+  navigate(`/media/${post._id}?index=${index}`);
+};
+
   // ================= VIDEO AUTOPLAY =================
 
   useEffect(() => {
@@ -591,11 +596,15 @@ return (
  {media.slice(0, 4).map((m, i) => (
   m.type === "video" ? (
     <video
-      key={i}
-      ref={(el) => (videoRefs.current[i] = el)}
-      src={m.url}
-      controls
-      playsInline
+  key={i}
+  ref={(el) => (videoRefs.current[i] = el)}
+  src={m.url}
+  controls
+  playsInline
+  onClick={(e) => {
+    e.stopPropagation();
+    openMedia(i);
+  }}
       onLoadedMetadata={(e) => {
         const video = e.target;
 
@@ -620,29 +629,22 @@ return (
   ) : (
 
 
-    <img
+  <img
   key={i}
   src={m.url}
-  loading="lazy"
-  onLoad={(e) => {
-    const img = e.target;
-
-    setMediaOrientation((prev) => ({
-      ...prev,
-      [i]:
-   
-     img.naturalHeight > img.naturalWidth
-          ? "portrait"
-          : "landscape",
-    }));
+  onClick={(e) => {
+    e.stopPropagation();
+    openMedia(i);
   }}
+  loading="lazy"
   className={`
+    cursor-pointer
     w-full
     rounded-lg
     ${
       mediaOrientation[i] === "portrait"
-  ? "w-auto max-w-full max-h-full object-contain"
-  : "w-full h-full object-cover"
+        ? "w-auto max-w-full max-h-full object-contain"
+        : "w-full h-full object-cover"
     }
   `}
   alt=""
