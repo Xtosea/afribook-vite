@@ -560,7 +560,7 @@ return (
         text-[15px]
       "
     >
-      renderContentWithLinks(post.content)
+      {renderContentWithLinks(displayContent)}
     </div>
   )}
 
@@ -575,7 +575,7 @@ return (
       text-[15px]
     "
   >
-    renderContentWithLinks(displayContent)
+    {renderContentWithLinks(displayContent)}
   </div>
 )}
 
@@ -592,7 +592,7 @@ return (
       text-[15px]
     "
   >
-    renderContentWithLinks(displayContent)
+    {renderContentWithLinks(displayContent)}
   </div>
 )}
 
