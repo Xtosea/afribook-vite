@@ -60,15 +60,15 @@ const image = rawImage
   : "https://africsocial.globelynks.com/social-preview.png";
 
   const title =
-    post?.content?.substring(0, 60) ||
-    `${post.user?.name} shared a post`;
+  post?.content?.substring(0, 60) ||
+  `${post?.user?.name || "Someone"} shared a post`;
 
-  const description =
-    post?.content?.substring(0, 160) ||
-    "Check this post on AfricSocial";
+const description =
+  post?.content?.substring(0, 160) ||
+  "Check this post on AfricSocial";
 
-  const url =
-    `https://africsocial.globelynks.com/post/${post._id}`;
+const url =
+  `https://africsocial.globelynks.com/post/${post?._id || ""}`;
 
 
 if (loading) {
