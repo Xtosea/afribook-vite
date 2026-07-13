@@ -305,55 +305,60 @@ const link = newPost.match(urlRegex)?.[0] || null;
       });
     }
 
-    const res = await fetch(
-      `${API_BASE}/api/posts`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-  content: newPost,
-  media: uploadedMedia,
 
-  type: link ? "link" : uploadedMedia.length ? "media" : "text",
+const editorData = link
+  ? null
+  : {
+      textPosition,
+      textRotation,
+      textSize: size,
+      textColor,
+      stickers,
+      backgroundColor,
+      music: music
+        ? {
+            _id: music._id,
+            title: music.title,
+            url: music.url,
+          }
+        : null,
+    };
 
-  link,
+const res = await fetch(
+  `${API_BASE}/api/posts`,
+  {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      content: newPost,
+      media: uploadedMedia,
 
-  editor: editorData,
+      type: link
+        ? "link"
+        : uploadedMedia.length
+        ? "media"
+        : "text",
 
-  location,
-  feeling,
-  taggedFriends,
-})
+      link,
 
-          editor: {
-  textPosition,
-  textRotation,
-  textSize: size,
-  textColor,
-  stickers,
-  backgroundColor,
-  music: ...
-},
+      editor: editorData,
 
-          location,
-          feeling,
-          taggedFriends,
-          textColor,
-        }),
-      }
-    );
+      location,
+      feeling,
+      taggedFriends,
+      textColor,
+    }),
+  }
+);
 
-    const data = await res.json();
+const data = await res.json();
 
-    if (!res.ok) {
-      throw new Error(
-        data.error || "Post failed"
-      );
-    }
-
+if (!res.ok) {
+  throw new Error(data.error || "Post failed");
+}
     setNewPost("");
     setMediaFiles([]);
     setMusic(null);
