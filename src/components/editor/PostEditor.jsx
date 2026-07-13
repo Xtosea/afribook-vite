@@ -196,7 +196,8 @@ shadow-lg
           animate-spin
         "
       />
-      Posting...
+     type="submit"
+      disabled={isPosting}
     </>
   ) : (
     "Post"
