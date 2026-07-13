@@ -66,6 +66,8 @@ const isBackgroundPost =
   post?.editor && media.length === 0;
   const layout = post?.layout || "featured";
 
+const isLinkPost = post?.type === "link";
+
 
 
   // ================= STATE =================
@@ -505,7 +507,7 @@ return (
 
         {/* URL PREVIEWS */}
 
-{urls.length > 0 && (
+{isLinkPost && urls.length > 0 && (
   <div className="space-y-3 px-2">
     {urls.map((url, index) => (
       <LinkPreview
@@ -524,12 +526,15 @@ return (
   onClick={openPost}
   className="relative overflow-hidden rounded-xl cursor-pointer"
   style={{
-    backgroundColor: isBackgroundPost
-      ? postBackground
-      : "transparent",
-    minHeight: isBackgroundPost
-      ? "400px"
-      : "auto",
+    backgroundColor:
+      isBackgroundPost && !isLinkPost
+        ? postBackground
+        : "transparent",
+
+    minHeight:
+      isBackgroundPost && !isLinkPost
+        ? "400px"
+        : "auto",
   }}
 >
 
@@ -655,7 +660,7 @@ return (
   )}
 
   {/* EDITOR TEXT */}
-{isBackgroundPost && (
+{isBackgroundPost && !isLinkPost && (
   <div
     style={{
       position:"absolute",
@@ -678,6 +683,7 @@ return (
 
   {/* STICKERS */}
   {isBackgroundPost &&
+ !isLinkPost &&
   editorStickers.map((sticker,index)=>(
   <div
     key={index}
