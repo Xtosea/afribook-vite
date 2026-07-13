@@ -537,7 +537,7 @@ return (
 
     minHeight:
       isBackgroundPost && !isLinkPost
-        ? "400px"
+        ? "300px"
         : "auto",
   }}
 >
