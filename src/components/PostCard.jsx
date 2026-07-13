@@ -218,7 +218,7 @@ const [mediaOrientation, setMediaOrientation] =
 
      
   const url =
-  `https://site--afribook-backen--26q2cj27zn75.code.run`;
+  `https://site--afribook-backen--26q2cj27zn75.code.run/post/${post._id}`;
 
       const text =
         post?.content ||
