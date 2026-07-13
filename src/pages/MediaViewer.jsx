@@ -99,6 +99,37 @@ const MediaViewer = () => {
     }
   };
 
+
+const handleShare = async () => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const url = `https://africsocial.globelynks.com/post/${post._id}`;
+
+    if (navigator.share) {
+      await navigator.share({
+        title: post.user?.name || "AfricSocial",
+        text: post.content || "Check out this post",
+        url,
+      });
+    } else {
+      await navigator.clipboard.writeText(url);
+      alert("Link copied");
+    }
+
+    await fetch(`${API_BASE}/api/posts/${post._id}/share`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    fetchPost();
+  } catch (err) {
+    console.error(err);
+  }
+};
+
   return (
     <div className="min-h-screen bg-black text-white">
 
