@@ -218,7 +218,7 @@ const [mediaOrientation, setMediaOrientation] =
 
      
   const url =
-  `https://africbook.globelynks.com/post/${post?._id}`;
+  `https://site--afribook-backen--26q2cj27zn75.code.run`;
 
       const text =
         post?.content ||
