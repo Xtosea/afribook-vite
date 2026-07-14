@@ -555,18 +555,31 @@ return (
 >
 
   {/* NORMAL TEXT ABOVE MEDIA (Facebook style) */}
-{post?.content && (
+
+
+{post?.content && !isBackgroundPost && (
   <div
-    style={{
-      color: "red",
-      fontSize: "24px",
-      padding: "20px",
-      background: "yellow",
-    }}
+    onClick={openPost}
+    className="px-3 py-3 text-black text-[15px] whitespace-pre-wrap break-words"
   >
-    {post.content}
+    {renderContentWithLinks(displayContent)}
+
+    {isLongPost && (
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          openPost();
+        }}
+        className="ml-1 text-blue-600 font-semibold"
+      >
+        Read more
+      </button>
+    )}
   </div>
 )}
+
+
+
   
   {/* MEDIA */}
 {media.length > 0 && (
