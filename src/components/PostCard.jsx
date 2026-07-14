@@ -566,14 +566,14 @@ return (
 
     {isLongPost && (
       <button
-        onClick={(e) => {
-          e.stopPropagation();
-          openPost();
-        }}
-        className="ml-1 text-blue-600 font-semibold"
-      >
-        Read more
-      </button>
+  onClick={(e) => {
+    e.stopPropagation();
+    openMedia(0);
+  }}
+  className="ml-1 text-blue-600 font-semibold hover:underline"
+>
+  Read more
+</button>
     )}
   </div>
 )}
