@@ -217,8 +217,7 @@ const [mediaOrientation, setMediaOrientation] =
     try {
 
      
-  const url =
-  `https://shareafricsocial.globelynks.com/post/${post._id}`;
+  const url = `https://africsocial.globelynks.com/post/${post._id}`;
 
       const text =
         post?.content ||
