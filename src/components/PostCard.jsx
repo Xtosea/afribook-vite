@@ -553,97 +553,88 @@ return (
 
   {/* NORMAL TEXT ABOVE MEDIA (Facebook style) */}
   {post?.content && !post?.editor && (
-    <div
-  onClick={openPost}
-  className="
-    px-3
-    py-3
-    whitespace-pre-wrap
-    break-words
-    text-[15px]
-    cursor-pointer
-  "
->
-      <>
-  {renderContentWithLinks(displayContent)}
+  <div
+    onClick={openPost}
+    className="
+      px-3
+      py-3
+      whitespace-pre-wrap
+      break-words
+      text-[15px]
+      cursor-pointer
+    "
+  >
+    {renderContentWithLinks(displayContent)}
 
-  {isLongPost && (
-    <button
-      onClick={(e) => {
-        e.stopPropagation();
-        openPost();
-      }}
-      className="ml-1 text-blue-600 font-semibold hover:underline"
-    >
-      Read more
-    </button>
-  )}
-</>
-    </div>
-  )}
+    {isLongPost && (
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          openPost();
+        }}
+        className="ml-1 text-blue-600 font-semibold hover:underline"
+      >
+        Read more
+      </button>
+    )}
+  </div>
+)}
 
        
-{post?.content && media.length > 0 && (
+{post?.content && !post?.editor && (
   <div
-  onClick={openPost}
-  className="
-    px-3
-    py-3
-    whitespace-pre-wrap
-    break-words
-    text-[15px]
-    cursor-pointer
-  "
->
-    <>
-  <>
-  {renderContentWithLinks(displayContent)}
+    onClick={openPost}
+    className="
+      px-3
+      py-3
+      whitespace-pre-wrap
+      break-words
+      text-[15px]
+      cursor-pointer
+    "
+  >
+    {renderContentWithLinks(displayContent)}
 
-  {isLongPost && (
-    <button
-      onClick={(e) => {
-        e.stopPropagation();
-        openPost();
-      }}
-      className="ml-1 text-blue-600 font-semibold hover:underline"
-    >
-      Read more
-    </button>
-  )}
-</>
+    {isLongPost && (
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          openPost();
+        }}
+        className="ml-1 text-blue-600 font-semibold hover:underline"
+      >
+        Read more
+      </button>
+    )}
   </div>
 )}
 
 
-{post?.content &&
- !post?.editor &&
- media.length === 0 && (
+{post?.content && !post?.editor && (
   <div
-  onClick={openPost}
-  className="
-    px-3
-    py-3
-    whitespace-pre-wrap
-    break-words
-    text-[15px]
-    cursor-pointer
-  "
->
-    <>
-  {renderContentWithLinks(displayContent)}
+    onClick={openPost}
+    className="
+      px-3
+      py-3
+      whitespace-pre-wrap
+      break-words
+      text-[15px]
+      cursor-pointer
+    "
+  >
+    {renderContentWithLinks(displayContent)}
 
-  {isLongPost && (
-    <button
-      onClick={(e) => {
-        e.stopPropagation();
-        openPost();
-      }}
-      className="ml-1 text-blue-600 font-semibold hover:underline"
-    >
-      Read more
-    </button>
-  )}
-</>
+    {isLongPost && (
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          openPost();
+        }}
+        className="ml-1 text-blue-600 font-semibold hover:underline"
+      >
+        Read more
+      </button>
+    )}
   </div>
 )}
 
