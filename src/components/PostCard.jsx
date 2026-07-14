@@ -564,7 +564,7 @@ return (
       cursor-pointer
     "
   >
-    {renderContentWithLinks(displayContent)}
+    {displayContent}
 
     {isLongPost && (
       <button
@@ -593,9 +593,9 @@ return (
       cursor-pointer
     "
   >
-    {renderContentWithLinks(displayContent)}
+    {displayContent}
 
-    {isLongPost && (
+     {isLongPost && (
       <button
         onClick={(e) => {
           e.stopPropagation();
@@ -622,7 +622,7 @@ return (
       cursor-pointer
     "
   >
-    {renderContentWithLinks(displayContent)}
+    {displayContent}
 
     {isLongPost && (
       <button
