@@ -775,8 +775,14 @@ Retry
 
 }
 
+//TEMPORARY LOG
+posts.map((post, index) => {
+  console.log(post);
 
+  const isLast = posts.length === index + 1;
 
+  return (
+    ...
 
 
 
