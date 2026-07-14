@@ -70,10 +70,12 @@ const isLinkPost = post?.type === "link";
 
 const MAX_PREVIEW_LENGTH = 180;
 
-const displayContent =
-  post?.content?.length > MAX_PREVIEW_LENGTH
-    ? `${post.content.slice(0, MAX_PREVIEW_LENGTH)}...`
-    : post?.content || "";
+const isLongPost =
+  (post?.content?.length || 0) > MAX_PREVIEW_LENGTH;
+
+const displayContent = isLongPost
+  ? post.content.slice(0, MAX_PREVIEW_LENGTH)
+  : post?.content || "";
 
 
 
@@ -552,30 +554,62 @@ return (
   {/* NORMAL TEXT ABOVE MEDIA (Facebook style) */}
   {post?.content && !post?.editor && (
     <div
-      className="
-        px-3
-        py-3
-        whitespace-pre-wrap
-        break-words
-        text-[15px]
-      "
+  onClick={openPost}
+  className="
+    px-3
+    py-3
+    whitespace-pre-wrap
+    break-words
+    text-[15px]
+    cursor-pointer
+  "
+>
+      <>
+  {renderContentWithLinks(displayContent)}
+
+  {isLongPost && (
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        openPost();
+      }}
+      className="ml-1 text-blue-600 font-semibold hover:underline"
     >
-      {renderContentWithLinks(displayContent)}
+      Read more
+    </button>
+  )}
+</>
     </div>
   )}
 
        
 {post?.content && media.length > 0 && (
   <div
-    className="
-      px-3
-      py-3
-      whitespace-pre-wrap
-      break-words
-      text-[15px]
-    "
-  >
-    {renderContentWithLinks(displayContent)}
+  onClick={openPost}
+  className="
+    px-3
+    py-3
+    whitespace-pre-wrap
+    break-words
+    text-[15px]
+    cursor-pointer
+  "
+>
+    <>
+  {renderContentWithLinks(displayContent)}
+
+  {isLongPost && (
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        openPost();
+      }}
+      className="ml-1 text-blue-600 font-semibold hover:underline"
+    >
+      Read more
+    </button>
+  )}
+</>}
   </div>
 )}
 
@@ -584,15 +618,31 @@ return (
  !post?.editor &&
  media.length === 0 && (
   <div
-    className="
-      px-3
-      py-3
-      whitespace-pre-wrap
-      break-words
-      text-[15px]
-    "
-  >
-    {renderContentWithLinks(displayContent)}
+  onClick={openPost}
+  className="
+    px-3
+    py-3
+    whitespace-pre-wrap
+    break-words
+    text-[15px]
+    cursor-pointer
+  "
+>
+    <>
+  {renderContentWithLinks(displayContent)}
+
+  {isLongPost && (
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        openPost();
+      }}
+      className="ml-1 text-blue-600 font-semibold hover:underline"
+    >
+      Read more
+    </button>
+  )}
+</>
   </div>
 )}
 
