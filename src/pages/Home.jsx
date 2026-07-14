@@ -775,15 +775,6 @@ Retry
 
 }
 
-//TEMPORARY LOG
-posts.map((post, index) => {
-  console.log(post);
-
-  const isLast = posts.length === index + 1;
-
-  return (
-    ...
-
 
 
 // =================UI RENDER =================
@@ -924,16 +915,13 @@ posts.length===0
 
 :
 
-posts.map(
-(post,index)=>{
+posts.map((post, index) => {
+  console.log("POST:", post);
 
+  const isLast =
+    posts.length === index + 1;
 
-const isLast =
-posts.length === index + 1;
-
-
-
-return (
+  return (
 
 <div
 
