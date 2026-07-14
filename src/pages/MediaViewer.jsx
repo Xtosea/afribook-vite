@@ -61,21 +61,31 @@ const MediaViewer = () => {
 
   const media = post.media[current];
 
+//HANDLE LIKE
   const handleLike = async (reaction) => {
-    try{
-      const token = localStorage.getItem("token");
+  try {
+    const token = localStorage.getItem("token");
 
+    await fetch(`${API_BASE}/api/posts/${post._id}/like`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
       body: JSON.stringify({
-  type: reaction,
-})
+        type: reaction,
+      }),
+    });
 
-      fetchPost();
+    setShowReactions(false);
+    fetchPost();
+  } catch (err) {
+    console.error(err);
+  }
+};
 
-    }catch(err){
-      console.error(err)
-    }
-  };
 
+//HANDLE COMMENTS 
   const handleComment = async () => {
     if(!commentText.trim()) return;
 
@@ -100,6 +110,8 @@ const MediaViewer = () => {
   };
 
 
+
+//HANDLE SHARE
 const handleShare = async () => {
   try {
     const token = localStorage.getItem("token");
@@ -130,6 +142,8 @@ const handleShare = async () => {
   }
 };
 
+
+//RETURN UI
   return (
     <div className="min-h-screen bg-black text-white">
 
@@ -173,30 +187,35 @@ const handleShare = async () => {
 
         <div className="flex gap-4 items-center">
 
-          <div
-            className="relative"
-            onMouseEnter={()=>setShowReactions(true)}
-            onMouseLeave={()=>setShowReactions(false)}
-          >
+          
+            
+            <div className="relative">
 
-            <button onClick={()=>handleLike("👍")}>
-              👍 Like
-            </button>
+  <button
+    onClick={() => setShowReactions(prev => !prev)}
+  >
+    👍 Like
+  </button>
 
-            {showReactions && (
-              <div className="absolute bottom-8 bg-gray-900 rounded-full px-2 py-1 flex gap-2">
-                {reactions.map(r=>(
-                  <button
-                    key={r}
-                    onClick={()=>handleLike(r)}
-                  >
-                    {r}
-                  </button>
-                ))}
-              </div>
-            )}
+  {showReactions && (
+    <div className="absolute bottom-8 left-0 bg-gray-900 rounded-full px-2 py-1 flex gap-2 z-50">
+      {reactions.map((r) => (
+        <button
+          key={r}
+          onClick={() => {
+            handleLike(r);
+            setShowReactions(false);
+          }}
+          className="text-2xl hover:scale-125 transition-transform"
+        >
+          {r}
+        </button>
+      ))}
+    </div>
+  )}
 
-          </div>
+</div>
+
 
           <button>
             💬 {post.comments?.length || 0}
