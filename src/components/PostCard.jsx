@@ -552,19 +552,12 @@ return (
 >
 
   {/* NORMAL TEXT ABOVE MEDIA (Facebook style) */}
-  {post?.content && !post?.editor && (
+{post?.content && !post?.editor && (
   <div
     onClick={openPost}
-    className="
-      px-3
-      py-3
-      whitespace-pre-wrap
-      break-words
-      text-[15px]
-      cursor-pointer
-    "
+    className="px-3 py-3 whitespace-pre-wrap break-words text-[15px] cursor-pointer"
   >
-    {displayContent}
+    {renderContentWithLinks(displayContent)}
 
     {isLongPost && (
       <button
@@ -579,65 +572,6 @@ return (
     )}
   </div>
 )}
-
-       
-{post?.content && !post?.editor && (
-  <div
-    onClick={openPost}
-    className="
-      px-3
-      py-3
-      whitespace-pre-wrap
-      break-words
-      text-[15px]
-      cursor-pointer
-    "
-  >
-    {displayContent}
-
-     {isLongPost && (
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          openPost();
-        }}
-        className="ml-1 text-blue-600 font-semibold hover:underline"
-      >
-        Read more
-      </button>
-    )}
-  </div>
-)}
-
-
-{post?.content && !post?.editor && (
-  <div
-    onClick={openPost}
-    className="
-      px-3
-      py-3
-      whitespace-pre-wrap
-      break-words
-      text-[15px]
-      cursor-pointer
-    "
-  >
-    {displayContent}
-
-    {isLongPost && (
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          openPost();
-        }}
-        className="ml-1 text-blue-600 font-semibold hover:underline"
-      >
-        Read more
-      </button>
-    )}
-  </div>
-)}
-
 
   
   {/* MEDIA */}
