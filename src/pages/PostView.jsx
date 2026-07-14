@@ -59,9 +59,9 @@ const image = rawImage
     : `https://africsocial.globelynks.com${rawImage}`
   : "https://africsocial.globelynks.com/social-preview.png";
 
-  const title =
-  post?.content?.substring(0, 60) ||
-  `${post?.user?.name || "Someone"} shared a post`;
+  const title = post?.user?.name
+  ? `${post.user.name}: ${post.content?.substring(0, 60) || ""}`
+  : "Someone shared a post";
 
 const description =
   post?.content?.substring(0, 160) ||
