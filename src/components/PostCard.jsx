@@ -596,6 +596,7 @@ return (
   "
 >
     <>
+  <>
   {renderContentWithLinks(displayContent)}
 
   {isLongPost && (
@@ -609,7 +610,7 @@ return (
       Read more
     </button>
   )}
-</>}
+</>
   </div>
 )}
 
