@@ -163,24 +163,29 @@ useEffect(() => {
 </div>
 
 
-<button 
-className="
-absolute
-top-3
-right-3
-z-[200]
-text-white
-flex
-items-center
-gap-2
-font-semibold
-bg-blue-600
-hover:bg-blue-700
-px-4
-py-2
-rounded-xl
-shadow-lg
-"
+<button
+  type="submit"
+  onClick={handleSubmitPost}
+  disabled={isPosting}
+  className="
+    absolute
+    top-3
+    right-3
+    z-[200]
+    text-white
+    flex
+    items-center
+    gap-2
+    font-semibold
+    bg-blue-600
+    hover:bg-blue-700
+    disabled:bg-gray-500
+    disabled:cursor-not-allowed
+    px-4
+    py-2
+    rounded-xl
+    shadow-lg
+  "
 >
   {isPosting ? (
     <>
@@ -188,7 +193,6 @@ shadow-lg
         className="
           w-4
           h-4
-          bg-black/60
           border-2
           border-white
           border-t-transparent
@@ -196,8 +200,7 @@ shadow-lg
           animate-spin
         "
       />
-     type="submit"
-      disabled={isPosting}
+      Posting...
     </>
   ) : (
     "Post"
