@@ -1,4 +1,5 @@
 import React, { useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Draggable from "react-draggable";
 import MediaUpload from "../MediaUpload";
 
@@ -65,6 +66,8 @@ const PostEditor = ({
 
 
 const audioRef = useRef(null);
+const navigate = useNavigate();
+
 
 useEffect(() => {
   if (audioRef.current) {
@@ -93,7 +96,10 @@ useEffect(() => {
 
 <button
   type="button"
-  onClick={onCancel}
+  onClick={() => {
+    onCancel?.();
+    navigate("/");
+  }}
   className="
     absolute
     top-3
