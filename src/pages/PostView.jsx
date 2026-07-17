@@ -1,6 +1,7 @@
 // src/pages/PostView.jsx
 
 import React, { useEffect, useState } from "react";
+import { Navigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 
@@ -47,6 +48,21 @@ const [error, setError] = useState("");
 
   fetchPost();
 
+}, [id]);
+
+
+
+useEffect(() => {
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    window.location.replace(
+      `/register?redirect=/post/${id}`
+    );
+    return;
+  }
+
+  fetchPost();
 }, [id]);
 
 
