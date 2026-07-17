@@ -954,6 +954,24 @@ currentUserId={currentUserId}
 
 </Suspense>
 
+{index === 4 && (
+  <FeedSection title="📢 Sponsored">
+    <Adsterra
+      containerId="container-1ac49ab91139c0ad3e13572497cfbe18"
+      scriptSrc="https://pl29467278.effectivecpmnetwork.com/1ac49ab91139c0ad3e13572497cfbe18/invoke.js"
+    />
+  </FeedSection>
+)}
+
+{index === 19 && (
+  <FeedSection title="📢 Sponsored">
+    <Adsterra
+      containerId="container-30af2dea6856ea569ade869ad6ae2915"
+      scriptSrc="https://pl30399675.effectivecpmnetwork.com/30af2dea6856ea569ade869ad6ae2915/invoke.js"
+    />
+  </FeedSection>
+)}
+
 
 {feedSections[index]}
 
