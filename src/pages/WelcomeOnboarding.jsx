@@ -1,9 +1,17 @@
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import {
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 
 export default function WelcomeOnboarding() {
 
   const navigate = useNavigate();
+
+  const [searchParams] = useSearchParams();
+
+  const redirect =
+    searchParams.get("redirect") || "/";
 
   useEffect(() => {
 
@@ -72,7 +80,7 @@ export default function WelcomeOnboarding() {
 <div className="space-y-3 pb-24">
 
   <button
-    onClick={() => navigate("/")}
+    onClick={() => navigate(redirect)}
     className="w-full bg-green-600 text-white px-6 py-3 rounded-xl font-semibold"
   >
     Go to Home 🏠
