@@ -80,6 +80,7 @@ const redirect =
             name,
             email,
             password,
+            redirect,
           }),
         }
       );
