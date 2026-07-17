@@ -11,6 +11,10 @@ export default function VerifyEmail() {
     "Please wait while we verify your email..."
   );
 
+
+const redirect =
+  searchParams.get("redirect") || "/";
+
   useEffect(() => {
     if (hasRun.current) return;
     hasRun.current = true;
@@ -23,8 +27,8 @@ export default function VerifyEmail() {
 
         // ✅ FIXED ENDPOINT
         const res = await fetch(
-`https://afribook-backend.onrender.com/api/auth/verify/${token}?email=${email}`
-        );
+  `https://site--afribook-backen--26q2cj27zn75.code.run/api/auth/verify/${token}?email=${encodeURIComponent(email)}&redirect=${encodeURIComponent(redirect)}`
+);
 
 
 const contentType =
@@ -59,7 +63,8 @@ console.log(data);
           );
 
           setTimeout(() => {
-            window.location.href = "/welcome";
+            window.location.href =
+  `/welcome?redirect=${encodeURIComponent(redirect)}`;
           }, 2500);
 
           return;
@@ -73,7 +78,8 @@ console.log(data);
           );
 
           setTimeout(() => {
-            window.location.href = "/login";
+            window.location.href =
+  `/login?redirect=${encodeURIComponent(redirect)}`;
           }, 2500);
 
           return;
