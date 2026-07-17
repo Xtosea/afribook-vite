@@ -1,5 +1,9 @@
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import {
+  useNavigate,
+  Link,
+  useSearchParams,
+} from "react-router-dom";
 import { API_BASE } from "../api/api";
 import { useAuth } from "../context/AuthContext";
 
@@ -10,6 +14,13 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+const [searchParams] = useSearchParams();
+
+const redirect =
+  searchParams.get("redirect") || "/";
+
+
 const { login } = useAuth();
 
   const handleLogin = async (e) => {
@@ -49,7 +60,8 @@ const { login } = useAuth();
 login(data.token, data.user);
 
       // ✅ Navigate to Home
-      navigate("/", { replace: true });
+      // ✅ Navigate back to the requested page
+navigate(redirect, { replace: true });
 
     } catch (err) {
       console.error("LOGIN ERROR:", err);
@@ -102,7 +114,10 @@ login(data.token, data.user);
       <div className="mt-4 text-sm text-gray-600 flex justify-between">
         <span>
           Don't have an account?{" "}
-          <Link to="/register" className="text-blue-600">
+          <Link
+  to={`/register?redirect=${encodeURIComponent(redirect)}`}
+  className="text-blue-600"
+>
             Register
           </Link>
         </span>
