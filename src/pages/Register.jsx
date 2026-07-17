@@ -101,7 +101,9 @@ const redirect =
           "Registration successful. Please verify your email."
       );
 
-      navigate("/verify-email-sent");
+   navigate(
+  `/verify-email-sent?redirect=${encodeURIComponent(redirect)}`
+);
 
     } catch (err) {
 
