@@ -46,7 +46,7 @@ const { login } = useAuth();
             await fetch(`${API_BASE}/api/auth/resend-verification`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ email }),
+              body: JSON.stringify({ email, redirect, }),
             });
             alert("Verification email sent!");
           }
