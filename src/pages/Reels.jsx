@@ -273,7 +273,20 @@ const { videoUrl: thumbnailUrl } =
 
       <button
         onClick={() => setShowUpload(true)}
-        className="fixed bottom-6 right-6 bg-white text-black w-14 h-14 rounded-full text-3xl z-50"
+        className="
+fixed
+bottom-6
+left-1/2
+-translate-x-1/2
+bg-white
+text-black
+w-14
+h-14
+rounded-full
+text-3xl
+z-50
+shadow-lg
+"
       >
         +
       </button>
