@@ -1,6 +1,6 @@
 import React from "react";
 import MusicLibrary from "./MusicLibrary";
-import StickerLibrary from "./creator/StickerLibrary";
+import StickerLibrary from "./StickerLibrary";
 
 const ReelUploadModal = ({
   preview,
