@@ -83,7 +83,7 @@ const ReelsHorizontal = ({
     if (!video) return;
 
     // RESTART AFTER 3 SECONDS
-    if (video.currentTime >= 3) {
+    if (video.currentTime >= 1) {
 
       video.currentTime = 0;
 
