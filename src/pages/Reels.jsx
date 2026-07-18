@@ -3,6 +3,8 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import { API_BASE } from "../api/api";
 import { getSocket } from "../socket";
 import { use2Upload } from "../hooks/use2Upload";
+import generateThumbnail from "../utils/generateThumbnail";
+
 
 import ReelCard from "../components/reels/ReelCard";
 import ReelUploadModal from "../components/reels/ReelUploadModal";
