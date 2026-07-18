@@ -24,6 +24,13 @@ const Reels = () => {
 const [selectedFile, setSelectedFile] = useState(null);
 
 
+const [songs, setSongs] = useState([]);
+const [selectedSong, setSelectedSong] = useState(null);
+
+const [stickers, setStickers] = useState([]);
+const [selectedSticker, setSelectedSticker] = useState(null);
+
+
   const videoRefs = useRef([]);
   const observerRef = useRef(null);
   const fileRef = useRef();
@@ -34,10 +41,7 @@ const [selectedFile, setSelectedFile] = useState(null);
   const token = localStorage.getItem("token");
 
   /* ================= FETCH REELS ================= */
-  useEffect(() => {
-  fetchReels();
-}, []);
-
+  
   const fetchReels = async () => {
     try {
       const res = await fetch(`${API_BASE}/api/posts/reels`);
@@ -121,6 +125,20 @@ const [selectedFile, setSelectedFile] = useState(null);
       document.head.appendChild(link);
     });
   }, [activeIndex, reels]);
+
+
+/* ================= MUSIC /STICKERS================= */
+useEffect(() => {
+  fetchReels();
+
+  fetch(`${API_BASE}/api/music`)
+    .then(r => r.json())
+    .then(setSongs);
+
+  fetch(`${API_BASE}/api/stickers`)
+    .then(r => r.json())
+    .then(setStickers);
+}, []);
 
   /* ================= LIKE ================= */
   const likeReel = async (id) => {
@@ -206,6 +224,12 @@ const { videoUrl: thumbnailUrl } =
   caption,
   videoUrl,
   thumbnailUrl,
+
+  music: selectedSong,
+
+  stickers: selectedSticker
+    ? [selectedSticker]
+    : [],
 }),
     });
 
@@ -293,22 +317,33 @@ shadow-lg
 
       {showUpload && (
         <ReelUploadModal
-          preview={preview}
-          caption={caption}
-          setCaption={setCaption}
-          fileRef={fileRef}
-          handleFileChange={(e) => {
-  const file = e.target.files[0];
-  if (!file) return;
+  preview={preview}
+  caption={caption}
+  setCaption={setCaption}
 
-  setSelectedFile(file);
-  setPreview(URL.createObjectURL(file));
-}}
-          uploadReel={uploadReel}
-          setShowUpload={setShowUpload}
-          progress={progress}
-          loading={loading}
-        />
+  songs={songs}
+  selectedSong={selectedSong}
+  setSelectedSong={setSelectedSong}
+
+  stickers={stickers}
+  selectedSticker={selectedSticker}
+  setSelectedSticker={setSelectedSticker}
+
+  fileRef={fileRef}
+
+  handleFileChange={(e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setSelectedFile(file);
+    setPreview(URL.createObjectURL(file));
+  }}
+
+  uploadReel={uploadReel}
+  setShowUpload={setShowUpload}
+  progress={progress}
+  loading={loading}
+/>
       )}
     </div>
   );
