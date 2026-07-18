@@ -41,10 +41,8 @@ const ReelCard = ({
       "
       onDoubleClick={handleDoubleTap}
     >
-
-      {/* 🔥 9:16 VIDEO CONTAINER */}
+      {/* VIDEO */}
       <div className="relative h-full w-full max-w-[420px] mx-auto">
-
         <video
           ref={videoRef}
           data-index={index}
@@ -55,37 +53,91 @@ const ReelCard = ({
           loop
           preload="metadata"
           autoPlay={isActive}
+          poster={reel.media?.[0]?.thumbnailUrl}
           onPlay={() => recordView(reel._id)}
         />
 
-        {/* HEART */}
+        {/* Dark Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+
+        {/* ❤️ Double-tap Heart */}
         {showHeart && (
-          <div className="absolute inset-0 flex items-center justify-center text-6xl animate-ping">
+          <div className="absolute inset-0 flex items-center justify-center text-7xl animate-ping z-20">
             ❤️
           </div>
         )}
 
-        {/* OVERLAY */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-end pb-28 px-4">
+        {/* RIGHT ACTIONS */}
+        <div
+          className="
+            absolute
+            right-3
+            bottom-28
+            flex
+            flex-col
+            items-center
+            gap-6
+            text-white
+            z-20
+          "
+        >
+          <button
+            onClick={() => likeReel(reel._id)}
+            className="flex flex-col items-center"
+          >
+            <span className="text-3xl">❤️</span>
+            <span className="text-xs">
+              {likes[reel._id] || 0}
+            </span>
+          </button>
 
-          <p className="text-white text-sm mb-4">
-            {reel.content || "No caption"}
-          </p>
+          <button
+            onClick={() => navigate(`/post/${reel._id}`)}
+            className="flex flex-col items-center"
+          >
+            <span className="text-3xl">💬</span>
+            <span className="text-xs">
+              {reel.comments?.length || 0}
+            </span>
+          </button>
 
-          <div className="flex justify-between text-white">
+          <button
+            onClick={() => shareReel(reel._id)}
+            className="flex flex-col items-center"
+          >
+            <span className="text-3xl">🔗</span>
+            <span className="text-xs">
+              {shares[reel._id] || 0}
+            </span>
+          </button>
 
-            <button onClick={() => likeReel(reel._id)}>
-              ❤️ {likes[reel._id] || 0}
-            </button>
-
-            <button onClick={() => shareReel(reel._id)}>
-              🔗 {shares[reel._id] || 0}
-            </button>
-
+          <div className="flex flex-col items-center">
+            <span className="text-3xl">👁️</span>
+            <span className="text-xs">
+              {reel.viewsCount || 0}
+            </span>
           </div>
-
         </div>
 
+        {/* BOTTOM LEFT */}
+        <div
+          className="
+            absolute
+            bottom-8
+            left-4
+            right-20
+            text-white
+            z-20
+          "
+        >
+          <h3 className="font-semibold text-base">
+            @{reel.user?.name || "AfricSocial"}
+          </h3>
+
+          <p className="mt-2 text-sm whitespace-pre-wrap">
+            {reel.content || "No caption"}
+          </p>
+        </div>
       </div>
     </div>
   );
