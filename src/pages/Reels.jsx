@@ -177,7 +177,22 @@ const uploadReel = async () => {
       return;
     }
 
-    const { videoUrl } = await uploadFile(selectedFile);
+    // Upload video
+const { videoUrl } = await uploadFile(selectedFile);
+
+// Generate thumbnail
+const thumbnailBlob = await generateThumbnail(selectedFile);
+
+// Convert Blob to File
+const thumbnailFile = new File(
+  [thumbnailBlob],
+  "thumbnail.jpg",
+  { type: "image/jpeg" }
+);
+
+// Upload thumbnail
+const { videoUrl: thumbnailUrl } =
+  await uploadFile(thumbnailFile);
 
     const res = await fetch(`${API_BASE}/api/posts/reels`, {
       method: "POST",
@@ -186,9 +201,10 @@ const uploadReel = async () => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        caption,
-        videoUrl,
-      }),
+  caption,
+  videoUrl,
+  thumbnailUrl,
+}),
     });
 
     if (!res.ok) {
