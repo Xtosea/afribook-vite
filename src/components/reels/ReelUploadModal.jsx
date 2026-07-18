@@ -1,5 +1,5 @@
 import React from "react";
-import MusicLibrary from "../MusicLibrary";
+import MusicLibrary from "./MusicLibrary";
 
 const ReelUploadModal = ({
   preview,
