@@ -17,17 +17,20 @@ export function useStoryUpload() {
 
 
   const uploadStory = async ({
-    file,
-    cloudinaryUrl,
-    text,
-    music,
-    stickers,
-    backgroundColor,
-  }) => {
+  file,
+  cloudinaryUrl,
+  text,
+  music,
+  stickers,
+  backgroundColor,
+}) => {
 
-console.log("uploadStory() called");
+  console.log("FILE:", file);
+  console.log("CLOUDINARY:", cloudinaryUrl);
+  console.log("TEXT:", text);
 
-    try {
+  try {
+    
 
       setLoading(true);
       setProgress(0);
@@ -35,6 +38,7 @@ console.log("uploadStory() called");
 
 
       let musicData = null;
+...
 
 
       // MUSIC → R2
@@ -159,6 +163,11 @@ console.log("uploadStory() called");
 
       const token =
         localStorage.getItem("token");
+
+
+console.log("MEDIA BEFORE SAVE:", media);
+console.log("TEXT BEFORE SAVE:", text);
+console.log("MUSIC BEFORE SAVE:", musicData);
 
 
 
