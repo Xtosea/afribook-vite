@@ -93,18 +93,18 @@ const StoryBar = ({ user }) => {
 
   /* ================= UPLOAD STORY ================= */
   const handleUpload = async (formData) => {
-    try {
-      const story = await uploadStory(formData);
+  try {
+    const story = await uploadStory(formData);
 
-      if (story) {
-        setActiveStories((prev) => [story, ...prev]);
-      }
-
-      return story;
-    } catch (err) {
-      console.error("Upload story error:", err);
+    if (story) {
+      await fetchStories();
     }
-  };
+
+    return story;
+  } catch (err) {
+    console.error("Upload story error:", err);
+  }
+};
 
   /* ================= OPEN STORY ================= */
   const openStory = (story) => {
