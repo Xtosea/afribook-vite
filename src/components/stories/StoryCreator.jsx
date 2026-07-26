@@ -70,26 +70,43 @@ const [cloudinaryUrl, setCloudinaryUrl] = useState(null);
 
 
 // ================= HANDLE FILE =================
-const handleFile = (e) => {
+const handleFile = async (e) => {
   const file = e.target.files[0];
 
   if (!file) return;
 
+  console.log("Selected file:", file);
 
-console.log("Selected file:", file);
-console.log("Type:", file.type);
   setMedia(file);
-
-  // Reset any previous Cloudinary URL
   setCloudinaryUrl(null);
 
-  // Local preview for all media types
-  const localUrl = URL.createObjectURL(file);
+  // Show local preview immediately
+  setPreview(URL.createObjectURL(file));
 
-console.log("Setting preview...");
-  setPreview(localUrl);
+  // Upload images to Cloudinary
+  if (file.type.startsWith("image/")) {
+    try {
+      const result = await uploadToCloudinary(file);
 
-  // Allow selecting the same file again later
+      // If uploadToCloudinary returns a URL string:
+      const url =
+        typeof result === "string"
+          ? result
+          : result.url;
+
+      setCloudinaryUrl(url);
+
+      // Replace local preview with Cloudinary URL
+      setPreview(url);
+
+      console.log("Cloudinary URL:", url);
+    } catch (err) {
+      console.error("Cloudinary upload failed:", err);
+      alert("Failed to upload image.");
+      return;
+    }
+  }
+
   e.target.value = "";
 };
 
