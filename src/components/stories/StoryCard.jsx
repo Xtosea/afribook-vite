@@ -7,6 +7,9 @@ const StoryCard = ({
 }) => {
   const media = story?.media?.[0];
 
+console.log("StoryCard:", story);
+console.log("Media:", story.media);
+
   return (
     <div
       onClick={() => onOpen(story)}
