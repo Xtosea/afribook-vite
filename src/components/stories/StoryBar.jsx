@@ -39,7 +39,18 @@ const StoryBar = ({ user }) => {
         },
       });
 
+//LOGGING FOR ERROR 
+
       const data = await res.json();
+
+console.log("Fetched stories:", data);
+
+if (data.length) {
+  console.log("Newest story:", data[0]);
+  console.log("Newest story media:", data[0].media);
+}
+
+
       const sorted = Array.isArray(data) ? data : [];
 
       const myStories = sorted.filter(
