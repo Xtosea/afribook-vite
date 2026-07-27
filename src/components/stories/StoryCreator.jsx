@@ -277,6 +277,7 @@ const handlePost = async () => {
 });
 
 onClose();
+};
 
   // <-- THIS WAS MISSING
 
