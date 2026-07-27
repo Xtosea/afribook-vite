@@ -203,7 +203,7 @@ setPreview(newUrl);
 setCloudinaryUrl(newUrl);
 
 };
-// ================= POST STORY =================
+
 // ================= POST STORY =================
 const handlePost = async () => {
   let uploadedUrl = null;
