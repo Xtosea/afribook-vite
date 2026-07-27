@@ -242,28 +242,19 @@ const handlePost = async () => {
     type = "text";
   }
 
-  const story = await onSelectFile({
-    file: null,
-
-    type,
-
-    cloudinaryUrl,
-    videoUrl,
-
-    text,
-
-    textStyle: {
-      x: textPosition.x,
-      y: textPosition.y,
-      fontSize: size,
-      color: textColor,
-      rotation: textRotation,
-    },
-
-    music,
-    stickers,
-    backgroundColor,
-  });
+  const story = await Story.create({
+  user: req.user.id,
+  media,
+  caption,
+  text,
+  textStyle,
+  music,
+  stickers,
+  backgroundColor,
+  expiresAt: new Date(
+    Date.now() + 24 * 60 * 60 * 1000
+  ),
+});
 
   if (story) onClose();
 };
