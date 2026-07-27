@@ -650,52 +650,36 @@ Done
    {/* ACTIVE TOOLS */}
 
 {activeTool === "sticker" && (
-  <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-3 z-50 h-[45%] overflow-y-auto">
-
-    {/* Emoji Stickers */}
-    <div className="flex gap-3 flex-wrap mb-4">
-      {emojiList.map((emoji) => (
-        <button
-          key={emoji}
-          className="text-3xl"
-          onClick={() => {
-            const newSticker = {
-              emoji,
-              x: 100,
-              y: 100,
-              scale: 1,
-              rotation: 0,
-            };
-
-            setStickers((prev) => [...prev, newSticker]);
-            setSelectedSticker(stickers.length);
-          }}
-        >
-          {emoji}
-        </button>
-      ))}
-    </div>
-
-    {/* Image Sticker Library */}
+  <div
+    className="
+      absolute
+      bottom-0
+      left-0
+      right-0
+      bg-black/90
+      p-3
+      z-50
+      h-[45%]
+      overflow-y-auto
+    "
+  >
     <StickerLibrary
       onSelect={(sticker) => {
-        const newSticker = {
-          url: sticker.url,
-          x: 100,
-          y: 100,
-          scale: 1,
-          rotation: 0,
-        };
+        setStickers((prev) => [
+          ...prev,
+          {
+            id: Date.now(),
+            url: sticker.url,
+            x: 100,
+            y: 100,
+            scale: 1,
+            rotation: 0,
+          },
+        ]);
 
-        setStickers((prev) => [...prev, newSticker]);
-        setSelectedSticker(stickers.length);
+        setActiveTool(null);
       }}
     />
-
-    {/* Size Slider */}
-    {selectedSticker !== null && (
-      // keep your existing slider here
-    )}
   </div>
 )}
 
