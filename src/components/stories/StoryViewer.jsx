@@ -19,6 +19,8 @@ const StoryViewer = ({
 }) => {
   const socket = getSocket();
   const videoRef = useRef();
+  const audioRef = useRef();
+
 
   const [paused, setPaused] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -29,6 +31,18 @@ const StoryViewer = ({
   const [showReplies, setShowReplies] = useState(false);
   const [showReactions, setShowReactions] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
+
+
+const media = story?.media?.[0];
+
+const music = story?.music;
+const text = story?.text;
+
+const stickers = story?.stickers || [];
+
+const backgroundColor =
+  story?.backgroundColor || "#000000";
+
 
   /* ================= SYNC STORY DATA ================= */
   useEffect(() => {
@@ -71,11 +85,14 @@ const StoryViewer = ({
 
   /* ================= PLAY / PAUSE ================= */
   useEffect(() => {
-    if (!videoRef.current) return;
-
-    if (paused) videoRef.current.pause();
-    else videoRef.current.play();
-  }, [paused]);
+  if (paused) {
+    videoRef.current?.pause();
+    audioRef.current?.pause();
+  } else {
+    videoRef.current?.play().catch(() => {});
+audioRef.current?.play().catch(() => {});
+  }
+}, [paused]);
 
   /* ================= STORY VIEW ================= */
   useEffect(() => {
@@ -101,37 +118,60 @@ const StoryViewer = ({
 
   /* ================= PROGRESS ================= */
   useEffect(() => {
-    let interval;
+  if (media?.type !== "video" && !paused) {
+    const interval = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 100) {
+          clearInterval(interval);
 
-    if (!paused) {
-      interval = setInterval(() => {
-        setProgress((prev) => {
-          if (prev >= 100) {
-            clearInterval(interval);
-            if (window.nextStory) {
-  window.nextStory();
-} else {
-  onClose?.();
-}
-            return 100;
+          if (window.nextStory) {
+            window.nextStory();
+          } else {
+            onClose?.();
           }
-          return prev + 1;
-        });
-      }, 100);
-    }
+
+          return 100;
+        }
+
+        return prev + 1;
+      });
+    }, 100);
 
     return () => clearInterval(interval);
-  }, [paused, onClose]);
+  }
 
-  if (!story) return null;
+  const video = videoRef.current;
 
-  const media = story.media?.[0];
+  if (!video) return;
 
-const music = story.music;
-const text = story.text;
-const stickers = story.stickers || [];
-const backgroundColor =
-  story.backgroundColor || "#000";
+  const updateProgress = () => {
+    if (!video.duration) return;
+
+    setProgress(
+      (video.currentTime / video.duration) * 100
+    );
+  };
+
+  video.addEventListener(
+    "timeupdate",
+    updateProgress
+  );
+
+  return () =>
+    video.removeEventListener(
+      "timeupdate",
+      updateProgress
+    );
+
+}, [media, paused]);
+
+
+useEffect(() => {
+  return () => {
+    videoRef.current?.pause();
+    audioRef.current?.pause();
+  };
+}, []);
 
   /* ================= REACTION HANDLER ================= */
   const handleReaction = async (reaction) => {
@@ -169,14 +209,14 @@ const backgroundColor =
       </button>
 
       {/* ANALYTICS BUTTON (OWNER ONLY) */}
-      {story.user?._id === currentUser?._id && (
-        <button
-          onClick={() => setShowAnalytics(true)}
-          className="absolute top-5 left-5 text-white text-xl"
-        >
-          📊
-        </button>
-      )}
+{story?.user?._id === currentUser?._id && (
+  <button
+    onClick={() => setShowAnalytics(true)}
+    className="absolute top-5 left-5 text-white text-xl"
+  >
+    📊
+  </button>
+)}
 
       {/* PROGRESS */}
       <div className="absolute top-3 left-3 right-3 z-50">
@@ -204,19 +244,30 @@ const backgroundColor =
 {/* VIDEO */}
 {media?.type === "video" && (
   <video
-    ref={videoRef}
-    src={media.url}
-    className="w-full h-full object-contain"
-    autoPlay
-    playsInline
-    loop
-    onClick={() => setPaused(!paused)}
-  />
+  ref={videoRef}
+  src={media.url}
+  poster={media.thumbnail}
+  className="w-full h-full object-contain"
+  autoPlay
+  playsInline
+  preload="metadata"
+  onClick={() => setPaused(!paused)}
+  onEnded={() => {
+    audioRef.current?.pause();
+
+    if (window.nextStory) {
+      window.nextStory();
+    } else {
+      onClose?.();
+    }
+  }}
+/>
 )}
 
 
 {music?.audioUrl && (
   <audio
+    ref={audioRef}
     autoPlay
     controls
     src={music.audioUrl}
@@ -233,23 +284,18 @@ const backgroundColor =
 
 {text && (
   <div
-    className="
-      absolute
-      left-1/2
-      top-1/2
-      -translate-x-1/2
-      -translate-y-1/2
-      text-white
-      text-3xl
-      font-bold
-      text-center
-      px-6
-      drop-shadow-lg
-      z-40
-    "
-  >
-    {text}
-  </div>
+  className="absolute font-bold z-40"
+  style={{
+    left: story.textStyle?.x,
+    top: story.textStyle?.y,
+    fontSize: story.textStyle?.fontSize,
+    color: story.textStyle?.color,
+    transform: `rotate(${story.textStyle?.rotation || 0}deg)`,
+    textShadow: "0 2px 6px rgba(0,0,0,.8)",
+  }}
+>
+  {text}
+</div>
 )}
 
 
@@ -262,11 +308,11 @@ const backgroundColor =
       z-40
     "
     style={{
-      top:
-        sticker.y || `${20 + i * 10}%`,
-      left:
-        sticker.x || `${20 + i * 10}%`,
-    }}
+  left: sticker.x,
+  top: sticker.y,
+  fontSize: `${(sticker.scale || 1) * 60}px`,
+  transform: `rotate(${sticker.rotation || 0}deg)`,
+}}
   >
     {sticker.emoji || sticker}
   </div>
