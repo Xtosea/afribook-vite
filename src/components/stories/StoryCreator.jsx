@@ -228,7 +228,8 @@ const handlePost = async () => {
   // IMAGE STORY
   else if (media?.type?.startsWith("image")) {
   type = "image";
-  cloudinaryUrl = cloudinaryUrl || preview;
+
+  uploadedUrl = cloudinaryUrl || preview;
 }
 
   // TEXT STORY
