@@ -11,6 +11,7 @@ from "../../utils/uploadToCloudinary";
 
 import { uploadToR2 } from "../../utils/uploadToR2";
 import { generateVideoThumbnail } from "../../utils/generateVideoThumbnail";
+import StickerLibrary from "../reels/StickerLibrary";
 
 
 
@@ -649,71 +650,53 @@ Done
    {/* ACTIVE TOOLS */}
 
 {activeTool === "sticker" && (
-<div className="absolute bottom-0 left-0 right-0 bg-black/80 p-3 z-50">
+  <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-3 z-50 h-[45%] overflow-y-auto">
 
-<div className="flex gap-3 flex-wrap">
-{emojiList.map((emoji) => (
-<button
-key={emoji}
-className="text-3xl"
-onClick={() => {
-const newSticker = {
-  emoji,
-  x: 100,
-  y: 100,
-  scale: 1,
-  rotation: 0,
-};
+    {/* Emoji Stickers */}
+    <div className="flex gap-3 flex-wrap mb-4">
+      {emojiList.map((emoji) => (
+        <button
+          key={emoji}
+          className="text-3xl"
+          onClick={() => {
+            const newSticker = {
+              emoji,
+              x: 100,
+              y: 100,
+              scale: 1,
+              rotation: 0,
+            };
 
-setStickers((prev) => [
-...prev,
-newSticker,
-]);
+            setStickers((prev) => [...prev, newSticker]);
+            setSelectedSticker(stickers.length);
+          }}
+        >
+          {emoji}
+        </button>
+      ))}
+    </div>
 
-setSelectedSticker(stickers.length);
-}}
->
-{emoji}
-</button>
-))}
-</div>
+    {/* Image Sticker Library */}
+    <StickerLibrary
+      onSelect={(sticker) => {
+        const newSticker = {
+          url: sticker.url,
+          x: 100,
+          y: 100,
+          scale: 1,
+          rotation: 0,
+        };
 
-{selectedSticker !== null && (
-<div className="mt-4">
-<p className="text-white mb-2">
-Sticker Size
-</p>
+        setStickers((prev) => [...prev, newSticker]);
+        setSelectedSticker(stickers.length);
+      }}
+    />
 
-<input
-type="range"
-min="30"
-max="200"
-value={
-  (stickers[selectedSticker]?.scale || 1) * 60
-}
-onChange={(e) => {
-const updated = [...stickers];
-
-updated[selectedSticker] = {
-  ...updated[selectedSticker],
-  scale: Number(e.target.value) / 60,
-};
-
-setStickers(updated);
-}}
-className="w-full"
-/>
-
-<button
-onClick={() => setActiveTool(null)}
-className="mt-3 bg-green-600 text-white px-3 py-2 rounded"
->
-Done
-</button>
-</div>
-)}
-
-</div>
+    {/* Size Slider */}
+    {selectedSticker !== null && (
+      // keep your existing slider here
+    )}
+  </div>
 )}
 
 
@@ -877,46 +860,55 @@ className="bg-amber-600 text-white p-2 rounded"
 
 {/* Stickers */}
 {stickers.map((sticker, index) => (
+
+
+
 <Draggable
-bounds="parent"
-key={index}
-position={{
-x: sticker.x,
-y: sticker.y,
-}}
-onStop={(e, data) => {
-const updated = [...stickers];
+  key={index}
+  position={{
+    x: sticker.x,
+    y: sticker.y,
+  }}
+  onStop={(e, data) => {
+    const updated = [...stickers];
 
-updated[index] = {
-...updated[index],
-x: data.x,
-y: data.y,
-};
+    updated[index] = {
+      ...updated[index],
+      x: data.x,
+      y: data.y,
+    };
 
-setStickers(updated);
-}}
+    setStickers(updated);
+  }}
 >
-<div
-onMouseDown={() =>
-setSelectedSticker(index)
-}
-onTouchStart={() =>
-setSelectedSticker(index)
-}
-className="absolute cursor-move select-none"
-style={{
-fontSize: `${sticker.size || 60}px`,
-border:
-selectedSticker === index
-? "2px solid white"
-: "none",
-borderRadius: "8px",
-}}
->
-{sticker.emoji}
-</div>
+  <div
+    onMouseDown={() => setSelectedSticker(index)}
+    onTouchStart={() => setSelectedSticker(index)}
+    className="absolute cursor-move select-none flex items-center justify-center"
+    style={{
+      width: `${80 * (sticker.scale || 1)}px`,
+      height: `${80 * (sticker.scale || 1)}px`,
+      fontSize: `${(sticker.scale || 1) * 60}px`,
+      border:
+        selectedSticker === index
+          ? "2px solid white"
+          : "none",
+      borderRadius: "8px",
+    }}
+  >
+    {sticker.url ? (
+      <img
+        src={sticker.url}
+        alt=""
+        className="w-full h-full object-contain pointer-events-none"
+      />
+    ) : (
+      sticker.emoji
+    )}
+  </div>
 </Draggable>
 ))}
+
 
 {/* Text Overlay */}
 {text && (
