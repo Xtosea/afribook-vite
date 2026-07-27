@@ -276,8 +276,7 @@ const handlePost = async () => {
   backgroundColor,
 });
 
-  if (story) onClose();
-};
+onClose();
 
   // <-- THIS WAS MISSING
 
