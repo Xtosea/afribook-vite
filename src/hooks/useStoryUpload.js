@@ -19,10 +19,12 @@ export function useStoryUpload() {
   const uploadStory = async ({
   file,
   cloudinaryUrl,
+  textStyle,
   text,
   music,
   stickers,
   backgroundColor,
+  
 }) => {
 
   console.log("FILE:", file);
@@ -165,9 +167,9 @@ export function useStoryUpload() {
         localStorage.getItem("token");
 
 
-console.log("MEDIA BEFORE SAVE:", media);
-console.log("TEXT BEFORE SAVE:", text);
-console.log("MUSIC BEFORE SAVE:", musicData);
+//console.log("MEDIA BEFORE SAVE:", media);
+//console.log("TEXT BEFORE SAVE:", text);
+//console.log("MUSIC BEFORE SAVE:", musicData);
 
 
 
@@ -183,19 +185,14 @@ console.log("MUSIC BEFORE SAVE:", musicData);
               `Bearer ${token}`
           },
 
-          body:JSON.stringify({
-
-            text,
-
-            music: musicData,
-
-            stickers,
-
-            backgroundColor,
-
-            media
-
-          })
+          body: JSON.stringify({
+  text,
+  textStyle,
+  music: musicData,
+  stickers,
+  backgroundColor,
+  media,
+})
         }
       );
 
@@ -204,8 +201,8 @@ console.log("MUSIC BEFORE SAVE:", musicData);
       const story =
         await res.json();
 
-  console.log("Status:", res.status);
-  console.log("Response:", story);
+  //console.log("Status:", res.status);
+  //console.log("Response:", story);
 
 
 
