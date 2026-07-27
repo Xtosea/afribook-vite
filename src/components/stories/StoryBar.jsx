@@ -43,7 +43,7 @@ const StoryBar = ({ user }) => {
 
       const data = await res.json();
 
-console.log("Fetched stories:", data);
+//console.log("Fetched stories:", data);
 
 if (data.length) {
   console.log("Newest story:", data[0]);
