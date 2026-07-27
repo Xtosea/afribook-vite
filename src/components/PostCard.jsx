@@ -446,8 +446,8 @@ const openMedia = (index) => {
 
 
 
-console.log("Post:", post);
-console.log("Content:", post?.content);
+//console.log("Post:", post);
+//console.log("Content:", post?.content);
 
 
 
