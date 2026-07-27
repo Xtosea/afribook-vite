@@ -204,8 +204,9 @@ setCloudinaryUrl(newUrl);
 
 };
 // ================= POST STORY =================
+// ================= POST STORY =================
 const handlePost = async () => {
-  let cloudinaryUrl = null;
+  let uploadedUrl = null;
   let videoUrl = null;
   let type = "text";
 
@@ -216,10 +217,9 @@ const handlePost = async () => {
     videoUrl = await uploadToR2(media);
 
     const thumbnail = await generateVideoThumbnail(media);
-
     const uploaded = await uploadToCloudinary(thumbnail);
 
-    cloudinaryUrl =
+    uploadedUrl =
       typeof uploaded === "string"
         ? uploaded
         : uploaded.url;
@@ -229,12 +229,8 @@ const handlePost = async () => {
   else if (media?.type?.startsWith("image")) {
     type = "image";
 
-    const uploaded = await uploadToCloudinary(media);
-
-    cloudinaryUrl =
-      typeof uploaded === "string"
-        ? uploaded
-        : uploaded.url;
+    // Use the Cloudinary image already uploaded in handleFile()
+    uploadedUrl = cloudinaryUrl || preview;
   }
 
   // TEXT STORY
@@ -243,42 +239,41 @@ const handlePost = async () => {
   }
 
   await onSelectFile({
-  media:
-    type === "image"
-      ? [
-          {
-            type: "image",
-            url: cloudinaryUrl,
-          },
-        ]
-      : type === "video"
-      ? [
-          {
-            type: "video",
-            url: cloudinaryUrl,
-            videoUrl,
-          },
-        ]
-      : [],
+    media:
+      type === "image"
+        ? [
+            {
+              type: "image",
+              url: uploadedUrl,
+            },
+          ]
+        : type === "video"
+        ? [
+            {
+              type: "video",
+              url: uploadedUrl,
+              videoUrl,
+            },
+          ]
+        : [],
 
-  text,
+    text,
 
-  textStyle: {
-    x: textPosition.x,
-    y: textPosition.y,
-    fontSize: size,
-    color: textColor,
-    rotation: textRotation,
-  },
+    textStyle: {
+      x: textPosition.x,
+      y: textPosition.y,
+      fontSize: size,
+      color: textColor,
+      rotation: textRotation,
+    },
 
-  music,
-  stickers,
-  backgroundColor,
-});
+    music,
+    stickers,
+    backgroundColor,
+  });
 
-onClose();
+  onClose();
 };
-
   // <-- THIS WAS MISSING
 
 useEffect(() => {
@@ -454,7 +449,7 @@ className="
   onClick={() => {
     //console.log("Media button clicked");
     //console.log(fileRef.current);
-    //fileRef.current?.click();
+    fileRef.current?.click();
   }}
   className="..."
 >
