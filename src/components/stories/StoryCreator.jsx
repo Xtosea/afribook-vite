@@ -658,10 +658,11 @@ key={emoji}
 className="text-3xl"
 onClick={() => {
 const newSticker = {
-emoji,
-x: 100,
-y: 100,
-size: 60,
+  emoji,
+  x: 100,
+  y: 100,
+  scale: 1,
+  rotation: 0,
 };
 
 setStickers((prev) => [
@@ -688,14 +689,14 @@ type="range"
 min="30"
 max="200"
 value={
-stickers[selectedSticker]?.size || 60
+  (stickers[selectedSticker]?.scale || 1) * 60
 }
 onChange={(e) => {
 const updated = [...stickers];
 
 updated[selectedSticker] = {
-...updated[selectedSticker],
-size: Number(e.target.value),
+  ...updated[selectedSticker],
+  scale: Number(e.target.value) / 60,
 };
 
 setStickers(updated);
@@ -877,6 +878,7 @@ className="bg-amber-600 text-white p-2 rounded"
 {/* Stickers */}
 {stickers.map((sticker, index) => (
 <Draggable
+bounds="parent"
 key={index}
 position={{
 x: sticker.x,
@@ -919,7 +921,8 @@ borderRadius: "8px",
 {/* Text Overlay */}
 {text && (
 <Draggable
-position={textPosition}
+  bounds="parent"
+  position={textPosition}
 onStop={(e, data) =>
 setTextPosition({
 x: data.x,
