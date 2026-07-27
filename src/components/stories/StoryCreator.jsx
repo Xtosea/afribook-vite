@@ -227,11 +227,9 @@ const handlePost = async () => {
 
   // IMAGE STORY
   else if (media?.type?.startsWith("image")) {
-    type = "image";
-
-    // Use the Cloudinary image already uploaded in handleFile()
-    uploadedUrl = cloudinaryUrl || preview;
-  }
+  type = "image";
+  cloudinaryUrl = cloudinaryUrl || preview;
+}
 
   // TEXT STORY
   else {
