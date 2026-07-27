@@ -8,6 +8,10 @@ import { API_BASE } from "../../api/api";
 import Draggable from "react-draggable";
 import { uploadToCloudinary }
 from "../../utils/uploadToCloudinary";
+import { captureStoryCard } from "../../utils/captureStoryCard";
+import { uploadToR2 } from "../../utils/uploadToR2";
+import { generateVideoThumbnail } from "../../utils/generateVideoThumbnail";
+
 
 
 
@@ -33,6 +37,7 @@ const StoryCreator = ({ onClose, onSelectFile }) => {
 
 const fileRef = useRef();
 const audioRef = useRef();
+const storyRef = useRef(null);
 
 
 
@@ -200,20 +205,51 @@ setCloudinaryUrl(newUrl);
 };
 // ================= POST STORY =================
 const handlePost = async () => {
+  // validation...
 
-console.log("POST BUTTON CLICKED");
-  if (
-    !media &&
-    !text &&
-    !music &&
-    stickers.length === 0
-  ) {
-    return;
+  let thumbnailUrl = null;
+  let videoUrl = null;
+
+  if (media?.type?.startsWith("video")) {
+    videoUrl = await uploadToR2(media);
+
+    const thumbnail = await generateVideoThumbnail(media);
+
+    const uploaded = await uploadToCloudinary(thumbnail);
+
+    thumbnailUrl =
+      typeof uploaded === "string"
+        ? uploaded
+        : uploaded.url;
+  } else {
+    const blob = await captureStoryCard(storyRef.current);
+
+    const screenshot = new File(
+      [blob],
+      "story.png",
+      { type: "image/png" }
+    );
+
+    const uploaded =
+      await uploadToCloudinary(screenshot);
+
+    thumbnailUrl =
+      typeof uploaded === "string"
+        ? uploaded
+        : uploaded.url;
   }
 
   const story = await onSelectFile({
-    file: media,
-    cloudinaryUrl,
+    file: null,
+
+    type: media?.type?.startsWith("video")
+      ? "video"
+      : "image",
+
+    cloudinaryUrl: thumbnailUrl,
+
+    videoUrl,
+
     text,
     textPosition,
     textSize: size,
@@ -224,10 +260,10 @@ console.log("POST BUTTON CLICKED");
     backgroundColor,
   });
 
-  if (story) {
-    onClose();
-  }
-};   // <-- THIS WAS MISSING
+  if (story) onClose();
+};
+
+  // <-- THIS WAS MISSING
 
 useEffect(() => {
   fetch(`${API_BASE}/api/story-music`)
@@ -256,8 +292,9 @@ className="
 
 {/* DRAGGABLE PREVIEW AREA */}
 <div
-className="relative mb-3 h-[85vh] rounded-xl overflow-hidden bg-black"
-style={{ backgroundColor }}
+  ref={storyRef}
+  className="relative mb-3 h-[85vh] rounded-xl overflow-hidden bg-black"
+  style={{ backgroundColor }}
 >
 
 {/* Media Preview */}
