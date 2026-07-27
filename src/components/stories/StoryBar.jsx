@@ -183,19 +183,39 @@ if (data.length) {
     }
   };
 
+
+
+  /* ================= PREVIOUS STORY ================= */
+const previousStory = () => {
+  if (!selectedStory) return;
+
+  const currentIndex = activeStories.findIndex(
+    (s) => s._id === selectedStory._id
+  );
+
+  if (currentIndex > 0) {
+    setSelectedStory(activeStories[currentIndex - 1]);
+  }
+};
+
   useEffect(() => {
-    window.nextStory = nextStory;
-    return () => delete window.nextStory;
-  }, [selectedStory, activeStories]);
+  window.nextStory = nextStory;
+  window.previousStory = previousStory;
+
+  return () => {
+    delete window.nextStory;
+    delete window.previousStory;
+  };
+}, [selectedStory, activeStories]);
 
 
-useEffect(() => {
+/* useEffect(() => {
   console.log("StoryCreator mounted");
 
   return () => {
     console.log("StoryCreator unmounted");
   };
-}, []);
+}, []); */
 
   return (
     <>
