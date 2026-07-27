@@ -71,20 +71,34 @@ const StoryCard = ({
       )}
 
       {!media && (
-        <div
-          className="
-            w-full
-            h-full
-            flex
-            items-center
-            justify-center
-            bg-gray-900
-            text-white
-          "
-        >
-          No Media
-        </div>
-      )}
+  <div
+    className="absolute inset-0 flex items-center justify-center p-4"
+    style={{
+      backgroundColor:
+        story.backgroundColor || "#000000",
+    }}
+  >
+    {story.text && (
+      <div
+        style={{
+          color:
+            story.textStyle?.color || "#fff",
+          fontSize:
+            story.textStyle?.fontSize || 24,
+          transform: `rotate(${
+            story.textStyle?.rotation || 0
+          }deg)`,
+          textAlign: "center",
+          fontWeight: "bold",
+          textShadow:
+            "0 2px 6px rgba(0,0,0,.6)",
+        }}
+      >
+        {story.text}
+      </div>
+    )}
+  </div>
+)}
 
       {/* OVERLAY */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
