@@ -238,38 +238,30 @@ const handlePost = async () => {
   }
 
   await onSelectFile({
-    media:
-      type === "image"
-        ? [
-            {
-              type: "image",
-              url: uploadedUrl,
-            },
-          ]
-        : type === "video"
-        ? [
-            {
-              type: "video",
-              url: uploadedUrl,
-              videoUrl,
-            },
-          ]
-        : [],
+  file:
+    type === "video"
+      ? media
+      : null,
 
-    text,
+  cloudinaryUrl:
+    type === "image"
+      ? uploadedUrl
+      : null,
 
-    textStyle: {
-      x: textPosition.x,
-      y: textPosition.y,
-      fontSize: size,
-      color: textColor,
-      rotation: textRotation,
-    },
+  text,
 
-    music,
-    stickers,
-    backgroundColor,
-  });
+  textStyle: {
+    x: textPosition.x,
+    y: textPosition.y,
+    fontSize: size,
+    color: textColor,
+    rotation: textRotation,
+  },
+
+  music,
+  stickers,
+  backgroundColor,
+});
 
   onClose();
 };
