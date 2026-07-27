@@ -262,7 +262,15 @@ const handlePost = async () => {
       : [],
 
   text,
-  textStyle,
+
+  textStyle: {
+    x: textPosition.x,
+    y: textPosition.y,
+    fontSize: size,
+    color: textColor,
+    rotation: textRotation,
+  },
+
   music,
   stickers,
   backgroundColor,
@@ -444,9 +452,9 @@ className="
 
 <button
   onClick={() => {
-    console.log("Media button clicked");
-    console.log(fileRef.current);
-    fileRef.current?.click();
+    //console.log("Media button clicked");
+    //console.log(fileRef.current);
+    //fileRef.current?.click();
   }}
   className="..."
 >
