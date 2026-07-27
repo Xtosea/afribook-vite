@@ -222,6 +222,10 @@ const handleTouchEnd = (e) => {
 
   const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
 
+//ERROR LOGGING 
+console.log("Story textStyle:", story.textStyle);
+console.log("Story stickers:", story.stickers);
+
   return (
   <div
     className="fixed inset-0 bg-black z-[999] flex items-center justify-center"
@@ -329,8 +333,8 @@ const handleTouchEnd = (e) => {
   <div
   className="absolute font-bold z-40"
   style={{
-    left: story.textStyle?.x,
-    top: story.textStyle?.y,
+  left: `${story.textStyle?.x}px`,
+  top: `${story.textStyle?.y}px`,
     fontSize: story.textStyle?.fontSize,
     color: story.textStyle?.color,
     transform: `rotate(${story.textStyle?.rotation || 0}deg)`,
