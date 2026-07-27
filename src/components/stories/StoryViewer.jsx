@@ -32,6 +32,8 @@ const StoryViewer = ({
   const [showReactions, setShowReactions] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
 
+const [touchStart, setTouchStart] = useState(0);
+
 
 const media = story?.media?.[0];
 
@@ -145,12 +147,17 @@ audioRef.current?.play().catch(() => {});
   if (!video) return;
 
   const updateProgress = () => {
-    if (!video.duration) return;
+  if (!video.duration) return;
 
-    setProgress(
-      (video.currentTime / video.duration) * 100
-    );
-  };
+  const percent =
+    (video.currentTime / video.duration) * 100;
+
+  setProgress(percent);
+
+  if (percent >= 99.8) {
+    window.nextStory?.();
+  }
+};
 
   video.addEventListener(
     "timeupdate",
@@ -172,6 +179,24 @@ useEffect(() => {
     audioRef.current?.pause();
   };
 }, []);
+
+
+const handleTouchStart = (e) => {
+  setTouchStart(e.touches[0].clientX);
+};
+
+const handleTouchEnd = (e) => {
+  const endX = e.changedTouches[0].clientX;
+  const distance = endX - touchStart;
+
+  if (distance < -60) {
+    window.nextStory?.();
+  }
+
+  if (distance > 60 && window.previousStory) {
+    window.previousStory();
+  }
+};
 
   /* ================= REACTION HANDLER ================= */
   const handleReaction = async (reaction) => {
@@ -198,7 +223,25 @@ useEffect(() => {
   const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
 
   return (
-    <div className="fixed inset-0 bg-black z-[999] flex items-center justify-center">
+  <div
+    className="fixed inset-0 bg-black z-[999] flex items-center justify-center"
+    onTouchStart={handleTouchStart}
+    onTouchEnd={handleTouchEnd}
+  >
+
+
+   {/* PREVIOUS STORY */}
+<div
+  className="absolute left-0 top-16 bottom-28 w-1/2 z-10"
+  onClick={() => window.previousStory?.()}
+/>
+
+{/* NEXT STORY */}
+<div
+  className="absolute right-0 top-16 bottom-28 w-1/2 z-10"
+  onClick={() => window.nextStory?.()}
+/>
+
 
       {/* CLOSE */}
       <button
