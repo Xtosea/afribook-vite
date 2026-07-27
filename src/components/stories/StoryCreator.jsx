@@ -242,18 +242,30 @@ const handlePost = async () => {
     type = "text";
   }
 
-  const story = await Story.create({
-  user: req.user.id,
-  media,
-  caption,
+  await onSelectFile({
+  media:
+    type === "image"
+      ? [
+          {
+            type: "image",
+            url: cloudinaryUrl,
+          },
+        ]
+      : type === "video"
+      ? [
+          {
+            type: "video",
+            url: cloudinaryUrl,
+            videoUrl,
+          },
+        ]
+      : [],
+
   text,
   textStyle,
   music,
   stickers,
   backgroundColor,
-  expiresAt: new Date(
-    Date.now() + 24 * 60 * 60 * 1000
-  ),
 });
 
   if (story) onClose();
