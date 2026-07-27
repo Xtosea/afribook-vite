@@ -8,7 +8,7 @@ import { API_BASE } from "../../api/api";
 import Draggable from "react-draggable";
 import { uploadToCloudinary }
 from "../../utils/uploadToCloudinary";
-import { captureStoryCard } from "../../utils/captureStoryCard";
+
 import { uploadToR2 } from "../../utils/uploadToR2";
 import { generateVideoThumbnail } from "../../utils/generateVideoThumbnail";
 
@@ -30,14 +30,14 @@ const currentUser = JSON.parse(
   localStorage.getItem("user")
 );
 
-console.log(currentUser);
+//console.log(currentUser);
 
 const StoryCreator = ({ onClose, onSelectFile }) => {
 
 
 const fileRef = useRef();
 const audioRef = useRef();
-const storyRef = useRef(null);
+
 
 
 
@@ -80,7 +80,7 @@ const handleFile = async (e) => {
 
   if (!file) return;
 
-  console.log("Selected file:", file);
+  //console.log("Selected file:", file);
 
   setMedia(file);
   setCloudinaryUrl(null);
@@ -205,56 +205,61 @@ setCloudinaryUrl(newUrl);
 };
 // ================= POST STORY =================
 const handlePost = async () => {
-  // validation...
-
-  let thumbnailUrl = null;
+  let cloudinaryUrl = null;
   let videoUrl = null;
+  let type = "text";
 
+  // VIDEO STORY
   if (media?.type?.startsWith("video")) {
+    type = "video";
+
     videoUrl = await uploadToR2(media);
 
     const thumbnail = await generateVideoThumbnail(media);
 
     const uploaded = await uploadToCloudinary(thumbnail);
 
-    thumbnailUrl =
-      typeof uploaded === "string"
-        ? uploaded
-        : uploaded.url;
-  } else {
-    const blob = await captureStoryCard(storyRef.current);
-
-    const screenshot = new File(
-      [blob],
-      "story.png",
-      { type: "image/png" }
-    );
-
-    const uploaded =
-      await uploadToCloudinary(screenshot);
-
-    thumbnailUrl =
+    cloudinaryUrl =
       typeof uploaded === "string"
         ? uploaded
         : uploaded.url;
   }
 
+  // IMAGE STORY
+  else if (media?.type?.startsWith("image")) {
+    type = "image";
+
+    const uploaded = await uploadToCloudinary(media);
+
+    cloudinaryUrl =
+      typeof uploaded === "string"
+        ? uploaded
+        : uploaded.url;
+  }
+
+  // TEXT STORY
+  else {
+    type = "text";
+  }
+
   const story = await onSelectFile({
     file: null,
 
-    type: media?.type?.startsWith("video")
-      ? "video"
-      : "image",
+    type,
 
-    cloudinaryUrl: thumbnailUrl,
-
+    cloudinaryUrl,
     videoUrl,
 
     text,
-    textPosition,
-    textSize: size,
-    textColor,
-    textRotation,
+
+    textStyle: {
+      x: textPosition.x,
+      y: textPosition.y,
+      fontSize: size,
+      color: textColor,
+      rotation: textRotation,
+    },
+
     music,
     stickers,
     backgroundColor,
@@ -292,7 +297,7 @@ className="
 
 {/* DRAGGABLE PREVIEW AREA */}
 <div
-  ref={storyRef}
+  
   className="relative mb-3 h-[85vh] rounded-xl overflow-hidden bg-black"
   style={{ backgroundColor }}
 >
