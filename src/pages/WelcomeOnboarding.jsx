@@ -80,11 +80,11 @@ export default function WelcomeOnboarding() {
 <div className="space-y-3 pb-24">
 
   <button
-    onClick={() => navigate(redirect)}
-    className="w-full bg-green-600 text-white px-6 py-3 rounded-xl font-semibold"
-  >
-    Go to Home 🏠
-  </button>
+  onClick={() => navigate(redirect, { replace: true })}
+  className="w-full bg-green-600 text-white px-6 py-3 rounded-xl font-semibold"
+>
+  {redirect === "/" ? "Go to Home 🏠" : "Continue to Post 📄"}
+</button>
 
   <button
     onClick={() => navigate("/messages")}
