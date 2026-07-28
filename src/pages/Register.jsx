@@ -254,12 +254,12 @@ const redirect =
 
             Already registered?{" "}
 
-            <Link
-              to="/login"
-              className="text-blue-600 hover:underline"
-            >
-              Login
-            </Link>
+  <Link
+  to={`/login?redirect=${encodeURIComponent(redirect)}`}
+  className="text-blue-600 hover:underline"
+>
+  Login
+</Link>
 
           </span>
 
