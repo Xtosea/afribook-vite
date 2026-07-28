@@ -349,6 +349,24 @@ export default function VerifyEmailSent() {
 
           <div className="flex flex-col gap-3">
 
+
+          <a
+  href="mailto:"
+  className="
+    bg-green-600
+    hover:bg-green-700
+    text-white
+    text-center
+    py-3
+    rounded-2xl
+    font-semibold
+    transition
+    block
+  "
+>
+  📧 Open Email App
+</a>
+
             <Link
               to="/login"
               className="
