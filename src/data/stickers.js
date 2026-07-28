@@ -45,9 +45,15 @@ const stickers = [
   },
 
 
+  // Continue with the remaining stickers...
+
+{
 url: "/smile.webp",
 
-  // Continue with the remaining stickers...
+
+},
+
+
 ];
 
 export default stickers;
