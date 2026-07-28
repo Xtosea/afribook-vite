@@ -44,6 +44,9 @@ const stickers = [
     category: "africa",
   },
 
+
+url: "/smile.webp",
+
   // Continue with the remaining stickers...
 ];
 
