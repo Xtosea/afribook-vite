@@ -1,6 +1,7 @@
 // src/pages/PostView.jsx
 
 import React, { useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 
@@ -9,6 +10,8 @@ import PostCard from "../components/PostCard";
 
 const PostView = () => {
   const { id } = useParams();
+
+const navigate = useNavigate();
 
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -29,6 +32,8 @@ const PostView = () => {
 
       console.log("Fetched post:", data);
 
+      
+
       setPost(data);
     } catch (err) {
       console.error(err);
@@ -38,10 +43,22 @@ const PostView = () => {
     }
   }, [id]);
 
-  useEffect(() => {
-    fetchPost();
-  }, [fetchPost]);
 
+useEffect(() => {
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    navigate(
+      `/register?redirect=${encodeURIComponent(`/post/${id}`)}`,
+      { replace: true }
+    );
+    return;
+  }
+
+  fetchPost();
+}, [fetchPost, id, navigate]);
+
+  
   const rawImage = post?.media?.[0]?.url;
 
   const image = rawImage
