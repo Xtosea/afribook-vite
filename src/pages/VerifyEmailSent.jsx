@@ -367,6 +367,44 @@ export default function VerifyEmailSent() {
   📧 Open Email App
 </a>
 
+           <div className="grid grid-cols-2 gap-3">
+  <a
+    href="https://mail.google.com"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="border rounded-xl py-3 text-center hover:bg-gray-50"
+  >
+    Gmail
+  </a>
+
+  <a
+    href="https://outlook.live.com/mail/"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="border rounded-xl py-3 text-center hover:bg-gray-50"
+  >
+    Outlook
+  </a>
+
+  <a
+    href="https://mail.yahoo.com"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="border rounded-xl py-3 text-center hover:bg-gray-50"
+  >
+    Yahoo Mail
+  </a>
+
+  <a
+    href="https://icloud.com/mail"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="border rounded-xl py-3 text-center hover:bg-gray-50"
+  >
+    iCloud Mail
+  </a>
+</div>
+
             <Link
               to="/login"
               className="
