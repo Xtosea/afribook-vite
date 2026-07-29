@@ -422,17 +422,21 @@ className="
   "
 >
 
-<button
-  onClick={() => {
-    //console.log("Media button clicked");
-    //console.log(fileRef.current);
-    fileRef.current?.click();
-  }}
-  className="..."
+<label
+  htmlFor="story-file"
+  className="bg-black/60 text-white p-2 rounded-xl flex flex-col items-center text-xs cursor-pointer"
 >
   <span className="text-2xl">📷</span>
   <span>Media</span>
-</button>
+</label>
+
+<input
+  id="story-file"
+  type="file"
+  accept="image/*,video/*,audio/*"
+  hidden
+  onChange={handleFile}
+/>
 
 <button
   onClick={() => setActiveTool("text")}
