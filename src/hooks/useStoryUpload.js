@@ -194,7 +194,7 @@ console.log("Saving story...");
 
             Authorization:
               `Bearer ${token}`
-          },
+          }
 
           
   JSON.stringify({
