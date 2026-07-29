@@ -261,6 +261,16 @@ useEffect(() => {
 
 
 
+// ================= DEBUGGING ONLY=================
+useEffect(() => {
+  console.log("StoryCreator mounted");
+
+  return () => {
+    console.log("StoryCreator unmounted");
+  };
+}, []);
+
+
 
 
 // ================= UI =================
