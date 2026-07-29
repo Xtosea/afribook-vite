@@ -95,11 +95,16 @@ console.log("handleFile called");
   if (file.type.startsWith("image/")) {
     try {
 
-//DEBUG ONLY 
-      setMedia(file);
+try {
+  // DEBUG ONLY (Cloudinary temporarily disabled)
+  setMedia(file);
   setPreview(URL.createObjectURL(file));
-};
 
+  e.target.value = "";
+  return;
+} catch (err) {
+  console.error(err);
+}
 
       // If uploadToCloudinary returns a URL string:
       const url =
