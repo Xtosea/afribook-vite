@@ -126,7 +126,7 @@ console.log("Signed URL response:", signedData);
           );
         }
 
-
+console.log("Uploading to R2...");
 
         await axios.put(
           signedData.uploadUrl,
@@ -152,6 +152,7 @@ console.log("Signed URL response:", signedData);
         );
 
 
+console.log("Saving story...");
 
         media.push({
 
@@ -213,6 +214,8 @@ console.log("Signed URL response:", signedData);
 
   //console.log("Status:", res.status);
   //console.log("Response:", story);
+
+console.log("Story save response:", story);
 
 
 
