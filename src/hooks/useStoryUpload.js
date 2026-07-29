@@ -197,7 +197,7 @@ console.log("Saving story...");
           },
 
           l
-a and a: JSON.stringify({
+  JSON.stringify({
   text,
   textStyle,
   music: musicData,
