@@ -204,32 +204,18 @@ fetchPosts();
 
 // ================= REFRESH WHEN USER RETURNS =================
 useEffect(() => {
-
   const handleVisibilityChange = () => {
+    if (document.visibilityState === "visible") {
+      console.log("User returned");
 
-    if (
-      document.visibilityState === "visible"
-    ) {
-
-      console.log("User returned - refreshing");
-
-      setPage(1);
-      setHasMore(true);
-      setPosts([]);
-      
       fetchPosts();
-
-      window.location.reload();
     }
-
   };
-
 
   document.addEventListener(
     "visibilitychange",
     handleVisibilityChange
   );
-
 
   return () => {
     document.removeEventListener(
@@ -237,10 +223,7 @@ useEffect(() => {
       handleVisibilityChange
     );
   };
-
-
 }, [fetchPosts]);
-
 
 
 
