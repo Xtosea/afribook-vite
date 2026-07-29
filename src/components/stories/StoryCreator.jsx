@@ -424,7 +424,17 @@ className="
 
 <label
   htmlFor="story-file"
-  className="bg-black/60 text-white p-2 rounded-xl flex flex-col items-center text-xs cursor-pointer"
+  className="
+    bg-black/60
+    text-white
+    p-2
+    rounded-xl
+    flex
+    flex-col
+    items-center
+    text-xs
+    cursor-pointer
+  "
 >
   <span className="text-2xl">📷</span>
   <span>Media</span>
