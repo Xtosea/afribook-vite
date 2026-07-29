@@ -77,6 +77,8 @@ const [cloudinaryUrl, setCloudinaryUrl] = useState(null);
 
 // ================= HANDLE FILE =================
 const handleFile = async (e) => {
+
+console.log("handleFile called");
   const file = e.target.files[0];
 
   if (!file) return;
@@ -931,8 +933,7 @@ textShadow:
   ref={fileRef}
   type="file"
   accept="image/*,video/*,audio/*"
-  className="hidden"
-  onClick={() => console.log("Input clicked")}
+  hidden
   onChange={handleFile}
 />
 
