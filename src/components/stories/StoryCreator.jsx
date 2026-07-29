@@ -93,29 +93,24 @@ console.log("handleFile called");
 
   // Upload images to Cloudinary
   if (file.type.startsWith("image/")) {
-    try {
+  try {
+    const result = await uploadToCloudinary(file);
 
-try {
-  const result = await uploadToCloudinary(file);
+    const url =
+      typeof result === "string"
+        ? result
+        : result.url;
 
-      // If uploadToCloudinary returns a URL string:
-      const url =
-        typeof result === "string"
-          ? result
-          : result.url;
+    setCloudinaryUrl(url);
+    setPreview(url);
 
-      setCloudinaryUrl(url);
-
-      // Replace local preview with Cloudinary URL
-      setPreview(url);
-
-      console.log("Cloudinary URL:", url);
-    } catch (err) {
-      console.error("Cloudinary upload failed:", err);
-      alert("Failed to upload image.");
-      return;
-    }
+    console.log("Cloudinary URL:", url);
+  } catch (err) {
+    console.error("Cloudinary upload failed:", err);
+    alert("Failed to upload image.");
+    return;
   }
+}
 
   e.target.value = "";
 };
