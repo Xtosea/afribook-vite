@@ -96,15 +96,7 @@ console.log("handleFile called");
     try {
 
 try {
-  // DEBUG ONLY (Cloudinary temporarily disabled)
-  setMedia(file);
-  setPreview(URL.createObjectURL(file));
-
-  e.target.value = "";
-  return;
-} catch (err) {
-  console.error(err);
-}
+  const result = await uploadToCloudinary(file);
 
       // If uploadToCloudinary returns a URL string:
       const url =
