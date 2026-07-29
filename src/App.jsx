@@ -95,6 +95,7 @@ import MarketplaceListing from "./pages/MarketplaceListing";
 import EditListing from "./pages/EditListing";
 import MyListings from "./pages/MyListings";
 import SavedListings from "./pages/SavedListings";
+import StickerTest from "./pages/StickerTest";
 
 
 
@@ -277,6 +278,11 @@ useEffect(() => {
 <Route
   path="/marketplace/create"
   element={<CreateListing />}
+/>
+
+<Route
+    path="/sticker-test"
+    element={<StickerTest />}
 />
 
 
