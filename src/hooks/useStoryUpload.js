@@ -56,6 +56,14 @@ export function useStoryUpload() {
       let media = [];
 
 
+// =========================
+ // DEBUGGING ONLY 
+ // 
+console.log("cloudinaryUrl =", cloudinaryUrl);
+console.log("file =", file);
+console.log("file type =", file?.type);
+
+
 
       // =========================
       // IMAGE FROM CLOUDINARY
@@ -92,9 +100,10 @@ export function useStoryUpload() {
 
         file = await compressStoryMedia(file);
 
+//DEBUGGING ONLY 
+console.log("Getting signed URL...");
 
-
-        const signedRes = await fetch(
+  const signedRes = await fetch(
   `${API_BASE}/api/r2/signed-url?contentType=${encodeURIComponent(file.type)}`
 );
 
