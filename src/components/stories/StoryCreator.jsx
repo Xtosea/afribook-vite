@@ -94,7 +94,12 @@ console.log("handleFile called");
   // Upload images to Cloudinary
   if (file.type.startsWith("image/")) {
     try {
-      const result = await uploadToCloudinary(file);
+
+//DEBUG ONLY 
+      setMedia(file);
+  setPreview(URL.createObjectURL(file));
+};
+
 
       // If uploadToCloudinary returns a URL string:
       const url =
