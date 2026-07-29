@@ -97,6 +97,22 @@ if (data.length) {
     };
   }, [socket]);
 
+
+/* ================= DEBUGGING ONLY================= */
+useEffect(() => {
+  console.log("StoryBar mounted");
+
+  return () => {
+    console.log("StoryBar unmounted");
+  };
+}, []);
+
+useEffect(() => {
+  console.log("showCreator =", showCreator);
+}, [showCreator]);
+
+
+
   /* ================= CREATE STORY ================= */
   const handleCreateStory = () => {
     setShowCreator(true);
