@@ -109,11 +109,15 @@ console.log("Getting signed URL...");
   `${API_BASE}/api/r2/signed-url?contentType=${encodeURIComponent(file.type)}`
 );
 
+
+//DEBUGGING ONLY 
 console.log("Signed URL status:", signedRes.status);
 console.log("Signed URL endpoint:", signedRes.url);
 
 const signedData = await signedRes.json();
 
+//
+DEBUGGING ONLY 
 console.log("Signed URL response:", signedData);
 
 
@@ -131,30 +135,23 @@ console.log("Signed URL response:", signedData);
 //DEBUGGING ONLY 
 console.log("Uploading to R2...");
 
-        await axios.put(
-          signedData.uploadUrl,
-          file,
-          {
-            headers:{
-              "Content-Type": file.type
-            },
+        const uploadRes = await fetch(signedData.uploadUrl, {
+  method: "PUT",
+  body: file,
+  headers: {
+    "Content-Type": file.type,
+  },
+});
 
-            onUploadProgress:(event)=>{
+console.log("Upload status:", uploadRes.status);
 
-              if(!event.total) return;
+if (!uploadRes.ok) {
+  throw new Error("R2 upload failed");
+}
 
-              setProgress(
-                Math.round(
-                  event.loaded * 100 /
-                  event.total
-                )
-              );
+console.log("Upload finished.");
 
-            }
-          }
-        );
-
-
+//DEBUGGING ONLY 
 console.log("Saving story...");
 
         media.push({
@@ -180,7 +177,7 @@ console.log("Saving story...");
       const token =
         localStorage.getItem("token");
 
-
+//DEBUGGING ONLY 
 //console.log("MEDIA BEFORE SAVE:", media);
 //console.log("TEXT BEFORE SAVE:", text);
 //console.log("MUSIC BEFORE SAVE:", musicData);
