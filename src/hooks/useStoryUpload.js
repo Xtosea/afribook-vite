@@ -27,6 +27,8 @@ export function useStoryUpload() {
   
 }) => {
 
+
+//DEBUGGING ONLY 
   console.log("FILE:", file);
   console.log("CLOUDINARY:", cloudinaryUrl);
   console.log("TEXT:", text);
@@ -126,6 +128,7 @@ console.log("Signed URL response:", signedData);
           );
         }
 
+//DEBUGGING ONLY 
 console.log("Uploading to R2...");
 
         await axios.put(
@@ -212,7 +215,9 @@ console.log("Saving story...");
       const story =
         await res.json();
 
-  //console.log("Status:", res.status);
+ 
+//DEBUGGING ONLY 
+ //console.log("Status:", res.status);
   //console.log("Response:", story);
 
 console.log("Story save response:", story);
