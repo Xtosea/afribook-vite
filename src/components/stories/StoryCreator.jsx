@@ -77,42 +77,28 @@ const [cloudinaryUrl, setCloudinaryUrl] = useState(null);
 
 // ================= HANDLE FILE =================
 const handleFile = async (e) => {
+  console.log("1. handleFile started");
 
-console.log("handleFile called");
-  const file = e.target.files[0];
+  const file = e.target.files?.[0];
+
+  console.log("2. File:", file);
 
   if (!file) return;
 
-  //console.log("Selected file:", file);
-
   setMedia(file);
-  setCloudinaryUrl(null);
-
-  // Show local preview immediately
   setPreview(URL.createObjectURL(file));
 
-  // Upload images to Cloudinary
+  console.log("3. Preview set");
+
   if (file.type.startsWith("image/")) {
-  try {
+    console.log("4. Starting Cloudinary upload");
+
     const result = await uploadToCloudinary(file);
 
-    const url =
-      typeof result === "string"
-        ? result
-        : result.url;
-
-    setCloudinaryUrl(url);
-    setPreview(url);
-
-    console.log("Cloudinary URL:", url);
-  } catch (err) {
-    console.error("Cloudinary upload failed:", err);
-    alert("Failed to upload image.");
-    return;
+    console.log("5. Upload finished", result);
   }
-}
 
-  e.target.value = "";
+  console.log("6. handleFile finished");
 };
 
 // ================= APPLY AI =================
