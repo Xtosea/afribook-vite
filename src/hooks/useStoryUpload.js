@@ -196,7 +196,7 @@ console.log("Saving story...");
               `Bearer ${token}`
           },
 
-          l
+          
   JSON.stringify({
   text,
   textStyle,
