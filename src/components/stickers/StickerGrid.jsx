@@ -1,36 +1,34 @@
-const labels = {
-  faces: "😀",
-  people: "🧑",
-  hands: "👍",
-  hearts: "❤️",
-  reactions: "💥",
-  celebration: "🎉",
-  animals: "🦁",
-  africa: "🌍",
-  business: "💼",
-  food: "🍕",
-  music: "🎵",
-  sports: "⚽",
-  travel: "✈️",
-  objects: "📦",
-  flags: "🏳️",
-  symbols: "⭐"
-};
+import React from "react";
 
-export default function StickerTabs({
-  categories,
-  active,
-  onSelect
+export default function StickerGrid({
+  stickers = [],
+  category = "",
+  onSelect,
 }) {
+  if (!stickers.length) {
+    return (
+      <div className="sticker-empty">
+        No stickers found.
+      </div>
+    );
+  }
+
   return (
-    <div className="sticker-tabs">
-      {categories.map((cat) => (
+    <div className="sticker-grid">
+      {stickers.map((file) => (
         <button
-          key={cat}
-          className={active === cat ? "active" : ""}
-          onClick={() => onSelect(cat)}
+          key={file}
+          className="sticker-item"
+          onClick={() =>
+            onSelect(`/stickers/${category}/${file}`)
+          }
         >
-          {labels[cat] || "🙂"}
+          <img
+            src={`/stickers/${category}/${file}`}
+            alt={file}
+            loading="lazy"
+            draggable="false"
+          />
         </button>
       ))}
     </div>
