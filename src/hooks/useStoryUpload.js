@@ -194,10 +194,10 @@ console.log("Saving story...");
 
             Authorization:
               `Bearer ${token}`
-          }
+          },
 
           
-  JSON.stringify({
+  body: JSON.stringify({
   text,
   textStyle,
   music: musicData,
