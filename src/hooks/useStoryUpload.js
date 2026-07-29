@@ -1,4 +1,4 @@
-import { useState } from "react";
+mmkimport { useState } from "react";
 import axios from "axios";
 import { compressStoryMedia } from "../utils/compressStoryMedia";
 import useR2StoryMusic from "./r2StoryMusic";
@@ -116,8 +116,8 @@ console.log("Signed URL endpoint:", signedRes.url);
 
 const signedData = await signedRes.json();
 
-//
-DEBUGGING ONLY 
+
+//DEBUGGING ONLY 
 console.log("Signed URL response:", signedData);
 
 
@@ -196,7 +196,8 @@ console.log("Saving story...");
               `Bearer ${token}`
           },
 
-          body: JSON.stringify({
+          l
+a and a: JSON.stringify({
   text,
   textStyle,
   music: musicData,
@@ -210,7 +211,7 @@ console.log("Saving story...");
 
 
       const story =
-        await res.json();
+        await res.json();p
 
  
 //DEBUGGING ONLY 
