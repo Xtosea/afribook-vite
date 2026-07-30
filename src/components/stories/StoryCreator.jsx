@@ -282,6 +282,29 @@ useEffect(() => {
 }, []);
 
 
+const handlePickMedia = (type) => {
+  if (!fileRef.current) return;
+
+  switch (type) {
+    case "image":
+      fileRef.current.accept = "image/*";
+      break;
+
+    case "video":
+      fileRef.current.accept = "video/*";
+      break;
+
+    case "audio":
+      fileRef.current.accept = "audio/*";
+      break;
+
+    default:
+      fileRef.current.accept = "image/*,video/*,audio/*";
+  }
+
+  fileRef.current.click();
+};
+
 
 
 
