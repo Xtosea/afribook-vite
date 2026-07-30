@@ -11,7 +11,10 @@ from "../../utils/uploadToCloudinary";
 
 import { uploadToR2 } from "../../utils/uploadToR2";
 import { generateVideoThumbnail } from "../../utils/generateVideoThumbnail";
-import StickerLibrary from "../reels/StickerLibrary";
+import StickerPicker from "../components/stickers/StickerPicker";
+import StoryStickerLayer from "../components/story/StoryStickerLayer";
+import useStoryStickers from "../components/story/useStoryStickers";
+
 
 
 
@@ -42,7 +45,19 @@ const audioRef = useRef();
 
 
 
+const {
+  stickers,
+  addSticker,
+  updateSticker,
+  removeSticker,
+} = useStoryStickers();
+
+
 // ================= STATES =================
+
+const [showStickerPicker, setShowStickerPicker] = useState(false);
+
+
 const [media, setMedia] = useState(null);
 const [preview, setPreview] = useState(null);
 
@@ -50,7 +65,7 @@ const [text, setText] = useState("");
 const [music, setMusic] = useState(null);
 
 const [musicList, setMusicList] = useState([]);
-const [stickers, setStickers] = useState([]);
+
 const [backgroundColor, setBackgroundColor] =
 useState("#000000");
 const [textPosition, setTextPosition] =
@@ -588,6 +603,12 @@ AI
 )}
 
 
+<StoryStickerLayer
+  stickers={stickers}
+  updateSticker={updateSticker}
+  removeSticker={removeSticker}
+/>
+
 {/* TEXT TOOLS */}
 {activeTool === "text" && (
 <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-3 z-50">
@@ -650,7 +671,7 @@ Done
 
    {/* ACTIVE TOOLS */}
 
-{activeTool === "sticker" && (
+ {activeTool === "sticker" && (
   <div
     className="
       absolute
@@ -664,20 +685,9 @@ Done
       overflow-y-auto
     "
   >
-    <StickerLibrary
-      onSelect={(sticker) => {
-        setStickers((prev) => [
-          ...prev,
-          {
-            id: Date.now(),
-            url: sticker.url,
-            x: 100,
-            y: 100,
-            scale: 1,
-            rotation: 0,
-          },
-        ]);
-
+    <StickerPicker
+      onSelect={(src) => {
+        addSticker(src);
         setActiveTool(null);
       }}
     />
@@ -843,56 +853,6 @@ className="bg-amber-600 text-white p-2 rounded"
 )}
 
 
-{/* Stickers */}
-{stickers.map((sticker, index) => (
-
-
-
-<Draggable
-  key={index}
-  position={{
-    x: sticker.x,
-    y: sticker.y,
-  }}
-  onStop={(e, data) => {
-    const updated = [...stickers];
-
-    updated[index] = {
-      ...updated[index],
-      x: data.x,
-      y: data.y,
-    };
-
-    setStickers(updated);
-  }}
->
-  <div
-    onMouseDown={() => setSelectedSticker(index)}
-    onTouchStart={() => setSelectedSticker(index)}
-    className="absolute cursor-move select-none flex items-center justify-center"
-    style={{
-      width: `${80 * (sticker.scale || 1)}px`,
-      height: `${80 * (sticker.scale || 1)}px`,
-      fontSize: `${(sticker.scale || 1) * 60}px`,
-      border:
-        selectedSticker === index
-          ? "2px solid white"
-          : "none",
-      borderRadius: "8px",
-    }}
-  >
-    {sticker.url ? (
-      <img
-        src={sticker.url}
-        alt=""
-        className="w-full h-full object-contain pointer-events-none"
-      />
-    ) : (
-      sticker.emoji
-    )}
-  </div>
-</Draggable>
-))}
 
 
 {/* Text Overlay */}
