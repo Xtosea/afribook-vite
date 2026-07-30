@@ -314,21 +314,13 @@ const handlePickMedia = (type) => {
 return (
 <div className="fixed inset-0 z-[9999] bg-black/90 flex items-center justify-center">
 
-<div
-className="
-   bg-white
-   w-full 
-   h-full 
-   max-w-none
-   rounded-none
-   p-4
-   overflow-y-auto "
->
+<div className="fixed inset-0 w-screen h-screen bg-white overflow-hidden">
 
 {/* DRAGGABLE PREVIEW AREA */}
 <div
   
-  className="relative mb-3 h-full w-full rounded-xl overflow-hidden bg-black"
+  <div
+  className="relative w-full h-full overflow-hidden bg-black"
   style={{ backgroundColor }}
 >
 
