@@ -317,7 +317,7 @@ return (
 <div
 className="
    bg-white
-   w-screen 
+    
    h-screen 
    max-w-none
    rounded-none
@@ -328,7 +328,7 @@ className="
 {/* DRAGGABLE PREVIEW AREA */}
 <div
   
-  className="relative mb-3 h-full rounded-xl overflow-hidden bg-black"
+  className="relative mb-3 h-screen w-full rounded-xl overflow-hidden bg-black"
   style={{ backgroundColor }}
 >
 
