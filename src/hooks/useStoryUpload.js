@@ -211,7 +211,7 @@ console.log("Saving story...");
 
 
       const story =
-        await res.json();p
+        await res.json();
 
  
 //DEBUGGING ONLY 
