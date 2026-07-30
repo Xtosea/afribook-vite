@@ -1,4 +1,4 @@
-import { StickerPicker } from "../components/stickers";
+import { StickerPicker } from "./components/stickers";
 
 export default function StickerTest() {
 
