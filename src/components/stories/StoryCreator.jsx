@@ -338,11 +338,11 @@ return (
     top-3
     left-1/2
     -translate-x-1/2
-    z-[180]
+    z-[160]
     text-white
     px-4
     py-2
-    bg-black/60
+    bg-red/60
     rounded-full
     shadow-lg
   "
