@@ -317,8 +317,8 @@ return (
 <div
 className="
    bg-white
-    
-   h-screen 
+   w-full 
+   h-full 
    max-w-none
    rounded-none
    p-4
