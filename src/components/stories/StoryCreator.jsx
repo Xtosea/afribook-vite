@@ -11,7 +11,7 @@ from "../../utils/uploadToCloudinary";
 
 import { uploadToR2 } from "../../utils/uploadToR2";
 import { generateVideoThumbnail } from "../../utils/generateVideoThumbnail";
-import StickerPicker from "../components/stickers/StickerPicker";
+import StickerPicker from "./components/stickers/StickerPicker";
 import StoryStickerLayer from "./components/stickers/StoryStickerLayer";
 import useStoryStickers from "./components/stickers/useStoryStickers";
 import StickerToolbar from "./components/stickers/StickerToolbar";
