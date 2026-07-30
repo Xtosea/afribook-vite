@@ -338,7 +338,7 @@ return (
     top-3
     left-1/2
     -translate-x-1/2
-    z-[160]
+    z-[140]
     text-white
     px-4
     py-2
