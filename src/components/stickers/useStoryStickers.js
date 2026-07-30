@@ -3,17 +3,23 @@ import { useState } from "react";
 export default function useStoryStickers() {
   const [stickers, setStickers] = useState([]);
 
+addSticker(url)
+
+updateSticker(id, updates)
+
+removeSticker(id)
+
   function addSticker(src) {
     setStickers((prev) => [
       ...prev,
       {
-        id: Date.now().toString(),
-        src,
-        x: 120,
-        y: 120,
-        width: 90,
-        rotation: 0,
-      },
+    id: Date.now(),
+    url,
+    x: 120,
+    y: 120,
+    scale: 1,
+    rotation: 0
+}
     ]);
   }
 
