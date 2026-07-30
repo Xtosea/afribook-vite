@@ -14,6 +14,7 @@ import { generateVideoThumbnail } from "../../utils/generateVideoThumbnail";
 import StickerPicker from "../components/stickers/StickerPicker";
 import StoryStickerLayer from "../components/story/StoryStickerLayer";
 import useStoryStickers from "../components/story/useStoryStickers";
+import StickerToolbar from "../components/story/StickerToolbar";
 
 
 
@@ -81,8 +82,7 @@ const [textColor, setTextColor] =
 useState("#ffffff");
 const [textRotation, setTextRotation] =
 useState(0);
-const [selectedSticker, setSelectedSticker] =
-useState(null);
+
 
 const [activeTool, setActiveTool] = useState(null);
 
@@ -110,7 +110,14 @@ const handleFile = async (e) => {
 
     const result = await uploadToCloudinary(file);
 
-    console.log("5. Upload finished", result);
+const url =
+  typeof result === "string"
+    ? result
+    : result.url;
+
+setCloudinaryUrl(url);
+
+console.log("5. Upload finished", url);
   }
 
   console.log("6. handleFile finished");
@@ -424,148 +431,12 @@ className="
 
 
 {/* TOOLBAR */}
-<div
-  className="
-    absolute
-    top-20
-    right-4
-    z-[100]
-    flex
-    flex-col
-    gap-3
-    max-h-[70vh]
-    overflow-y-auto
-    pb-5
-  "
->
 
-<label
-  htmlFor="story-file"
-  className="
-    bg-black/60
-    text-white
-    p-2
-    rounded-xl
-    flex
-    flex-col
-    items-center
-    text-xs
-    cursor-pointer
-  "
->
-  <span className="text-2xl">📷</span>
-  <span>Media</span>
-</label>
-
-<input
-  id="story-file"
-  type="file"
-  accept="image/*,video/*,audio/*"
-  hidden
-  onChange={handleFile}
+  <StickerToolbar
+  media={media}
+  activeTool={activeTool}
+  setActiveTool={setActiveTool}
 />
-
-<button
-  onClick={() => setActiveTool("text")}
-  className="
-    bg-black/60
-    text-white
-    p-2
-    rounded-xl
-    flex
-    flex-col
-    items-center
-    text-xs
-  "
->
-  <span className="text-2xl">Aa</span>
-  <span>Text</span>
-</button>
-
-<button
-  onClick={() => setActiveTool("sticker")}
-  className="
-    bg-black/60
-    text-white
-    p-2
-    rounded-xl
-    flex
-    flex-col
-    items-center
-    text-xs
-  "
->
-  <span className="text-2xl">😀</span>
-  <span>Sticker</span>
-</button>
-
-<button
-  onClick={() => setActiveTool("music")}
-  className="
-    bg-black/60
-    text-white
-    p-2
-    rounded-xl
-    flex
-    flex-col
-    items-center
-    text-xs
-  "
->
-  <span className="text-2xl">🎵</span>
-  <span>Music</span>
-</button>
-
-<button
-  onClick={() => setActiveTool("color")}
-  className="
-    bg-black/60
-    text-white
-    p-2
-    rounded-xl
-    flex
-    flex-col
-    items-center
-    text-xs
-  "
->
-  <span className="text-2xl">🎨</span>
-  <span>BG</span>
-</button>
-
-
-{/* AI BUTTON */}
-{media?.type?.startsWith("image") && (
-<button
-onClick={() => setActiveTool("ai")}
-className="bg-black/60 text-white p-3 rounded-full"
->
-🤖
-AI
-</button>
-)}
-
-
-      {/* CLOSE/CANCEL PANEL*/}
-{activeTool && (
-  <button
-    onClick={() => setActiveTool(null)}
-    className="
-      bg-red-600
-      text-white
-      p-2
-      rounded-xl
-      flex
-      flex-col
-      items-center
-      text-xs
-    "
-  >
-    <span className="text-2xl">❌</span>
-    <span>Cancel</span>
-  </button>
-)}
-</div>
 
 
     {/* PREVIEW */}
