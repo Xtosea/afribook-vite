@@ -3,7 +3,7 @@ import React from "react";
 export default function StickerGrid({
   stickers = [],
   category = "",
-  onSelect,
+  onSelect = () => {},
 }) {
   if (!stickers.length) {
     return (
@@ -18,6 +18,7 @@ export default function StickerGrid({
       {stickers.map((file) => (
         <button
           key={file}
+          type="button"
           className="sticker-item"
           onClick={() =>
             onSelect(`/stickers/${category}/${file}`)
