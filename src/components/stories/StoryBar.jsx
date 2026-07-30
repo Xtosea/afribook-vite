@@ -91,9 +91,21 @@ if (data.length) {
       );
     });
 
+socket.on("new-story", (story) => {
+  setActiveStories((prev) => {
+    if (prev.some((s) => s._id === story._id)) {
+      return prev;
+    }
+
+    return [story, ...prev];
+  });
+});
+
+
     return () => {
       socket.off("story-view");
       socket.off("story-reacted");
+      socket.off("new-story");
     };
   }, [socket]);
 
@@ -111,8 +123,16 @@ if (data.length) {
     const story = await uploadStory(formData);
 
     if (story) {
-      await fetchStories();
+  setActiveStories(prev => {
+    if (prev.some(s => s._id === story._id)) {
+      return prev;
     }
+
+    return [story, ...prev];
+  });
+
+  setTimeout(fetchStories, 500);
+}
 
     return story;
   } catch (err) {
