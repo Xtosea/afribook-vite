@@ -459,6 +459,7 @@ className="
   media={media}
   activeTool={activeTool}
   setActiveTool={setActiveTool}
+  onPickMedia={handlePickMedia}
 />
 
 
