@@ -16,6 +16,21 @@ export default function StickerToolbar({
     text-white
     text-xs
     gap-1
+    shadow-lg
+  `;
+
+  const actionClass = `
+    flex
+    flex-col
+    items-center
+    justify-center
+    w-16
+    py-2
+    rounded-xl
+    text-white
+    text-xs
+    gap-1
+    shadow-lg
   `;
 
   return (
@@ -33,82 +48,104 @@ export default function StickerToolbar({
         pb-5
       "
     >
-      <button
-        onClick={() => onPickMedia("image")}
-        className={toolClass}
-      >
-        <span className="text-2xl">🖼️</span>
-        <span>Image</span>
-      </button>
+      {!activeTool ? (
+        <>
+          {/* IMAGE */}
+          <button
+            onClick={() => onPickMedia("image")}
+            className={toolClass}
+          >
+            <span className="text-2xl">🖼️</span>
+            <span>Image</span>
+          </button>
 
-      <button
-        onClick={() => onPickMedia("video")}
-        className={toolClass}
-      >
-        <span className="text-2xl">🎥</span>
-        <span>Video</span>
-      </button>
+          {/* VIDEO */}
+          <button
+            onClick={() => onPickMedia("video")}
+            className={toolClass}
+          >
+            <span className="text-2xl">🎥</span>
+            <span>Video</span>
+          </button>
 
-      <button
-        onClick={() => onPickMedia("audio")}
-        className={toolClass}
-      >
-        <span className="text-2xl">🎵</span>
-        <span>Audio</span>
-      </button>
+          {/* AUDIO */}
+          <button
+            onClick={() => onPickMedia("audio")}
+            className={toolClass}
+          >
+            <span className="text-2xl">🎵</span>
+            <span>Audio</span>
+          </button>
 
-      <hr className="border-white/30" />
+          <hr className="border-white/30" />
 
-      <button
-        onClick={() => setActiveTool("text")}
-        className={toolClass}
-      >
-        <span className="text-xl font-bold">Aa</span>
-        <span>Text</span>
-      </button>
+          {/* TEXT */}
+          <button
+            onClick={() => setActiveTool("text")}
+            className={toolClass}
+          >
+            <span className="text-xl font-bold">Aa</span>
+            <span>Text</span>
+          </button>
 
-      <button
-        onClick={() => setActiveTool("sticker")}
-        className={toolClass}
-      >
-        <span className="text-2xl">😀</span>
-        <span>Sticker</span>
-      </button>
+          {/* STICKERS */}
+          <button
+            onClick={() => setActiveTool("sticker")}
+            className={toolClass}
+          >
+            <span className="text-2xl">😀</span>
+            <span>Sticker</span>
+          </button>
 
-      <button
-        onClick={() => setActiveTool("music")}
-        className={toolClass}
-      >
-        <span className="text-2xl">🎶</span>
-        <span>Music</span>
-      </button>
+          {/* MUSIC */}
+          <button
+            onClick={() => setActiveTool("music")}
+            className={toolClass}
+          >
+            <span className="text-2xl">🎶</span>
+            <span>Music</span>
+          </button>
 
-      <button
-        onClick={() => setActiveTool("color")}
-        className={toolClass}
-      >
-        <span className="text-2xl">🎨</span>
-        <span>Color</span>
-      </button>
+          {/* COLOR */}
+          <button
+            onClick={() => setActiveTool("color")}
+            className={toolClass}
+          >
+            <span className="text-2xl">🎨</span>
+            <span>Color</span>
+          </button>
 
-      {media?.type?.startsWith("image") && (
-        <button
-          onClick={() => setActiveTool("ai")}
-          className={toolClass}
-        >
-          <span className="text-2xl">🤖</span>
-          <span>AI</span>
-        </button>
-      )}
+          {/* AI */}
+          {media?.type?.startsWith("image") && (
+            <button
+              onClick={() => setActiveTool("ai")}
+              className={toolClass}
+            >
+              <span className="text-2xl">🤖</span>
+              <span>AI</span>
+            </button>
+          )}
+        </>
+      ) : (
+        <>
+          {/* DONE */}
+          <button
+            onClick={() => setActiveTool(null)}
+            className={`${actionClass} bg-green-600`}
+          >
+            <span className="text-2xl">✅</span>
+            <span>Done</span>
+          </button>
 
-      {activeTool && (
-        <button
-          onClick={() => setActiveTool(null)}
-          className={`${toolClass} bg-red-600`}
-        >
-          <span className="text-2xl">❌</span>
-          <span>Close</span>
-        </button>
+          {/* CANCEL */}
+          <button
+            onClick={() => setActiveTool(null)}
+            className={`${actionClass} bg-red-600`}
+          >
+            <span className="text-2xl">❌</span>
+            <span>Cancel</span>
+          </button>
+        </>
       )}
     </div>
   );
