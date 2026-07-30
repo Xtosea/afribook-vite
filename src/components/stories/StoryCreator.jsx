@@ -317,8 +317,8 @@ return (
 <div className="fixed inset-0 w-screen h-screen bg-white overflow-hidden">
 
 {/* DRAGGABLE PREVIEW AREA */}
-<div
-  
+
+ 
   <div
   className="relative w-full h-full overflow-hidden bg-black"
   style={{ backgroundColor }}
@@ -338,7 +338,7 @@ return (
     top-3
     left-1/2
     -translate-x-1/2
-    z-[200]
+    z-[180]
     text-white
     px-4
     py-2
