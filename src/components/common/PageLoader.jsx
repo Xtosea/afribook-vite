@@ -8,6 +8,7 @@ export default function PageLoader() {
       <p className="mt-4 text-gray-600 font-medium">
         Loading Afribook...
       </p>
+
     </div>
   );
 }
