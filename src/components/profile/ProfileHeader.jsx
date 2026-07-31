@@ -4,14 +4,31 @@ import React, {
   useState,
 } from "react";
 import { API_BASE } from "../../api/api";
+import PhotoOptionsModal from "./PhotoOptionsModal";
 
-const ProfileHeader = ({ user, isOwner, onEdit, previewProfilePic, previewCoverPhoto }) => {
+
+const ProfileHeader = ({
+  user,
+  isOwner,
+  onEdit,
+  previewProfilePic,
+  previewCoverPhoto,
+  onViewProfilePhoto,
+  onUploadProfilePhoto,
+  onViewCoverPhoto,
+  onUploadCoverPhoto,
+}) => {
 
 const isDefaultProfilePic =
   !previewProfilePic &&
   !user.profilePic;
 
  const [copied, setCopied] =
+  useState(false);
+const [showProfileOptions, setShowProfileOptions] =
+  useState(false);
+
+const [showCoverOptions, setShowCoverOptions] =
   useState(false);
 
 const referralLink =
@@ -53,14 +70,16 @@ const shareReferral =
       {/* COVER PHOTO */}
       <div className="relative">
         <img
-          src={
-            previewCoverPhoto instanceof File
-              ? URL.createObjectURL(previewCoverPhoto)
-              : previewCoverPhoto || `${API_BASE}/uploads/profiles/default-cover.png`
-          }
-          alt="Cover"
-          className="w-full h-48 object-cover"
-        />
+  src={
+    previewCoverPhoto instanceof File
+      ? URL.createObjectURL(previewCoverPhoto)
+      : previewCoverPhoto ||
+        `${API_BASE}/uploads/profiles/default-cover.png`
+  }
+  alt="Cover"
+  onClick={() => setShowCoverOptions(true)}
+  className="w-full h-48 object-cover cursor-pointer"
+/>
 
         {isOwner && (
           <button
@@ -77,20 +96,22 @@ const shareReferral =
         
         {/* PROFILE PICTURE */}
         <div className="flex-shrink-0 relative">
-          <img
-            src={
-              previewProfilePic instanceof File
-                ? URL.createObjectURL(previewProfilePic)
-                : previewProfilePic || `${API_BASE}/uploads/profiles/default-profile.png`
-            }
-            alt="Profile"
-            className={`rounded-full object-cover border-4 border-white shadow-lg ${
-  isDefaultProfilePic
-    ? "w-20 h-20"
-    : "w-32 h-32"
-}`}
-          />
-        </div>
+  <img
+  src={
+    previewProfilePic instanceof File
+      ? URL.createObjectURL(previewProfilePic)
+      : previewProfilePic ||
+        `${API_BASE}/uploads/profiles/default-profile.png`
+  }
+  alt="Profile"
+  onClick={() => setShowProfileOptions(true)}
+  className={`rounded-full object-cover border-4 border-white shadow-lg cursor-pointer ${
+    isDefaultProfilePic
+      ? "w-20 h-20"
+      : "w-32 h-32"
+  }`}
+/>
+</div>
 
         {/* NAME & BIO */}
         <div className="mt-4 md:mt-0">
@@ -136,6 +157,34 @@ const shareReferral =
        
   </div>
   </div>
+  <PhotoOptionsModal
+  open={showProfileOptions}
+  title="Profile Picture"
+  onCancel={() => setShowProfileOptions(false)}
+  onView={() => {
+    setShowProfileOptions(false);
+    onViewProfilePhoto?.();
+  }}
+  onUpload={() => {
+    setShowProfileOptions(false);
+    onUploadProfilePhoto?.();
+  }}
+/>
+
+<PhotoOptionsModal
+  open={showCoverOptions}
+  title="Cover Photo"
+  onCancel={() => setShowCoverOptions(false)}
+  onView={() => {
+    setShowCoverOptions(false);
+    onViewCoverPhoto?.();
+  }}
+  onUpload={() => {
+    setShowCoverOptions(false);
+    onUploadCoverPhoto?.();
+  }}
+/>
+
 </div>
   );
 };
