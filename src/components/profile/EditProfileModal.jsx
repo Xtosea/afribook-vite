@@ -126,8 +126,8 @@ const coverInputRef = useRef(null);
   ref={profileInputRef}
   hidden
   type="file"
-            accept="image/*"
-            onChange={(e) => {
+  accept="image/*"
+  onChange={(e) => {
   const file = e.target.files?.[0];
 
 if (!file) return;
@@ -135,7 +135,6 @@ if (!file) return;
 setCropType("profilePic");
 setCropImageFile(file);
 setCropImage(URL.createObjectURL(file));
-  );
 }}
             
 
@@ -190,12 +189,11 @@ setCropImage(URL.createObjectURL(file));
             onChange={(e) => {
   const file = e.target.files?.[0];
 
-if (!file) return;
+  if (!file) return;
 
-setCropType("coverPhoto");
-setCropImageFile(file);
-setCropImage(URL.createObjectURL(file));
-  );
+  setCropType("profilePic");
+  setCropImageFile(file);
+  setCropImage(URL.createObjectURL(file));
 }}
             
 
