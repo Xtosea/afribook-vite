@@ -75,10 +75,14 @@ const redirect =
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
+
+    console.log("Response:", data);
+
       name,
       identifier,
       password,
       redirect,
+      ref,
     }),
   }
 );
