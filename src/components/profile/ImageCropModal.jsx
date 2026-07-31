@@ -1,4 +1,9 @@
-import React, { useState, useCallback } from "react";
+import React, {
+  useState,
+  useCallback,
+  useRef,
+} from "react";
+
 import Cropper from "react-easy-crop";
 import { getCroppedImg } from "../../utils/cropImage";
 
@@ -15,6 +20,8 @@ export default function ImageCropModal({
 const [croppedAreaPixels, setCroppedAreaPixels] =
   useState(null);
 
+
+  const lastTap = useRef(0);
 
   const handleCropComplete = useCallback(
   (_, croppedAreaPixels) => {
@@ -40,6 +47,20 @@ const handleCrop = async () => {
   }
 };
 
+
+const handleDoubleTap = () => {
+  const now = Date.now();
+
+  if (now - lastTap.current < 300) {
+    setZoom((prev) =>
+      prev < 2 ? 2 : 1
+    );
+  }
+
+  lastTap.current = now;
+};
+
+
   return (
     <div className="fixed inset-0 z-[10000] bg-black/80 flex items-center justify-center">
       <div className="bg-white rounded-2xl w-full max-w-md p-4">
@@ -48,36 +69,46 @@ const handleCrop = async () => {
           Crop Image
         </h2>
 
-        <div className="relative w-full h-80 bg-black rounded-lg overflow-hidden">
-          <Cropper
-            image={image}
-            crop={crop}
-            zoom={zoom}
-            aspect={aspect}
-            cropShape={cropShape}
-            onCropChange={setCrop}
-            onZoomChange={setZoom}
-            onCropComplete={handleCropComplete}
-          />
-        </div>
+ <div
+  className="relative w-full h-80 bg-black rounded-lg overflow-hidden"
+  onTouchEnd={handleDoubleTap}
+>
+  <Cropper
+    image={image}
+    crop={crop}
+    zoom={zoom}
+    aspect={aspect}
+    cropShape={cropShape}
+    onCropChange={setCrop}
+    onZoomChange={setZoom}
+    onCropComplete={handleCropComplete}
+    zoomWithScroll
+    minZoom={1}
+    maxZoom={5}
+    showGrid={false}
+    objectFit="contain"
+  />
+</div>
 
         <div className="mt-5">
-          <label className="block text-sm mb-2">
-            Zoom
-          </label>
+  <div className="flex items-center gap-3">
+    <span>🔍</span>
 
-          <input
-            type="range"
-            min={1}
-            max={3}
-            step={0.1}
-            value={zoom}
-            onChange={(e) =>
-              setZoom(Number(e.target.value))
-            }
-            className="w-full"
-          />
-        </div>
+    <input
+      type="range"
+      min={1}
+      max={5}
+      step={0.05}
+      value={zoom}
+      onChange={(e) =>
+        setZoom(Number(e.target.value))
+      }
+      className="flex-1"
+    />
+
+    <span>{zoom.toFixed(1)}x</span>
+  </div>
+</div>
 
         <div className="flex gap-3 mt-6">
           <button
