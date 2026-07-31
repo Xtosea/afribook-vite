@@ -556,7 +556,7 @@ onUploadCoverPhoto={() => {
       </div>
 
       {/* ================= EDIT PROFILE MODAL ================= */}
-      <Suspense fallback={null}>
+  <Suspense fallback={null}>
   <EditProfileModal
     editing={editing}
     setEditing={setEditing}
@@ -577,17 +577,7 @@ onUploadCoverPhoto={() => {
   onClose={() => setViewerOpen(false)}
 />
 
-
-
- handleInputChange={handleInputChange}
-          handleFileChange={handleFileChange}
-          previewProfilePic={previewProfilePic}
-          previewCoverPhoto={previewCoverPhoto}
-          uploading={saving}
-        />
-      </Suspense>
-
-     <input
+  <input
   ref={profileInputRef}
   type="file"
   accept="image/*"
