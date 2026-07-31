@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { API_BASE } from "../../api/api";
 import { useNavigate } from "react-router-dom";
 
@@ -11,8 +11,12 @@ const SuggestedFriends = ({
   const navigate = useNavigate();
 
   const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [sending, setSending] = useState({});
+const [loading, setLoading] = useState(true);
+const [sending, setSending] = useState({});
+
+const soundRef = useRef(
+  new Audio("/sounds/friend-request.mp3")
+);
 
   /* ================= FETCH USERS ================= */
 
@@ -124,6 +128,14 @@ const SuggestedFriends = ({
           data.error ||
           "Failed to send request"
         );
+
+
+
+     soundRef.current.currentTime = 0;
+
+soundRef.current.play().catch((err) => {
+  console.error("Couldn't play sound:", err);
+});
 
         return;
       }
