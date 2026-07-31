@@ -40,7 +40,7 @@ export default function FriendCarousel() {
         People You May Know
       </h1>
 
-      <div className="flex gap-4 overflow-x-auto pb-4">
+      <div className="flex flex-col gap-4">
 
         {users.map((user) => (
           <div
