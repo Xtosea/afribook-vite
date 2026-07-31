@@ -17,8 +17,7 @@ const EditProfileModal = ({
 }) => {
 
 
-const [cropImage, setCropImage] = useState(null);
-const [cropType, setCropType] = useState(null);
+
 const [cropImage, setCropImage] = useState(null);
 const [cropImageFile, setCropImageFile] = useState(null);
 const [cropType, setCropType] = useState(null);
