@@ -19,6 +19,10 @@ const EditProfileModal = ({
 
 const [cropImage, setCropImage] = useState(null);
 const [cropType, setCropType] = useState(null);
+const [cropImage, setCropImage] = useState(null);
+const [cropImageFile, setCropImageFile] = useState(null);
+const [cropType, setCropType] = useState(null);
+
 
 const profileInputRef = useRef(null);
 const coverInputRef = useRef(null);
@@ -119,7 +123,7 @@ const coverInputRef = useRef(null);
           )}
 
           
-            <input
+  <input
   ref={profileInputRef}
   hidden
   type="file"
@@ -127,12 +131,11 @@ const coverInputRef = useRef(null);
             onChange={(e) => {
   const file = e.target.files?.[0];
 
-  if (!file) return;
+if (!file) return;
 
-  setCropType("profilePic");
-
-  setCropImage(
-    URL.createObjectURL(file)
+setCropType("profilePic");
+setCropImageFile(file);
+setCropImage(URL.createObjectURL(file));
   );
 }}
             
@@ -180,7 +183,7 @@ const coverInputRef = useRef(null);
 </div>
           )}
 
-          <input
+  <input
   ref={coverInputRef}
   hidden
   type="file"
@@ -188,12 +191,11 @@ const coverInputRef = useRef(null);
             onChange={(e) => {
   const file = e.target.files?.[0];
 
-  if (!file) return;
+if (!file) return;
 
-  setCropType("coverPhoto");
-
-  setCropImage(
-    URL.createObjectURL(file)
+setCropType("coverPhoto");
+setCropImageFile(file);
+setCropImage(URL.createObjectURL(file));
   );
 }}
             
@@ -241,7 +243,7 @@ const coverInputRef = useRef(null);
         </div>
       </div>
 
-      <ImageCropModal
+  <ImageCropModal
   open={!!cropImage}
   image={cropImage}
   aspect={
@@ -255,9 +257,10 @@ const coverInputRef = useRef(null);
       : "rect"
   }
   onCancel={() => {
-    setCropImage(null);
-    setCropType(null);
-  }}
+  setCropImage(null);
+  setCropImageFile(null);
+  setCropType(null);
+}}
   onCropComplete={(croppedFile) => {
   const fakeEvent = {
     target: {
@@ -267,8 +270,9 @@ const coverInputRef = useRef(null);
 
   handleFileChange(fakeEvent, cropType);
 
-  setCropImage(null);
-  setCropType(null);
+setCropImage(null);
+setCropImageFile(null);
+setCropType(null);
 }}
 />
 
