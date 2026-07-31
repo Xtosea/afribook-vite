@@ -75,9 +75,6 @@ const redirect =
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-
-    console.log("Response:", data);
-
       name,
       identifier,
       password,
@@ -88,6 +85,8 @@ const redirect =
 );
 
 const data = await res.json();
+
+console.log("Response:", data);
 
       if (!res.ok) {
 
