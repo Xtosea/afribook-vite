@@ -11,8 +11,7 @@ import { API_BASE } from "../api/api";
 export default function Register() {
 
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
 
   const [showPassword, setShowPassword] =
@@ -97,13 +96,22 @@ const redirect =
         return;
       }
 
-      alert(
-        data.message ||
-          "Registration successful. Please verify your email."
-      );
+      // Save login data if your backend returns it
+if (data.token) {
+  localStorage.setItem("token", data.token);
+  localStorage.setItem("userId", data.user._id);
+  localStorage.setItem("name", data.user.name || "");
+  localStorage.setItem(
+    "profilePic",
+    data.user.profilePic || ""
+  );
+}
 
-   navigate(
-  `/verify-email-sent?redirect=${encodeURIComponent(redirect)}`
+alert("Registration successful!");
+
+navigate(
+  `/welcome?redirect=${encodeURIComponent(redirect)}`,
+  { replace: true }
 );
 
     } catch (err) {
@@ -155,15 +163,12 @@ const redirect =
           {/* EMAIL */}
 
           <input
-            type="email"
-            placeholder="Email"
-            className="p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={email}
-            onChange={(e) =>
-              setEmail(e.target.value)
-            }
-            required
-          />
+  type="text"
+  placeholder="Email or Phone Number (Optional)"
+  className="p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+  value={identifier}
+  onChange={(e) => setIdentifier(e.target.value)}
+/>
 
           {/* PASSWORD */}
 
