@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from "react";
 import Cropper from "react-easy-crop";
+import { getCroppedImg } from "../../utils/cropImage";
 
 export default function ImageCropModal({
   open,
@@ -11,15 +12,33 @@ export default function ImageCropModal({
 }) {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
+const [croppedAreaPixels, setCroppedAreaPixels] =
+  useState(null);
+
 
   const handleCropComplete = useCallback(
-    (_, croppedAreaPixels) => {
-      onCropComplete?.(croppedAreaPixels, zoom);
-    },
-    [onCropComplete, zoom]
-  );
+  (_, croppedAreaPixels) => {
+    setCroppedAreaPixels(croppedAreaPixels);
+  },
+  []
+);
 
   if (!open || !image) return null;
+
+const handleCrop = async () => {
+  try {
+    const croppedFile = await getCroppedImg(
+      image,
+      croppedAreaPixels
+    );
+
+    onCropComplete?.(croppedFile);
+
+  } catch (err) {
+    console.error(err);
+    alert("Failed to crop image.");
+  }
+};
 
   return (
     <div className="fixed inset-0 z-[10000] bg-black/80 flex items-center justify-center">
@@ -69,11 +88,11 @@ export default function ImageCropModal({
           </button>
 
           <button
-            onClick={() => onCancel()}
-            className="flex-1 py-3 rounded-lg bg-blue-600 text-white"
-          >
-            Crop
-          </button>
+  onClick={handleCrop}
+  className="flex-1 py-3 rounded-lg bg-blue-600 text-white"
+>
+  Crop
+</button>
         </div>
 
       </div>
