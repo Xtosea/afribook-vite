@@ -19,6 +19,8 @@ export default function ImageCropModal({
   const [zoom, setZoom] = useState(1);
 const [croppedAreaPixels, setCroppedAreaPixels] =
   useState(null);
+const [rotation, setRotation] = useState(0);
+
 
 
   const lastTap = useRef(0);
@@ -61,6 +63,15 @@ const handleDoubleTap = () => {
 };
 
 
+
+useEffect(() => {
+  if (open) {
+    setRotation(0);
+    setZoom(1);
+    setCrop({ x: 0, y: 0 });
+  }
+}, [open]);
+
   return (
     <div className="fixed inset-0 z-[10000] bg-black/80 flex items-center justify-center">
       <div className="bg-white rounded-2xl w-full max-w-md p-4">
@@ -74,20 +85,21 @@ const handleDoubleTap = () => {
   onTouchEnd={handleDoubleTap}
 >
   <Cropper
-    image={image}
-    crop={crop}
-    zoom={zoom}
-    aspect={aspect}
-    cropShape={cropShape}
-    onCropChange={setCrop}
-    onZoomChange={setZoom}
-    onCropComplete={handleCropComplete}
-    zoomWithScroll
-    minZoom={1}
-    maxZoom={5}
-    showGrid={false}
-    objectFit="contain"
-  />
+  image={image}
+  crop={crop}
+  zoom={zoom}
+  rotation={rotation}
+  aspect={aspect}
+  cropShape={cropShape}
+  onCropChange={setCrop}
+  onZoomChange={setZoom}
+  onCropComplete={handleCropComplete}
+  zoomWithScroll
+  minZoom={1}
+  maxZoom={5}
+  showGrid={false}
+  objectFit="contain"
+/>
 </div>
 
         <div className="mt-5">
@@ -109,6 +121,28 @@ const handleDoubleTap = () => {
     <span>{zoom.toFixed(1)}x</span>
   </div>
 </div>
+
+        
+<div className="mt-5">
+  <div className="flex items-center gap-3">
+    <span>↻</span>
+
+    <input
+      type="range"
+      min={0}
+      max={360}
+      step={1}
+      value={rotation}
+      onChange={(e) =>
+        setRotation(Number(e.target.value))
+      }
+      className="flex-1"
+    />
+
+    <span>{rotation}°</span>
+  </div>
+</div>
+
 
         <div className="flex gap-3 mt-6">
           <button
