@@ -405,6 +405,15 @@ const [viewerTitle, setViewerTitle] = useState("");
       setViewerTitle("Cover Photo");
       setViewerOpen(true);
     }}
+
+   onUploadProfilePhoto={() => {
+  profileInputRef.current?.click();
+}}
+
+onUploadCoverPhoto={() => {
+  coverInputRef.current?.click();
+}}
+
   />
 </Suspense>
 
@@ -571,6 +580,38 @@ const [viewerTitle, setViewerTitle] = useState("");
           uploading={saving}
         />
       </Suspense>
+
+     <input
+  ref={profileInputRef}
+  type="file"
+  accept="image/*"
+  hidden
+  onChange={(e) => {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    setCropType("profilePic");
+    setCropImage(URL.createObjectURL(file));
+  }}
+/>
+
+<input
+  ref={coverInputRef}
+  type="file"
+  accept="image/*"
+  hidden
+  onChange={(e) => {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    setCropType("coverPhoto");
+    setCropImage(URL.createObjectURL(file));
+  }}
+/>
+
+
     </div>
   );
 };
