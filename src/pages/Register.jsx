@@ -75,14 +75,23 @@ const redirect =
             "Content-Type":
               "application/json",
           },
-          body: JSON.stringify({
-  name,
-  identifier,
-  password,
-  redirect,
-}),
+          const res = await fetch(
+  `${API_BASE}/api/auth/register`,
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      name,
+      identifier,
+      password,
+      redirect,
+    }),
+  }
+);
 
-);     
+const data = await res.json();
      const data = await res.json();
 
       if (!res.ok) {
