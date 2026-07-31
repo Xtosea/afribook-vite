@@ -406,13 +406,7 @@ const [viewerTitle, setViewerTitle] = useState("");
       setViewerOpen(true);
     }}
 
-   onUploadProfilePhoto={() => {
-  profileInputRef.current?.click();
-}}
-
-onUploadCoverPhoto={() => {
-  coverInputRef.current?.click();
-}}
+   
 
   />
 </Suspense>
