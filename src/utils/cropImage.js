@@ -7,9 +7,13 @@ export const createImage = (url) =>
     image.src = url;
   });
 
+const getRadianAngle = (degreeValue) =>
+  (degreeValue * Math.PI) / 180;
+
 export async function getCroppedImg(
   imageSrc,
-  pixelCrop
+  pixelCrop,
+  rotation = 0
 ) {
   const image = await createImage(imageSrc);
 
@@ -18,11 +22,55 @@ export async function getCroppedImg(
 
   const ctx = canvas.getContext("2d");
 
-  canvas.width = pixelCrop.width;
-  canvas.height = pixelCrop.height;
+  const rotRad =
+    getRadianAngle(rotation);
+
+  const sin = Math.abs(
+    Math.sin(rotRad)
+  );
+
+  const cos = Math.abs(
+    Math.cos(rotRad)
+  );
+
+  const bBoxWidth =
+    image.width * cos +
+    image.height * sin;
+
+  const bBoxHeight =
+    image.width * sin +
+    image.height * cos;
+
+  canvas.width = bBoxWidth;
+  canvas.height = bBoxHeight;
+
+  ctx.translate(
+    bBoxWidth / 2,
+    bBoxHeight / 2
+  );
+
+  ctx.rotate(rotRad);
 
   ctx.drawImage(
     image,
+    -image.width / 2,
+    -image.height / 2
+  );
+
+  const croppedCanvas =
+    document.createElement("canvas");
+
+  const croppedCtx =
+    croppedCanvas.getContext("2d");
+
+  croppedCanvas.width =
+    pixelCrop.width;
+
+  croppedCanvas.height =
+    pixelCrop.height;
+
+  croppedCtx.drawImage(
+    canvas,
     pixelCrop.x,
     pixelCrop.y,
     pixelCrop.width,
@@ -34,18 +82,22 @@ export async function getCroppedImg(
   );
 
   return new Promise((resolve) => {
-    canvas.toBlob((blob) => {
-      if (!blob) return;
+    croppedCanvas.toBlob(
+      (blob) => {
+        if (!blob) return;
 
-      const file = new File(
-        [blob],
-        "cropped.jpg",
-        {
-          type: "image/jpeg",
-        }
-      );
-
-      resolve(file);
-    }, "image/jpeg", 0.95);
+        resolve(
+          new File(
+            [blob],
+            "cropped.jpg",
+            {
+              type: "image/jpeg",
+            }
+          )
+        );
+      },
+      "image/jpeg",
+      0.95
+    );
   });
 }
