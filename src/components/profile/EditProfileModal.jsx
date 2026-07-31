@@ -1,4 +1,10 @@
 import React from "react";
+import ImageCropModal from "./ImageCropModal";
+import React, { useState } from "react";
+
+
+const [cropImage, setCropImage] = useState(null);
+const [cropType, setCropType] = useState(null);
 
 const EditProfileModal = ({
   editing,
@@ -96,10 +102,21 @@ const EditProfileModal = ({
           <input
             type="file"
             accept="image/*"
-            onChange={(e) =>
-              handleFileChange(e, "profilePic")
-            }
-            className="w-full"
+            onChange={(e) => {
+  const file = e.target.files?.[0];
+
+  if (!file) return;
+
+  setCropType("profilePic");
+
+  setCropImage(
+    URL.createObjectURL(file)
+  );
+}}
+            
+
+
+           className="w-full"
           />
 
           {uploadProgress?.profilePic > 0 && (
@@ -131,10 +148,20 @@ const EditProfileModal = ({
           <input
             type="file"
             accept="image/*"
-            onChange={(e) =>
-              handleFileChange(e, "coverPhoto")
-            }
-            className="w-full"
+            onChange={(e) => {
+  const file = e.target.files?.[0];
+
+  if (!file) return;
+
+  setCropType("coverPhoto");
+
+  setCropImage(
+    URL.createObjectURL(file)
+  );
+}}
+            
+
+          className="w-full"
           />
 
           {uploadProgress?.coverPhoto > 0 && (
@@ -176,6 +203,38 @@ const EditProfileModal = ({
 
         </div>
       </div>
+
+      <ImageCropModal
+  open={!!cropImage}
+  image={cropImage}
+  aspect={
+    cropType === "coverPhoto"
+      ? 16 / 9
+      : 1
+  }
+  cropShape={
+    cropType === "profilePic"
+      ? "round"
+      : "rect"
+  }
+  onCancel={() => {
+    setCropImage(null);
+    setCropType(null);
+  }}
+  onCropComplete={(croppedFile) => {
+  const fakeEvent = {
+    target: {
+      files: [croppedFile],
+    },
+  };
+
+  handleFileChange(fakeEvent, cropType);
+
+  setCropImage(null);
+  setCropType(null);
+}}
+/>
+
     </div>
   );
 };
