@@ -8,6 +8,8 @@ const defaultProfile =
 export default function FriendCarousel() {
   const [users, setUsers] = useState([]);
   const navigate = useNavigate();
+const [sentRequests, setSentRequests] = useState([]);
+
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -32,6 +34,38 @@ export default function FriendCarousel() {
 
     fetchUsers();
   }, []);
+
+
+
+const sendFriendRequest = async (userId) => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const res = await fetch(
+      `${API_BASE}/api/friends/request/${userId}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      return alert(data.error);
+    }
+
+    // Mark request as sent
+    setSentRequests((prev) => [...prev, userId]);
+
+    alert("Friend request sent!");
+  } catch (err) {
+    console.error(err);
+    alert("Failed to send request");
+  }
+};
 
   return (
     <div className="p-4">
@@ -63,13 +97,18 @@ export default function FriendCarousel() {
             </p>
 
             <button
-              onClick={() =>
-                navigate(`/profile/${user._id}`)
-              }
-              className="w-full bg-blue-600 text-white py-2 rounded-xl"
-            >
-              View Profile
-            </button>
+  onClick={() => sendFriendRequest(user._id)}
+  disabled={sentRequests.includes(user._id)}
+  className={`w-full py-2 rounded-xl text-white ${
+    sentRequests.includes(user._id)
+      ? "bg-gray-400"
+      : "bg-blue-600"
+  }`}
+>
+  {sentRequests.includes(user._id)
+    ? "Request Sent"
+    : "Add Friend"}
+</button>
 
           </div>
         ))}
