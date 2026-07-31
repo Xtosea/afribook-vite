@@ -76,13 +76,11 @@ const redirect =
               "application/json",
           },
           body: JSON.stringify({
-            name,
-            email,
-            password,
-            redirect,
-          }),
-        }
-      );
+  name,
+  identifier,
+  password,
+  redirect,
+}),
 
       const data = await res.json();
 
