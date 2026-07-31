@@ -1,10 +1,7 @@
-import React from "react";
+import React, { useState, useRef } from "react";
 import ImageCropModal from "./ImageCropModal";
-import React, { useState } from "react";
+import { Camera } from "lucide-react";
 
-
-const [cropImage, setCropImage] = useState(null);
-const [cropType, setCropType] = useState(null);
 
 const EditProfileModal = ({
   editing,
@@ -18,6 +15,14 @@ const EditProfileModal = ({
   previewProfilePic,
   previewCoverPhoto,
 }) => {
+
+
+const [cropImage, setCropImage] = useState(null);
+const [cropType, setCropType] = useState(null);
+
+const profileInputRef = useRef(null);
+const coverInputRef = useRef(null);
+
   if (!editing) return null;
 
   const onSave = async () => {
@@ -92,15 +97,32 @@ const EditProfileModal = ({
           </label>
 
           {previewProfilePic && (
-            <img
-              src={previewProfilePic}
-              alt="Profile Preview"
-              className="w-24 h-24 rounded-full object-cover border mb-3"
-            />
+            
+              <div className="relative w-24 h-24 mb-3">
+
+  <img
+    src={previewProfilePic}
+    alt="Profile Preview"
+    onClick={() => profileInputRef.current?.click()}
+    className="w-24 h-24 rounded-full object-cover border cursor-pointer"
+  />
+
+  <button
+    type="button"
+    onClick={() => profileInputRef.current?.click()}
+    className="absolute bottom-0 right-0 bg-blue-600 text-white p-2 rounded-full shadow-lg"
+  >
+    <Camera size={16} />
+  </button>
+
+</div>
           )}
 
-          <input
-            type="file"
+          
+            <input
+  ref={profileInputRef}
+  hidden
+  type="file"
             accept="image/*"
             onChange={(e) => {
   const file = e.target.files?.[0];
@@ -138,15 +160,30 @@ const EditProfileModal = ({
           </label>
 
           {previewCoverPhoto && (
-            <img
-              src={previewCoverPhoto}
-              alt="Cover Preview"
-              className="w-full h-32 rounded object-cover border mb-3"
-            />
+  <div className="relative mb-3">
+
+  <img
+    src={previewCoverPhoto}
+    alt="Cover Preview"
+    onClick={() => coverInputRef.current?.click()}
+    className="w-full h-32 rounded object-cover border cursor-pointer"
+  />
+
+  <button
+    type="button"
+    onClick={() => coverInputRef.current?.click()}
+    className="absolute bottom-2 right-2 bg-black/70 text-white p-2 rounded-full"
+  >
+    <Camera size={18} />
+  </button>
+
+</div>
           )}
 
           <input
-            type="file"
+  ref={coverInputRef}
+  hidden
+  type="file"
             accept="image/*"
             onChange={(e) => {
   const file = e.target.files?.[0];
