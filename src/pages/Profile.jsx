@@ -557,14 +557,20 @@ onUploadCoverPhoto={() => {
 
       {/* ================= EDIT PROFILE MODAL ================= */}
       <Suspense fallback={null}>
-        <EditProfileModal
-          editing={editing}
-          setEditing={setEditing}
-          formData={formData}
-          handleSave={handleSave}
-         
+  <EditProfileModal
+    editing={editing}
+    setEditing={setEditing}
+    formData={formData}
+    handleSave={handleSave}
+    handleInputChange={handleInputChange}
+    handleFileChange={handleFileChange}
+    previewProfilePic={previewProfilePic}
+    previewCoverPhoto={previewCoverPhoto}
+    uploading={saving}
+  />
+</Suspense>
 
-         <PhotoViewerModal
+<PhotoViewerModal
   open={viewerOpen}
   image={viewerImage}
   title={viewerTitle}
