@@ -1,5 +1,8 @@
 // src/components/profile/ProfileHeader.jsx
-import React from "react";
+
+import React, {
+  useState,
+} from "react";
 import { API_BASE } from "../../api/api";
 
 const ProfileHeader = ({ user, isOwner, onEdit, previewProfilePic, previewCoverPhoto }) => {
@@ -7,6 +10,42 @@ const ProfileHeader = ({ user, isOwner, onEdit, previewProfilePic, previewCoverP
 const isDefaultProfilePic =
   !previewProfilePic &&
   !user.profilePic;
+
+ const [copied, setCopied] =
+  useState(false);
+
+const referralLink =
+  `${window.location.origin}/register?ref=${user.referralCode}`;
+
+const copyReferral =
+  async () => {
+    await navigator.clipboard.writeText(
+      referralLink
+    );
+
+    setCopied(true);
+
+    setTimeout(() => {
+      setCopied(false);
+    }, 2000);
+  };
+
+const shareReferral =
+  async () => {
+    if (navigator.share) {
+      await navigator.share({
+        title:
+          "Join me on AfricSocial",
+
+        text:
+          "Join AfricSocial with my referral link.",
+
+        url: referralLink,
+      });
+    } else {
+      copyReferral();
+    }
+  };
 
   return (
     <div className="bg-white rounded-xl shadow overflow-hidden relative">
@@ -56,11 +95,48 @@ const isDefaultProfilePic =
         {/* NAME & BIO */}
         <div className="mt-4 md:mt-0">
           <h2 className="text-2xl font-bold">{user.name}</h2>
-          {user.bio && <p className="text-gray-500 mt-1">{user.bio}</p>}
-        </div>
-      </div>
+          {user.bio && <p className="text-gray-500 mt-1">{user.bio}</p>
+}
+
+{isOwner && (
+  <div className="mt-4 border rounded-lg p-3 bg-gray-50">
+
+    <p className="font-semibold mb-2">
+      🎁 Referral Link
+    </p>
+
+    <input
+      readOnly
+      value={referralLink}
+      className="w-full border rounded p-2 text-sm"
+    />
+
+    <div className="flex gap-2 mt-2">
+
+      <button
+        onClick={copyReferral}
+        className="bg-blue-600 text-white px-4 py-2 rounded"
+      >
+        {copied
+          ? "Copied!"
+          : "Copy"}
+      </button>
+
+      <button
+        onClick={shareReferral}
+        className="bg-green-600 text-white px-4 py-2 rounded"
+      >
+        Share
+      </button>
 
     </div>
+
+  </div>
+)}
+       
+  </div>
+  </div>
+</div>
   );
 };
 
