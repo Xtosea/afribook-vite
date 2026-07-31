@@ -37,9 +37,10 @@ const [rotation, setRotation] = useState(0);
 const handleCrop = async () => {
   try {
     const croppedFile = await getCroppedImg(
-      image,
-      croppedAreaPixels
-    );
+  image,
+  croppedAreaPixels,
+  rotation
+);
 
     onCropComplete?.(croppedFile);
 
