@@ -67,15 +67,7 @@ const redirect =
 
     try {
 
-      const res = await fetch(
-        `${API_BASE}/api/auth/register`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type":
-              "application/json",
-          },
-          const res = await fetch(
+  const res = await fetch(
   `${API_BASE}/api/auth/register`,
   {
     method: "POST",
@@ -92,7 +84,6 @@ const redirect =
 );
 
 const data = await res.json();
-     const data = await res.json();
 
       if (!res.ok) {
 
