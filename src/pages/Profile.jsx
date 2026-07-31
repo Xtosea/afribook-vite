@@ -9,6 +9,8 @@ import React, {
 import { useParams, useNavigate } from "react-router-dom";
 import { fetchWithToken, API_BASE } from "../api/api";
 import { useImageKitUpload } from "../hooks/useImageKitUpload";
+import PhotoViewerModal from "../components/profile/PhotoViewerModal";
+
 
 // Lazy-load components
 const PostCard = lazy(() => import("../components/PostCard"));
@@ -74,6 +76,10 @@ const Profile = () => {
 
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+const [viewerOpen, setViewerOpen] = useState(false);
+const [viewerImage, setViewerImage] = useState("");
+const [viewerTitle, setViewerTitle] = useState("");
+
 
   const observer = useRef();
 
@@ -370,19 +376,37 @@ const Profile = () => {
     <div className="container mx-auto py-6 space-y-6">
 
       {/* ================= PROFILE HEADER ================= */}
-      <Suspense
-        fallback={
-          <div className="h-40 bg-gray-200 animate-pulse rounded mb-4" />
-        }
-      >
-        <ProfileHeader
-  user={user}
-  isOwner={user?._id === currentUserId}
-  onEdit={() => setEditing(true)}
-  previewProfilePic={previewProfilePic}
-  previewCoverPhoto={previewCoverPhoto}
-/>
-      </Suspense>
+<Suspense
+  fallback={
+    <div className="h-40 bg-gray-200 animate-pulse rounded mb-4" />
+  }
+>
+  <ProfileHeader
+    user={user}
+    isOwner={user?._id === currentUserId}
+    onEdit={() => setEditing(true)}
+    previewProfilePic={previewProfilePic}
+    previewCoverPhoto={previewCoverPhoto}
+
+    onViewProfilePhoto={() => {
+      setViewerImage(
+        previewProfilePic ||
+        `${API_BASE}/uploads/profiles/default-profile.png`
+      );
+      setViewerTitle("Profile Picture");
+      setViewerOpen(true);
+    }}
+
+    onViewCoverPhoto={() => {
+      setViewerImage(
+        previewCoverPhoto ||
+        `${API_BASE}/uploads/profiles/default-cover.png`
+      );
+      setViewerTitle("Cover Photo");
+      setViewerOpen(true);
+    }}
+  />
+</Suspense>
 
       {/* ================= MUTUAL FRIENDS ================= */}
       {!user.isCurrentUser && mutualFriends.length > 0 && (
@@ -529,7 +553,18 @@ const Profile = () => {
           setEditing={setEditing}
           formData={formData}
           handleSave={handleSave}
-          handleInputChange={handleInputChange}
+         
+
+         <PhotoViewerModal
+  open={viewerOpen}
+  image={viewerImage}
+  title={viewerTitle}
+  onClose={() => setViewerOpen(false)}
+/>
+
+
+
+ handleInputChange={handleInputChange}
           handleFileChange={handleFileChange}
           previewProfilePic={previewProfilePic}
           previewCoverPhoto={previewCoverPhoto}
