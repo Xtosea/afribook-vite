@@ -82,6 +82,7 @@ const [viewerTitle, setViewerTitle] = useState("");
 
 
   const observer = useRef();
+  
 
   // ================= FORM STATES =================
   const [formData, setFormData] = useState({
@@ -544,7 +545,8 @@ const [viewerTitle, setViewerTitle] = useState("");
               <div className="h-40 bg-gray-100 rounded animate-pulse mb-4" />
             }
           >
-            <FollowingSection following={following} />
+       <FollowingSection
+       following={following} />
           </Suspense>
         )}
       </div>
