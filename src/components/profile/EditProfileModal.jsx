@@ -26,11 +26,13 @@ const EditProfileModal = ({
 const [cropImage, setCropImage] = useState(null);
 const [cropImageFile, setCropImageFile] = useState(null);
 const [cropType, setCropType] = useState(null);
+const [captureMode, setCaptureMode] = useState("");
+
 
 
 const profileInputRef = useRef(null);
 const coverInputRef = useRef(null);
-const [captureMode, setCaptureMode] = useState("");
+
 
 
 useEffect(() => {
