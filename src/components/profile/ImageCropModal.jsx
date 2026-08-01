@@ -2,7 +2,7 @@ import React, {
   useState,
   useCallback,
   useRef,
-  useEffect,
+  useEffect
 } from "react";
 
 import Cropper from "react-easy-crop";
