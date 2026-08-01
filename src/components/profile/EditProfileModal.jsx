@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef} from "react";
 import ImageCropModal from "./ImageCropModal";
 import { Camera } from "lucide-react";
 
@@ -26,9 +26,7 @@ const [cropType, setCropType] = useState(null);
 const profileInputRef = useRef(null);
 const coverInputRef = useRef(null);
 
-  if (!editing) return null;
-
-  const onSave = async () => {
+const onSave = async () => {
     try {
       if (handleSave) {
         await handleSave();
@@ -38,6 +36,8 @@ const coverInputRef = useRef(null);
       alert("Failed to save profile");
     }
   };
+  if (!editing) return null;
+
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4">
@@ -191,7 +191,7 @@ setCropImage(URL.createObjectURL(file));
 
   if (!file) return;
 
-  setCropType("profilePic");
+  setCropType("coverPhoto");
   setCropImageFile(file);
   setCropImage(URL.createObjectURL(file));
 }}
