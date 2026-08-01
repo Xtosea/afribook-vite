@@ -79,6 +79,8 @@ const Profile = () => {
 const [viewerOpen, setViewerOpen] = useState(false);
 const [viewerImage, setViewerImage] = useState("");
 const [viewerTitle, setViewerTitle] = useState("");
+const [uploadTarget, setUploadTarget] = useState(null);
+
 
 
   const observer = useRef();
@@ -382,34 +384,41 @@ const [viewerTitle, setViewerTitle] = useState("");
     <div className="h-40 bg-gray-200 animate-pulse rounded mb-4" />
   }
 >
-  <ProfileHeader
-    user={user}
-    isOwner={user?._id === currentUserId}
-    onEdit={() => setEditing(true)}
-    previewProfilePic={previewProfilePic}
-    previewCoverPhoto={previewCoverPhoto}
+   <ProfileHeader
+  user={user}
+  isOwner={user?._id === currentUserId}
+  onEdit={() => setEditing(true)}
+  previewProfilePic={previewProfilePic}
+  previewCoverPhoto={previewCoverPhoto}
 
-    onViewProfilePhoto={() => {
-      setViewerImage(
-        previewProfilePic ||
-        `${API_BASE}/uploads/profiles/default-profile.png`
-      );
-      setViewerTitle("Profile Picture");
-      setViewerOpen(true);
-    }}
+  onViewProfilePhoto={() => {
+    setViewerImage(
+      previewProfilePic ||
+      `${API_BASE}/uploads/profiles/default-profile.png`
+    );
+    setViewerTitle("Profile Picture");
+    setViewerOpen(true);
+  }}
 
-    onViewCoverPhoto={() => {
-      setViewerImage(
-        previewCoverPhoto ||
-        `${API_BASE}/uploads/profiles/default-cover.png`
-      );
-      setViewerTitle("Cover Photo");
-      setViewerOpen(true);
-    }}
+  onViewCoverPhoto={() => {
+    setViewerImage(
+      previewCoverPhoto ||
+      `${API_BASE}/uploads/profiles/default-cover.png`
+    );
+    setViewerTitle("Cover Photo");
+    setViewerOpen(true);
+  }}
 
-   
+  onUploadProfilePhoto={() => {
+    setUploadTarget("profilePic");
+    setEditing(true);
+  }}
 
-  />
+  onUploadCoverPhoto={() => {
+    setUploadTarget("coverPhoto");
+    setEditing(true);
+  }}
+/>
 </Suspense>
 
       {/* ================= MUTUAL FRIENDS ================= */}
@@ -553,17 +562,18 @@ const [viewerTitle, setViewerTitle] = useState("");
 
       {/* ================= EDIT PROFILE MODAL ================= */}
   <Suspense fallback={null}>
-  <EditProfileModal
-    editing={editing}
-    setEditing={setEditing}
-    formData={formData}
-    handleSave={handleSave}
-    handleInputChange={handleInputChange}
-    handleFileChange={handleFileChange}
-    previewProfilePic={previewProfilePic}
-    previewCoverPhoto={previewCoverPhoto}
-    uploading={saving}
-  />
+   <EditProfileModal
+  editing={editing}
+  setEditing={setEditing}
+  formData={formData}
+  handleSave={handleSave}
+  handleInputChange={handleInputChange}
+  handleFileChange={handleFileChange}
+  previewProfilePic={previewProfilePic}
+  previewCoverPhoto={previewCoverPhoto}
+  uploading={saving}
+  uploadTarget={uploadTarget}
+/>
 </Suspense>
 
 <PhotoViewerModal
