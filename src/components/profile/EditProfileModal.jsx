@@ -168,8 +168,8 @@ const onSave = async () => {
       : undefined
   }
   className="w-full"
+  
   onChange={(e) => {
-    onChange={(e) => {
   const file = e.target.files?.[0];
 
   if (!file) return;
@@ -235,8 +235,8 @@ const onSave = async () => {
       : undefined
   }
   className="w-full"
+  
   onChange={(e) => {
-    onChange={(e) => {
   const file = e.target.files?.[0];
 
   if (!file) return;
