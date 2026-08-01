@@ -19,6 +19,7 @@ const EditProfileModal = ({
   previewProfilePic,
   previewCoverPhoto,
   uploadTarget,
+  setUploadTarget,
 }) => {
 
 
