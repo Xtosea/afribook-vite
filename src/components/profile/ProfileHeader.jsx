@@ -14,9 +14,7 @@ const ProfileHeader = ({
   previewProfilePic,
   previewCoverPhoto,
   onViewProfilePhoto,
-  onUploadProfilePhoto,
   onViewCoverPhoto,
-  onUploadCoverPhoto,
 }) => {
 
 const isDefaultProfilePic =
@@ -166,9 +164,9 @@ const shareReferral =
     onViewProfilePhoto?.();
   }}
   onUpload={() => {
-    setShowProfileOptions(false);
-    onUploadProfilePhoto?.();
-  }}
+  setShowProfileOptions(false);
+  onEdit?.();
+}}
 />
 
 <PhotoOptionsModal
@@ -180,9 +178,9 @@ const shareReferral =
     onViewCoverPhoto?.();
   }}
   onUpload={() => {
-    setShowCoverOptions(false);
-    onUploadCoverPhoto?.();
-  }}
+  setShowCoverOptions(false);
+  onEdit?.();
+}}
 />
 
 </div>
