@@ -570,7 +570,7 @@ const [uploadTarget, setUploadTarget] = useState(null);
 
       {/* ================= EDIT PROFILE MODAL ================= */}
   <Suspense fallback={null}>
-   <EditProfileModal
+  <EditProfileModal
   editing={editing}
   setEditing={setEditing}
   formData={formData}
@@ -581,6 +581,7 @@ const [uploadTarget, setUploadTarget] = useState(null);
   previewCoverPhoto={previewCoverPhoto}
   uploading={saving}
   uploadTarget={uploadTarget}
+  setUploadTarget={setUploadTarget}
 />
 </Suspense>
 
