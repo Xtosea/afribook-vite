@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import ImageCropModal from "./ImageCropModal";
 import { Camera } from "lucide-react";
 
