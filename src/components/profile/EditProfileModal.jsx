@@ -119,42 +119,43 @@ const onSave = async () => {
   </button>
 
 </div>
-          )}
+ )}
 
           
-  <input
-  ref={profileInputRef}
-  hidden
-  type="file"
-  accept="image/*"
-  onChange={(e) => {
-  const file = e.target.files?.[0];
+  
+   <input
+    id="profile-upload-input"
+    ref={profileInputRef}
+    hidden
+    type="file"
+    accept="image/*"
+    className="w-full"
+    onChange={(e) => {
+      const file = e.target.files?.[0];
 
-if (!file) return;
+      if (!file) return;
 
-setCropType("profilePic");
-setCropImageFile(file);
-setCropImage(URL.createObjectURL(file));
-}}
-            
+      setCropType("profilePic");
+      setCropImageFile(file);
+      setCropImage(URL.createObjectURL(file));
+    }}
+  />
 
+  {uploadProgress?.profilePic > 0 && (
+    <div className="w-full bg-gray-200 h-2 rounded mt-2">
+      <div
+        className="bg-blue-500 h-2 rounded"
+        style={{
+          width: `${uploadProgress.profilePic}%`,
+        }}
+      />
+    </div>
+  )}
+</div> 
 
-           className="w-full"
-          />
+        
 
-          {uploadProgress?.profilePic > 0 && (
-            <div className="w-full bg-gray-200 h-2 rounded mt-2">
-              <div
-                className="bg-blue-500 h-2 rounded"
-                style={{
-                  width: `${uploadProgress.profilePic}%`,
-                }}
-              />
-            </div>
-          )}
-        </div>
-
-        {/* Cover Photo */}
+         {/* Cover Photo */}
         <div className="mb-5">
           <label className="block mb-2 font-medium">
             Cover Photo
@@ -179,26 +180,25 @@ setCropImage(URL.createObjectURL(file));
   </button>
 
 </div>
-          )}
+)}
 
   <input
+  id="cover-upload-input"
   ref={coverInputRef}
   hidden
   type="file"
-            accept="image/*"
-            onChange={(e) => {
-  const file = e.target.files?.[0];
+  accept="image/*"
+  className="w-full"
+  onChange={(e) => {
+    const file = e.target.files?.[0];
 
-  if (!file) return;
+    if (!file) return;
 
-  setCropType("coverPhoto");
-  setCropImageFile(file);
-  setCropImage(URL.createObjectURL(file));
-}}
-            
-
-          className="w-full"
-          />
+    setCropType("coverPhoto");
+    setCropImageFile(file);
+    setCropImage(URL.createObjectURL(file));
+  }}
+/>
 
           {uploadProgress?.coverPhoto > 0 && (
             <div className="w-full bg-gray-200 h-2 rounded mt-2">
