@@ -409,15 +409,23 @@ const [uploadTarget, setUploadTarget] = useState(null);
     setViewerOpen(true);
   }}
 
-  onUploadProfilePhoto={() => {
-    setUploadTarget("profilePic");
-    setEditing(true);
-  }}
+  onUploadProfilePhoto={(mode) => {
+  setUploadTarget({
+    type: "profilePic",
+    mode,
+  });
 
-  onUploadCoverPhoto={() => {
-    setUploadTarget("coverPhoto");
-    setEditing(true);
-  }}
+  setEditing(true);
+}}
+
+  onUploadCoverPhoto={(mode) => {
+  setUploadTarget({
+    type: "coverPhoto",
+    mode,
+  });
+
+  setEditing(true);
+}}
 />
 </Suspense>
 
