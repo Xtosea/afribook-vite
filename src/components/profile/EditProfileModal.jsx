@@ -41,6 +41,7 @@ useEffect(() => {
 
     setTimeout(() => {
       profileInputRef.current?.click();
+      setUploadTarget(null);
     }, 100);
   }
 
@@ -49,9 +50,10 @@ useEffect(() => {
 
     setTimeout(() => {
       coverInputRef.current?.click();
+      setUploadTarget(null);
     }, 100);
   }
-}, [editing, uploadTarget]);
+}, [editing, uploadTarget, setUploadTarget]);
 
 
 
