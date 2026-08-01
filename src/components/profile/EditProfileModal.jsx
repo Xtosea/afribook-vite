@@ -1,4 +1,8 @@
-import React, { useState, useRef} from "react";
+import React, {
+  useState,
+  useRef,
+  useEffect,
+} from "react";
 import ImageCropModal from "./ImageCropModal";
 import { Camera } from "lucide-react";
 
@@ -14,6 +18,7 @@ const EditProfileModal = ({
   uploadProgress = { profilePic: 0, coverPhoto: 0 },
   previewProfilePic,
   previewCoverPhoto,
+  uploadTarget,
 }) => {
 
 
@@ -25,6 +30,22 @@ const [cropType, setCropType] = useState(null);
 
 const profileInputRef = useRef(null);
 const coverInputRef = useRef(null);
+
+useEffect(() => {
+  if (!editing) return;
+
+  if (uploadTarget === "profilePic") {
+    setTimeout(() => {
+      profileInputRef.current?.click();
+    }, 100);
+  }
+
+  if (uploadTarget === "coverPhoto") {
+    setTimeout(() => {
+      coverInputRef.current?.click();
+    }, 100);
+  }
+}, [editing, uploadTarget]);
 
 const onSave = async () => {
     try {
