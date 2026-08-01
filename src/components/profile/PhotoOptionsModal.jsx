@@ -4,7 +4,9 @@ export default function PhotoOptionsModal({
   open,
   title,
   onView,
-  onUpload,
+  onTakePhoto,
+  onChoosePhoto,
+  onRemove,
   onCancel,
 }) {
   if (!open) return null;
@@ -22,19 +24,26 @@ export default function PhotoOptionsModal({
           {title}
         </h2>
 
-        <button
+         <button
           onClick={onView}
           className="w-full text-left py-4 border-b"
         >
           👁️ View
         </button>
 
-        <button
-          onClick={onUpload}
-          className="w-full text-left py-4 border-b"
-        >
-          📤 Upload New Photo
-        </button>
+         <button
+  onClick={onTakePhoto}
+  className="w-full text-left py-4 border-b"
+>
+  📷 Take Photo
+</button>
+
+<button
+  onClick={onChoosePhoto}
+  className="w-full text-left py-4 border-b"
+>
+  🖼️ Choose from Gallery
+</button>
 
         <button
           onClick={onCancel}
