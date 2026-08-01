@@ -30,22 +30,30 @@ const [cropType, setCropType] = useState(null);
 
 const profileInputRef = useRef(null);
 const coverInputRef = useRef(null);
+const [captureMode, setCaptureMode] = useState("");
+
 
 useEffect(() => {
-  if (!editing) return;
+  if (!editing || !uploadTarget) return;
 
-  if (uploadTarget === "profilePic") {
+  if (uploadTarget.type === "profilePic") {
+    setCaptureMode(uploadTarget.mode);
+
     setTimeout(() => {
       profileInputRef.current?.click();
     }, 100);
   }
 
-  if (uploadTarget === "coverPhoto") {
+  if (uploadTarget.type === "coverPhoto") {
+    setCaptureMode(uploadTarget.mode);
+
     setTimeout(() => {
       coverInputRef.current?.click();
     }, 100);
   }
 }, [editing, uploadTarget]);
+
+
 
 const onSave = async () => {
     try {
