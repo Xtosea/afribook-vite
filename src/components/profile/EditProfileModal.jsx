@@ -153,22 +153,30 @@ const onSave = async () => {
           
   
    <input
-    id="profile-upload-input"
-    ref={profileInputRef}
-    hidden
-    type="file"
-    accept="image/*"
-    className="w-full"
+  id="profile-upload-input"
+  ref={profileInputRef}
+  hidden
+  type="file"
+  accept="image/*"
+  capture={
+    captureMode === "camera"
+      ? "environment"
+      : undefined
+  }
+  className="w-full"
+  onChange={(e) => {
     onChange={(e) => {
-      const file = e.target.files?.[0];
+  const file = e.target.files?.[0];
 
-      if (!file) return;
+  if (!file) return;
 
-      setCropType("profilePic");
-      setCropImageFile(file);
-      setCropImage(URL.createObjectURL(file));
-    }}
-  />
+  setCropType("profilePic");
+  setCropImageFile(file);
+  setCropImage(URL.createObjectURL(file));
+
+  setCaptureMode("");
+}}
+/>
 
   {uploadProgress?.profilePic > 0 && (
     <div className="w-full bg-gray-200 h-2 rounded mt-2">
@@ -217,16 +225,24 @@ const onSave = async () => {
   hidden
   type="file"
   accept="image/*"
+  capture={
+    captureMode === "camera"
+      ? "environment"
+      : undefined
+  }
   className="w-full"
   onChange={(e) => {
-    const file = e.target.files?.[0];
+    onChange={(e) => {
+  const file = e.target.files?.[0];
 
-    if (!file) return;
+  if (!file) return;
 
-    setCropType("coverPhoto");
-    setCropImageFile(file);
-    setCropImage(URL.createObjectURL(file));
-  }}
+  setCropType("profilePic");
+  setCropImageFile(file);
+  setCropImage(URL.createObjectURL(file));
+
+  setCaptureMode("");
+}}
 />
 
           {uploadProgress?.coverPhoto > 0 && (
