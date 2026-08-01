@@ -33,8 +33,6 @@ const [rotation, setRotation] = useState(0);
   []
 );
 
-  if (!open || !image) return null;
-
 const handleCrop = async () => {
   try {
     const croppedFile = await getCroppedImg(
@@ -73,6 +71,8 @@ useEffect(() => {
     setCrop({ x: 0, y: 0 });
   }
 }, [open]);
+
+if (!open || !image) return null;
 
   return (
     <div className="fixed inset-0 z-[10000] bg-black/80 flex items-center justify-center">
