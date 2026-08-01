@@ -155,6 +155,8 @@ const shareReferral =
        
   </div>
   </div>
+  
+
   <PhotoOptionsModal
   open={showProfileOptions}
   title="Profile Picture"
@@ -163,13 +165,17 @@ const shareReferral =
     setShowProfileOptions(false);
     onViewProfilePhoto?.();
   }}
-  onUpload={() => {
-  setShowProfileOptions(false);
-  onEdit?.();
-}}
+  onTakePhoto={() => {
+    setShowProfileOptions(false);
+    onUploadProfilePhoto?.("camera");
+  }}
+  onChoosePhoto={() => {
+    setShowProfileOptions(false);
+    onUploadProfilePhoto?.("gallery");
+  }}
 />
 
-<PhotoOptionsModal
+ <PhotoOptionsModal
   open={showCoverOptions}
   title="Cover Photo"
   onCancel={() => setShowCoverOptions(false)}
@@ -177,10 +183,14 @@ const shareReferral =
     setShowCoverOptions(false);
     onViewCoverPhoto?.();
   }}
-  onUpload={() => {
-  setShowCoverOptions(false);
-  onEdit?.();
-}}
+  onTakePhoto={() => {
+    setShowCoverOptions(false);
+    onUploadCoverPhoto?.("camera");
+  }}
+  onChoosePhoto={() => {
+    setShowCoverOptions(false);
+    onUploadCoverPhoto?.("gallery");
+  }}
 />
 
 </div>
