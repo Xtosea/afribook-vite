@@ -14,7 +14,9 @@ const ProfileHeader = ({
   previewProfilePic,
   previewCoverPhoto,
   onViewProfilePhoto,
+  onUploadProfilePhoto,
   onViewCoverPhoto,
+  onUploadCoverPhoto,
 }) => {
 
 const isDefaultProfilePic =
