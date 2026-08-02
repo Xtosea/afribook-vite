@@ -90,15 +90,14 @@ const data = await res.json();
 
 console.log("Response:", data);
 
-      if (!res.ok) {
-
-        alert(
-          data.error ||
-            "Registration failed"
-        );
-
-        return;
-      }
+if (!res.ok) {
+  alert(
+    data.message ||
+    data.error ||
+    "Registration failed"
+  );
+  return;
+}
 
       // Save login data if your backend returns it
 if (data.token) {
