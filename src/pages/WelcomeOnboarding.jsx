@@ -4,11 +4,17 @@ import {
   useSearchParams,
 } from "react-router-dom";
 
+import ProfilePhotoUploader from "../components/profile/ProfilePhotoUploader";
+
+
+
 export default function WelcomeOnboarding() {
 
   const navigate = useNavigate();
 
   const [searchParams] = useSearchParams();
+const [photo, setPhoto] = useState(null);
+
 
   const redirect =
     searchParams.get("redirect") || "/";
@@ -77,48 +83,36 @@ export default function WelcomeOnboarding() {
         </div>
 
         {/* BUTTONS */}
-<div className="space-y-3 pb-24">
+<div className="flex flex-col items-center gap-6 pb-12">
+
+  <ProfilePhotoUploader
+    value={
+      photo
+        ? URL.createObjectURL(photo)
+        : null
+    }
+    onChange={setPhoto}
+  />
+
+  <p className="text-gray-600 text-center">
+    Add a profile picture so friends can easily recognize you.
+  </p>
 
   <button
-  onClick={() => navigate(redirect, { replace: true })}
-  className="w-full bg-green-600 text-white px-6 py-3 rounded-xl font-semibold"
->
-  {redirect === "/" ? "Go to Home 🏠" : "Continue to Post 📄"}
-</button>
-
-  <button
-    onClick={() => navigate("/messages")}
-    className="w-full bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold"
+    onClick={() => {
+      // Upload photo here
+      navigate(redirect, { replace: true });
+    }}
+    className="w-full bg-green-600 text-white px-6 py-3 rounded-xl font-semibold"
   >
-    Messages 💬
+    Continue
   </button>
 
   <button
-    onClick={() => navigate("/sync-contacts")}
-    className="w-full bg-indigo-600 text-white px-6 py-3 rounded-xl font-semibold"
+    onClick={() => navigate(redirect, { replace: true })}
+    className="text-sm text-gray-500 underline"
   >
-    Sync Contacts 📱
-  </button>
-
-  <button
-    onClick={() => navigate("/suggested-friends")}
-    className="w-full bg-gradient-to-r from-indigo-600 to-blue-600 text-white px-6 py-3 rounded-xl font-semibold"
-  >
-    Find Friends 👥
-  </button>
-
-  <button
-    onClick={() => navigate("/profile")}
-    className="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 px-6 py-3 rounded-xl font-semibold flex items-center justify-center gap-2"
-  >
-    👤 Edit Profile
-  </button>
-
-  <button
-    onClick={() => navigate("/")}
-    className="text-sm text-gray-500 underline mt-4"
-  >
-    Continue later
+    Skip for now
   </button>
 
 </div>
