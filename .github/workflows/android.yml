@@ -1,1 +1,92 @@
-this 
+name: Build Android Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_name:
+        description: "Version Name (e.g. 1.0.0)"
+        required: true
+        default: "1.0.0"
+
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      VERSION_NAME: ${{ github.event.inputs.version_name || github.ref_name }}
+      VERSION_CODE: ${{ github.run_number }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: gradle
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build Vite App
+        run: npm run build
+
+      - name: Sync Capacitor
+        run: npx cap sync android
+
+      
+      - name: Upload Signed APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: AfricSocial-APK-${{ env.VERSION_NAME }}
+          path: android/app/build/outputs/apk/release/*.apk
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload Signed AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: AfricSocial-AAB-${{ env.VERSION_NAME }}
+          path: android/app/build/outputs/bundle/release/*.aab
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Rename Release Files
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          mkdir -p release
+
+          cp android/app/build/outputs/apk/release/*.apk \
+            release/AfricSocial-v${{ env.VERSION_NAME }}.apk
+
+          cp android/app/build/outputs/bundle/release/*.aab \
+            release/AfricSocial-v${{ env.VERSION_NAME }}.aab
+
+
+
+- name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            release/AfricSocial-v${{ env.VERSION_NAME }}.apk
+            release/AfricSocial-v${{ env.VERSION_NAME }}.aab
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+       
