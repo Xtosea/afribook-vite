@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import {
+import { useEffect, useState } from "react";
+ import {
   useNavigate,
   useSearchParams,
 } from "react-router-dom";
@@ -11,9 +11,9 @@ import ProfilePhotoUploader from "../components/profile/ProfilePhotoUploader";
 export default function WelcomeOnboarding() {
 
   const navigate = useNavigate();
+  const [photo, setPhoto] =        useState(null);
 
   const [searchParams] = useSearchParams();
-const [photo, setPhoto] = useState(null);
 
 
   const redirect =
