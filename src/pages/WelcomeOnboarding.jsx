@@ -86,12 +86,8 @@ export default function WelcomeOnboarding() {
 <div className="flex flex-col items-center gap-6 pb-12">
 
   <ProfilePhotoUploader
-    value={
-      photo
-        ? URL.createObjectURL(photo)
-        : null
-    }
-    onChange={setPhoto}
+  value={photo}
+  onChange={setPhoto}
   />
 
   <p className="text-gray-600 text-center">
