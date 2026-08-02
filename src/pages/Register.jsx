@@ -27,6 +27,8 @@ const [searchParams] = useSearchParams();
 const redirect =
   searchParams.get("redirect") || "/";
 
+const ref = searchParams.get("ref") || "";
+
   // =========================
   // LOAD AD SCRIPT
   // =========================
