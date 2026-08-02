@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">AfricSocial</string>
+    <string name="title_activity_main">AfricSocial</string>
+    <string name="package_name">com.globelynks.africsocial</string>
+    <string name="custom_url_scheme">com.globelynks.africsocial</string>
+</resources>

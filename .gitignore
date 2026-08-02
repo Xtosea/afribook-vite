@@ -22,3 +22,13 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Android signing
+africsocial-release.jks
+keystore.base64
+android/local.properties
+*.jks
+*.keystore
+
+# Local backups
+Backup/
