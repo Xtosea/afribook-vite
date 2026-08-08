@@ -1,9 +1,9 @@
 import { useState } from "react";
-import axios from "axios";
 import { compressStoryMedia } from "../utils/compressStoryMedia";
 import useR2StoryMusic from "./r2StoryMusic";
+import { API_BASE } from "../api/api";
 
-const API_BASE = import.meta.env.VITE_API_BASE;
+
 
 export function useStoryUpload() {
 
