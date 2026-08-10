@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import {
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 import { API_BASE, fetchWithToken } from "../api/api";
 
 const defaultProfile =
@@ -19,11 +22,16 @@ const DURATIONS = [
 
 export default function PKCreate() {
   const navigate = useNavigate();
+const location = useLocation();
+
+const friendFromState =
+  location.state?.friend || null;
 
   const token = localStorage.getItem("token");
 
   const [friends, setFriends] = useState([]);
-  const [selectedFriend, setSelectedFriend] = useState(null);
+  const [selectedFriend, setSelectedFriend] =
+  useState(friendFromState);
   const [duration, setDuration] = useState(300);
 
   const [loadingFriends, setLoadingFriends] = useState(true);
