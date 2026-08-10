@@ -96,7 +96,7 @@ import EditListing from "./pages/EditListing";
 import MyListings from "./pages/MyListings";
 import SavedListings from "./pages/SavedListings";
 import StickerTest from "./pages/StickerTest";
-import PKTest from "./components/PKTest";
+import PKBattle from "./components/PKBattle";
 
 
 
