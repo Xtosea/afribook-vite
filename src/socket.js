@@ -136,3 +136,35 @@ export const safeEmit = (event, data) => {
     return false;
   }
 };
+
+
+// ==========================================
+// PK SOCKET HELPERS
+// ==========================================
+
+export const joinPK = (battleId) => {
+  return safeEmit("pk:join", {
+    battleId,
+  });
+};
+
+
+export const leavePK = (battleId) => {
+  return safeEmit("pk:leave", {
+    battleId,
+  });
+};
+
+
+export const getPKState = (battleId) => {
+  return safeEmit("pk:get-state", {
+    battleId,
+  });
+};
+
+
+export const startPKLive = (battleId) => {
+  return safeEmit("pk:start", {
+    battleId,
+  });
+};
