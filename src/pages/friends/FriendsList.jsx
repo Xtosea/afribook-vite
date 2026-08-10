@@ -123,23 +123,51 @@ const FriendsList = () => {
 
               </div>
 
-              <button
-                onClick={() =>
-                  navigate(`/messages/${friend._id}`)
-                }
-                className="
-                  bg-blue-600
-                  hover:bg-blue-700
-                  text-white
-                  px-4
-                  py-2
-                  rounded-xl
-                  text-sm
-                  font-medium
-                "
-              >
-                Message
-              </button>
+              <div className="flex flex-col gap-2">
+
+  <button
+    onClick={() =>
+      navigate(`/messages/${friend._id}`)
+    }
+    className="
+      px-4
+      py-2
+      rounded-xl
+      bg-blue-600
+      text-white
+      text-sm
+      font-medium
+      hover:bg-blue-700
+      transition
+    "
+  >
+    Message
+  </button>
+
+  <button
+    onClick={() =>
+      navigate("/pk/create", {
+        state: {
+          friend,
+        },
+      })
+    }
+    className="
+      px-4
+      py-2
+      rounded-xl
+      bg-purple-600
+      text-white
+      text-sm
+      font-medium
+      hover:bg-purple-700
+      transition
+    "
+  >
+    🥊 PK Battle
+  </button>
+
+</div>
 
             </div>
 
