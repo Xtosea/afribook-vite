@@ -1,3 +1,5 @@
+// src/pages/PKBattle.jsx
+
 import React, {
   useCallback,
   useEffect,
@@ -10,65 +12,24 @@ import {
   getSocket,
   joinPK,
   leavePK,
-  getPKState,
   startPKLive,
+  getPKState,
 } from "../socket.js";
 
-import {
-  API_BASE,
-  fetchWithToken,
-} from "../api/api.js";
+import { API_BASE, fetchWithToken } from "../api/api.js";
+
+import { useParams, useNavigate } from "react-router-dom";
 
 
-// ==========================================
-// HELPERS
-// ==========================================
+export default function PKBattle() {
 
-const getBattleIdFromUrl = () => {
-  const params = new URLSearchParams(
-    window.location.search
-  );
-
-  return params.get("battleId");
-};
-
-
-const formatTime = (seconds) => {
-
-  const safeSeconds =
-    Math.max(0, Math.floor(seconds || 0));
-
-  const minutes =
-    Math.floor(safeSeconds / 60);
-
-  const remainingSeconds =
-    safeSeconds % 60;
-
-  return `${String(minutes).padStart(2, "0")}:${String(
-    remainingSeconds
-  ).padStart(2, "0")}`;
-};
-
-
-// ==========================================
-// PK PAGE
-// ==========================================
-
-export default function PKTest() {
-
-  const battleId =
-    useMemo(
-      () => getBattleIdFromUrl(),
-      []
-    );
+  const { battleId } = useParams();
+  const navigate = useNavigate();
 
 
   // ==========================================
   // STATE
   // ==========================================
-
-  const [connected, setConnected] =
-    useState(false);
 
   const [battle, setBattle] =
     useState(null);
@@ -76,47 +37,64 @@ export default function PKTest() {
   const [roomState, setRoomState] =
     useState(null);
 
-  const [started, setStarted] =
+  const [connected, setConnected] =
     useState(false);
-
-  const [finished, setFinished] =
-    useState(false);
-
-  const [remaining, setRemaining] =
-    useState(0);
-
-  const [error, setError] =
-    useState("");
 
   const [loading, setLoading] =
     useState(true);
 
-  const [actionLoading, setActionLoading] =
+  const [error, setError] =
+    useState("");
+
+  const [secondsLeft, setSecondsLeft] =
+    useState(0);
+
+  const [finishing, setFinishing] =
     useState(false);
-
-  const [hostAScore, setHostAScore] =
-    useState(0);
-
-  const [hostBScore, setHostBScore] =
-    useState(0);
-
-  const [winner, setWinner] =
-    useState(null);
 
 
   // ==========================================
   // CURRENT USER
   // ==========================================
 
-  const getCurrentUserId = () => {
+  const getCurrentUserId = useCallback(() => {
 
-    const socket =
-      getSocket();
+    try {
 
-    return socket?.auth?.token
-      ? null
-      : null;
-  };
+      const token =
+        localStorage.getItem("token");
+
+      if (!token) {
+        return null;
+      }
+
+      const payload =
+        JSON.parse(
+          atob(
+            token
+              .split(".")[1]
+              .replace(/-/g, "+")
+              .replace(/_/g, "/")
+          )
+        );
+
+      return (
+        payload?.id ||
+        payload?._id ||
+        payload?.userId ||
+        null
+      );
+
+    } catch {
+
+      return null;
+    }
+
+  }, []);
+
+
+  const currentUserId =
+    getCurrentUserId();
 
 
   // ==========================================
@@ -127,19 +105,13 @@ export default function PKTest() {
     async () => {
 
       if (!battleId) {
-
-        setError(
-          "No PK battle ID was provided."
-        );
-
+        setError("PK battle ID is missing");
         setLoading(false);
-
         return;
       }
 
       try {
 
-        setLoading(true);
         setError("");
 
         const response =
@@ -150,7 +122,7 @@ export default function PKTest() {
         if (!response.ok) {
 
           throw new Error(
-            "PK battle could not be loaded"
+            "Failed to load PK battle"
           );
         }
 
@@ -169,43 +141,15 @@ export default function PKTest() {
           data.battle
         );
 
-        setHostAScore(
-          data.battle.hostAScore || 0
-        );
-
-        setHostBScore(
-          data.battle.hostBScore || 0
-        );
-
-        if (
-          data.battle.status ===
-          "completed"
-        ) {
-
-          setFinished(true);
-
-          setWinner(
-            data.battle.winner || null
-          );
-        }
-
-        if (
-          data.battle.status ===
-          "active"
-        ) {
-
-          setStarted(true);
-        }
-
-      } catch (err) {
+      } catch (error) {
 
         console.error(
-          "❌ Load PK error:",
-          err
+          "Load PK error:",
+          error
         );
 
         setError(
-          err.message ||
+          error.message ||
           "Failed to load PK"
         );
 
@@ -217,6 +161,92 @@ export default function PKTest() {
     },
     [battleId]
   );
+
+
+  useEffect(() => {
+
+    loadBattle();
+
+  }, [loadBattle]);
+
+
+  // ==========================================
+  // DETERMINE HOST
+  // ==========================================
+
+  const isHostA = useMemo(() => {
+
+    if (!battle || !currentUserId) {
+      return false;
+    }
+
+    return (
+      battle.hostA?._id?.toString() ===
+        currentUserId.toString() ||
+      battle.hostA?.toString() ===
+        currentUserId.toString()
+    );
+
+  }, [
+    battle,
+    currentUserId,
+  ]);
+
+
+  const isHostB = useMemo(() => {
+
+    if (!battle || !currentUserId) {
+      return false;
+    }
+
+    return (
+      battle.hostB?._id?.toString() ===
+        currentUserId.toString() ||
+      battle.hostB?.toString() ===
+        currentUserId.toString()
+    );
+
+  }, [
+    battle,
+    currentUserId,
+  ]);
+
+
+  const isHost =
+    isHostA || isHostB;
+
+
+  // ==========================================
+  // HOST INFORMATION
+  // ==========================================
+
+  const hostA =
+    battle?.hostA;
+
+  const hostB =
+    battle?.hostB;
+
+
+  const hostAName =
+    hostA?.name ||
+    hostA?.username ||
+    "Host A";
+
+
+  const hostBName =
+    hostB?.name ||
+    hostB?.username ||
+    "Host B";
+
+
+  const hostAImage =
+    hostA?.profilePic ||
+    "/profile/default-profile.png";
+
+
+  const hostBImage =
+    hostB?.profilePic ||
+    "/profile/default-profile.png";
 
 
   // ==========================================
@@ -233,51 +263,36 @@ export default function PKTest() {
       connectSocket();
 
     if (!socket) {
-
       setError(
         "Socket could not connect"
       );
-
       return;
     }
 
 
-    // ------------------------------------------
-    // CONNECT
-    // ------------------------------------------
-
     const handleConnect = () => {
 
       console.log(
-        "🟢 Real PK socket connected"
+        "🥊 PK Socket connected"
       );
 
       setConnected(true);
 
-      // Join the normal authenticated
-      // user room using the JWT identity.
-      socket.emit("join");
+      // Automatically join the real PK
+      joinPK(battleId);
 
     };
 
 
-    // ------------------------------------------
-    // DISCONNECT
-    // ------------------------------------------
-
     const handleDisconnect = () => {
 
       console.log(
-        "🔴 PK socket disconnected"
+        "🔴 PK Socket disconnected"
       );
 
       setConnected(false);
     };
 
-
-    // ------------------------------------------
-    // ROOM STATE
-    // ------------------------------------------
 
     const handleRoomState = (
       state
@@ -288,175 +303,60 @@ export default function PKTest() {
         state
       );
 
-      if (!state) {
-        return;
-      }
-
-      setRoomState(state);
-
-      setStarted(
-        Boolean(state.started)
-      );
-
-      setHostAScore(
-        Number(
-          state.hostAScore || 0
-        )
-      );
-
-      setHostBScore(
-        Number(
-          state.hostBScore || 0
-        )
+      setRoomState(
+        state
       );
 
     };
 
 
-    // ------------------------------------------
-    // PK STARTED
-    // ------------------------------------------
-
     const handleStarted = (
-      data
+      state
     ) => {
 
       console.log(
         "🚀 PK started:",
-        data
+        state
       );
-
-      setStarted(true);
-
-      setFinished(false);
 
       setRoomState(
         (previous) => ({
           ...(previous || {}),
-          ...(data || {}),
+          ...(state || {}),
           started: true,
         })
       );
 
-      if (data?.hostAScore !== undefined) {
+      loadBattle();
 
-        setHostAScore(
-          Number(data.hostAScore)
-        );
-      }
-
-      if (data?.hostBScore !== undefined) {
-
-        setHostBScore(
-          Number(data.hostBScore)
-        );
-      }
-
-      if (data?.startedAt) {
-
-        setBattle(
-          (previous) => ({
-            ...(previous || {}),
-            ...(data || {}),
-            status: "active",
-          })
-        );
-      }
     };
 
-
-    // ------------------------------------------
-    // SCORE UPDATED
-    // ------------------------------------------
 
     const handleScoreUpdate = (
       data
     ) => {
 
       console.log(
-        "🥊 PK score updated:",
+        "🥊 PK score:",
         data
-      );
-
-      setHostAScore(
-        Number(
-          data?.hostAScore || 0
-        )
-      );
-
-      setHostBScore(
-        Number(
-          data?.hostBScore || 0
-        )
       );
 
       setRoomState(
         (previous) => ({
           ...(previous || {}),
           hostAScore:
-            Number(
-              data?.hostAScore || 0
-            ),
+            data?.hostAScore ??
+            previous?.hostAScore ??
+            0,
           hostBScore:
-            Number(
-              data?.hostBScore || 0
-            ),
+            data?.hostBScore ??
+            previous?.hostBScore ??
+            0,
         })
       );
+
     };
 
-
-    // ------------------------------------------
-    // PK FINISHED
-    // ------------------------------------------
-
-    const handleFinished = (
-      data
-    ) => {
-
-      console.log(
-        "🏆 PK finished:",
-        data
-      );
-
-      setFinished(true);
-
-      setStarted(false);
-
-      setRemaining(0);
-
-      setWinner(
-        data?.winner ||
-        null
-      );
-
-      if (data?.hostAScore !== undefined) {
-
-        setHostAScore(
-          Number(data.hostAScore)
-        );
-      }
-
-      if (data?.hostBScore !== undefined) {
-
-        setHostBScore(
-          Number(data.hostBScore)
-        );
-      }
-
-      setBattle(
-        (previous) => ({
-          ...(previous || {}),
-          ...(data || {}),
-          status: "completed",
-        })
-      );
-    };
-
-
-    // ------------------------------------------
-    // ERROR
-    // ------------------------------------------
 
     const handleError = (
       data
@@ -469,8 +369,9 @@ export default function PKTest() {
 
       setError(
         data?.message ||
-        "PK socket error"
+        "PK error"
       );
+
     };
 
 
@@ -500,11 +401,6 @@ export default function PKTest() {
     );
 
     socket.on(
-      "pk:finished",
-      handleFinished
-    );
-
-    socket.on(
       "pk:error",
       handleError
     );
@@ -514,20 +410,9 @@ export default function PKTest() {
 
       setConnected(true);
 
-      socket.emit("join");
+      joinPK(battleId);
     }
 
-
-    // ------------------------------------------
-    // LOAD BATTLE
-    // ------------------------------------------
-
-    loadBattle();
-
-
-    // ------------------------------------------
-    // CLEANUP
-    // ------------------------------------------
 
     return () => {
 
@@ -557,11 +442,6 @@ export default function PKTest() {
       );
 
       socket.off(
-        "pk:finished",
-        handleFinished
-      );
-
-      socket.off(
         "pk:error",
         handleError
       );
@@ -575,61 +455,160 @@ export default function PKTest() {
 
 
   // ==========================================
-  // JOIN PK
+  // SCORE
   // ==========================================
 
-  const handleJoin = () => {
+  const hostAScore =
+    roomState?.hostAScore ??
+    battle?.hostAScore ??
+    0;
 
-    if (!battleId) {
+  const hostBScore =
+    roomState?.hostBScore ??
+    battle?.hostBScore ??
+    0;
 
-      setError(
-        "Battle ID is missing"
-      );
+
+  // ==========================================
+  // STARTED
+  // ==========================================
+
+  const isStarted =
+    roomState?.started ??
+    battle?.status === "active";
+
+
+  // ==========================================
+  // START TIME
+  // ==========================================
+
+  useEffect(() => {
+
+    if (!isStarted) {
+
+      setSecondsLeft(0);
 
       return;
     }
 
-    setError("");
+    const startedAt =
+      roomState?.startedAt ||
+      battle?.startedAt;
 
-    const success =
-      joinPK(battleId);
-
-    if (!success) {
-
-      setError(
-        "Socket is not connected"
-      );
-
+    if (!startedAt) {
       return;
     }
 
-    console.log(
-      `🥊 Joined PK ${battleId}`
-    );
-  };
+    const duration =
+      Number(
+        battle?.duration || 300
+      );
+
+
+    const updateTimer = () => {
+
+      const start =
+        new Date(
+          startedAt
+        ).getTime();
+
+      const end =
+        start +
+        duration * 1000;
+
+      const remaining =
+        Math.max(
+          0,
+          Math.ceil(
+            (end - Date.now()) /
+              1000
+          )
+        );
+
+      setSecondsLeft(
+        remaining
+      );
+
+    };
+
+
+    updateTimer();
+
+    const timer =
+      setInterval(
+        updateTimer,
+        1000
+      );
+
+
+    return () => {
+
+      clearInterval(
+        timer
+      );
+
+    };
+
+  }, [
+    isStarted,
+    roomState?.startedAt,
+    battle?.startedAt,
+    battle?.duration,
+  ]);
 
 
   // ==========================================
-  // GET STATE
+  // AUTO FINISH TIMER
   // ==========================================
 
-  const handleState = () => {
+  useEffect(() => {
 
-    if (!battleId) {
+    if (
+      !isStarted ||
+      secondsLeft !== 0 ||
+      !isHost
+    ) {
       return;
     }
 
-    setError("");
-
-    const success =
-      getPKState(battleId);
-
-    if (!success) {
-
-      setError(
-        "Socket is not connected"
-      );
+    if (
+      battle?.status !== "active"
+    ) {
+      return;
     }
+
+    finishBattle();
+
+  }, [
+    secondsLeft,
+    isStarted,
+    isHost,
+    battle?.status,
+  ]);
+
+
+  // ==========================================
+  // FORMAT TIMER
+  // ==========================================
+
+  const formattedTime = () => {
+
+    const minutes =
+      Math.floor(
+        secondsLeft / 60
+      );
+
+    const seconds =
+      secondsLeft % 60;
+
+    return `${String(minutes).padStart(
+      2,
+      "0"
+    )}:${String(seconds).padStart(
+      2,
+      "0"
+    )}`;
+
   };
 
 
@@ -637,101 +616,42 @@ export default function PKTest() {
   // START PK
   // ==========================================
 
-  const handleStart = async () => {
-
-    if (!battleId) {
-      return;
-    }
+  const handleStart = () => {
 
     setError("");
 
-    setActionLoading(true);
-
-    try {
-
-      // First use the REST endpoint to
-      // update MongoDB.
-      const response =
-        await fetchWithToken(
-          `${API_BASE}/pk/${battleId}/start`,
-          {
-            method: "POST",
-          }
-        );
-
-      const data =
-        await response.json();
-
-      if (!response.ok) {
-
-        throw new Error(
-          data.message ||
-          "Failed to start PK"
-        );
-      }
-
-      // Then synchronize the live
-      // Redis/Socket.IO room.
-      const success =
-        startPKLive(battleId);
-
-      if (!success) {
-
-        throw new Error(
-          "Socket is not connected"
-        );
-      }
-
-    } catch (err) {
-
-      console.error(
-        "❌ Start PK error:",
-        err
-      );
+    if (!connected) {
 
       setError(
-        err.message ||
-        "Failed to start PK"
+        "Socket is not connected"
       );
 
-    } finally {
-
-      setActionLoading(false);
-    }
-  };
-
-
-  // ==========================================
-  // LEAVE
-  // ==========================================
-
-  const handleLeave = () => {
-
-    if (!battleId) {
       return;
     }
 
-    leavePK(
+    if (!isHost) {
+
+      setError(
+        "Only a PK host can start the battle"
+      );
+
+      return;
+    }
+
+    startPKLive(
       battleId
     );
 
-    setRoomState(null);
-
-    console.log(
-      `🚪 Left PK ${battleId}`
-    );
   };
 
 
   // ==========================================
-  // ADD SCORE
+  // SCORE
   // ==========================================
 
-  const handleAddScore = () => {
-
-    if (!battleId) {
-      return;
-    }
+  const handleScore = (
+    points
+  ) => {
 
     setError("");
 
@@ -747,126 +667,130 @@ export default function PKTest() {
       return;
     }
 
-    if (!started || finished) {
+    if (!isStarted) {
 
       setError(
-        "PK is not active"
+        "PK has not started"
       );
 
       return;
     }
+
+    if (!isHost) {
+
+      setError(
+        "You are not a host of this PK"
+      );
+
+      return;
+    }
+
 
     socket.emit(
       "pk:score",
       {
         battleId,
-        points: 100,
+        points,
       }
     );
+
   };
 
 
   // ==========================================
-  // COUNTDOWN
+  // FINISH PK
   // ==========================================
 
-  useEffect(() => {
+  async function finishBattle() {
 
-    if (
-      !started ||
-      finished ||
-      !battle?.startedAt
-    ) {
+    if (finishing) {
       return;
     }
 
-    const duration =
-      Number(
-        battle.duration || 300
-      );
+    try {
 
-    const startedTime =
-      new Date(
-        battle.startedAt
-      ).getTime();
+      setFinishing(true);
 
-    const updateTimer = () => {
-
-      const now =
-        Date.now();
-
-      const elapsed =
-        Math.floor(
-          (now - startedTime) / 1000
+      const response =
+        await fetchWithToken(
+          `${API_BASE}/pk/${battleId}/finish`,
+          {
+            method: "POST",
+          }
         );
 
-      const left =
-        Math.max(
-          0,
-          duration - elapsed
-        );
+      const data =
+        await response.json();
 
-      setRemaining(left);
+      if (!response.ok) {
 
-      if (left <= 0) {
-
-        setStarted(false);
-
-        console.log(
-          "⏰ PK timer reached zero"
+        throw new Error(
+          data.message ||
+          "Failed to finish PK"
         );
       }
-    };
 
-    updateTimer();
-
-    const timer =
-      setInterval(
-        updateTimer,
-        1000
+      setBattle(
+        data.battle
       );
 
-    return () => {
-      clearInterval(timer);
-    };
+    } catch (error) {
 
-  }, [
-    started,
-    finished,
-    battle?.startedAt,
-    battle?.duration,
-  ]);
+      console.error(
+        "Finish PK error:",
+        error
+      );
 
+      setError(
+        error.message ||
+        "Failed to finish PK"
+      );
 
-  // ==========================================
-  // SCORE PERCENTAGE
-  // ==========================================
+    } finally {
 
-  const totalScore =
-    hostAScore +
-    hostBScore;
+      setFinishing(false);
+    }
 
-  const hostAPercentage =
-    totalScore > 0
-      ? (hostAScore / totalScore) * 100
-      : 50;
-
-  const hostBPercentage =
-    totalScore > 0
-      ? (hostBScore / totalScore) * 100
-      : 50;
+  }
 
 
   // ==========================================
-  // DETERMINE WINNER
+  // LEAVE
   // ==========================================
 
-  const calculatedWinner =
-    hostAScore > hostBScore
-      ? battle?.hostA
-      : hostBScore > hostAScore
-        ? battle?.hostB
-        : null;
+  const handleLeave = () => {
+
+    leavePK(
+      battleId
+    );
+
+    navigate(
+      "/"
+    );
+
+  };
+
+
+  // ==========================================
+  // WINNER
+  // ==========================================
+
+  const winnerId =
+    battle?.winner?._id ||
+    battle?.winner;
+
+
+  const winnerName =
+    winnerId &&
+    winnerId.toString() ===
+      (
+        hostA?._id ||
+        hostA
+      )?.toString()
+      ? hostAName
+      : winnerId
+      ? hostBName
+      : null;
 
 
   // ==========================================
@@ -876,10 +800,8 @@ export default function PKTest() {
   if (loading) {
 
     return (
-      <div className="min-h-screen flex items-center justify-center p-6">
-
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-
           <div className="text-4xl mb-3">
             🥊
           </div>
@@ -887,54 +809,15 @@ export default function PKTest() {
           <p>
             Loading PK battle...
           </p>
-
         </div>
-
       </div>
     );
+
   }
 
 
   // ==========================================
-  // NO BATTLE ID
-  // ==========================================
-
-  if (!battleId) {
-
-    return (
-      <div className="min-h-screen flex items-center justify-center p-6">
-
-        <div className="max-w-md text-center">
-
-          <div className="text-5xl mb-4">
-            🥊
-          </div>
-
-          <h2 className="text-2xl font-bold">
-            PK Battle
-          </h2>
-
-          <p className="mt-3 text-gray-500">
-            No battle ID was provided.
-          </p>
-
-          <p className="mt-2 text-sm text-gray-400">
-            Open this page using:
-          </p>
-
-          <code className="block mt-2 p-3 bg-gray-100 rounded-lg text-sm break-all">
-            /pk?battleId=YOUR_BATTLE_ID
-          </code>
-
-        </div>
-
-      </div>
-    );
-  }
-
-
-  // ==========================================
-  // BATTLE NOT FOUND
+  // ERROR WITHOUT BATTLE
   // ==========================================
 
   if (!battle) {
@@ -949,19 +832,25 @@ export default function PKTest() {
           </div>
 
           <h2 className="text-xl font-bold">
-            PK battle not found
+            PK unavailable
           </h2>
 
-          {error && (
-            <p className="text-red-500 mt-3">
-              {error}
-            </p>
-          )}
+          <p className="text-red-500 mt-2">
+            {error || "PK battle not found"}
+          </p>
+
+          <button
+            onClick={() => navigate(-1)}
+            className="mt-5 px-5 py-2 rounded-lg bg-gray-900 text-white"
+          >
+            Go Back
+          </button>
 
         </div>
 
       </div>
     );
+
   }
 
 
@@ -970,391 +859,287 @@ export default function PKTest() {
   // ==========================================
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-950 p-4">
+    <div className="min-h-screen bg-gray-950 text-white p-4">
 
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-5xl mx-auto">
+
 
         {/* HEADER */}
 
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-6">
 
           <div>
 
             <h1 className="text-2xl font-bold">
-              🥊 Live PK Battle
+              🥊 PK Battle
             </h1>
 
-            <p className="text-sm text-gray-500">
-              Battle ID: {battleId}
+            <p className="text-sm text-gray-400">
+              {connected
+                ? "🟢 Live connection"
+                : "🔴 Connecting..."}
             </p>
 
           </div>
 
-          <div
-            className={`px-3 py-1 rounded-full text-sm font-semibold ${
-              connected
-                ? "bg-green-100 text-green-700"
-                : "bg-red-100 text-red-700"
-            }`}
-          >
-            {connected
-              ? "🟢 Live"
-              : "🔴 Offline"}
-          </div>
-
-        </div>
-
-
-        {/* ERROR */}
-
-        {error && (
-
-          <div className="mb-4 p-3 rounded-xl bg-red-100 text-red-700">
-
-            ❌ {error}
-
-          </div>
-
-        )}
-
-
-        {/* PLAYERS */}
-
-        <div className="grid grid-cols-2 gap-3">
-
-          {/* HOST A */}
-
-          <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 text-center shadow">
-
-            <div className="w-20 h-20 mx-auto rounded-full bg-gray-200 overflow-hidden">
-
-              {battle.hostA?.profilePic ? (
-
-                <img
-                  src={battle.hostA.profilePic}
-                  alt={
-                    battle.hostA.name ||
-                    "Host A"
-                  }
-                  className="w-full h-full object-cover"
-                />
-
-              ) : (
-
-                <div className="w-full h-full flex items-center justify-center text-3xl">
-                  👤
-                </div>
-              )}
-
-            </div>
-
-            <h2 className="mt-3 font-bold truncate">
-
-              {battle.hostA?.name ||
-               battle.hostA?.username ||
-               "Host A"}
-
-            </h2>
-
-            <div className="text-4xl font-black mt-2">
-              {hostAScore}
-            </div>
-
-          </div>
-
-
-          {/* HOST B */}
-
-          <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 text-center shadow">
-
-            <div className="w-20 h-20 mx-auto rounded-full bg-gray-200 overflow-hidden">
-
-              {battle.hostB?.profilePic ? (
-
-                <img
-                  src={battle.hostB.profilePic}
-                  alt={
-                    battle.hostB.name ||
-                    "Host B"
-                  }
-                  className="w-full h-full object-cover"
-                />
-
-              ) : (
-
-                <div className="w-full h-full flex items-center justify-center text-3xl">
-                  👤
-                </div>
-              )}
-
-            </div>
-
-            <h2 className="mt-3 font-bold truncate">
-
-              {battle.hostB?.name ||
-               battle.hostB?.username ||
-               "Host B"}
-
-            </h2>
-
-            <div className="text-4xl font-black mt-2">
-              {hostBScore}
-            </div>
-
-          </div>
-
-        </div>
-
-
-        {/* SCORE BAR */}
-
-        <div className="mt-4">
-
-          <div className="h-5 rounded-full overflow-hidden flex bg-gray-300">
-
-            <div
-              className="transition-all duration-500"
-              style={{
-                width: `${hostAPercentage}%`,
-                background:
-                  "linear-gradient(90deg,#f97316,#ef4444)",
-              }}
-            />
-
-            <div
-              className="transition-all duration-500"
-              style={{
-                width: `${hostBPercentage}%`,
-                background:
-                  "linear-gradient(90deg,#3b82f6,#6366f1)",
-              }}
-            />
-
-          </div>
-
-        </div>
-
-
-        {/* TIMER */}
-
-        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-5 mt-4 text-center">
-
-          <p className="text-sm text-gray-500">
-            {finished
-              ? "PK FINISHED"
-              : started
-                ? "TIME REMAINING"
-                : battle.status === "pending"
-                  ? "WAITING TO START"
-                  : "PK ENDED"}
-          </p>
-
-          <div className="text-5xl font-black mt-2">
-
-            {finished
-              ? "00:00"
-              : formatTime(remaining)}
-
-          </div>
-
-        </div>
-
-
-        {/* ACTIONS */}
-
-        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-4 mt-4">
-
-          <div className="grid grid-cols-2 gap-2">
-
-            <button
-              onClick={handleJoin}
-              disabled={!connected}
-              className="px-4 py-3 rounded-xl bg-blue-600 text-white font-semibold disabled:opacity-50"
-            >
-              🥊 Join PK
-            </button>
-
-            <button
-              onClick={handleState}
-              disabled={!connected}
-              className="px-4 py-3 rounded-xl bg-gray-700 text-white font-semibold disabled:opacity-50"
-            >
-              🔄 Sync
-            </button>
-
-            <button
-              onClick={handleStart}
-              disabled={
-                !connected ||
-                actionLoading ||
-                finished ||
-                battle.status !== "pending"
-              }
-              className="px-4 py-3 rounded-xl bg-green-600 text-white font-semibold disabled:opacity-50"
-            >
-              {actionLoading
-                ? "Starting..."
-                : "🚀 Start PK"}
-            </button>
-
-            <button
-              onClick={handleLeave}
-              disabled={!connected}
-              className="px-4 py-3 rounded-xl bg-gray-200 text-gray-900 font-semibold disabled:opacity-50"
-            >
-              🚪 Leave
-            </button>
-
-          </div>
-
-        </div>
-
-
-        {/* SCORE ACTION */}
-
-        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-5 mt-4 text-center">
-
-          <h2 className="text-lg font-bold">
-            🥊 Live PK Score
-          </h2>
-
-          <p className="text-sm text-gray-500 mt-1">
-            Your authenticated account determines
-            which side receives the points.
-          </p>
 
           <button
-            onClick={handleAddScore}
-            disabled={
-              !connected ||
-              !started ||
-              finished
-            }
-            className="mt-4 px-8 py-4 rounded-2xl bg-green-600 text-white font-bold text-lg disabled:opacity-50"
+            onClick={handleLeave}
+            className="px-4 py-2 rounded-lg bg-gray-800 hover:bg-gray-700"
           >
-            +100 PK Points
+            Leave
           </button>
 
         </div>
 
 
-        {/* STATUS */}
+        {/* BATTLE */}
 
-        <div className="text-center mt-4">
-
-          {started && !finished && (
-
-            <p className="text-green-600 font-bold">
-              🔴 PK IS LIVE
-            </p>
-
-          )}
-
-          {!started &&
-            !finished &&
-            battle.status === "pending" && (
-
-            <p className="text-yellow-600 font-semibold">
-              ⏳ Waiting for PK to start
-            </p>
-
-          )}
-
-        </div>
+        <div className="rounded-3xl bg-gray-900 border border-gray-800 overflow-hidden">
 
 
-        {/* WINNER */}
+          {/* STATUS */}
 
-        {finished && (
+          <div className="text-center p-5 border-b border-gray-800">
 
-          <div className="mt-5 bg-white dark:bg-gray-900 rounded-2xl shadow p-6 text-center">
+            {isStarted ? (
 
-            <div className="text-5xl">
-              🏆
-            </div>
+              <>
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-600/20 text-red-400">
 
-            <h2 className="text-2xl font-black mt-2">
-              PK Finished
-            </h2>
+                  <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
 
-            {hostAScore === hostBScore ? (
+                  LIVE
 
-              <p className="mt-2 text-xl font-bold">
-                🤝 It's a Draw!
-              </p>
+                </div>
+
+                <div className="text-4xl font-black mt-3">
+                  {formattedTime()}
+                </div>
+
+              </>
+
+            ) : battle.status === "completed" ? (
+
+              <div className="text-yellow-400 font-bold">
+                PK ENDED
+              </div>
 
             ) : (
 
-              <p className="mt-2 text-xl font-bold">
-
-                Winner:{" "}
-
-                {(
-                  winner?.name ||
-                  winner?.username ||
-                  calculatedWinner?.name ||
-                  calculatedWinner?.username ||
-                  "Winner"
-                )}
-
-              </p>
+              <div className="text-blue-400 font-bold">
+                WAITING TO START
+              </div>
 
             )}
 
-            <div className="mt-4 grid grid-cols-2 gap-3">
+          </div>
 
-              <div className="p-3 rounded-xl bg-gray-100 dark:bg-gray-800">
 
-                <div className="text-sm text-gray-500">
-                  {battle.hostA?.name || "Host A"}
-                </div>
+          {/* HOSTS */}
 
-                <div className="text-2xl font-black">
-                  {hostAScore}
-                </div>
+          <div className="grid grid-cols-2">
 
+
+            {/* HOST A */}
+
+            <div className="p-6 text-center border-r border-gray-800">
+
+              <img
+                src={hostAImage}
+                alt={hostAName}
+                className="w-20 h-20 rounded-full object-cover mx-auto border-4 border-blue-500"
+              />
+
+              <h2 className="font-bold text-lg mt-3">
+                {hostAName}
+              </h2>
+
+              <p className="text-xs text-gray-400">
+                HOST A
+              </p>
+
+              <div className="text-5xl font-black mt-5">
+                {hostAScore}
               </div>
 
-              <div className="p-3 rounded-xl bg-gray-100 dark:bg-gray-800">
+            </div>
 
-                <div className="text-sm text-gray-500">
-                  {battle.hostB?.name || "Host B"}
-                </div>
 
-                <div className="text-2xl font-black">
-                  {hostBScore}
-                </div>
+            {/* HOST B */}
 
+            <div className="p-6 text-center">
+
+              <img
+                src={hostBImage}
+                alt={hostBName}
+                className="w-20 h-20 rounded-full object-cover mx-auto border-4 border-pink-500"
+              />
+
+              <h2 className="font-bold text-lg mt-3">
+                {hostBName}
+              </h2>
+
+              <p className="text-xs text-gray-400">
+                HOST B
+              </p>
+
+              <div className="text-5xl font-black mt-5">
+                {hostBScore}
               </div>
 
             </div>
 
           </div>
 
+
+          {/* SCORE CONTROLS */}
+
+          {isStarted && isHost && (
+
+            <div className="p-6 border-t border-gray-800">
+
+              <p className="text-center text-sm text-gray-400 mb-4">
+                You are{" "}
+                <strong>
+                  {isHostA
+                    ? "Host A"
+                    : "Host B"}
+                </strong>
+              </p>
+
+
+              <div className="grid grid-cols-3 gap-3">
+
+                <button
+                  onClick={() =>
+                    handleScore(100)
+                  }
+                  className="py-3 rounded-xl bg-green-600 font-bold hover:bg-green-500"
+                >
+                  +100
+                </button>
+
+                <button
+                  onClick={() =>
+                    handleScore(500)
+                  }
+                  className="py-3 rounded-xl bg-green-600 font-bold hover:bg-green-500"
+                >
+                  +500
+                </button>
+
+                <button
+                  onClick={() =>
+                    handleScore(1000)
+                  }
+                  className="py-3 rounded-xl bg-green-600 font-bold hover:bg-green-500"
+                >
+                  +1,000
+                </button>
+
+              </div>
+
+            </div>
+
+          )}
+
+
+          {/* START */}
+
+          {!isStarted &&
+            battle.status === "pending" &&
+            isHost && (
+
+              <div className="p-6 border-t border-gray-800 text-center">
+
+                <button
+                  onClick={handleStart}
+                  disabled={!connected}
+                  className="px-8 py-3 rounded-xl bg-red-600 font-bold hover:bg-red-500 disabled:opacity-50"
+                >
+                  🚀 Start PK
+                </button>
+
+              </div>
+
+            )}
+
+
+          {/* WAITING */}
+
+          {!isStarted &&
+            battle.status === "pending" &&
+            !isHost && (
+
+              <div className="p-6 border-t border-gray-800 text-center text-gray-400">
+                Waiting for a host to start the PK...
+              </div>
+
+            )}
+
+
+          {/* RESULT */}
+
+          {battle.status === "completed" && (
+
+            <div className="p-6 border-t border-gray-800 text-center">
+
+              <div className="text-3xl mb-2">
+                🏆
+              </div>
+
+              <h2 className="text-xl font-bold">
+                {winnerName
+                  ? `${winnerName} wins!`
+                  : "It's a draw!"}
+              </h2>
+
+            </div>
+
+          )}
+
+        </div>
+
+
+        {/* CONNECTION / ERROR */}
+
+        {error && (
+
+          <div className="mt-4 p-4 rounded-xl bg-red-950 border border-red-800 text-red-300">
+            ❌ {error}
+          </div>
+
         )}
 
 
-        {/* DEBUG ROOM STATE */}
+        {/* DEBUG INFO */}
 
-        {roomState && (
+        <div className="mt-5 p-4 rounded-xl bg-gray-900 border border-gray-800 text-xs text-gray-500">
 
-          <details className="mt-5">
+          <div>
+            Battle: {battleId}
+          </div>
 
-            <summary className="cursor-pointer text-sm text-gray-500">
-              Developer PK State
-            </summary>
+          <div>
+            Your ID: {currentUserId || "Not detected"}
+          </div>
 
-            <pre className="mt-2 bg-gray-900 text-green-400 p-4 rounded-xl overflow-auto text-xs">
-              {JSON.stringify(
-                roomState,
-                null,
-                2
-              )}
-            </pre>
+          <div>
+            Role:{" "}
+            {isHostA
+              ? "Host A"
+              : isHostB
+              ? "Host B"
+              : "Viewer"}
+          </div>
 
-          </details>
+          <div>
+            Room users:{" "}
+            {roomState?.users?.length || 0}
+          </div>
 
-        )}
+        </div>
 
       </div>
 
