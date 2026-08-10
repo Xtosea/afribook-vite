@@ -77,9 +77,9 @@ const friendFromState =
       setError("");
 
       const data = await fetchWithToken(
-        `${API_BASE}/api/pk`,
-        token,
-        {
+  `${API_BASE}/api/pk/${battleId}`,
+  token
+);
           method: "POST",
           body: JSON.stringify({
             hostB: selectedFriend._id,
