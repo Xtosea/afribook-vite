@@ -67,43 +67,71 @@ const friendFromState =
   }, [token]);
 
   const createBattle = async () => {
-    if (!selectedFriend?._id) {
-      setError("Please select an opponent.");
-      return;
-    }
+  if (!selectedFriend?._id) {
+    setError("Please select an opponent.");
+    return;
+  }
 
-    try {
-      setCreating(true);
-      setError("");
+  if (!token) {
+    setError("Please log in to create a PK battle.");
+    return;
+  }
 
-      const data = await fetchWithToken(
-  `${API_BASE}/api/pk/${battleId}`,
-  token
-);
-          method: "POST",
-          body: JSON.stringify({
-            hostB: selectedFriend._id,
-            duration,
-          }),
-        }
-      );
+  try {
+    setCreating(true);
+    setError("");
 
-      const battleId =
-        data?.battle?._id ||
-        data?.battle?.id;
+    console.log("🥊 Creating PK:", {
+      hostB: selectedFriend._id,
+      duration,
+    });
 
-      if (!battleId) {
-        throw new Error("PK was created but no battle ID was returned.");
+    const data = await fetchWithToken(
+      `${API_BASE}/api/pk`,
+      token,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          hostB: selectedFriend._id,
+          duration,
+        }),
       }
+    );
 
-      navigate(`/pk/${battleId}`);
-    } catch (err) {
-      console.error("Create PK error:", err);
-      setError(err.message || "Failed to create PK battle");
-    } finally {
-      setCreating(false);
+    console.log("🥊 PK creation response:", data);
+
+    const battleId =
+      data?.battle?._id ||
+      data?.battle?.id;
+
+    if (!battleId) {
+      throw new Error(
+        "PK was created but no battle ID was returned."
+      );
     }
-  };
+
+    console.log(
+      "🥊 PK battle created:",
+      battleId
+    );
+
+    navigate(`/pk/${battleId}`);
+
+  } catch (err) {
+    console.error(
+      "Create PK error:",
+      err
+    );
+
+    setError(
+      err?.message ||
+      "Failed to create PK battle"
+    );
+
+  } finally {
+    setCreating(false);
+  }
+};
 
   return (
     <div className="min-h-screen bg-gray-50 px-4 py-6 pb-24">
