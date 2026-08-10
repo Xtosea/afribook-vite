@@ -255,206 +255,297 @@ export default function PKBattle() {
 
   useEffect(() => {
 
-    if (!battleId) {
-      return;
-    }
+  if (!battleId) {
+    return;
+  }
 
-    const socket =
-      connectSocket();
+  const socket = connectSocket();
 
-    if (!socket) {
-      setError(
-        "Socket could not connect"
-      );
-      return;
-    }
+  if (!socket) {
+    setError("Socket could not connect");
+    return;
+  }
 
 
-    const handleConnect = () => {
+  // ==========================================
+  // SOCKET CONNECTED
+  // ==========================================
 
-      console.log(
-        "🥊 PK Socket connected"
-      );
+  const handleConnect = () => {
 
-      setConnected(true);
+    console.log(
+      "🥊 PK Socket connected"
+    );
 
-      // Automatically join the real PK
-      joinPK(battleId);
+    setConnected(true);
 
-    };
-
-
-    const handleDisconnect = () => {
-
-      console.log(
-        "🔴 PK Socket disconnected"
-      );
-
-      setConnected(false);
-    };
+    // Automatically join this real PK
+    joinPK(battleId);
+  };
 
 
-    const handleRoomState = (
+  // ==========================================
+  // SOCKET DISCONNECTED
+  // ==========================================
+
+  const handleDisconnect = () => {
+
+    console.log(
+      "🔴 PK Socket disconnected"
+    );
+
+    setConnected(false);
+  };
+
+
+  // ==========================================
+  // ROOM STATE
+  // ==========================================
+
+  const handleRoomState = (state) => {
+
+    console.log(
+      "🥊 PK room state:",
       state
-    ) => {
+    );
 
-      console.log(
-        "🥊 PK room state:",
-        state
-      );
+    setRoomState(state);
 
-      setRoomState(
-        state
-      );
-
-    };
+  };
 
 
-    const handleStarted = (
+  // ==========================================
+  // PK STARTED
+  // ==========================================
+
+  const handleStarted = (state) => {
+
+    console.log(
+      "🚀 PK started:",
       state
-    ) => {
+    );
 
-      console.log(
-        "🚀 PK started:",
-        state
-      );
+    setRoomState((previous) => ({
+      ...(previous || {}),
+      ...(state || {}),
+      started: true,
+    }));
 
-      setRoomState(
-        (previous) => ({
-          ...(previous || {}),
-          ...(state || {}),
-          started: true,
-        })
-      );
+    // Refresh MongoDB battle information
+    loadBattle();
 
-      loadBattle();
-
-    };
+  };
 
 
-    const handleScoreUpdate = (
+  // ==========================================
+  // SCORE UPDATED
+  // ==========================================
+
+  const handleScoreUpdate = (data) => {
+
+    console.log(
+      "🥊 PK score:",
       data
-    ) => {
+    );
 
-      console.log(
-        "🥊 PK score:",
-        data
-      );
+    setRoomState((previous) => ({
+      ...(previous || {}),
 
-      setRoomState(
-        (previous) => ({
-          ...(previous || {}),
-          hostAScore:
-            data?.hostAScore ??
-            previous?.hostAScore ??
-            0,
-          hostBScore:
-            data?.hostBScore ??
-            previous?.hostBScore ??
-            0,
-        })
-      );
+      hostAScore:
+        data?.hostAScore ??
+        previous?.hostAScore ??
+        0,
 
-    };
+      hostBScore:
+        data?.hostBScore ??
+        previous?.hostBScore ??
+        0,
+    }));
+
+  };
 
 
-    const handleError = (
+  // ==========================================
+  // PK FINISHED
+  // ==========================================
+
+  const handleFinished = (data) => {
+
+    console.log(
+      "🏆 PK finished:",
       data
-    ) => {
+    );
 
-      console.error(
-        "❌ PK error:",
-        data
-      );
+    setBattle((previous) => ({
+      ...(previous || {}),
 
-      setError(
-        data?.message ||
-        "PK error"
-      );
+      status: "completed",
 
-    };
+      endedAt:
+        data?.endedAt ??
+        new Date().toISOString(),
+
+      hostAScore:
+        data?.hostAScore ??
+        previous?.hostAScore ??
+        0,
+
+      hostBScore:
+        data?.hostBScore ??
+        previous?.hostBScore ??
+        0,
+
+      winner:
+        data?.winner ??
+        null,
+    }));
 
 
-    socket.on(
+    setRoomState((previous) => ({
+      ...(previous || {}),
+
+      started: false,
+
+      hostAScore:
+        data?.hostAScore ??
+        previous?.hostAScore ??
+        0,
+
+      hostBScore:
+        data?.hostBScore ??
+        previous?.hostBScore ??
+        0,
+    }));
+
+
+    setSecondsLeft(0);
+
+    setFinishing(false);
+
+  };
+
+
+  // ==========================================
+  // SOCKET ERROR
+  // ==========================================
+
+  const handleError = (data) => {
+
+    console.error(
+      "❌ PK error:",
+      data
+    );
+
+    setError(
+      data?.message ||
+      "PK error"
+    );
+
+    setFinishing(false);
+
+  };
+
+
+  // ==========================================
+  // REGISTER LISTENERS
+  // ==========================================
+
+  socket.on(
+    "connect",
+    handleConnect
+  );
+
+  socket.on(
+    "disconnect",
+    handleDisconnect
+  );
+
+  socket.on(
+    "pk:room-state",
+    handleRoomState
+  );
+
+  socket.on(
+    "pk:started",
+    handleStarted
+  );
+
+  socket.on(
+    "pk:score-updated",
+    handleScoreUpdate
+  );
+
+  socket.on(
+    "pk:finished",
+    handleFinished
+  );
+
+  socket.on(
+    "pk:error",
+    handleError
+  );
+
+
+  // ==========================================
+  // ALREADY CONNECTED
+  // ==========================================
+
+  if (socket.connected) {
+
+    setConnected(true);
+
+    joinPK(battleId);
+
+  }
+
+
+  // ==========================================
+  // CLEANUP
+  // ==========================================
+
+  return () => {
+
+    socket.off(
       "connect",
       handleConnect
     );
 
-    socket.on(
+    socket.off(
       "disconnect",
       handleDisconnect
     );
 
-    socket.on(
+    socket.off(
       "pk:room-state",
       handleRoomState
     );
 
-    socket.on(
+    socket.off(
       "pk:started",
       handleStarted
     );
 
-    socket.on(
+    socket.off(
       "pk:score-updated",
       handleScoreUpdate
     );
 
-    socket.on(
+    socket.off(
+      "pk:finished",
+      handleFinished
+    );
+
+    socket.off(
       "pk:error",
       handleError
     );
 
+  };
 
-    if (socket.connected) {
-
-      setConnected(true);
-
-      joinPK(battleId);
-    }
-
-
-    return () => {
-
-      socket.off(
-        "connect",
-        handleConnect
-      );
-
-      socket.off(
-        "disconnect",
-        handleDisconnect
-      );
-
-      socket.off(
-        "pk:room-state",
-        handleRoomState
-      );
-
-      socket.off(
-        "pk:started",
-        handleStarted
-      );
-
-      socket.off(
-        "pk:score-updated",
-        handleScoreUpdate
-      );
-
-      socket.off(
-        "pk:error",
-        handleError
-      );
-
-    };
-
-  }, [
-    battleId,
-    loadBattle,
-  ]);
-
-
-  // ==========================================
+}, [
+  battleId,
+  loadBattle,
+]); ==========================================
   // SCORE
   // ==========================================
 
@@ -587,6 +678,8 @@ export default function PKBattle() {
   ]);
 
 
+
+
   // ==========================================
   // FORMAT TIMER
   // ==========================================
@@ -701,57 +794,28 @@ export default function PKBattle() {
   // FINISH PK
   // ==========================================
 
-  async function finishBattle() {
-
-    if (finishing) {
-      return;
-    }
-
-    try {
-
-      setFinishing(true);
-
-      const response =
-        await fetchWithToken(
-          `${API_BASE}/pk/${battleId}/finish`,
-          {
-            method: "POST",
-          }
-        );
-
-      const data =
-        await response.json();
-
-      if (!response.ok) {
-
-        throw new Error(
-          data.message ||
-          "Failed to finish PK"
-        );
-      }
-
-      setBattle(
-        data.battle
-      );
-
-    } catch (error) {
-
-      console.error(
-        "Finish PK error:",
-        error
-      );
-
-      setError(
-        error.message ||
-        "Failed to finish PK"
-      );
-
-    } finally {
-
-      setFinishing(false);
-    }
-
+  function finishBattle() {
+  if (finishing) {
+    return;
   }
+
+  const socket = getSocket();
+
+  if (!socket?.connected) {
+    setError("Socket is not connected");
+    return;
+  }
+
+  setFinishing(true);
+  setError("");
+
+  socket.emit("pk:finish", {
+    battleId,
+  });
+}
+
+
+
 
 
   // ==========================================
