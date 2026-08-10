@@ -11,7 +11,7 @@ import {
 
 
 const TEST_BATTLE_ID =
-  "6a791eec85b8c80b42e55454";
+  "6a793acb19827b357512017c";
 
 
 export default function PKTest() {
