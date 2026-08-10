@@ -28,6 +28,16 @@ export default function PKTest() {
   const [error, setError] =
     useState("");
 
+  const [hostAScore, setHostAScore] =
+    useState(0);
+
+  const [hostBScore, setHostBScore] =
+    useState(0);
+
+
+  // ==========================================
+  // SOCKET LISTENERS
+  // ==========================================
 
   useEffect(() => {
 
@@ -39,7 +49,9 @@ export default function PKTest() {
     }
 
 
+    // SOCKET CONNECTED
     const handleConnect = () => {
+
       console.log(
         "🥊 PK test socket connected"
       );
@@ -48,11 +60,14 @@ export default function PKTest() {
     };
 
 
+    // SOCKET DISCONNECTED
     const handleDisconnect = () => {
+
       setConnected(false);
     };
 
 
+    // PK ROOM STATE
     const handleRoomState = (state) => {
 
       console.log(
@@ -61,9 +76,22 @@ export default function PKTest() {
       );
 
       setRoomState(state);
+
+      setStarted(
+        state?.started || false
+      );
+
+      setHostAScore(
+        state?.hostAScore || 0
+      );
+
+      setHostBScore(
+        state?.hostBScore || 0
+      );
     };
 
 
+    // PK STARTED
     const handleStarted = (state) => {
 
       console.log(
@@ -72,9 +100,42 @@ export default function PKTest() {
       );
 
       setStarted(true);
+
+      setRoomState((previous) => ({
+        ...(previous || {}),
+        ...(state || {}),
+        started: true,
+      }));
     };
 
 
+    // PK SCORE UPDATED
+    const handleScoreUpdate = (data) => {
+
+      console.log(
+        "🥊 PK SCORE UPDATED:",
+        data
+      );
+
+      setHostAScore(
+        data?.hostAScore || 0
+      );
+
+      setHostBScore(
+        data?.hostBScore || 0
+      );
+
+      setRoomState((previous) => ({
+        ...(previous || {}),
+        hostAScore:
+          data?.hostAScore || 0,
+        hostBScore:
+          data?.hostBScore || 0,
+      }));
+    };
+
+
+    // PK ERROR
     const handleError = (data) => {
 
       console.error(
@@ -110,16 +171,23 @@ export default function PKTest() {
     );
 
     socket.on(
+      "pk:score-updated",
+      handleScoreUpdate
+    );
+
+    socket.on(
       "pk:error",
       handleError
     );
 
 
+    // Socket may already be connected
     if (socket.connected) {
       setConnected(true);
     }
 
 
+    // CLEANUP
     return () => {
 
       socket.off(
@@ -143,6 +211,11 @@ export default function PKTest() {
       );
 
       socket.off(
+        "pk:score-updated",
+        handleScoreUpdate
+      );
+
+      socket.off(
         "pk:error",
         handleError
       );
@@ -151,6 +224,10 @@ export default function PKTest() {
 
   }, []);
 
+
+  // ==========================================
+  // JOIN
+  // ==========================================
 
   const handleJoin = () => {
 
@@ -168,6 +245,10 @@ export default function PKTest() {
   };
 
 
+  // ==========================================
+  // GET STATE
+  // ==========================================
+
   const handleState = () => {
 
     setError("");
@@ -183,6 +264,10 @@ export default function PKTest() {
 
   };
 
+
+  // ==========================================
+  // START
+  // ==========================================
 
   const handleStart = () => {
 
@@ -200,15 +285,61 @@ export default function PKTest() {
   };
 
 
+  // ==========================================
+  // LEAVE
+  // ==========================================
+
   const handleLeave = () => {
 
     leavePK(TEST_BATTLE_ID);
 
     setRoomState(null);
+
     setStarted(false);
+
+    setHostAScore(0);
+
+    setHostBScore(0);
 
   };
 
+
+  // ==========================================
+  // ADD MY PK SCORE
+  // ==========================================
+
+  const handleAddScore = () => {
+
+    setError("");
+
+    const socket = getSocket();
+
+    if (!socket?.connected) {
+
+      setError(
+        "Socket is not connected"
+      );
+
+      return;
+    }
+
+
+    socket.emit(
+      "pk:score",
+      {
+        battleId:
+          TEST_BATTLE_ID,
+
+        points: 100,
+      }
+    );
+
+  };
+
+
+  // ==========================================
+  // UI
+  // ==========================================
 
   return (
     <div
@@ -245,6 +376,8 @@ export default function PKTest() {
         </code>
       </p>
 
+
+      {/* PK CONTROLS */}
 
       <div
         style={{
@@ -289,12 +422,53 @@ export default function PKTest() {
       </div>
 
 
+      {/* LIVE SCORE */}
+
+      <div
+        className="mt-6 rounded-xl border p-4"
+      >
+
+        <h2 className="text-lg font-bold mb-4">
+          🥊 Live PK Score
+        </h2>
+
+
+        <div
+          className="flex justify-between text-xl font-bold mb-4"
+        >
+
+          <span>
+            Host A: {hostAScore}
+          </span>
+
+          <span>
+            Host B: {hostBScore}
+          </span>
+
+        </div>
+
+
+        <button
+          onClick={handleAddScore}
+          disabled={!connected || !started}
+          className="px-4 py-2 rounded-lg bg-green-600 text-white disabled:opacity-50"
+        >
+          +100 My PK Score
+        </button>
+
+      </div>
+
+
+      {/* STARTED */}
+
       {started && (
         <p>
           🚀 <strong>PK is live!</strong>
         </p>
       )}
 
+
+      {/* ERROR */}
 
       {error && (
         <p
@@ -307,6 +481,8 @@ export default function PKTest() {
         </p>
       )}
 
+
+      {/* ROOM STATE */}
 
       {roomState && (
         <pre
