@@ -290,10 +290,10 @@ useEffect(() => {
 
    
 <Route
-  path="/pk-test"
+  path="/pk/:battleId"
   element={
     <ProtectedRoute>
-      <PKTest />
+      <PKBattle />
     </ProtectedRoute>
   }
 />
