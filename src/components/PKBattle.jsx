@@ -52,6 +52,8 @@ export default function PKBattle() {
   const [finishing, setFinishing] =
     useState(false);
 
+   const [showWinnerOverlay, setShowWinnerOverlay] =
+  useState(false);
 
   // ==========================================
   // CURRENT USER
@@ -417,6 +419,15 @@ export default function PKBattle() {
     
   };
 
+  setSecondsLeft(0);
+
+setFinishing(false);
+
+setTimeout(() => {
+  setShowWinnerOverlay(false);
+}, 6000);
+
+};
 
   // ==========================================
   // SOCKET ERROR
