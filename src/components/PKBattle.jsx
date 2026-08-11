@@ -695,7 +695,6 @@ export default function PKBattle() {
 
   const isFinalCountdown =
     isStarted &&
-    secondsLeft > 0 &&
     secondsLeft <= 10;
 
   const leadingHost =
