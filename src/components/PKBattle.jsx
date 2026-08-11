@@ -977,12 +977,55 @@ setTimeout(() => {
           </div>
 
 
-          <button
-            onClick={handleLeave}
-            className="px-4 py-2 rounded-lg bg-gray-800 hover:bg-gray-700"
-          >
-            Leave
-          </button>
+          <div className="flex items-center gap-2">
+
+  <button
+    onClick={() =>
+      navigate("/pk/history")
+    }
+    className="
+      px-4
+      py-2
+      rounded-lg
+      bg-gray-800
+      hover:bg-gray-700
+      font-medium
+    "
+  >
+    📜 History
+  </button>
+
+  <button
+    onClick={() =>
+      navigate("/pk/stats")
+    }
+    className="
+      px-4
+      py-2
+      rounded-lg
+      bg-gray-800
+      hover:bg-gray-700
+      font-medium
+    "
+  >
+    📊 Stats
+  </button>
+
+  <button
+    onClick={handleLeave}
+    className="
+      px-4
+      py-2
+      rounded-lg
+      bg-gray-800
+      hover:bg-gray-700
+      font-medium
+    "
+  >
+    Leave
+  </button>
+
+</div>
 
         </div>
 
