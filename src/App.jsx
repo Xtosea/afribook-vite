@@ -98,6 +98,9 @@ import SavedListings from "./pages/SavedListings";
 import StickerTest from "./pages/StickerTest";
 import PKBattle from "./components/PKBattle";
 import PKCreate from "./pages/PKCreate";
+import PKHistory from "./pages/PKHistory";
+import PKStats from "./pages/PKStats";
+
 
 
 
@@ -305,6 +308,21 @@ useEffect(() => {
     <ProtectedRoute>
       <PKBattle />
     </ProtectedRoute>
+  }
+/>
+
+
+<Route
+  path="/pk/history"
+  element={
+    <PKHistory />
+  }
+/>
+
+<Route
+  path="/pk/stats"
+  element={
+    <PKStats />
   }
 />
 
