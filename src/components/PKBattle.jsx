@@ -103,67 +103,56 @@ export default function PKBattle() {
 
   const loadBattle = useCallback(
   async () => {
-
     if (!battleId) {
       setError("PK battle ID is missing");
       setLoading(false);
       return;
     }
 
-    try {
+    const token = localStorage.getItem("token");
 
+    if (!token) {
+      setError("Please log in to view this PK battle.");
+      setLoading(false);
+      return;
+    }
+
+    try {
       setError("");
 
-      const response = await fetchWithToken(
+      console.log("🥊 Loading PK battle:", {
+        battleId,
+        url: `${API_BASE}/api/pk/${battleId}`,
+      });
+
+      const data = await fetchWithToken(
         `${API_BASE}/api/pk/${battleId}`,
         token
       );
 
-      // continue with your existing code here
+      console.log("🥊 PK battle response:", data);
 
-        if (!response.ok) {
-
-          throw new Error(
-            "Failed to load PK battle"
-          );
-        }
-
-        const data =
-          await response.json();
-
-        if (!data.success || !data.battle) {
-
-          throw new Error(
-            data.message ||
-            "PK battle not found"
-          );
-        }
-
-        setBattle(
-          data.battle
+      if (!data?.success || !data?.battle) {
+        throw new Error(
+          data?.message || "PK battle not found"
         );
-
-      } catch (error) {
-
-        console.error(
-          "Load PK error:",
-          error
-        );
-
-        setError(
-          error.message ||
-          "Failed to load PK"
-        );
-
-      } finally {
-
-        setLoading(false);
       }
 
-    },
-    [battleId]
-  );
+      setBattle(data.battle);
 
+    } catch (error) {
+      console.error("Load PK error:", error);
+
+      setError(
+        error?.message || "Failed to load PK"
+      );
+
+    } finally {
+      setLoading(false);
+    }
+  },
+  [battleId]
+);
 
   useEffect(() => {
 
