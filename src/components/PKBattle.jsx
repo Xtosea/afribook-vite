@@ -102,22 +102,24 @@ export default function PKBattle() {
   // ==========================================
 
   const loadBattle = useCallback(
-    async () => {
+  async () => {
 
-      if (!battleId) {
-        setError("PK battle ID is missing");
-        setLoading(false);
-        return;
-      }
+    if (!battleId) {
+      setError("PK battle ID is missing");
+      setLoading(false);
+      return;
+    }
 
-      try {
+    try {
 
-        setError("");
+      setError("");
 
-        const response =
-          await fetchWithToken(
-            `${API_BASE}/pk/${battleId}`
-          );
+      const response = await fetchWithToken(
+        `${API_BASE}/api/pk/${battleId}`,
+        token
+      );
+
+      // continue with your existing code here
 
         if (!response.ok) {
 
