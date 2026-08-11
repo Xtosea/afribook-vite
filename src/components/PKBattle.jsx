@@ -674,6 +674,39 @@ export default function PKBattle() {
 
 
   // ==========================================
+  // PK UI HELPERS
+  // ==========================================
+
+  const totalDuration =
+    Number(battle?.duration || 300);
+
+  const scoreTotal =
+    hostAScore + hostBScore;
+
+  const hostAPercentage =
+    scoreTotal > 0
+      ? Math.round((hostAScore / scoreTotal) * 100)
+      : 50;
+
+  const hostBPercentage =
+    scoreTotal > 0
+      ? Math.round((hostBScore / scoreTotal) * 100)
+      : 50;
+
+  const isFinalCountdown =
+    isStarted &&
+    secondsLeft > 0 &&
+    secondsLeft <= 10;
+
+  const leadingHost =
+    hostAScore > hostBScore
+      ? "A"
+      : hostBScore > hostAScore
+      ? "B"
+      : "DRAW";
+
+
+  // ==========================================
   // FORMAT TIMER
   // ==========================================
 
@@ -950,10 +983,9 @@ export default function PKBattle() {
         </div>
 
 
-        {/* BATTLE */}
+                {/* BATTLE */}
 
-        <div className="rounded-3xl bg-gray-900 border border-gray-800 overflow-hidden">
-
+        <div className="rounded-3xl bg-gray-900 border border-gray-800 overflow-hidden shadow-2xl">
 
           {/* STATUS */}
 
@@ -961,31 +993,66 @@ export default function PKBattle() {
 
             {isStarted ? (
 
-              <>
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-600/20 text-red-400">
+              <div className="flex flex-col items-center">
 
-                  <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                <div
+                  className={`inline-flex items-center gap-2 px-5 py-2 rounded-full ${
+                    isFinalCountdown
+                      ? "bg-red-600/30 text-red-300 animate-pulse"
+                      : "bg-red-600/20 text-red-400"
+                  }`}
+                >
 
-                  LIVE
+                  <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse" />
+
+                  LIVE PK
 
                 </div>
 
-                <div className="text-4xl font-black mt-3">
+                <div
+                  className={`text-5xl sm:text-6xl font-black mt-4 tracking-wider ${
+                    isFinalCountdown
+                      ? "text-red-400 animate-pulse"
+                      : "text-white"
+                  }`}
+                >
                   {formattedTime()}
                 </div>
 
-              </>
+                {isFinalCountdown && (
+                  <p className="mt-2 text-red-400 text-sm font-semibold">
+                    🔥 FINAL COUNTDOWN!
+                  </p>
+                )}
+
+              </div>
 
             ) : battle.status === "completed" ? (
 
-              <div className="text-yellow-400 font-bold">
-                PK ENDED
+              <div>
+
+                <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-yellow-500/20 text-yellow-400">
+                  🏆 PK ENDED
+                </div>
+
+                <p className="text-gray-400 text-sm mt-3">
+                  Final score
+                </p>
+
               </div>
 
             ) : (
 
-              <div className="text-blue-400 font-bold">
-                WAITING TO START
+              <div>
+
+                <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-blue-500/20 text-blue-400">
+                  ⏳ WAITING
+                </div>
+
+                <p className="text-gray-400 text-sm mt-3">
+                  Waiting for the battle to begin
+                </p>
+
               </div>
 
             )}
@@ -993,56 +1060,167 @@ export default function PKBattle() {
           </div>
 
 
-          {/* HOSTS */}
+          {/* SCOREBOARD */}
 
-          <div className="grid grid-cols-2">
+          <div className="relative px-4 sm:px-8 pt-8 pb-6">
 
+            {/* VS */}
 
-            {/* HOST A */}
+            <div className="absolute left-1/2 top-10 -translate-x-1/2 z-10">
 
-            <div className="p-6 text-center border-r border-gray-800">
+              <div className="w-12 h-12 rounded-full bg-gray-950 border-2 border-gray-700 flex items-center justify-center shadow-xl">
 
-              <img
-                src={hostAImage}
-                alt={hostAName}
-                className="w-20 h-20 rounded-full object-cover mx-auto border-4 border-blue-500"
-              />
+                <span className="font-black text-gray-300 text-sm">
+                  VS
+                </span>
 
-              <h2 className="font-bold text-lg mt-3">
-                {hostAName}
-              </h2>
-
-              <p className="text-xs text-gray-400">
-                HOST A
-              </p>
-
-              <div className="text-5xl font-black mt-5">
-                {hostAScore}
               </div>
 
             </div>
 
 
-            {/* HOST B */}
+            <div className="grid grid-cols-2 gap-3 sm:gap-8">
 
-            <div className="p-6 text-center">
+              {/* HOST A */}
 
-              <img
-                src={hostBImage}
-                alt={hostBName}
-                className="w-20 h-20 rounded-full object-cover mx-auto border-4 border-pink-500"
-              />
+              <div
+                className={`relative rounded-3xl p-4 sm:p-6 text-center border transition ${
+                  leadingHost === "A"
+                    ? "border-blue-500 bg-blue-500/10 shadow-lg shadow-blue-500/10"
+                    : "border-gray-800 bg-gray-950/40"
+                }`}
+              >
 
-              <h2 className="font-bold text-lg mt-3">
-                {hostBName}
-              </h2>
+                {leadingHost === "A" && (
+                  <div className="absolute top-3 left-3 text-xs font-bold text-blue-400">
+                    🔥 LEADING
+                  </div>
+                )}
 
-              <p className="text-xs text-gray-400">
-                HOST B
-              </p>
+                <div className="relative inline-block">
 
-              <div className="text-5xl font-black mt-5">
-                {hostBScore}
+                  <img
+                    src={hostAImage}
+                    alt={hostAName}
+                    className={`w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover mx-auto border-4 ${
+                      leadingHost === "A"
+                        ? "border-blue-400"
+                        : "border-blue-600"
+                    }`}
+                  />
+
+                  {isHostA && (
+                    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-blue-600 text-white text-[10px] font-bold">
+                      YOU
+                    </div>
+                  )}
+
+                </div>
+
+                <h2 className="font-bold text-lg sm:text-xl mt-4 truncate">
+                  {hostAName}
+                </h2>
+
+                <p className="text-xs text-blue-400 font-semibold mt-1">
+                  HOST A
+                </p>
+
+                <div className="text-5xl sm:text-6xl font-black mt-5">
+                  {hostAScore.toLocaleString()}
+                </div>
+
+              </div>
+
+
+              {/* HOST B */}
+
+              <div
+                className={`relative rounded-3xl p-4 sm:p-6 text-center border transition ${
+                  leadingHost === "B"
+                    ? "border-pink-500 bg-pink-500/10 shadow-lg shadow-pink-500/10"
+                    : "border-gray-800 bg-gray-950/40"
+                }`}
+              >
+
+                {leadingHost === "B" && (
+                  <div className="absolute top-3 right-3 text-xs font-bold text-pink-400">
+                    LEADING 🔥
+                  </div>
+                )}
+
+                <div className="relative inline-block">
+
+                  <img
+                    src={hostBImage}
+                    alt={hostBName}
+                    className={`w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover mx-auto border-4 ${
+                      leadingHost === "B"
+                        ? "border-pink-400"
+                        : "border-pink-600"
+                    }`}
+                  />
+
+                  {isHostB && (
+                    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-pink-600 text-white text-[10px] font-bold">
+                      YOU
+                    </div>
+                  )}
+
+                </div>
+
+                <h2 className="font-bold text-lg sm:text-xl mt-4 truncate">
+                  {hostBName}
+                </h2>
+
+                <p className="text-xs text-pink-400 font-semibold mt-1">
+                  HOST B
+                </p>
+
+                <div className="text-5xl sm:text-6xl font-black mt-5">
+                  {hostBScore.toLocaleString()}
+                </div>
+
+              </div>
+
+            </div>
+
+
+            {/* SCORE BAR */}
+
+            <div className="mt-8">
+
+              <div className="flex justify-between text-xs font-semibold mb-2">
+
+                <span className="text-blue-400">
+                  {hostAPercentage}%
+                </span>
+
+                <span className="text-gray-500">
+                  SCORE
+                </span>
+
+                <span className="text-pink-400">
+                  {hostBPercentage}%
+                </span>
+
+              </div>
+
+              <div className="h-4 rounded-full overflow-hidden bg-gray-800 flex">
+
+                <div
+                  className="h-full bg-blue-500 transition-all duration-500"
+                  style={{
+                    width: `${hostAPercentage}%`,
+                  }}
+                />
+
+                <div
+                  className="h-full bg-pink-500 transition-all duration-500"
+                  style={{
+                    width: `${hostBPercentage}%`,
+                  }}
+                />
+
               </div>
 
             </div>
@@ -1054,43 +1232,37 @@ export default function PKBattle() {
 
           {isStarted && isHost && (
 
-            <div className="p-6 border-t border-gray-800">
+            <div className="p-5 sm:p-6 border-t border-gray-800 bg-gray-950/40">
 
               <p className="text-center text-sm text-gray-400 mb-4">
+
                 You are{" "}
-                <strong>
-                  {isHostA
-                    ? "Host A"
-                    : "Host B"}
+
+                <strong className="text-white">
+                  {isHostA ? "Host A" : "Host B"}
                 </strong>
+
               </p>
 
-
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-2 sm:gap-3">
 
                 <button
-                  onClick={() =>
-                    handleScore(100)
-                  }
-                  className="py-3 rounded-xl bg-green-600 font-bold hover:bg-green-500"
+                  onClick={() => handleScore(100)}
+                  className="py-3 sm:py-4 rounded-xl bg-green-600 font-bold hover:bg-green-500 active:scale-95 transition"
                 >
                   +100
                 </button>
 
                 <button
-                  onClick={() =>
-                    handleScore(500)
-                  }
-                  className="py-3 rounded-xl bg-green-600 font-bold hover:bg-green-500"
+                  onClick={() => handleScore(500)}
+                  className="py-3 sm:py-4 rounded-xl bg-green-600 font-bold hover:bg-green-500 active:scale-95 transition"
                 >
                   +500
                 </button>
 
                 <button
-                  onClick={() =>
-                    handleScore(1000)
-                  }
-                  className="py-3 rounded-xl bg-green-600 font-bold hover:bg-green-500"
+                  onClick={() => handleScore(1000)}
+                  className="py-3 sm:py-4 rounded-xl bg-green-600 font-bold hover:bg-green-500 active:scale-95 transition"
                 >
                   +1,000
                 </button>
@@ -1108,15 +1280,19 @@ export default function PKBattle() {
             battle.status === "pending" &&
             isHost && (
 
-              <div className="p-6 border-t border-gray-800 text-center">
+              <div className="p-6 border-t border-gray-800 text-center bg-gray-950/30">
 
                 <button
                   onClick={handleStart}
                   disabled={!connected}
-                  className="px-8 py-3 rounded-xl bg-red-600 font-bold hover:bg-red-500 disabled:opacity-50"
+                  className="px-10 py-4 rounded-2xl bg-red-600 font-bold text-lg hover:bg-red-500 active:scale-95 transition disabled:opacity-50"
                 >
                   🚀 Start PK
                 </button>
+
+                <p className="text-xs text-gray-500 mt-3">
+                  Both players can enter the battle before starting.
+                </p>
 
               </div>
 
@@ -1130,7 +1306,19 @@ export default function PKBattle() {
             !isHost && (
 
               <div className="p-6 border-t border-gray-800 text-center text-gray-400">
-                Waiting for a host to start the PK...
+
+                <div className="text-3xl mb-2">
+                  ⏳
+                </div>
+
+                <p className="font-semibold text-gray-300">
+                  Waiting for a host to start the PK
+                </p>
+
+                <p className="text-xs mt-1">
+                  The battle will begin when the host starts it.
+                </p>
+
               </div>
 
             )}
@@ -1140,24 +1328,51 @@ export default function PKBattle() {
 
           {battle.status === "completed" && (
 
-            <div className="p-6 border-t border-gray-800 text-center">
+            <div className="p-8 border-t border-gray-800 text-center bg-gray-950/40">
 
-              <div className="text-3xl mb-2">
-                🏆
-              </div>
+              {winnerName ? (
 
-              <h2 className="text-xl font-bold">
-                {winnerName
-                  ? `${winnerName} wins!`
-                  : "It's a draw!"}
-              </h2>
+                <>
+                  <div className="text-6xl mb-4 animate-bounce">
+                    🏆
+                  </div>
+
+                  <p className="text-yellow-400 text-sm font-bold uppercase tracking-wider">
+                    Winner
+                  </p>
+
+                  <h2 className="text-3xl sm:text-4xl font-black mt-2">
+                    {winnerName}
+                  </h2>
+
+                  <p className="text-gray-400 mt-3">
+                    Congratulations on winning the PK battle!
+                  </p>
+                </>
+
+              ) : (
+
+                <>
+                  <div className="text-6xl mb-4">
+                    🤝
+                  </div>
+
+                  <h2 className="text-3xl font-black">
+                    It's a Draw!
+                  </h2>
+
+                  <p className="text-gray-400 mt-2">
+                    Both players finished with the same score.
+                  </p>
+                </>
+
+              )}
 
             </div>
 
           )}
 
         </div>
-
 
         {/* CONNECTION / ERROR */}
 
