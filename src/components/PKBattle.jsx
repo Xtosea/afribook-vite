@@ -413,6 +413,8 @@ export default function PKBattle() {
 
     setFinishing(false);
 
+    setShowWinnerOverlay(true);
+    
   };
 
 
@@ -1413,6 +1415,143 @@ export default function PKBattle() {
         </div>
 
       </div>
+
+
+     {showWinnerOverlay && (
+  <div className="fixed inset-0 z-[9999] bg-black/90 backdrop-blur-sm flex items-center justify-center p-6">
+
+    <div className="relative w-full max-w-md text-center">
+
+      {/* Celebration */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+
+        {Array.from({ length: 30 }).map((_, index) => (
+          <span
+            key={index}
+            className="absolute text-2xl animate-bounce"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 1.5}s`,
+            }}
+          >
+            {index % 3 === 0
+              ? "🎉"
+              : index % 3 === 1
+              ? "✨"
+              : "🏆"}
+          </span>
+        ))}
+
+      </div>
+
+      {/* Result Card */}
+      <div className="relative rounded-[2rem] bg-gray-900 border border-yellow-500/30 shadow-2xl p-8">
+
+        <div className="text-6xl mb-3 animate-bounce">
+          🏆
+        </div>
+
+        <p className="text-yellow-400 uppercase tracking-[0.3em] text-sm font-bold">
+          PK Battle Complete
+        </p>
+
+        {winnerName ? (
+          <>
+            <h1 className="text-4xl font-black mt-3">
+              {winnerName}
+            </h1>
+
+            <p className="text-xl text-yellow-400 font-bold mt-2">
+              🎉 WINNER!
+            </p>
+          </>
+        ) : (
+          <>
+            <h1 className="text-4xl font-black mt-3">
+              DRAW
+            </h1>
+
+            <p className="text-gray-400 mt-2">
+              What a battle!
+            </p>
+          </>
+        )}
+
+        {/* Winner Avatar */}
+        {winnerName && (
+          <div className="mt-6 flex justify-center">
+
+            <div className="relative">
+
+              <div className="absolute -inset-3 rounded-full bg-yellow-400/30 animate-ping" />
+
+              <img
+                src={
+                  winnerId?.toString() ===
+                  hostA?._id?.toString()
+                    ? hostAImage
+                    : hostBImage
+                }
+                alt={winnerName}
+                className="relative w-32 h-32 rounded-full object-cover border-4 border-yellow-400 shadow-xl"
+              />
+
+            </div>
+
+          </div>
+        )}
+
+        {/* Final Score */}
+        <div className="grid grid-cols-3 items-center gap-3 mt-8">
+
+          <div className="rounded-2xl bg-blue-500/10 border border-blue-500/20 p-4">
+
+            <p className="text-sm text-gray-400 truncate">
+              {hostAName}
+            </p>
+
+            <p className="text-3xl font-black text-blue-400">
+              {hostAScore}
+            </p>
+
+          </div>
+
+          <div className="text-gray-500 font-black">
+            VS
+          </div>
+
+          <div className="rounded-2xl bg-pink-500/10 border border-pink-500/20 p-4">
+
+            <p className="text-sm text-gray-400 truncate">
+              {hostBName}
+            </p>
+
+            <p className="text-3xl font-black text-pink-400">
+              {hostBScore}
+            </p>
+
+          </div>
+
+        </div>
+
+        {/* Continue */}
+        <button
+          onClick={() => {
+            setShowWinnerOverlay(false);
+            navigate("/");
+          }}
+          className="w-full mt-8 py-4 rounded-2xl bg-yellow-500 hover:bg-yellow-400 text-black font-black text-lg transition active:scale-[0.98]"
+        >
+          Continue
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+)}
 
     </div>
   );
