@@ -413,14 +413,6 @@ export default function PKBattle() {
 
     setSecondsLeft(0);
 
-    setFinishing(false);
-
-    setShowWinnerOverlay(true);
-    
-  };
-
-  setSecondsLeft(0);
-
 setFinishing(false);
 
 setTimeout(() => {
