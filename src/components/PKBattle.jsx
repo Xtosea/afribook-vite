@@ -450,13 +450,98 @@ const handleFinished = (data) => {
   setSecondsLeft(0);
 
 
+    // ------------------------------------------
+  // Stop countdown
+  // ------------------------------------------
+
+  setSecondsLeft(0);
+
+
   // ------------------------------------------
   // Stop finishing state
   // ------------------------------------------
 
   setFinishing(false);
 
+
+  // ------------------------------------------
+  // Show final result
+  // ------------------------------------------
+
+  setShowWinnerOverlay(true);
+
 };
+
+
+
+
+const handlePKEnded = (data) => {
+  console.log(
+    "🏁 PK ended:",
+    data
+  );
+
+  console.log(
+    "💰 PK reward:",
+    data?.reward
+  );
+
+  setBattle((previous) => ({
+    ...(previous || {}),
+
+    status: "completed",
+
+    endedAt:
+      data?.endedAt ??
+      previous?.endedAt ??
+      new Date().toISOString(),
+
+    hostAScore:
+      data?.hostAScore ??
+      previous?.hostAScore ??
+      0,
+
+    hostBScore:
+      data?.hostBScore ??
+      previous?.hostBScore ??
+      0,
+
+    winner:
+      data?.winner ??
+      previous?.winner ??
+      null,
+
+    reward:
+      data?.reward ??
+      previous?.reward ??
+      null,
+  }));
+
+  setRoomState((previous) => ({
+    ...(previous || {}),
+
+    started: false,
+
+    hostAScore:
+      data?.hostAScore ??
+      previous?.hostAScore ??
+      0,
+
+    hostBScore:
+      data?.hostBScore ??
+      previous?.hostBScore ??
+      0,
+
+    reward:
+      data?.reward ??
+      previous?.reward ??
+      null,
+  }));
+
+  setSecondsLeft(0);
+setFinishing(false);
+
+setShowWinnerOverlay(true);
 
 
 
@@ -493,6 +578,12 @@ const handleFinished = (data) => {
     "pk:finished",
     handleFinished
   );
+
+ 
+  socket.on(
+  "pk:ended",
+  handlePKEnded
+);
 
   socket.on(
     "pk:error",
@@ -549,6 +640,12 @@ const handleFinished = (data) => {
       handleFinished
     );
 
+
+    socket.off(
+  "pk:ended",
+  handlePKEnded
+);
+
     socket.off(
       "pk:error",
       handleError
@@ -574,6 +671,35 @@ const handleFinished = (data) => {
     roomState?.hostBScore ??
     battle?.hostBScore ??
     0;
+
+
+    // ==========================================
+// PK REWARD
+// ==========================================
+
+const reward =
+  roomState?.reward ??
+  battle?.reward ??
+  null;
+
+const rewardSettled =
+  reward?.status === "settled" ||
+  reward?.result === "settled";
+
+const totalCoinsSpent =
+  Number(reward?.totalCoinsSpent ?? 0);
+
+const platformFee =
+  Number(reward?.platformFee ?? 0);
+
+const creatorRewardPool =
+  Number(reward?.creatorRewardPool ?? 0);
+
+const winnerReward =
+  Number(reward?.winnerReward ?? 0);
+
+const rewardReference =
+  reward?.reference || null;
 
 
   // ==========================================
@@ -726,6 +852,39 @@ const handleFinished = (data) => {
       : hostBScore > hostAScore
       ? "B"
       : "DRAW";
+
+
+    // ==========================================
+// PK REWARD
+// ==========================================
+
+const reward =
+  roomState?.reward ??
+  battle?.reward ??
+  null;
+
+const winnerReward =
+  Number(
+    reward?.winnerReward || 0
+  );
+
+const creatorRewardPool =
+  Number(
+    reward?.creatorRewardPool || 0
+  );
+
+const totalCoinsSpent =
+  Number(
+    reward?.totalCoinsSpent || 0
+  );
+
+const platformFee =
+  Number(
+    reward?.platformFee || 0
+  );
+
+const rewardReference =
+  reward?.reference || null;
 
 
   // ==========================================
@@ -1094,21 +1253,78 @@ const handleFinished = (data) => {
 
             ) : battle.status === "completed" ? (
 
+  <div>
+
+    <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-yellow-500/20 text-yellow-400">
+      🏆 PK ENDED
+    </div>
+
+    <p className="text-gray-400 text-sm mt-3">
+      Final score
+    </p>
+
+    {/* PK REWARD */}
+
+    {reward && (
+      <div className="mt-5 mx-auto max-w-sm">
+
+        <div className="rounded-2xl bg-green-500/10 border border-green-500/20 p-4">
+
+          <p className="text-xs uppercase tracking-wider text-gray-400 font-semibold">
+            🏆 Winner Reward
+          </p>
+
+          <p className="text-3xl font-black text-green-400 mt-1">
+            ₦{winnerReward.toLocaleString()}
+          </p>
+
+          {totalCoinsSpent > 0 && (
+            <p className="text-xs text-gray-500 mt-2">
+              {totalCoinsSpent.toLocaleString()} coins spent
+            </p>
+          )}
+
+          {rewardReference && (
+            <p className="text-[10px] text-gray-600 mt-2 break-all">
+              {rewardReference}
+            </p>
+          )}
+
+        </div>
+
+      </div>
+    )}
+
+  </div>
+
+) : (
+
               <div>
 
-                <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-yellow-500/20 text-yellow-400">
-                  🏆 PK ENDED
-                </div>
 
-                <p className="text-gray-400 text-sm mt-3">
-                  Final score
-                </p>
+           {/* REWARD */}
 
-              </div>
+{reward && (
+  <div className="mt-6 rounded-2xl bg-green-500/10 border border-green-500/20 p-5">
 
-            ) : (
+    <p className="text-xs uppercase tracking-wider text-gray-400 font-bold">
+      💰 Winner Reward
+    </p>
 
-              <div>
+    <p className="text-4xl font-black text-green-400 mt-2">
+      ₦{winnerReward.toLocaleString()}
+    </p>
+
+    {totalCoinsSpent > 0 && (
+      <p className="text-xs text-gray-500 mt-2">
+        From {totalCoinsSpent.toLocaleString()} coins spent
+      </p>
+    )}
+
+  </div>
+)}
+
+
 
                 <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-blue-500/20 text-blue-400">
                   ⏳ WAITING
