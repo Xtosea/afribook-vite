@@ -557,6 +557,25 @@ const currentUserId = currentUser?._id;
   </Link>
 
 
+
+<span>Business</span>
+</h2>
+
+<div className="grid grid-cols-2 gap-4">
+
+{/* Marketplace, Wallet, Leaderboard */}
+
+
+<Link
+    to="/pk/create"
+    onClick={() => setMobileOpen(false)}
+    className="flex flex-col items-center justify-center rounded-xl p-4 bg-gray-50 hover:bg-gray-100"
+  >
+    <Store size={30} className="text-violet-600" />
+    <span className="mt-2 text-sm font-medium">Pk Battle</span>
+</Link>
+
+
 </div>
 
 {/* 📁 PERSONAL */}
