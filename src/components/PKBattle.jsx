@@ -543,7 +543,7 @@ setFinishing(false);
 
 setShowWinnerOverlay(true);
 
-
+};
 
   // ==========================================
   // REGISTER LISTENERS
