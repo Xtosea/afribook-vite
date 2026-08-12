@@ -673,33 +673,7 @@ setShowWinnerOverlay(true);
     0;
 
 
-    // ==========================================
-// PK REWARD
-// ==========================================
-
-const reward =
-  roomState?.reward ??
-  battle?.reward ??
-  null;
-
-const rewardSettled =
-  reward?.status === "settled" ||
-  reward?.result === "settled";
-
-const totalCoinsSpent =
-  Number(reward?.totalCoinsSpent ?? 0);
-
-const platformFee =
-  Number(reward?.platformFee ?? 0);
-
-const creatorRewardPool =
-  Number(reward?.creatorRewardPool ?? 0);
-
-const winnerReward =
-  Number(reward?.winnerReward ?? 0);
-
-const rewardReference =
-  reward?.reference || null;
+    
 
 
   // ==========================================
