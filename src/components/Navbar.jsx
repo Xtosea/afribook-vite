@@ -563,7 +563,7 @@ const currentUserId = currentUser?._id;
     onClick={() => setMobileOpen(false)}
     className="flex flex-col items-center justify-center rounded-xl p-4 bg-gray-50 hover:bg-gray-100"
   >
-    <Store size={30} className="text-violet-600" />
+    <Swords size={30} className="text-violet-600" />
     <span className="mt-2 text-sm font-medium">Pk Battle</span>
 </Link>
 
