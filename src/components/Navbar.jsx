@@ -558,14 +558,6 @@ const currentUserId = currentUser?._id;
 
 
 
-<span>Business</span>
-</h2>
-
-<div className="grid grid-cols-2 gap-4">
-
-{/* Marketplace, Wallet, Leaderboard */}
-
-
 <Link
     to="/pk/create"
     onClick={() => setMobileOpen(false)}
@@ -575,7 +567,7 @@ const currentUserId = currentUser?._id;
     <span className="mt-2 text-sm font-medium">Pk Battle</span>
 </Link>
 
-
+</div>
 
 
 {/* 📁 PERSONAL */}
