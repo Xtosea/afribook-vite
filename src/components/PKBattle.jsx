@@ -359,87 +359,105 @@ export default function PKBattle() {
 
 
   // ==========================================
-  // PK FINISHED
-  // ==========================================
+// PK FINISHED
+// ==========================================
 
-  const handleFinished = (data) => {
+const handleFinished = (data) => {
 
-    console.log(
-      "🏆 PK finished:",
-      data
-    );
+  console.log(
+    "🏆 PK finished:",
+    data
+  );
 
-    setBattle((previous) => ({
-      ...(previous || {}),
-
-      status: "completed",
-
-      endedAt:
-        data?.endedAt ??
-        new Date().toISOString(),
-
-      hostAScore:
-        data?.hostAScore ??
-        previous?.hostAScore ??
-        0,
-
-      hostBScore:
-        data?.hostBScore ??
-        previous?.hostBScore ??
-        0,
-
-      winner:
-        data?.winner ??
-        null,
-    }));
+  console.log(
+    "💰 PK reward:",
+    data?.reward
+  );
 
 
-    setRoomState((previous) => ({
-      ...(previous || {}),
+  // ------------------------------------------
+  // Update battle
+  // ------------------------------------------
 
-      started: false,
+  setBattle((previous) => ({
 
-      hostAScore:
-        data?.hostAScore ??
-        previous?.hostAScore ??
-        0,
+    ...(previous || {}),
 
-      hostBScore:
-        data?.hostBScore ??
-        previous?.hostBScore ??
-        0,
-    }));
+    status:
+      "completed",
+
+    endedAt:
+      data?.endedAt ??
+      new Date().toISOString(),
+
+    hostAScore:
+      data?.hostAScore ??
+      previous?.hostAScore ??
+      0,
+
+    hostBScore:
+      data?.hostBScore ??
+      previous?.hostBScore ??
+      0,
+
+    winner:
+      data?.winner ??
+      null,
+
+    // PK reward
+    reward:
+      data?.reward ??
+      previous?.reward ??
+      null,
+
+  }));
 
 
-    setSecondsLeft(0);
+  // ------------------------------------------
+  // Update room state
+  // ------------------------------------------
 
-setFinishing(false);
+  setRoomState((previous) => ({
 
-setTimeout(() => {
-  setShowWinnerOverlay(false);
-}, 6000);
+    ...(previous || {}),
+
+    started:
+      false,
+
+    hostAScore:
+      data?.hostAScore ??
+      previous?.hostAScore ??
+      0,
+
+    hostBScore:
+      data?.hostBScore ??
+      previous?.hostBScore ??
+      0,
+
+    // PK reward
+    reward:
+      data?.reward ??
+      previous?.reward ??
+      null,
+
+  }));
+
+
+  // ------------------------------------------
+  // Stop countdown
+  // ------------------------------------------
+
+  setSecondsLeft(0);
+
+
+  // ------------------------------------------
+  // Stop finishing state
+  // ------------------------------------------
+
+  setFinishing(false);
 
 };
 
-  // ==========================================
-  // SOCKET ERROR
-  // ==========================================
-
-  const handleError = (data) => {
-
-    console.error(
-      "❌ PK error:",
-      data
-    );
-
-    setError(
-      data?.message ||
-      "PK error"
-    );
-
-    setFinishing(false);
-
-  };
 
 
   // ==========================================
