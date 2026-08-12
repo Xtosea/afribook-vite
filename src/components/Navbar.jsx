@@ -47,6 +47,7 @@ import {
   Palette, 
   Folder,
   Search,
+  Swords,
 } from "lucide-react";
 
 
