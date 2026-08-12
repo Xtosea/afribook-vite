@@ -545,6 +545,32 @@ setShowWinnerOverlay(true);
 
 };
 
+
+  // ==========================================
+  // PK ERROR
+  // ==========================================
+
+  const handleError = (data) => {
+
+    console.error(
+      "❌ PK Socket error:",
+      data
+    );
+
+    const message =
+      typeof data === "string"
+        ? data
+        : data?.message ||
+          data?.error ||
+          "PK socket error";
+
+    setError(message);
+
+    setFinishing(false);
+  };
+
+
+
   // ==========================================
   // REGISTER LISTENERS
   // ==========================================
