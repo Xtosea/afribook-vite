@@ -576,7 +576,7 @@ const currentUserId = currentUser?._id;
 </Link>
 
 
-</div>
+
 
 {/* 📁 PERSONAL */}
 
