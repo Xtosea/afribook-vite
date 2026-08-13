@@ -920,8 +920,6 @@ const finishBattle = useCallback(() => {
 
   console.log("🏁 Requesting PK finish:", {
     battleId,
-    hostAScore,
-    hostBScore,
   });
 
   socket.emit("pk:finish", {
@@ -930,31 +928,22 @@ const finishBattle = useCallback(() => {
 }, [
   battleId,
   isHost,
-  hostAScore,
-  hostBScore,
 ]);
 
 
-
-
-
-
 // ==========================================
-  // SCORE
-  // ==========================================
+// SCORE
+// ==========================================
 
-  const hostAScore =
-    roomState?.hostAScore ??
-    battle?.hostAScore ??
-    0;
+const hostAScore =
+  roomState?.hostAScore ??
+  battle?.hostAScore ??
+  0;
 
-  const hostBScore =
-    roomState?.hostBScore ??
-    battle?.hostBScore ??
-    0;
-
-
-    
+const hostBScore =
+  roomState?.hostBScore ??
+  battle?.hostBScore ??
+  0;
 
 
   // ==========================================
