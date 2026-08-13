@@ -528,6 +528,61 @@ useEffect(() => {
   };
 
 
+   // ==========================================
+// FINISH PK BATTLE
+// ==========================================
+
+const finishBattle = useCallback(() => {
+  if (!battleId) {
+    return;
+  }
+
+  if (!isHost) {
+    console.log("⚠️ Only a PK host can finish the battle");
+    return;
+  }
+
+  if (completionHandledRef.current) {
+    console.log("⚠️ PK already completed");
+    return;
+  }
+
+  if (finishRequestedRef.current) {
+    console.log("⚠️ PK finish already requested");
+    return;
+  }
+
+  const socket = getSocket();
+
+  if (!socket?.connected) {
+    console.log("⚠️ Cannot finish PK: socket disconnected");
+    finishRequestedRef.current = false;
+    setFinishing(false);
+    return;
+  }
+
+  finishRequestedRef.current = true;
+  setFinishing(true);
+  setError("");
+
+  console.log("🏁 Requesting PK finish:", {
+    battleId,
+    hostAScore,
+    hostBScore,
+  });
+
+  socket.emit("pk:finish", {
+    battleId,
+  });
+}, [
+  battleId,
+  isHost,
+  hostAScore,
+  hostBScore,
+]);
+
+
+
   // ==========================================
   // SCORE UPDATED
   // ==========================================
@@ -1305,61 +1360,6 @@ setShowWinnerOverlay(false);
     );
 
   };
-
-
-
-   // ==========================================
-  // FINISH PK BATTLE
-  // ==========================================
-
-  const finishBattle = useCallback(() => {
-    if (!battleId) {
-      return;
-    }
-
-    if (!isHost) {
-      console.log("⚠️ Only a PK host can finish the battle");
-      return;
-    }
-
-    if (completionHandledRef.current) {
-      console.log("⚠️ PK already completed");
-      return;
-    }
-
-    if (finishRequestedRef.current) {
-      console.log("⚠️ PK finish already requested");
-      return;
-    }
-
-    const socket = getSocket();
-
-    if (!socket?.connected) {
-      console.log("⚠️ Cannot finish PK: socket disconnected");
-      finishRequestedRef.current = false;
-      setFinishing(false);
-      return;
-    }
-
-    finishRequestedRef.current = true;
-    setFinishing(true);
-    setError("");
-
-    console.log("🏁 Requesting PK finish:", {
-      battleId,
-      hostAScore,
-      hostBScore,
-    });
-
-    socket.emit("pk:finish", {
-      battleId,
-    });
-  }, [
-    battleId,
-    isHost,
-    hostAScore,
-    hostBScore,
-  ]);
 
 
   
