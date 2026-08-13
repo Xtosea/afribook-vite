@@ -4,6 +4,7 @@ import React, {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
@@ -52,8 +53,52 @@ export default function PKBattle() {
   const [finishing, setFinishing] =
     useState(false);
 
-   const [showWinnerOverlay, setShowWinnerOverlay] =
+  // ==========================================
+  // PK GIFTS
+  // ==========================================
+
+  const [gifts, setGifts] =
+    useState([]);
+
+  const [giftsLoading, setGiftsLoading] =
+    useState(false);
+
+  const [giftSending, setGiftSending] =
+    useState(false);
+
+  const [giftError, setGiftError] =
+    useState("");
+
+  const [giftAnimation, setGiftAnimation] =
+    useState(null);
+
+  const [coins, setCoins] =
+    useState(0);
+
+
+   const [showWinnerOverlay,   setShowWinnerOverlay] =
   useState(false);
+
+const completionHandledRef = useRef(false);
+const finishRequestedRef = useRef(false);
+
+const celebrationParticles = useMemo(
+  () =>
+    Array.from({ length: 30 }, (_, index) => ({
+      id: index,
+      left: `${Math.random() * 100}%`,
+      top: `${Math.random() * 100}%`,
+      delay: `${Math.random() * 1.5}s`,
+      emoji:
+        index % 3 === 0
+          ? "🎉"
+          : index % 3 === 1
+          ? "✨"
+          : "🏆",
+    })),
+  []
+);
+
 
   // ==========================================
   // CURRENT USER
@@ -210,36 +255,189 @@ export default function PKBattle() {
 
 
   // ==========================================
-  // HOST INFORMATION
-  // ==========================================
+// HOST INFORMATION
+// ==========================================
 
-  const hostA =
-    battle?.hostA;
+const hostA = battle?.hostA;
+const hostB = battle?.hostB;
 
-  const hostB =
-    battle?.hostB;
+const hostAName =
+  hostA?.name ||
+  hostA?.username ||
+  "Host A";
 
+const hostBName =
+  hostB?.name ||
+  hostB?.username ||
+  "Host B";
 
-  const hostAName =
-    hostA?.name ||
-    hostA?.username ||
-    "Host A";
+const hostAImage =
+  hostA?.profilePic ||
+  "/profile/default-profile.png";
 
-
-  const hostBName =
-    hostB?.name ||
-    hostB?.username ||
-    "Host B";
-
-
-  const hostAImage =
-    hostA?.profilePic ||
-    "/profile/default-profile.png";
+const hostBImage =
+  hostB?.profilePic ||
+  "/profile/default-profile.png";
 
 
-  const hostBImage =
-    hostB?.profilePic ||
-    "/profile/default-profile.png";
+// ==========================================
+// GIFT RECEIVER
+// ==========================================
+
+const giftReceiverId = useMemo(() => {
+
+  if (!isHost) {
+    return null;
+  }
+
+  if (isHostA) {
+    return (
+      hostB?._id ||
+      hostB?.id ||
+      hostB ||
+      null
+    );
+  }
+
+  if (isHostB) {
+    return (
+      hostA?._id ||
+      hostA?.id ||
+      hostA ||
+      null
+    );
+  }
+
+  return null;
+
+}, [
+  isHost,
+  isHostA,
+  isHostB,
+  hostA,
+  hostB,
+]);
+
+
+// ==========================================
+// LOAD PK GIFTS
+// ==========================================
+
+const loadGifts = useCallback(
+  async () => {
+
+    const token =
+      localStorage.getItem("token");
+
+    if (!token) {
+      return;
+    }
+
+    try {
+
+      setGiftsLoading(true);
+      setGiftError("");
+
+      const data =
+        await fetchWithToken(
+          `${API_BASE}/api/gifts`,
+          token
+        );
+
+      if (
+        !data?.success ||
+        !Array.isArray(data?.gifts)
+      ) {
+        throw new Error(
+          data?.message ||
+          "Failed to load gifts"
+        );
+      }
+
+      setGifts(data.gifts);
+
+      console.log(
+        "🎁 PK gifts loaded:",
+        data.gifts
+      );
+
+    } catch (error) {
+
+      console.error(
+        "❌ Load PK gifts error:",
+        error
+      );
+
+      setGiftError(
+        error?.message ||
+        "Failed to load gifts"
+      );
+
+    } finally {
+
+      setGiftsLoading(false);
+
+    }
+
+  },
+  []
+);
+
+useEffect(() => {
+
+  loadGifts();
+
+}, [loadGifts]);
+
+
+const loadCoins = useCallback(async () => {
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    return;
+  }
+
+  try {
+    const data = await fetchWithToken(
+      `${API_BASE}/api/wallet`,
+      token
+    );
+
+    if (!data) {
+      return;
+    }
+
+    const wallet =
+      data.wallet ||
+      data.data ||
+      data;
+
+    const currentCoins =
+      Number(
+        wallet?.coins ??
+        wallet?.coinBalance ??
+        wallet?.points ??
+        0
+      );
+
+    setCoins(
+      Number.isFinite(currentCoins)
+        ? currentCoins
+        : 0
+    );
+
+  } catch (error) {
+    console.error(
+      "❌ Load PK coin balance error:",
+      error
+    );
+  }
+}, []);
+
+useEffect(() => {
+  loadCoins();
+}, [loadCoins]);
+
 
 
   // ==========================================
@@ -358,192 +556,167 @@ export default function PKBattle() {
   };
 
 
-  // ==========================================
-// PK FINISHED
-// ==========================================
+  const handleFinished = (data) => {
+  console.log("🏆 PK finished:", data);
+  console.log("💰 PK reward:", data?.reward);
 
-const handleFinished = (data) => {
+  // Prevent duplicate processing if the server
+  // emits both pk:finished and pk:ended.
+  if (completionHandledRef.current) {
+    console.log(
+      "⚠️ PK completion already handled"
+    );
+    return;
+  }
 
-  console.log(
-    "🏆 PK finished:",
-    data
-  );
+  completionHandledRef.current = true;
+  finishRequestedRef.current = false;
 
-  console.log(
-    "💰 PK reward:",
-    data?.reward
-  );
+  const finalHostAScore =
+    data?.hostAScore ??
+    battle?.hostAScore ??
+    0;
 
+  const finalHostBScore =
+    data?.hostBScore ??
+    battle?.hostBScore ??
+    0;
 
-  // ------------------------------------------
-  // Update battle
-  // ------------------------------------------
+  const finalWinner =
+    data?.winner ??
+    battle?.winner ??
+    null;
+
+  const finalReward =
+    data?.reward ??
+    battle?.reward ??
+    null;
+
+  const endedAt =
+    data?.endedAt ??
+    new Date().toISOString();
 
   setBattle((previous) => ({
-
     ...(previous || {}),
-
-    status:
-      "completed",
-
-    endedAt:
-      data?.endedAt ??
-      new Date().toISOString(),
-
-    hostAScore:
-      data?.hostAScore ??
-      previous?.hostAScore ??
-      0,
-
-    hostBScore:
-      data?.hostBScore ??
-      previous?.hostBScore ??
-      0,
-
-    winner:
-      data?.winner ??
-      null,
-
-    // PK reward
-    reward:
-      data?.reward ??
-      previous?.reward ??
-      null,
-
+    status: "completed",
+    endedAt,
+    hostAScore: finalHostAScore,
+    hostBScore: finalHostBScore,
+    winner: finalWinner,
+    reward: finalReward,
   }));
-
-
-  // ------------------------------------------
-  // Update room state
-  // ------------------------------------------
 
   setRoomState((previous) => ({
-
     ...(previous || {}),
-
-    started:
-      false,
-
-    hostAScore:
-      data?.hostAScore ??
-      previous?.hostAScore ??
-      0,
-
-    hostBScore:
-      data?.hostBScore ??
-      previous?.hostBScore ??
-      0,
-
-    // PK reward
-    reward:
-      data?.reward ??
-      previous?.reward ??
-      null,
-
+    started: false,
+    hostAScore: finalHostAScore,
+    hostBScore: finalHostBScore,
+    reward: finalReward,
   }));
 
-
-  // ------------------------------------------
-  // Stop countdown
-  // ------------------------------------------
-
   setSecondsLeft(0);
-
-
-    // ------------------------------------------
-  // Stop countdown
-  // ------------------------------------------
-
-  setSecondsLeft(0);
-
-
-  // ------------------------------------------
-  // Stop finishing state
-  // ------------------------------------------
-
   setFinishing(false);
-
-
-  // ------------------------------------------
-  // Show final result
-  // ------------------------------------------
-
   setShowWinnerOverlay(true);
-
 };
-
-
 
 
 const handlePKEnded = (data) => {
+  console.log("🏁 PK ended:", data);
+  console.log("💰 PK reward:", data?.reward);
+
+  handleFinished(data);
+};
+
+
+// ==========================================
+// PK GIFT RECEIVED
+// ==========================================
+
+const handleGiftReceived = (data) => {
+
   console.log(
-    "🏁 PK ended:",
+    "🎁 PK gift received:",
     data
   );
 
-  console.log(
-    "💰 PK reward:",
-    data?.reward
-  );
+  if (
+    data?.hostAScore !== undefined ||
+    data?.hostBScore !== undefined
+  ) {
 
-  setBattle((previous) => ({
-    ...(previous || {}),
+    setRoomState((previous) => ({
+      ...(previous || {}),
 
-    status: "completed",
+      hostAScore:
+        data?.hostAScore ??
+        previous?.hostAScore ??
+        0,
 
-    endedAt:
-      data?.endedAt ??
-      previous?.endedAt ??
-      new Date().toISOString(),
+      hostBScore:
+        data?.hostBScore ??
+        previous?.hostBScore ??
+        0,
+    }));
 
-    hostAScore:
-      data?.hostAScore ??
-      previous?.hostAScore ??
-      0,
+  }
 
-    hostBScore:
-      data?.hostBScore ??
-      previous?.hostBScore ??
-      0,
+  setGiftAnimation({
+    ...data,
 
-    winner:
-      data?.winner ??
-      previous?.winner ??
-      null,
-
-    reward:
-      data?.reward ??
-      previous?.reward ??
-      null,
-  }));
-
-  setRoomState((previous) => ({
-    ...(previous || {}),
-
-    started: false,
-
-    hostAScore:
-      data?.hostAScore ??
-      previous?.hostAScore ??
-      0,
-
-    hostBScore:
-      data?.hostBScore ??
-      previous?.hostBScore ??
-      0,
-
-    reward:
-      data?.reward ??
-      previous?.reward ??
-      null,
-  }));
-
-  setSecondsLeft(0);
-setFinishing(false);
-
-setShowWinnerOverlay(true);
+    animationId:
+      `${Date.now()}-${Math.random()}`,
+  });
 
 };
+
+
+
+// ==========================================
+// PK GIFT SENT
+// ==========================================
+
+const handleGiftSent = (data) => {
+
+  console.log(
+    "🎁 PK gift sent:",
+    data
+  );
+
+  if (
+    data?.balanceAfter !== undefined
+  ) {
+
+    setCoins(
+      Number(data.balanceAfter) || 0
+    );
+
+  }
+
+  if (
+    data?.hostAScore !== undefined ||
+    data?.hostBScore !== undefined
+  ) {
+
+    setRoomState((previous) => ({
+      ...(previous || {}),
+
+      hostAScore:
+        data?.hostAScore ??
+        previous?.hostAScore ??
+        0,
+
+      hostBScore:
+        data?.hostBScore ??
+        previous?.hostBScore ??
+        0,
+    }));
+
+  }
+
+  setGiftSending(false);
+
+};
+
 
 
   // ==========================================
@@ -604,6 +777,18 @@ setShowWinnerOverlay(true);
     "pk:finished",
     handleFinished
   );
+
+
+   socket.on(
+    "pk:gift-received",
+    handleGiftReceived
+  );
+
+  socket.on(
+    "pk:gift-sent",
+    handleGiftSent
+  );
+
 
  
   socket.on(
@@ -666,6 +851,16 @@ setShowWinnerOverlay(true);
       handleFinished
     );
 
+
+        socket.off(
+      "pk:gift-received",
+      handleGiftReceived
+    );
+
+    socket.off(
+      "pk:gift-sent",
+      handleGiftSent
+    );
 
     socket.off(
   "pk:ended",
@@ -795,29 +990,28 @@ setShowWinnerOverlay(true);
   // ==========================================
 
   useEffect(() => {
+  if (
+    !isStarted ||
+    secondsLeft !== 0 ||
+    !isHost ||
+    battle?.status !== "active"
+  ) {
+    return;
+  }
 
-    if (
-      !isStarted ||
-      secondsLeft !== 0 ||
-      !isHost
-    ) {
-      return;
-    }
+  if (finishRequestedRef.current) {
+    return;
+  }
 
-    if (
-      battle?.status !== "active"
-    ) {
-      return;
-    }
+  finishRequestedRef.current = true;
 
-    finishBattle();
-
-  }, [
-    secondsLeft,
-    isStarted,
-    isHost,
-    battle?.status,
-  ]);
+  finishBattle();
+}, [
+  secondsLeft,
+  isStarted,
+  isHost,
+  battle?.status,
+]);
 
 
 
@@ -938,8 +1132,119 @@ const rewardReference =
       return;
     }
 
+completionHandledRef.current = false;
+finishRequestedRef.current = false;
+setShowWinnerOverlay(false);
+
     startPKLive(
       battleId
+    );
+
+  };
+
+
+     // ==========================================
+  // SEND PK GIFT
+  // ==========================================
+
+  const handleSendGift = (
+    gift
+  ) => {
+
+    setGiftError("");
+
+
+    if (giftSending) {
+  return;
+}
+
+    const socket =
+      getSocket();
+
+    if (!socket?.connected) {
+
+      setGiftError(
+        "Socket is not connected"
+      );
+
+      return;
+    }
+
+    if (!isStarted) {
+
+      setGiftError(
+        "PK has not started"
+      );
+
+      return;
+    }
+
+    if (!isHost) {
+
+      setGiftError(
+        "Only PK hosts can send gifts"
+      );
+
+      return;
+    }
+
+    if (!giftReceiverId) {
+
+      setGiftError(
+        "PK opponent not found"
+      );
+
+      return;
+    }
+
+    if (!gift?._id) {
+
+      setGiftError(
+        "Invalid gift"
+      );
+
+      return;
+    }
+
+    const cost =
+      Number(gift.coinCost);
+
+    if (
+      !Number.isFinite(cost) ||
+      cost <= 0
+    ) {
+
+      setGiftError(
+        "Invalid gift cost"
+      );
+
+      return;
+    }
+
+    if (
+      Number(coins) < cost
+    ) {
+
+      setGiftError(
+        "Not enough coins"
+      );
+
+      return;
+    }
+
+    setGiftSending(true);
+
+    socket.emit(
+      "pk:gift",
+      {
+        battleId,
+
+        receiverId:
+          giftReceiverId,
+
+        giftId:
+          gift._id,
+      }
     );
 
   };
@@ -998,28 +1303,32 @@ const rewardReference =
 
 
   // ==========================================
-  // FINISH PK
+  // FINISH PK BATTLE 
   // ==========================================
 
-  function finishBattle() {
-  if (finishing) {
+  useEffect(() => {
+  if (
+    !isStarted ||
+    secondsLeft !== 0 ||
+    !isHost ||
+    battle?.status !== "active"
+  ) {
     return;
   }
 
-  const socket = getSocket();
-
-  if (!socket?.connected) {
-    setError("Socket is not connected");
+  if (finishRequestedRef.current) {
     return;
   }
 
-  setFinishing(true);
-  setError("");
+  finishRequestedRef.current = true;
 
-  socket.emit("pk:finish", {
-    battleId,
-  });
-}
+  finishBattle();
+}, [
+  secondsLeft,
+  isStarted,
+  isHost,
+  battle?.status,
+]);
 
 
 
@@ -1705,23 +2014,19 @@ const rewardReference =
       {/* Celebration */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
 
-        {Array.from({ length: 30 }).map((_, index) => (
-          <span
-            key={index}
-            className="absolute text-2xl animate-bounce"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 1.5}s`,
-            }}
-          >
-            {index % 3 === 0
-              ? "🎉"
-              : index % 3 === 1
-              ? "✨"
-              : "🏆"}
-          </span>
-        ))}
+        {celebrationParticles.map((particle) => (
+  <span
+    key={particle.id}
+    className="absolute text-2xl animate-bounce"
+    style={{
+      left: particle.left,
+      top: particle.top,
+      animationDelay: particle.delay,
+    }}
+  >
+    {particle.emoji}
+  </span>
+))}
 
       </div>
 
