@@ -985,33 +985,35 @@ const handleGiftSent = (data) => {
   ]);
 
 
-  // ==========================================
+    // ==========================================
   // AUTO FINISH TIMER
   // ==========================================
 
   useEffect(() => {
-  if (
-    !isStarted ||
-    secondsLeft !== 0 ||
-    !isHost ||
-    battle?.status !== "active"
-  ) {
-    return;
-  }
+    if (
+      !isStarted ||
+      secondsLeft !== 0 ||
+      !isHost ||
+      battle?.status !== "active"
+    ) {
+      return;
+    }
 
-  if (finishRequestedRef.current) {
-    return;
-  }
+    if (
+      finishRequestedRef.current ||
+      completionHandledRef.current
+    ) {
+      return;
+    }
 
-  finishRequestedRef.current = true;
-
-  finishBattle();
-}, [
-  secondsLeft,
-  isStarted,
-  isHost,
-  battle?.status,
-]);
+    finishBattle();
+  }, [
+    secondsLeft,
+    isStarted,
+    isHost,
+    battle?.status,
+    finishBattle,
+  ]);
 
 
 
@@ -1250,6 +1252,9 @@ setShowWinnerOverlay(false);
   };
 
 
+
+    
+
   // ==========================================
   // SCORE
   // ==========================================
@@ -1302,38 +1307,62 @@ setShowWinnerOverlay(false);
   };
 
 
+
+   // ==========================================
+  // FINISH PK BATTLE
   // ==========================================
-  // FINISH PK BATTLE 
-  // ==========================================
 
-  useEffect(() => {
-  if (
-    !isStarted ||
-    secondsLeft !== 0 ||
-    !isHost ||
-    battle?.status !== "active"
-  ) {
-    return;
-  }
+  const finishBattle = useCallback(() => {
+    if (!battleId) {
+      return;
+    }
 
-  if (finishRequestedRef.current) {
-    return;
-  }
+    if (!isHost) {
+      console.log("⚠️ Only a PK host can finish the battle");
+      return;
+    }
 
-  finishRequestedRef.current = true;
+    if (completionHandledRef.current) {
+      console.log("⚠️ PK already completed");
+      return;
+    }
 
-  finishBattle();
-}, [
-  secondsLeft,
-  isStarted,
-  isHost,
-  battle?.status,
-]);
+    if (finishRequestedRef.current) {
+      console.log("⚠️ PK finish already requested");
+      return;
+    }
+
+    const socket = getSocket();
+
+    if (!socket?.connected) {
+      console.log("⚠️ Cannot finish PK: socket disconnected");
+      finishRequestedRef.current = false;
+      setFinishing(false);
+      return;
+    }
+
+    finishRequestedRef.current = true;
+    setFinishing(true);
+    setError("");
+
+    console.log("🏁 Requesting PK finish:", {
+      battleId,
+      hostAScore,
+      hostBScore,
+    });
+
+    socket.emit("pk:finish", {
+      battleId,
+    });
+  }, [
+    battleId,
+    isHost,
+    hostAScore,
+    hostBScore,
+  ]);
 
 
-
-
-
+  
   // ==========================================
   // LEAVE
   // ==========================================
