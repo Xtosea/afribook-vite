@@ -9,7 +9,7 @@ import { useAuth } from "../context/AuthContext";
 
 
 export default function Login() {
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -31,28 +31,16 @@ const { login } = useAuth();
       const res = await fetch(`${API_BASE}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+        body: JSON.stringify({ identifier, password }),
 
       const data = await res.json();
 
 
       if (!res.ok) {
-        if (res.status === 403) {
-          const confirmResend = window.confirm(
-            "Email not verified. Resend verification email?"
-          );
-          if (confirmResend) {
-            await fetch(`${API_BASE}/api/auth/resend-verification`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ email, redirect, }),
-            });
-            alert("Verification email sent!");
-          }
-        } else {
-          alert(data.error || "Login failed");
-        }
+        if (!res.ok) {
+  alert(data.error || data.message || "Login failed");
+  return;
+}
         return;
       }
 
@@ -76,13 +64,13 @@ navigate(redirect, { replace: true });
       <h1 className="text-2xl font-bold mb-4">Login</h1>
       <form onSubmit={handleLogin} className="flex flex-col gap-4">
         <input
-          type="email"
-          placeholder="Email"
-          className="p-2 border rounded"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
+  type="text"
+  placeholder="Email or phone number"
+  className="p-2 border rounded"
+  value={identifier}
+  onChange={(e) => setIdentifier(e.target.value)}
+  required
+/>
         <div className="relative">
           <input
             type={showPassword ? "text" : "password"}
