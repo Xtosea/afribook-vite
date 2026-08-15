@@ -24,40 +24,50 @@ const redirect =
 const { login } = useAuth();
 
   const handleLogin = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+  e.preventDefault();
+  setLoading(true);
 
-    try {
-      const res = await fetch(`${API_BASE}/api/auth/login`, {
+  try {
+    const res = await fetch(
+      `${API_BASE}/api/auth/login`,
+      {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ identifier, password }),
-
-      const data = await res.json();
-
-
-      if (!res.ok) {
-        if (!res.ok) {
-  alert(data.error || data.message || "Login failed");
-  return;
-}
-        return;
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          identifier,
+          password,
+        }),
       }
+    );
 
-      // ✅ Save user session
-login(data.token, data.user);
+    const data = await res.json();
 
-      // ✅ Navigate to Home
-      // ✅ Navigate back to the requested page
-navigate(redirect, { replace: true });
-
-    } catch (err) {
-      console.error("LOGIN ERROR:", err);
-      alert("Error logging in");
-    } finally {
-      setLoading(false);
+    if (!res.ok) {
+      alert(
+        data.error ||
+        data.message ||
+        "Login failed"
+      );
+      return;
     }
-  };
+
+    // Save user session
+    login(data.token, data.user);
+
+    // Navigate to requested page
+    navigate(redirect, {
+      replace: true,
+    });
+
+  } catch (err) {
+    console.error("LOGIN ERROR:", err);
+    alert("Error logging in");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="max-w-md mx-auto mt-20 p-6 bg-white rounded shadow">
