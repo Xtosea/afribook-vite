@@ -7,8 +7,10 @@ const SOCIAL_BOTS = [
   "LinkedInBot",
   "Slackbot",
   "Discordbot",
+  "Pinterestbot",
   "Googlebot",
   "bingbot",
+  "Applebot",
 ];
 
 function isSocialBot(userAgent = "") {
@@ -31,16 +33,15 @@ export async function onRequest(context) {
   const userAgent =
     request.headers.get("user-agent") || "";
 
-  /*
-   * Normal visitors should continue to React.
-   */
+  console.log("POST PREVIEW REQUEST:", {
+    id,
+    userAgent,
+  });
+
   if (!isSocialBot(userAgent)) {
     return next();
   }
 
-  /*
-   * Social-media crawler.
-   */
   const backendUrl =
     `https://afribook-backend.onrender.com/post/${id}`;
 
@@ -52,12 +53,12 @@ export async function onRequest(context) {
       },
     });
 
-    if (!response.ok) {
-      console.error(
-        "SOCIAL PREVIEW BACKEND STATUS:",
-        response.status
-      );
+    console.log(
+      "BACKEND PREVIEW STATUS:",
+      response.status
+    );
 
+    if (!response.ok) {
       return next();
     }
 
@@ -66,9 +67,7 @@ export async function onRequest(context) {
     return new Response(html, {
       status: 200,
       headers: {
-        "Content-Type":
-          "text/html; charset=UTF-8",
-
+        "Content-Type": "text/html; charset=UTF-8",
         "Cache-Control":
           "public, max-age=60, s-maxage=300",
       },
