@@ -22,25 +22,16 @@ function isSocialBot(userAgent = "") {
 }
 
 export async function onRequest(context) {
-  const { request, params, next } = context;
-
-  const id = params.id;
-
-  if (!id) {
-    return next();
-  }
-
-  const userAgent =
-    request.headers.get("user-agent") || "";
-
-  console.log("POST PREVIEW REQUEST:", {
-    id,
-    userAgent,
-  });
-
-  if (!isSocialBot(userAgent)) {
-    return next();
-  }
+  return new Response(
+    `CLOUDFLARE FUNCTION WORKS - ${context.params.id}`,
+    {
+      status: 200,
+      headers: {
+        "Content-Type": "text/plain",
+      },
+    }
+  );
+}
 
   const backendUrl =
     `https://afribook-backend.onrender.com/post/${id}`;
