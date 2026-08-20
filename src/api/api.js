@@ -1,7 +1,7 @@
 // src/api/api.js
 
 const MAIN_API = import.meta.env.VITE_API_BASE;
-const BACKUP_API = "https://afribook-backend.onrender.com";
+const BACKUP_API = "https://africsocial-api.xto1971.workers.dev";
 
 export const API_BASE = MAIN_API || BACKUP_API;
 
@@ -40,12 +40,10 @@ export const fetchWithToken = async (url, token, options = {}) => {
       throw new Error("Invalid server response");
     }
 
-    // 🚨 IMPORTANT FIX
     if (!res.ok) {
       console.error("❌ API ERROR:", data);
 
       if (res.status === 401) {
-        // optional auto logout
         localStorage.removeItem("token");
         window.location.href = "/login";
       }
