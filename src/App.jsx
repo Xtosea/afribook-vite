@@ -100,6 +100,7 @@ import PKBattle from "./components/PKBattle";
 import PKCreate from "./pages/PKCreate";
 import PKHistory from "./pages/PKHistory";
 import PKStats from "./pages/PKStats";
+import AIMediaStudio from "./pages/AIMediaStudio";
 
 
 
@@ -323,6 +324,16 @@ useEffect(() => {
   path="/pk/stats"
   element={
     <PKStats />
+  }
+/>
+
+
+<Route
+  path="/ai-media"
+  element={
+    <ProtectedRoute>
+      <AIMediaStudio />
+    </ProtectedRoute>
   }
 />
 
