@@ -479,6 +479,19 @@ const currentUserId = currentUser?._id;
   <span>Content Creators</span>
 </h2>
 
+
+<Link
+  to="/ai-media"
+  onClick={() => setMobileOpen(false)}
+  className="flex flex-col items-center justify-center rounded-xl p-4 bg-blue-50 hover:bg-blue-100 border border-blue-200"
+>
+  <Clapperboard size={30} className="text-blue-600" />
+  <span className="mt-2 text-sm font-semibold text-blue-700">
+    AI Media Studio
+  </span>
+</Link>
+
+
 <div className="grid grid-cols-2 gap-4">
 
 {/* Creator, Events, Ads */}
