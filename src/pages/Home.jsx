@@ -133,11 +133,8 @@ setNetworkError(false);
 
 
 const postsData = await fetchWithToken(
-
-`${API_BASE}/api/posts?page=${page}&limit=${LIMIT}`,
-
-token
-
+  `/api/posts?page=${page}&limit=${LIMIT}`,
+  token
 );
 
 
