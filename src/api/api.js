@@ -1,9 +1,8 @@
 // src/api/api.js
 
-const MAIN_API = import.meta.env.VITE_API_BASE;
-const BACKUP_API = "https://africsocial-api.xto1971.workers.dev";
+const MAIN_API = "https://africsocial-api.xto1971.workers.dev";
 
-export const API_BASE = MAIN_API || BACKUP_API;
+export const API_BASE = MAIN_API;
 
 export const fetchWithToken = async (url, token, options = {}) => {
   const fullUrl = url.startsWith("http")
