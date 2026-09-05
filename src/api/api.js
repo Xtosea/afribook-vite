@@ -39,8 +39,23 @@ export const fetchWithToken = async (url, token, options = {}) => {
       throw new Error("Invalid server response");
     }
 
+
+//TEMPORARY DEBUG
     if (!res.ok) {
-      console.error("❌ API ERROR:", data);
+  console.error("❌ API ERROR");
+  console.error("URL:", fullUrl);
+  console.error("STATUS:", res.status);
+  console.error("RESPONSE:", data);
+
+  if (res.status === 401) {
+    localStorage.removeItem("token");
+    window.location.href = "/login";
+  }
+
+  throw new Error(data?.message || `Request failed (${res.status})`);
+}
+
+
 
       if (res.status === 401) {
         localStorage.removeItem("token");
