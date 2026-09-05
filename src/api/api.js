@@ -1,6 +1,6 @@
 // src/api/api.js
 
-const MAIN_API = "https://africsocial-api.xto1971.workers.dev";
+const MAIN_API = import.meta.env.VITE_API_BASE;
 
 export const API_BASE = MAIN_API;
 
@@ -17,6 +17,9 @@ export const fetchWithToken = async (url, token, options = {}) => {
 
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
+    console.log("🔐 API TOKEN ATTACHED:", token.substring(0, 20) + "...", "URL:", fullUrl);
+  } else {
+    console.error("❌ NO TOKEN ATTACHED:", fullUrl);
   }
 
   try {
