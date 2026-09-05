@@ -165,17 +165,17 @@ if(newPosts.length < LIMIT){
 
 catch(err){
 
+  console.log("Posts error:", err);
 
-console.log("Posts error:",err);
-
-
-if(!navigator.onLine){
- setNetworkError(true);
-}
-else{
- setNetworkError(true);
-}
-
+  // Show the offline screen only when the device
+  // genuinely has no network connection.
+  if (!navigator.onLine) {
+    setNetworkError(true);
+  } else {
+    // The internet is available, so don't replace
+    // the entire homepage with the Network Error screen.
+    setNetworkError(false);
+  }
 
 }
 
