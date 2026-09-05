@@ -9,16 +9,12 @@ export const fetchWithToken = async (url, token, options = {}) => {
     ? url
     : `${API_BASE}${url}`;
 
-  const headers = {
-    ...(options.headers || {}),
-  };
+  const headers = { ...(options.headers || {}) };
 
-  // Set JSON header only if NOT FormData
   if (!(options.body instanceof FormData)) {
     headers["Content-Type"] = "application/json";
   }
 
-  // Attach token
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
@@ -32,6 +28,7 @@ export const fetchWithToken = async (url, token, options = {}) => {
     const text = await res.text();
 
     let data;
+
     try {
       data = JSON.parse(text);
     } catch {
@@ -39,30 +36,20 @@ export const fetchWithToken = async (url, token, options = {}) => {
       throw new Error("Invalid server response");
     }
 
-
-
     if (!res.ok) {
-  console.error("❌ API ERROR");
-  console.error("URL:", fullUrl);
-  console.error("STATUS:", res.status);
-  console.error("RESPONSE:", data);
-
-  if (res.status === 401) {
-    localStorage.removeItem("token");
-    window.location.href = "/login";
-  }
-
-  throw new Error(data?.message || `Request failed (${res.status})`);
-}
-
-
+      console.error("❌ API ERROR");
+      console.error("URL:", fullUrl);
+      console.error("STATUS:", res.status);
+      console.error("RESPONSE:", data);
 
       if (res.status === 401) {
         localStorage.removeItem("token");
         window.location.href = "/login";
       }
 
-      throw new Error(data?.message || "Request failed");
+      throw new Error(
+        data?.message || `Request failed (${res.status})`
+      );
     }
 
     return data;
