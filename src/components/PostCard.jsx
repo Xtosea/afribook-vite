@@ -58,7 +58,9 @@ const PostCard = ({
 const editor = post?.editor || {};
 
 const editorText = editor?.textPosition;
-const editorStickers = editor?.stickers || [];
+const editorStickers = Array.isArray(editor?.stickers)
+  ? editor.stickers
+  : [];
 
 const postBackground =
   editor?.backgroundColor || "white";
