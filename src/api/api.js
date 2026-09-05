@@ -40,7 +40,7 @@ export const fetchWithToken = async (url, token, options = {}) => {
     }
 
 
-//TEMPORARY DEBUG
+
     if (!res.ok) {
   console.error("❌ API ERROR");
   console.error("URL:", fullUrl);
