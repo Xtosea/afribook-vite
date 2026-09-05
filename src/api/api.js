@@ -20,6 +20,10 @@ export const fetchWithToken = async (url, token, options = {}) => {
   }
 
   try {
+
+   console.log("🌐 API REQUEST:", fullUrl);
+console.log("🔑 HAS TOKEN:", !!token);
+
     const res = await fetch(fullUrl, {
       ...options,
       headers,
