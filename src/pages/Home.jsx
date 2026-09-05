@@ -167,13 +167,16 @@ catch(err){
 
   console.log("Posts error:", err);
 
-  // Show the offline screen only when the device
-  // genuinely has no network connection.
   if (!navigator.onLine) {
+    setIsOffline(true);
     setNetworkError(true);
   } else {
-    // The internet is available, so don't replace
-    // the entire homepage with the Network Error screen.
+    console.error(
+      "Posts API failed while internet is available:",
+      err
+    );
+
+    setIsOffline(false);
     setNetworkError(false);
   }
 
