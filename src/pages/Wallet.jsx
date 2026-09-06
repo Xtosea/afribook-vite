@@ -8,6 +8,10 @@ import {
 } from "../api/api";
 
 import {
+  useAuth,
+} from "../context/AuthContext";
+
+import {
   Wallet,
   Coins,
   Trophy,
@@ -20,6 +24,13 @@ import {
 } from "lucide-react";
 
 const WalletPage = () => {
+
+  const {
+    currentUser,
+  } = useAuth();
+
+  const isAdmin =
+    currentUser?.role === "admin";
 
   const [wallet, setWallet] =
     useState(null);
@@ -240,14 +251,75 @@ const WalletPage = () => {
 
           </div>
 
+          {/* ================= CONVERSION & WITHDRAWAL INFO ================= */}
+
+          <div className="mt-6 rounded-2xl bg-black/40 border border-white/10 p-4">
+
+            <p className="text-sm font-bold mb-3">
+              How Your Earnings Work
+            </p>
+
+            <div className="flex items-center justify-between gap-2 text-center">
+
+              <div className="flex-1">
+                <div className="text-xl font-bold">
+                  10,000
+                </div>
+
+                <p className="text-xs opacity-70">
+                  Points
+                </p>
+              </div>
+
+              <div className="text-lg opacity-50">
+                →
+              </div>
+
+              <div className="flex-1">
+                <div className="text-xl font-bold">
+                  ₦5,000
+                </div>
+
+                <p className="text-xs opacity-70">
+                  Cash
+                </p>
+              </div>
+
+              <div className="text-lg opacity-50">
+                →
+              </div>
+
+              <div className="flex-1">
+                <div className="text-xl font-bold">
+                  🏦
+                </div>
+
+                <p className="text-xs opacity-70">
+                  Withdraw
+                </p>
+              </div>
+
+            </div>
+
+            <p className="text-xs opacity-70 mt-4 text-center">
+              Reach 10,000 points to convert your points into cash.
+              After conversion, your available cash can be withdrawn
+              to your bank account.
+            </p>
+
+          </div>
+
           <button
             onClick={convertPoints}
             disabled={
               converting ||
-              wallet?.points < 10000
+              !wallet?.points ||
+              (!isAdmin &&
+                wallet.points < 10000)
             }
-            className={`mt-6 w-full py-3 rounded-2xl font-bold transition ${
-              wallet?.points >= 10000
+            className={`mt-4 w-full py-3 rounded-2xl font-bold transition ${
+              wallet?.points > 0 &&
+              (isAdmin || wallet.points >= 10000)
                 ? "bg-black text-white"
                 : "bg-gray-400 text-gray-700"
             }`}
@@ -255,11 +327,16 @@ const WalletPage = () => {
 
             {converting
               ? "Converting..."
-              : wallet?.points >= 10000
-              ? "Convert Points"
-              : "Need 10,000 Points"}
+              : wallet?.points > 0 &&
+                (isAdmin || wallet.points >= 10000)
+              ? "Convert to Cash"
+              : "Get 10,000 Points to Convert"}
 
           </button>
+
+          <p className="text-xs text-center opacity-60 mt-2">
+            1 point = ₦0.50
+          </p>
         </div>
 
         {/* STATS GRID */}
