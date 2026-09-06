@@ -58,6 +58,8 @@ import AdminRevenue
 from "./pages/admin/AdminRevenue";
 import AdminEarnings
 from "./pages/admin/AdminEarnings";
+import AdminWallet
+from "./pages/admin/AdminWallet";
 import CreatorDashboard
 from "./pages/creator/CreatorDashboard";
 
@@ -238,6 +240,7 @@ useEffect(() => {
 
 <Route path="/admin/earnings" element={<AdminEarnings />} />
 <Route path="/admin/revenue" element={<AdminRevenue />} />
+<Route path="/admin/wallet" element={<AdminWallet />} />
 <Route
   path="/creator"
   element={<CreatorDashboard />}

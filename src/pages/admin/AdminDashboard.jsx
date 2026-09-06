@@ -133,6 +133,11 @@ const AdminDashboard = () => {
     label="Revenue Dashboard"
   />
 
+  <AdminLink
+    to="/admin/wallet"
+    label="Wallet / Points"
+  />
+
 </div>
     </div>
   );
