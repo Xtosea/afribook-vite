@@ -29,6 +29,68 @@ import {
 } from "lucide-react";
 
 
+const CURRENCY_CONFIG = {
+  NGN: {
+    symbol: "₦",
+    name: "Nigerian Naira",
+  },
+  USD: {
+    symbol: "$",
+    name: "US Dollar",
+  },
+  GBP: {
+    symbol: "£",
+    name: "British Pound",
+  },
+  EUR: {
+    symbol: "€",
+    name: "Euro",
+  },
+  CAD: {
+    symbol: "C$",
+    name: "Canadian Dollar",
+  },
+  AUD: {
+    symbol: "A$",
+    name: "Australian Dollar",
+  },
+  ZAR: {
+    symbol: "R",
+    name: "South African Rand",
+  },
+  GHS: {
+    symbol: "₵",
+    name: "Ghanaian Cedi",
+  },
+  KES: {
+    symbol: "KSh",
+    name: "Kenyan Shilling",
+  },
+};
+
+const SUPPORTED_CURRENCIES =
+  Object.keys(CURRENCY_CONFIG);
+
+const formatMoney = (
+  amount,
+  currency = "NGN"
+) => {
+  const value = Number(amount || 0);
+
+  const config =
+    CURRENCY_CONFIG[currency] ||
+    CURRENCY_CONFIG.NGN;
+
+  return `${config.symbol}${value.toLocaleString(
+    undefined,
+    {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }
+  )}`;
+};
+
+
 const WalletPage = () => {
 
   const {
@@ -37,6 +99,18 @@ const WalletPage = () => {
 
   const isAdmin =
     currentUser?.role === "admin";
+
+  const [selectedCurrency, setSelectedCurrency] =
+    useState(() => {
+      const saved =
+        localStorage.getItem(
+          "africsocial_wallet_currency"
+        );
+
+      return SUPPORTED_CURRENCIES.includes(saved)
+        ? saved
+        : "USD";
+    });
 
   const [wallet, setWallet] =
     useState(null);
@@ -71,10 +145,11 @@ const WalletPage = () => {
 
   /* ================= FETCH WALLET ================= */
 
-  const fetchWallet = async () => {
+  const fetchWallet = async (
+    currency = selectedCurrency
+  ) => {
 
     try {
-
       setLoading(true);
       setError("");
 
@@ -82,7 +157,7 @@ const WalletPage = () => {
         localStorage.getItem("token");
 
       const res = await fetch(
-        `${API_BASE}/api/wallet`,
+        `${API_BASE}/api/wallet?currency=${encodeURIComponent(currency)}`,
         {
           headers: {
             Authorization:
@@ -119,7 +194,27 @@ const WalletPage = () => {
   };
 
 
+  const handleCurrencyChange = async (
+    currency
+  ) => {
+
+    if (!SUPPORTED_CURRENCIES.includes(currency)) {
+      return;
+    }
+
+    setSelectedCurrency(currency);
+
+    localStorage.setItem(
+      "africsocial_wallet_currency",
+      currency
+    );
+
+    await fetchWallet(currency);
+  };
+
+
   /* ================= FETCH TRANSACTIONS ================= */
+
 
   const fetchTransactions = async (
     page = 1,
@@ -220,11 +315,14 @@ const WalletPage = () => {
         `${API_BASE}/api/wallet/convert`,
         {
           method: "POST",
-
           headers: {
             Authorization:
               `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
+          body: JSON.stringify({
+            currency: selectedCurrency,
+          }),
         }
       );
 
@@ -241,13 +339,40 @@ const WalletPage = () => {
         return;
       }
 
+      const currency =
+        data.currency ||
+        selectedCurrency;
+
+      const config =
+        CURRENCY_CONFIG[currency] ||
+        CURRENCY_CONFIG.NGN;
+
+      const convertedAmount =
+        Number(
+          data.convertedAmount ??
+          data.amount ??
+          data.earned ??
+          0
+        );
+
       alert(
-        `₦${Number(data.earned || 0).toLocaleString()} added to your balance`
+        `${config.symbol}${convertedAmount.toLocaleString(
+          undefined,
+          {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          }
+        )} ${currency} added to your balance`
       );
 
-      await fetchWallet();
+      await fetchWallet(
+        selectedCurrency
+      );
 
-      await fetchTransactions(1, false);
+      await fetchTransactions(
+        1,
+        false
+      );
 
     } catch (err) {
 
@@ -267,8 +392,6 @@ const WalletPage = () => {
     }
   };
 
-
-  /* ================= LOAD MORE ================= */
 
   const loadMoreTransactions = () => {
 
@@ -523,15 +646,40 @@ const WalletPage = () => {
 
         </h1>
 
-        <button
-          onClick={() => {
-            fetchWallet();
-            fetchTransactions(1, false);
-          }}
-          className="bg-gray-800 p-2 rounded-full"
-        >
-          <RefreshCcw size={18} />
-        </button>
+        <div className="flex items-center gap-2">
+
+          <select
+            value={selectedCurrency}
+            onChange={(e) =>
+              handleCurrencyChange(e.target.value)
+            }
+            className="bg-gray-800 text-white border border-gray-700 rounded-xl px-3 py-2 text-sm font-bold outline-none"
+            aria-label="Select wallet currency"
+          >
+            {SUPPORTED_CURRENCIES.map(
+              (currency) => (
+                <option
+                  key={currency}
+                  value={currency}
+                  className="bg-gray-900"
+                >
+                  {currency} - {CURRENCY_CONFIG[currency].name}
+                </option>
+              )
+            )}
+          </select>
+
+          <button
+            onClick={() => {
+              fetchWallet(selectedCurrency);
+              fetchTransactions(1, false);
+            }}
+            className="bg-gray-800 p-2 rounded-full"
+          >
+            <RefreshCcw size={18} />
+          </button>
+
+        </div>
 
       </div>
 
@@ -547,11 +695,19 @@ const WalletPage = () => {
           </p>
 
           <h2 className="text-4xl font-bold mt-2">
-            ₦
-            {Number(
-              wallet?.balance || 0
-            ).toLocaleString()}
+            {formatMoney(
+              wallet?.displayBalance,
+              selectedCurrency
+            )}
           </h2>
+
+          <p className="text-xs opacity-70 mt-1">
+            {selectedCurrency} • Base value:{" "}
+            {formatMoney(
+              wallet?.balance,
+              wallet?.baseCurrency || "NGN"
+            )}
+          </p>
 
 
           <div className="mt-5 flex items-center justify-between">
@@ -608,7 +764,7 @@ const WalletPage = () => {
                 </div>
 
                 <p className="text-xs opacity-70">
-                  Cash
+                  Base value
                 </p>
 
               </div>
@@ -633,10 +789,16 @@ const WalletPage = () => {
 
             <p className="text-xs opacity-70 mt-4 text-center">
 
-              Reach 10,000 points to convert your points into cash.
-              After conversion, your available cash can be withdrawn
+              Reach 10,000 points to convert your points into value.
+              Your points have a base value of ₦0.50 each.
+              Choose your preferred currency above for display and conversion.
+              After conversion, the available value can be withdrawn
               to your bank account.
 
+            </p>
+
+            <p className="text-[10px] opacity-50 mt-2 text-center">
+              Exchange rates provided by ExchangeRate-API.
             </p>
 
           </div>
@@ -752,15 +914,14 @@ const WalletPage = () => {
 
             <span className="font-bold text-green-400">
 
-              ₦
-              {Number(
-                wallet?.lifetimeEarned || 0
-              ).toLocaleString()}
+              {formatMoney(
+                wallet?.displayLifetimeEarned,
+                selectedCurrency
+              )}
 
             </span>
 
           </div>
-
 
           <div className="flex items-center justify-between">
 
@@ -770,15 +931,14 @@ const WalletPage = () => {
 
             <span className="font-bold text-yellow-400">
 
-              ₦
-              {Number(
-                wallet?.pending || 0
-              ).toLocaleString()}
+              {formatMoney(
+                wallet?.displayPending,
+                selectedCurrency
+              )}
 
             </span>
 
           </div>
-
 
           <div className="flex items-center justify-between">
 
@@ -1018,8 +1178,12 @@ const WalletPage = () => {
                                 amount > 0 && (
 
                                 <p className="text-green-400 text-sm mt-1">
-                                  +₦
-                                  {amount.toLocaleString()}
+                                  +
+                                  {formatMoney(
+                                    amount,
+                                    transaction.currency || "NGN"
+                                  )}{" "}
+                                  {transaction.currency || "NGN"}
                                 </p>
 
                               )}
