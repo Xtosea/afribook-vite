@@ -5,6 +5,7 @@ import { HelmetProvider } from "react-helmet-async";
 
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminRoute from "./components/AdminRoute";
 
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -197,50 +198,50 @@ useEffect(() => {
 
 <Route
   path="/admin/story-music"
-  element={<StoryMusicUploader />}
+  element={<AdminRoute><StoryMusicUploader /></AdminRoute>}
 />
 
  <Route
     path="/admin/withdrawals"
-    element={<AdminWithdrawals />}
+    element={<AdminRoute><AdminWithdrawals /></AdminRoute>}
   />
 
 
  
  <Route
     path="/admindashboard"
-    element={<AdminDashboard />}
+    element={<AdminRoute><AdminDashboard /></AdminRoute>}
   />
 
 <Route
   path="/admin/verifications"
-  element={<AdminVerifications />}
+  element={<AdminRoute><AdminVerifications /></AdminRoute>}
 />
 
 <Route
   path="/admin/creators"
-  element={<AdminCreators />}
+  element={<AdminRoute><AdminCreators /></AdminRoute>}
 />
 
 <Route
   path="/admin/advertisers"
-  element={<AdminAdvertisers />}
+  element={<AdminRoute><AdminAdvertisers /></AdminRoute>}
 />
 
 <Route
   path="/admin/campaigns"
-  element={<AdminCampaigns />}
+  element={<AdminRoute><AdminCampaigns /></AdminRoute>}
 />
 
 <Route
   path="/admin/fraud"
-  element={<AdminFraud />}
+  element={<AdminRoute><AdminFraud /></AdminRoute>}
 />
 
 
-<Route path="/admin/earnings" element={<AdminEarnings />} />
-<Route path="/admin/revenue" element={<AdminRevenue />} />
-<Route path="/admin/wallet" element={<AdminWallet />} />
+<Route path="/admin/earnings" element={<AdminRoute><AdminEarnings /></AdminRoute>} />
+<Route path="/admin/revenue" element={<AdminRoute><AdminRevenue /></AdminRoute>} />
+<Route path="/admin/wallet" element={<AdminRoute><AdminWallet /></AdminRoute>} />
 <Route
   path="/creator"
   element={<CreatorDashboard />}
