@@ -11,6 +11,8 @@ import {
   ArrowDownCircle,
   ArrowUpCircle,
   Coins,
+  History,
+  RefreshCw,
   Search,
   Shield,
   User,
@@ -49,6 +51,23 @@ const AdminWallet = () => {
 
   const [error, setError] =
     useState("");
+
+  const [history, setHistory] =
+    useState([]);
+
+  const [historyLoading, setHistoryLoading] =
+    useState(false);
+
+  const [historyPage, setHistoryPage] =
+    useState(1);
+
+  const [historyPagination, setHistoryPagination] =
+    useState({
+      page: 1,
+      limit: 20,
+      total: 0,
+      totalPages: 0,
+    });
 
 
   /* ================= SEARCH USERS ================= */
@@ -145,6 +164,79 @@ const AdminWallet = () => {
     };
 
   }, [search, selectedUser]);
+
+
+  /* ================= LOAD ADJUSTMENT HISTORY ================= */
+
+  const loadHistory = async (page = 1) => {
+
+    try {
+
+      setHistoryLoading(true);
+
+      const token =
+        localStorage.getItem("token");
+
+      const res =
+        await fetch(
+          `${API_BASE}/api/admin/wallet/history?page=${page}&limit=20`,
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+            },
+          }
+        );
+
+      const data =
+        await res.json();
+
+      if (!res.ok) {
+        throw new Error(
+          data.error ||
+          "Failed to load adjustment history."
+        );
+      }
+
+      setHistory(
+        Array.isArray(data.adjustments)
+          ? data.adjustments
+          : []
+      );
+
+      setHistoryPagination(
+        data.pagination || {
+          page,
+          limit: 20,
+          total: 0,
+          totalPages: 0,
+        }
+      );
+
+    } catch (err) {
+
+      console.error(
+        "ADMIN ADJUSTMENT HISTORY ERROR:",
+        err
+      );
+
+      setError(
+        err.message ||
+        "Failed to load adjustment history."
+      );
+
+    } finally {
+
+      setHistoryLoading(false);
+    }
+  };
+
+
+  /* ================= LOAD HISTORY ON MOUNT ================= */
+
+  useEffect(() => {
+    loadHistory(historyPage);
+  }, [historyPage]);
 
 
   /* ================= SELECT USER ================= */
@@ -273,6 +365,10 @@ const AdminWallet = () => {
 
       setPoints("");
       setReason("");
+
+      setHistoryPage(1);
+
+      await loadHistory(1);
 
     } catch (err) {
 
@@ -737,6 +833,328 @@ const AdminWallet = () => {
           </div>
 
         )}
+
+        {/* ADJUSTMENT HISTORY */}
+
+        <div className="bg-gray-900 rounded-3xl p-5">
+
+          <div className="flex items-center justify-between gap-3 mb-4">
+
+            <div className="flex items-center gap-2">
+
+              <History
+                size={20}
+                className="text-green-400"
+              />
+
+              <div>
+
+                <h2 className="font-bold">
+                  Adjustment History
+                </h2>
+
+                <p className="text-xs text-gray-500">
+                  Recent AfricSocial point updates
+                </p>
+
+              </div>
+
+            </div>
+
+            <button
+              type="button"
+              onClick={() =>
+                loadHistory(historyPage)
+              }
+              disabled={historyLoading}
+              className="p-2 rounded-xl bg-black border border-gray-700 hover:border-green-500 disabled:opacity-50"
+              aria-label="Refresh adjustment history"
+            >
+
+              <RefreshCw
+                size={18}
+                className={
+                  historyLoading
+                    ? "animate-spin"
+                    : ""
+                }
+              />
+
+            </button>
+
+          </div>
+
+
+          {historyLoading && history.length === 0 ? (
+
+            <div className="py-10 text-center text-gray-500">
+
+              <RefreshCw
+                size={28}
+                className="mx-auto mb-3 animate-spin"
+              />
+
+              <p>
+                Loading adjustment history...
+              </p>
+
+            </div>
+
+          ) : history.length === 0 ? (
+
+            <div className="py-10 text-center text-gray-500">
+
+              <History
+                size={32}
+                className="mx-auto mb-3 opacity-50"
+              />
+
+              <p>
+                No point adjustments yet.
+              </p>
+
+            </div>
+
+          ) : (
+
+            <div className="space-y-3">
+
+              {history.map((item) => {
+
+                const isAdd =
+                  item.action === "add";
+
+                const points =
+                  Math.abs(
+                    Number(item.points || 0)
+                  );
+
+                return (
+
+                  <div
+                    key={item._id}
+                    className="bg-black/50 border border-gray-800 rounded-2xl p-4"
+                  >
+
+                    <div className="flex items-start gap-3">
+
+                      {item.user?.profilePic ? (
+
+                        <img
+                          src={item.user.profilePic}
+                          alt=""
+                          className="w-11 h-11 rounded-full object-cover flex-shrink-0"
+                        />
+
+                      ) : (
+
+                        <div className="w-11 h-11 rounded-full bg-gray-800 flex items-center justify-center flex-shrink-0">
+
+                          <User
+                            size={20}
+                            className="text-gray-500"
+                          />
+
+                        </div>
+
+                      )}
+
+
+                      <div className="min-w-0 flex-1">
+
+                        <div className="flex items-start justify-between gap-3">
+
+                          <div className="min-w-0">
+
+                            <p className="font-semibold truncate">
+                              {item.user?.name ||
+                                "Unnamed User"}
+                            </p>
+
+                            <p className="text-xs text-gray-500 truncate">
+                              {item.user?.email ||
+                                item.user?.phone ||
+                                item.user?._id ||
+                                "Unknown user"}
+                            </p>
+
+                          </div>
+
+
+                          <span
+                            className={`flex-shrink-0 text-xs font-bold px-2.5 py-1 rounded-full ${
+                              isAdd
+                                ? "bg-green-500/10 text-green-400"
+                                : "bg-red-500/10 text-red-400"
+                            }`}
+                          >
+
+                            {isAdd
+                              ? "Added"
+                              : "Deducted"}
+
+                          </span>
+
+                        </div>
+
+
+                        <div className="flex items-center justify-between gap-3 mt-3">
+
+                          <div>
+
+                            <p
+                              className={`text-xl font-bold ${
+                                isAdd
+                                  ? "text-green-400"
+                                  : "text-red-400"
+                              }`}
+                            >
+
+                              {isAdd ? "+" : "-"}
+                              {points.toLocaleString()}
+
+                            </p>
+
+                            <p className="text-xs text-gray-500">
+                              points
+                            </p>
+
+                          </div>
+
+
+                          <div className="text-right">
+
+                            <p className="text-xs text-gray-400">
+                              {item.createdAt
+                                ? new Date(
+                                    item.createdAt
+                                  ).toLocaleString()
+                                : "Unknown date"}
+                            </p>
+
+                            <p className="text-xs text-gray-500 mt-1">
+                              By{" "}
+                              {item.admin?.name ||
+                                "AfricSocial"}
+                            </p>
+
+                          </div>
+
+                        </div>
+
+
+                        {item.reason && (
+
+                          <div className="mt-3 pt-3 border-t border-gray-800">
+
+                            <p className="text-xs text-gray-500 mb-1">
+                              Reason
+                            </p>
+
+                            <p className="text-sm text-gray-300 break-words">
+                              {item.reason}
+                            </p>
+
+                          </div>
+
+                        )}
+
+                      </div>
+
+                    </div>
+
+                  </div>
+
+                );
+
+              })}
+
+            </div>
+
+          )}
+
+
+          {historyPagination.totalPages > 1 && (
+
+            <div className="flex items-center justify-between gap-3 mt-5 pt-4 border-t border-gray-800">
+
+              <button
+                type="button"
+                onClick={() =>
+                  setHistoryPage(
+                    previous =>
+                      Math.max(
+                        previous - 1,
+                        1
+                      )
+                  )
+                }
+                disabled={
+                  historyLoading ||
+                  historyPage <= 1
+                }
+                className="px-4 py-2 rounded-xl bg-black border border-gray-700 text-sm disabled:opacity-40"
+              >
+                Previous
+              </button>
+
+
+              <p className="text-xs text-gray-400 text-center">
+
+                Page{" "}
+
+                <span className="text-white font-semibold">
+                  {historyPagination.page}
+                </span>
+
+                {" "}of{" "}
+
+                <span className="text-white font-semibold">
+                  {historyPagination.totalPages}
+                </span>
+
+              </p>
+
+
+              <button
+                type="button"
+                onClick={() =>
+                  setHistoryPage(
+                    previous =>
+                      Math.min(
+                        previous + 1,
+                        historyPagination.totalPages
+                      )
+                  )
+                }
+                disabled={
+                  historyLoading ||
+                  historyPage >=
+                    historyPagination.totalPages
+                }
+                className="px-4 py-2 rounded-xl bg-black border border-gray-700 text-sm disabled:opacity-40"
+              >
+                Next
+              </button>
+
+            </div>
+
+          )}
+
+
+          {historyPagination.total > 0 && (
+
+            <p className="text-xs text-gray-600 text-center mt-3">
+
+              Showing{" "}
+              {history.length} of{" "}
+              {historyPagination.total} adjustments
+
+            </p>
+
+          )}
+
+        </div>
 
       </div>
 
