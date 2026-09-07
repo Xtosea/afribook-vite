@@ -73,100 +73,99 @@ const AdminWallet = () => {
     useState("all");
 
 
-  /* ================= SEARCH USERS ================= */
+  /* ================= LOAD USERS ================= */
 
-  useEffect(() => {
+useEffect(() => {
 
-    if (selectedUser) {
-      return;
-    }
+  if (selectedUser) {
+    return;
+  }
 
-    const query =
-      search.trim();
+  const query =
+    search.trim();
 
-    if (query.length < 2) {
-      setUsers([]);
-      setSearchLoading(false);
-      return;
-    }
+  const controller =
+    new AbortController();
 
-    const controller =
-      new AbortController();
+  const timer =
+    setTimeout(async () => {
 
-    const timer =
-      setTimeout(async () => {
+      try {
 
-        try {
+        setSearchLoading(true);
+        setError("");
 
-          setSearchLoading(true);
-          setError("");
+        const token =
+          localStorage.getItem("token");
 
-          const token =
-            localStorage.getItem("token");
+        const endpoint =
+          query.length >= 2
+            ? `${API_BASE}/api/admin/wallet/users?search=${encodeURIComponent(query)}`
+            : `${API_BASE}/api/admin/wallet/users?page=1&limit=20`;
 
-          const res =
-            await fetch(
-              `${API_BASE}/api/admin/wallet/users?search=${encodeURIComponent(query)}`,
-              {
-                headers: {
-                  Authorization:
-                    `Bearer ${token}`,
-                },
-                signal:
-                  controller.signal,
-              }
-            );
-
-          const data =
-            await res.json();
-
-          if (!res.ok) {
-            throw new Error(
-              data.error ||
-              "Failed to search users."
-            );
-          }
-
-          setUsers(
-            Array.isArray(data.users)
-              ? data.users
-              : []
+        const res =
+          await fetch(
+            endpoint,
+            {
+              headers: {
+                Authorization:
+                  `Bearer ${token}`,
+              },
+              signal:
+                controller.signal,
+            }
           );
 
-        } catch (err) {
+        const data =
+          await res.json();
 
-          if (
-            err.name ===
-            "AbortError"
-          ) {
-            return;
-          }
-
-          console.error(
-            "ADMIN USER SEARCH ERROR:",
-            err
+        if (!res.ok) {
+          throw new Error(
+            data.error ||
+            "Failed to load users."
           );
-
-          setError(
-            err.message ||
-            "Failed to search users."
-          );
-
-          setUsers([]);
-
-        } finally {
-
-          setSearchLoading(false);
         }
 
-      }, 350);
+        setUsers(
+          Array.isArray(data.users)
+            ? data.users
+            : []
+        );
 
-    return () => {
-      clearTimeout(timer);
-      controller.abort();
-    };
+      } catch (err) {
 
-  }, [search, selectedUser]);
+        if (
+          err.name ===
+          "AbortError"
+        ) {
+          return;
+        }
+
+        console.error(
+          "ADMIN USER LIST ERROR:",
+          err
+        );
+
+        setError(
+          err.message ||
+          "Failed to load users."
+        );
+
+        setUsers([]);
+
+      } finally {
+
+        setSearchLoading(false);
+      }
+
+    }, query.length >= 2 ? 350 : 0);
+
+  return () => {
+    clearTimeout(timer);
+    controller.abort();
+  };
+
+}, [search, selectedUser]);
 
 
   /* ================= LOAD ADJUSTMENT HISTORY ================= */
@@ -176,6 +175,7 @@ const AdminWallet = () => {
     try {
 
       setHistoryLoading(true);
+      setError("");
 
       const token =
         localStorage.getItem("token");
@@ -215,6 +215,8 @@ const AdminWallet = () => {
           totalPages: 0,
         }
       );
+
+      setError("");
 
     } catch (err) {
 
@@ -483,8 +485,7 @@ const AdminWallet = () => {
 
               {/* SEARCH DROPDOWN */}
 
-              {search.trim().length >= 2 &&
-                !searchLoading && (
+              {!searchLoading && (
 
                 <div className="absolute left-0 right-0 mt-2 z-30 bg-gray-950 border border-gray-700 rounded-2xl overflow-hidden shadow-2xl">
 
