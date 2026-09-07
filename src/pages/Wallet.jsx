@@ -333,7 +333,7 @@ const WalletPage = () => {
       category ===
       "admin_adjustment"
     ) {
-      return "Admin Point Adjustment";
+      return "AfricSocial Point Update";
     }
 
     if (
@@ -1041,12 +1041,14 @@ const WalletPage = () => {
                             <p className="text-xs text-gray-600 mt-2 capitalize">
 
                               Method:{" "}
-                              {String(
-                                transaction.paymentMethod
-                              ).replace(
-                                /_/g,
-                                " "
-                              )}
+                              {transaction.paymentMethod === "admin"
+                                ? "AfricSocial"
+                                : String(
+                                    transaction.paymentMethod
+                                  ).replace(
+                                    /_/g,
+                                    " "
+                                  )}
 
                             </p>
 
