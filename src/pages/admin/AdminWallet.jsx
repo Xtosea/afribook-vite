@@ -72,6 +72,9 @@ const AdminWallet = () => {
   const [historyFilter, setHistoryFilter] =
     useState("all");
 
+  const [searchFocused, setSearchFocused] =
+    useState(false);
+
 
   /* ================= LOAD USERS ================= */
 
@@ -251,6 +254,7 @@ useEffect(() => {
     setSelectedUser(user);
     setSearch(user.name || "");
     setUsers([]);
+    setSearchFocused(false);
     setError("");
     setResult(null);
   };
@@ -263,6 +267,7 @@ useEffect(() => {
     setSelectedUser(null);
     setSearch("");
     setUsers([]);
+    setSearchFocused(false);
     setResult(null);
     setError("");
   };
@@ -462,6 +467,14 @@ useEffect(() => {
 
                 <input
                   value={search}
+                  onFocus={() =>
+                    setSearchFocused(true)
+                  }
+                  onBlur={() => {
+                    setTimeout(() => {
+                      setSearchFocused(false);
+                    }, 150);
+                  }}
                   onChange={(e) =>
                     setSearch(e.target.value)
                   }
@@ -485,7 +498,7 @@ useEffect(() => {
 
               {/* SEARCH DROPDOWN */}
 
-              {!searchLoading && (
+              {searchFocused && !searchLoading && (
 
                 <div className="absolute left-0 right-0 mt-2 z-30 bg-gray-950 border border-gray-700 rounded-2xl overflow-hidden shadow-2xl">
 
