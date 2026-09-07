@@ -69,6 +69,9 @@ const AdminWallet = () => {
       totalPages: 0,
     });
 
+  const [historyFilter, setHistoryFilter] =
+    useState("all");
+
 
   /* ================= SEARCH USERS ================= */
 
@@ -179,7 +182,7 @@ const AdminWallet = () => {
 
       const res =
         await fetch(
-          `${API_BASE}/api/admin/wallet/history?page=${page}&limit=20`,
+          `${API_BASE}/api/admin/wallet/history?page=${page}&limit=20&filter=${historyFilter}`,
           {
             headers: {
               Authorization:
@@ -236,7 +239,7 @@ const AdminWallet = () => {
 
   useEffect(() => {
     loadHistory(historyPage);
-  }, [historyPage]);
+  }, [historyPage, historyFilter]);
 
 
   /* ================= SELECT USER ================= */
@@ -881,6 +884,66 @@ const AdminWallet = () => {
               />
 
             </button>
+
+          </div>
+
+
+          {/* HISTORY FILTER */}
+
+          <div className="mb-4">
+
+            <p className="text-xs text-gray-500 mb-2">
+              Filter History
+            </p>
+
+            <div className="grid grid-cols-3 gap-2">
+
+              <button
+                type="button"
+                onClick={() => {
+                  setHistoryPage(1);
+                  setHistoryFilter("all");
+                }}
+                className={`py-2.5 rounded-xl text-sm font-semibold border ${
+                  historyFilter === "all"
+                    ? "bg-green-500/10 border-green-500 text-green-400"
+                    : "bg-black border-gray-700 text-gray-400"
+                }`}
+              >
+                All
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setHistoryPage(1);
+                  setHistoryFilter("add");
+                }}
+                className={`py-2.5 rounded-xl text-sm font-semibold border ${
+                  historyFilter === "add"
+                    ? "bg-green-500/10 border-green-500 text-green-400"
+                    : "bg-black border-gray-700 text-gray-400"
+                }`}
+              >
+                Added
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setHistoryPage(1);
+                  setHistoryFilter("deduct");
+                }}
+                className={`py-2.5 rounded-xl text-sm font-semibold border ${
+                  historyFilter === "deduct"
+                    ? "bg-red-500/10 border-red-500 text-red-400"
+                    : "bg-black border-gray-700 text-gray-400"
+                }`}
+              >
+                Deducted
+              </button>
+
+            </div>
 
           </div>
 
