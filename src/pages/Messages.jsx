@@ -429,7 +429,12 @@ useEffect(() => {
         message.sender?._id === selectedUser._id
       )
     ) {
-      setMessages(prev => [...prev, message]);
+      setMessages(prev => {
+        if (prev.some(msg => msg._id === message._id)) {
+          return prev;
+        }
+        return [...prev, message];
+      });
     }
   }
 );
