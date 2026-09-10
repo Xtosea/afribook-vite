@@ -116,29 +116,110 @@ const currentUserId = currentUser?._id;
     };
   }, [currentUserId]);
 
-  // ================= FETCH =================
+    // ================= FETCH =================
   useEffect(() => {
     const token = localStorage.getItem("token");
 
     const fetchData = async () => {
+      if (!token) {
+        setNotifications([]);
+        setUnreadCount(0);
+        return;
+      }
+
       try {
-        const [nRes, cRes] = await Promise.all([
+        const [nRes, cRes] = await Promise.allSettled([
           fetch(`${API_BASE}/api/notifications`, {
-            headers: { Authorization: `Bearer ${token}` },
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           }),
+
           fetch(`${API_BASE}/api/notifications/unread-count`, {
-            headers: { Authorization: `Bearer ${token}` },
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           }),
         ]);
 
-        const nData = await nRes.json();
-        const cData = await cRes.json();
+        // ================= NOTIFICATIONS =================
+        if (nRes.status === "fulfilled") {
+          console.log(
+            "NOTIFICATIONS API STATUS:",
+            nRes.value.status
+          );
 
+          if (nRes.value.ok) {
+            const nData = await nRes.value.json();
 
-        setNotifications(Array.isArray(nData) ? nData : []);
-        setUnreadCount(cData.count || 0);
+            console.log(
+              "NOTIFICATIONS API RESPONSE:",
+              nData
+            );
+
+            setNotifications(
+              Array.isArray(nData) ? nData : []
+            );
+          } else {
+            console.error(
+              "NOTIFICATIONS API ERROR:",
+              nRes.value.status
+            );
+
+            setNotifications([]);
+          }
+        } else {
+          console.error(
+            "NOTIFICATIONS FETCH FAILED:",
+            nRes.reason
+          );
+
+          setNotifications([]);
+        }
+
+        // ================= UNREAD COUNT =================
+        if (cRes.status === "fulfilled") {
+          console.log(
+            "UNREAD COUNT API STATUS:",
+            cRes.value.status
+          );
+
+          if (cRes.value.ok) {
+            const cData = await cRes.value.json();
+
+            console.log(
+              "UNREAD COUNT API RESPONSE:",
+              cData
+            );
+
+            setUnreadCount(
+              Number(cData?.count) || 0
+            );
+          } else {
+            console.error(
+              "UNREAD COUNT API ERROR:",
+              cRes.value.status
+            );
+
+            setUnreadCount(0);
+          }
+        } else {
+          console.error(
+            "UNREAD COUNT FETCH FAILED:",
+            cRes.reason
+          );
+
+          setUnreadCount(0);
+        }
+
       } catch (err) {
-        console.error(err);
+        console.error(
+          "NAVBAR FETCH ERROR:",
+          err
+        );
+
+        setNotifications([]);
+        setUnreadCount(0);
       }
     };
 
