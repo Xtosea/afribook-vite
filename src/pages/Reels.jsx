@@ -171,22 +171,37 @@ useEffect(() => {
     .then(setStickers);
 }, []);
 
-  /* ================= LIKE ================= */
+    /* ================= LIKE ================= */
   const likeReel = async (id) => {
     try {
       const res = await fetch(`${API_BASE}/api/posts/${id}/like`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       const data = await res.json();
 
+      console.log("LIKE API STATUS:", res.status);
+      console.log("LIKE API RESPONSE:", data);
+
+      if (!res.ok) {
+        throw new Error(
+          data?.error || `Failed to like reel (${res.status})`
+        );
+      }
+
+      const likeCount = Array.isArray(data?.likes)
+        ? data.likes.length
+        : Number(data?.likesCount) || 0;
+
       setLikes((prev) => ({
         ...prev,
-        [id]: data.likes.length,
+        [id]: likeCount,
       }));
     } catch (err) {
-      console.error(err);
+      console.error("LIKE REEL ERROR:", err);
     }
   };
 
