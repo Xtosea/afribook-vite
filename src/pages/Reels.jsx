@@ -39,30 +39,62 @@ const [selectedSticker, setSelectedSticker] = useState(null);
   const { uploadFile, loading, progress } = use2Upload();
   const token = localStorage.getItem("token");
 
-  /* ================= FETCH REELS ================= */
-  
+    /* ================= FETCH REELS ================= */
+
   const fetchReels = async () => {
     try {
       const res = await fetch(`${API_BASE}/api/posts/reels`);
       const data = await res.json();
 
-      setReels(data);
+      console.log("REELS API STATUS:", res.status);
+      console.log("REELS API RESPONSE:", data);
+
+      if (!res.ok) {
+        throw new Error(
+          data?.error || `Failed to fetch reels (${res.status})`
+        );
+      }
+
+      // The API should return an array.
+      // If it returns { reels: [...] }, support that too.
+      const reelsData = Array.isArray(data)
+        ? data
+        : Array.isArray(data?.reels)
+        ? data.reels
+        : [];
+
+      if (!Array.isArray(data) && !Array.isArray(data?.reels)) {
+        console.error(
+          "REELS API DID NOT RETURN AN ARRAY:",
+          data
+        );
+      }
+
+      setReels(reelsData);
 
       const likesObj = {};
       const sharesObj = {};
 
-      data.forEach((reel) => {
-        likesObj[reel._id] = reel.likes?.length || 0;
-        sharesObj[reel._id] = reel.shares || 0;
+      reelsData.forEach((reel) => {
+        likesObj[reel._id] =
+          Array.isArray(reel.likes)
+            ? reel.likes.length
+            : 0;
+
+        sharesObj[reel._id] =
+          reel.shares || 0;
       });
 
       setLikes(likesObj);
       setShares(sharesObj);
+
     } catch (err) {
-      console.error(err);
+      console.error("FETCH REELS ERROR:", err);
+      setReels([]);
+      setLikes({});
+      setShares({});
     }
   };
-
   /* ================= OPTIMIZED AUTOPLAY ================= */
   useEffect(() => {
     if (!reels.length) return;
@@ -252,7 +284,7 @@ const { videoUrl: thumbnailUrl } =
   return (
     <div className="h-screen overflow-y-scroll snap-y snap-mandatory bg-black">
 
-      
+
       <button
   onClick={() => navigate("/")}
   className="
