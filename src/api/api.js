@@ -26,6 +26,10 @@ export const fetchWithToken = async (url, token, options = {}) => {
 
    console.log("🌐 API REQUEST:", fullUrl);
 console.log("🔑 HAS TOKEN:", !!token);
+console.log(
+  "🔑 TOKEN LENGTH:",
+  token ? token.length : 0
+);
 
     const res = await fetch(fullUrl, {
       ...options,
