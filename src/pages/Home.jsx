@@ -229,72 +229,42 @@ useEffect(() => {
 
 // ================= NETWORK WATCH =================
 
-useEffect(()=>{
+useEffect(() => {
 
+  const online = () => {
 
-const online = ()=>{
+    console.log("🌐 Network connection restored");
 
+    setIsOffline(false);
+    setNetworkError(false);
 
-setIsOffline(false);
-setNetworkError(false);
+    // Only reset the feed state.
+    // The page state change will trigger fetchPosts().
+    setPage(1);
+    setHasMore(true);
+    setPosts([]);
 
+  };
 
-setPage(1);
-setHasMore(true);
-setPosts([]);
+  const offline = () => {
 
+    console.log("📴 Network connection lost");
 
+    setIsOffline(true);
 
-setTimeout(()=>{
+  };
 
-fetchPosts();
+  window.addEventListener("online", online);
+  window.addEventListener("offline", offline);
 
-},300);
+  return () => {
 
+    window.removeEventListener("online", online);
+    window.removeEventListener("offline", offline);
 
-};
+  };
 
-
-
-const offline = ()=>{
-
-setIsOffline(true);
-
-};
-
-
-
-window.addEventListener(
-"online",
-online
-);
-
-
-window.addEventListener(
-"offline",
-offline
-);
-
-
-
-return()=>{
-
-window.removeEventListener(
-"online",
-online
-);
-
-
-window.removeEventListener(
-"offline",
-offline
-);
-
-};
-
-
-
-},[fetchPosts]);
+}, []);
 
 
 
