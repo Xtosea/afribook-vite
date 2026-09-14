@@ -4,6 +4,9 @@ const MAIN_API = import.meta.env.VITE_API_BASE;
 
 export const API_BASE = MAIN_API;
 
+const sleep = (ms) =>
+  new Promise((resolve) => setTimeout(resolve, ms));
+
 export const fetchWithToken = async (url, token, options = {}) => {
   const fullUrl = url.startsWith("http")
     ? url
@@ -17,55 +20,97 @@ export const fetchWithToken = async (url, token, options = {}) => {
 
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
-    console.log("🔐 API TOKEN ATTACHED:", token.substring(0, 20) + "...", "URL:", fullUrl);
+
+    console.log(
+      "🔐 API TOKEN ATTACHED:",
+      token.substring(0, 20) + "...",
+      "URL:",
+      fullUrl
+    );
   } else {
     console.error("❌ NO TOKEN ATTACHED:", fullUrl);
   }
 
-  try {
+  const maxRetries = 2;
 
-   console.log("🌐 API REQUEST:", fullUrl);
-console.log("🔑 HAS TOKEN:", !!token);
-console.log(
-  "🔑 TOKEN LENGTH:",
-  token ? token.length : 0
-);
-
-    const res = await fetch(fullUrl, {
-      ...options,
-      headers,
-    });
-
-    const text = await res.text();
-
-    let data;
-
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
-      data = JSON.parse(text);
-    } catch {
-      console.error("❌ Server returned non-JSON:", text);
-      throw new Error("Invalid server response");
-    }
+      console.log(
+        "🌐 API REQUEST:",
+        fullUrl,
+        `attempt ${attempt + 1}/${maxRetries + 1}`
+      );
 
-    if (!res.ok) {
-      console.error("❌ API ERROR");
-      console.error("URL:", fullUrl);
-      console.error("STATUS:", res.status);
-      console.error("RESPONSE:", data);
+      console.log("🔑 HAS TOKEN:", !!token);
+      console.log(
+        "🔑 TOKEN LENGTH:",
+        token ? token.length : 0
+      );
 
-      if (res.status === 401) {
-        localStorage.removeItem("token");
-        window.location.href = "/login";
+      const res = await fetch(fullUrl, {
+        ...options,
+        headers,
+      });
+
+      const text = await res.text();
+
+      let data;
+
+      try {
+        data = JSON.parse(text);
+      } catch {
+        console.error(
+          "❌ Server returned non-JSON:",
+          text
+        );
+
+        throw new Error("Invalid server response");
       }
 
-      throw new Error(
-        data?.message || `Request failed (${res.status})`
-      );
-    }
+      if (!res.ok) {
+        console.error("❌ API ERROR");
+        console.error("URL:", fullUrl);
+        console.error("STATUS:", res.status);
+        console.error("RESPONSE:", data);
 
-    return data;
-  } catch (err) {
-    console.error("fetchWithToken ERROR:", err);
-    throw err;
+        if (res.status === 401) {
+          localStorage.removeItem("token");
+          window.location.href = "/login";
+        }
+
+        throw new Error(
+          data?.message ||
+          `Request failed (${res.status})`
+        );
+      }
+
+      return data;
+
+    } catch (err) {
+      const isNetworkError =
+        err instanceof TypeError &&
+        err.message === "Failed to fetch";
+
+      if (!isNetworkError || attempt === maxRetries) {
+        console.error(
+          "fetchWithToken ERROR:",
+          err
+        );
+
+        throw err;
+      }
+
+      const delay = 500 * (attempt + 1);
+
+      console.warn(
+        `⚠️ Network request failed. Retrying in ${delay}ms...`,
+        {
+          attempt: attempt + 1,
+          url: fullUrl,
+        }
+      );
+
+      await sleep(delay);
+    }
   }
 };
