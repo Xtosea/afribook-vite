@@ -202,30 +202,6 @@ fetchPosts();
 
 },[fetchPosts]);
 
-// ================= REFRESH WHEN USER RETURNS =================
-useEffect(() => {
-  const handleVisibilityChange = () => {
-    if (document.visibilityState === "visible") {
-      console.log("User returned");
-
-      fetchPosts();
-    }
-  };
-
-  document.addEventListener(
-    "visibilitychange",
-    handleVisibilityChange
-  );
-
-  return () => {
-    document.removeEventListener(
-      "visibilitychange",
-      handleVisibilityChange
-    );
-  };
-}, [fetchPosts]);
-
-
 
 // ================= NETWORK WATCH =================
 
