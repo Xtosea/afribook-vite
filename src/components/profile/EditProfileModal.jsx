@@ -1,11 +1,4 @@
-import React, {
-  useState,
-  useRef,
-  useEffect,
-} from "react";
-import ImageCropModal from "./ImageCropModal";
-import { Camera } from "lucide-react";
-
+import React from "react";
 
 const EditProfileModal = ({
   editing,
@@ -13,54 +6,9 @@ const EditProfileModal = ({
   formData,
   handleSave,
   handleInputChange,
-  handleFileChange,
   uploading = false,
-  uploadProgress = { profilePic: 0, coverPhoto: 0 },
-  previewProfilePic,
-  previewCoverPhoto,
-  uploadTarget,
-  setUploadTarget,
 }) => {
-
-
-
-const [cropImage, setCropImage] = useState(null);
-const [cropImageFile, setCropImageFile] = useState(null);
-const [cropType, setCropType] = useState(null);
-const [captureMode, setCaptureMode] = useState("");
-
-
-
-const profileInputRef = useRef(null);
-const coverInputRef = useRef(null);
-
-
-
-useEffect(() => {
-  if (!editing || !uploadTarget) return;
-
-  if (uploadTarget.type === "profilePic") {
-    setCaptureMode(uploadTarget.mode);
-
-    setTimeout(() => {
-      profileInputRef.current?.click();
-      setUploadTarget(null);
-    }, 100);
-  }
-
-  if (uploadTarget.type === "coverPhoto") {
-    setCaptureMode(uploadTarget.mode);
-
-    setTimeout(() => {
-      coverInputRef.current?.click();
-      setUploadTarget(null);
-    }, 100);
-  }
-}, [editing, uploadTarget, setUploadTarget]);
-
-
-
-const onSave = async () => {
+  const onSave = async () => {
     try {
       if (handleSave) {
         await handleSave();
@@ -70,12 +18,11 @@ const onSave = async () => {
       alert("Failed to save profile");
     }
   };
-  if (!editing) return null;
 
+  if (!editing) return null;
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4">
-
       <div className="bg-white rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto shadow-xl">
 
         {/* Header */}
@@ -106,7 +53,6 @@ const onSave = async () => {
           "email",
         ].map((field) => (
           <div key={field} className="mb-4">
-
             <label className="block mb-1 font-medium capitalize">
               {field}
             </label>
@@ -127,144 +73,8 @@ const onSave = async () => {
           </div>
         ))}
 
-        {/* Profile Picture */}
-        <div className="mb-5">
-          <label className="block mb-2 font-medium">
-            Profile Picture
-          </label>
-
-          {previewProfilePic && (
-            
-              <div className="relative w-24 h-24 mb-3">
-
-  <img
-    src={previewProfilePic}
-    alt="Profile Preview"
-    onClick={() => profileInputRef.current?.click()}
-    className="w-24 h-24 rounded-full object-cover border cursor-pointer"
-  />
-
-  <button
-    type="button"
-    onClick={() => profileInputRef.current?.click()}
-    className="absolute bottom-0 right-0 bg-blue-600 text-white p-2 rounded-full shadow-lg"
-  >
-    <Camera size={16} />
-  </button>
-
-</div>
- )}
-
-          
-  
-   <input
-  id="profile-upload-input"
-  ref={profileInputRef}
-  hidden
-  type="file"
-  accept="image/*"
-  capture={
-    captureMode === "camera"
-      ? "environment"
-      : undefined
-  }
-  className="w-full"
-  
-  onChange={(e) => {
-  const file = e.target.files?.[0];
-
-  if (!file) return;
-
-  setCropType("profilePic");
-  setCropImageFile(file);
-  setCropImage(URL.createObjectURL(file));
-
-  setCaptureMode("");
-}}
-/>
-
-  {uploadProgress?.profilePic > 0 && (
-    <div className="w-full bg-gray-200 h-2 rounded mt-2">
-      <div
-        className="bg-blue-500 h-2 rounded"
-        style={{
-          width: `${uploadProgress.profilePic}%`,
-        }}
-      />
-    </div>
-  )}
-</div> 
-
-        
-
-         {/* Cover Photo */}
-        <div className="mb-5">
-          <label className="block mb-2 font-medium">
-            Cover Photo
-          </label>
-
-          {previewCoverPhoto && (
-  <div className="relative mb-3">
-
-  <img
-    src={previewCoverPhoto}
-    alt="Cover Preview"
-    onClick={() => coverInputRef.current?.click()}
-    className="w-full h-32 rounded object-cover border cursor-pointer"
-  />
-
-  <button
-    type="button"
-    onClick={() => coverInputRef.current?.click()}
-    className="absolute bottom-2 right-2 bg-black/70 text-white p-2 rounded-full"
-  >
-    <Camera size={18} />
-  </button>
-
-</div>
-)}
-
-  <input
-  id="cover-upload-input"
-  ref={coverInputRef}
-  hidden
-  type="file"
-  accept="image/*"
-  capture={
-    captureMode === "camera"
-      ? "environment"
-      : undefined
-  }
-  className="w-full"
-  
-  onChange={(e) => {
-  const file = e.target.files?.[0];
-
-  if (!file) return;
-
-  setCropType("coverPhoto");
-  setCropImageFile(file);
-  setCropImage(URL.createObjectURL(file));
-
-  setCaptureMode("");
-}}
-/>
-
-          {uploadProgress?.coverPhoto > 0 && (
-            <div className="w-full bg-gray-200 h-2 rounded mt-2">
-              <div
-                className="bg-blue-500 h-2 rounded"
-                style={{
-                  width: `${uploadProgress.coverPhoto}%`,
-                }}
-              />
-            </div>
-          )}
-        </div>
-
         {/* Buttons */}
         <div className="flex gap-3 mt-6">
-
           <button
             type="button"
             onClick={() => setEditing(false)}
@@ -286,43 +96,9 @@ const onSave = async () => {
           >
             {uploading ? "Saving..." : "Save"}
           </button>
-
         </div>
+
       </div>
-
-  <ImageCropModal
-  open={!!cropImage}
-  image={cropImage}
-  aspect={
-    cropType === "coverPhoto"
-      ? 16 / 9
-      : 1
-  }
-  cropShape={
-    cropType === "profilePic"
-      ? "round"
-      : "rect"
-  }
-  onCancel={() => {
-  setCropImage(null);
-  setCropImageFile(null);
-  setCropType(null);
-}}
-  onCropComplete={(croppedFile) => {
-  const fakeEvent = {
-    target: {
-      files: [croppedFile],
-    },
-  };
-
-  handleFileChange(fakeEvent, cropType);
-
-setCropImage(null);
-setCropImageFile(null);
-setCropType(null);
-}}
-/>
-
     </div>
   );
 };

@@ -109,6 +109,99 @@ const [uploadTarget, setUploadTarget] = useState(null);
 
   const [saving, setSaving] = useState(false);
 
+  // ================= SAVE PROFILE PHOTO =================
+  const saveProfilePhoto = async (file) => {
+    if (!file) return;
+
+    try {
+      setSaving(true);
+
+      const profilePicUrl = await uploadImageKit(file);
+
+      const response = await fetch(
+        `${API_BASE}/api/users/${currentUserId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            profilePic: profilePicUrl,
+          }),
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          result.message || "Failed to update profile picture"
+        );
+      }
+
+      setUser(result);
+      setPreviewProfilePic(profilePicUrl);
+
+      alert("Profile picture updated successfully!");
+    } catch (err) {
+      console.error("Profile photo upload error:", err);
+
+      alert(
+        err.message || "Failed to update profile picture"
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+
+
+  // ================= SAVE COVER PHOTO =================
+const saveCoverPhoto = async (file) => {
+  if (!file) return;
+
+  try {
+    setSaving(true);
+
+    const coverPhotoUrl = await uploadImageKit(file);
+
+    const response = await fetch(
+      `${API_BASE}/api/users/${currentUserId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          coverPhoto: coverPhotoUrl,
+        }),
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        result.message || "Failed to update cover photo"
+      );
+    }
+
+    setUser(result);
+    setPreviewCoverPhoto(coverPhotoUrl);
+
+    alert("Cover photo updated successfully!");
+  } catch (err) {
+    console.error("Cover photo upload error:", err);
+
+    alert(
+      err.message || "Failed to update cover photo"
+    );
+  } finally {
+    setSaving(false);
+  }
+};
+
   // ================= INFINITE SCROLL =================
   const lastPostRef = useCallback(
     (node) => {
@@ -409,22 +502,12 @@ const [uploadTarget, setUploadTarget] = useState(null);
     setViewerOpen(true);
   }}
 
-  onUploadProfilePhoto={(mode) => {
-  setUploadTarget({
-    type: "profilePic",
-    mode,
-  });
-
-  setEditing(true);
+  onUploadProfilePhoto={(file) => {
+  saveProfilePhoto(file);
 }}
 
-  onUploadCoverPhoto={(mode) => {
-  setUploadTarget({
-    type: "coverPhoto",
-    mode,
-  });
-
-  setEditing(true);
+  onUploadCoverPhoto={(file) => {
+  saveCoverPhoto(file);
 }}
 />
 </Suspense>
