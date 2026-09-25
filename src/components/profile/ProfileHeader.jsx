@@ -77,7 +77,7 @@ const shareReferral =
     previewCoverPhoto instanceof File
       ? URL.createObjectURL(previewCoverPhoto)
       : previewCoverPhoto ||
-        `${API_BASE}/uploads/profiles/default-cover.png`
+        `/default-cover.svg`
   }
   alt="Cover"
   onClick={() => setShowCoverOptions(true)}

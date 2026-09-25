@@ -242,7 +242,7 @@ const onSave = async () => {
 
   if (!file) return;
 
-  setCropType("profilePic");
+  setCropType("coverPhoto");
   setCropImageFile(file);
   setCropImage(URL.createObjectURL(file));
 
