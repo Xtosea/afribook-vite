@@ -625,7 +625,7 @@ const currentUserId = currentUser?._id;
 
 
 <Link
-    to="/marketplace/create"
+    to="/marketplace"
     onClick={() => setMobileOpen(false)}
     className="flex flex-col items-center justify-center rounded-xl p-4 bg-gray-50 hover:bg-gray-100"
   >
