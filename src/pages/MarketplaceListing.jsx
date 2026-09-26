@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import { fetchWithToken } from "../api/api";
 import { useAuth } from "../context/AuthContext";
@@ -11,6 +11,7 @@ import ContactButtons from "../components/marketplace/ContactButtons";
 import OwnerActions from "../components/marketplace/OwnerActions";
 
 export default function MarketplaceListing() {
+  const navigate = useNavigate();
   const { id } = useParams();
 
   const { token, currentUser } = useAuth();
@@ -42,8 +43,118 @@ export default function MarketplaceListing() {
     }
   };
 
+  const currentUserId = String(currentUser?._id || "");
+  const sellerId = String(
+    listing?.seller?._id || listing?.seller || ""
+  );
+
   const isOwner =
-  currentUser?._id === listing?.seller?._id;
+    currentUserId !== "" &&
+    sellerId !== "" &&
+    currentUserId === sellerId;
+
+  const isAdmin = currentUser?.role === "admin";
+  const canManage = isOwner || isAdmin;
+
+  const isSaved = Array.isArray(listing?.savedBy)
+    ? listing.savedBy.some(
+        (savedId) =>
+          String(savedId) === String(currentUser?._id)
+      )
+    : false;
+
+  const handleDelete = async () => {
+    if (!window.confirm("Are you sure you want to delete this listing?")) {
+      return;
+    }
+
+    try {
+      await fetchWithToken(
+        `/api/marketplace/${id}`,
+        token,
+        {
+          method: "DELETE",
+        }
+      );
+
+      alert("Listing deleted successfully.");
+      navigate("/marketplace");
+    } catch (err) {
+      console.error(err);
+      alert(err.message || "Failed to delete listing.");
+    }
+  };
+
+  const handleMarkSold = async () => {
+    try {
+      const res = await fetchWithToken(
+        `/api/marketplace/${id}`,
+        token,
+        {
+          method: "PUT",
+          body: JSON.stringify({
+            status: "Sold",
+          }),
+        }
+      );
+
+      setListing(res.listing);
+      alert("Listing marked as sold.");
+    } catch (err) {
+      console.error(err);
+      alert(err.message || "Failed to mark listing as sold.");
+    }
+  };
+
+  const handlePromote = async () => {
+    try {
+      const res = await fetchWithToken(
+        `/api/marketplace/${id}`,
+        token,
+        {
+          method: "PUT",
+          body: JSON.stringify({
+            featured: true,
+          }),
+        }
+      );
+
+      setListing(res.listing);
+      alert("Listing promoted successfully.");
+    } catch (err) {
+      console.error(err);
+      alert(err.message || "Failed to promote listing.");
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      const res = await fetchWithToken(
+        `/api/marketplace/${id}/save`,
+        token,
+        {
+          method: "POST",
+        }
+      );
+
+      setListing((prev) => ({
+        ...prev,
+        savedBy: res.saved
+          ? [
+              ...(prev.savedBy || []),
+              currentUser._id,
+            ]
+          : (prev.savedBy || []).filter(
+              (savedId) =>
+                String(savedId) !==
+                String(currentUser._id)
+            ),
+      }));
+    } catch (err) {
+      console.error(err);
+      alert(err.message || "Failed to save listing.");
+    }
+  };
 
   if (loading) {
     return (
@@ -100,8 +211,13 @@ export default function MarketplaceListing() {
 
           <ListingInfo listing={listing} />
 
-          {isOwner && (
-            <OwnerActions listing={listing} />
+          {canManage && (
+            <OwnerActions
+              listing={listing}
+              onDelete={handleDelete}
+              onMarkSold={handleMarkSold}
+              onPromote={handlePromote}
+            />
           )}
 
         </div>
@@ -110,6 +226,14 @@ export default function MarketplaceListing() {
         <div className="space-y-6">
 
           <SellerCard listing={listing} />
+
+          <button
+            type="button"
+            onClick={handleSave}
+            className="w-full flex items-center justify-center gap-2 p-3 rounded-lg border hover:bg-gray-50"
+          >
+            {isSaved ? "Unsave Listing" : "Save Listing"}
+          </button>
 
           <ContactButtons listing={listing} />
 
