@@ -4,6 +4,7 @@ import {
   Store,
   Plus,
   Package,
+  Crown,
 } from "lucide-react";
 
 const MarketplaceHeader = ({
@@ -48,14 +49,25 @@ const MarketplaceHeader = ({
 
         {/* Right */}
 
-        <Link
-          to="/marketplace/create"
-          className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold transition"
-        >
-          <Plus size={20} />
+        <div className="flex flex-col sm:flex-row gap-3">
 
-          Sell Item
-        </Link>
+          <Link
+            to="/premium"
+            className="inline-flex items-center justify-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-xl font-semibold transition"
+          >
+            <Crown size={20} />
+            Premium
+          </Link>
+
+          <Link
+            to="/marketplace/create"
+            className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold transition"
+          >
+            <Plus size={20} />
+            Sell Item
+          </Link>
+
+        </div>
 
       </div>
 
