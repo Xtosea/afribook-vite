@@ -773,7 +773,6 @@ return (
   <button
     type="button"
     onClick={() => {
-      console.log("BOOST BUTTON CLICKED");
       setShowBoost(true);
     }}
     className="flex flex-col items-center justify-center py-2 hover:bg-gray-100 rounded-lg transition text-blue-600"
@@ -799,7 +798,7 @@ return (
 
       {/* COMMENTS */}
 
-      {showComments && (
+            {showComments && (
 
         <div className="space-y-3 border-t pt-3">
 
@@ -814,9 +813,7 @@ return (
               >
 
                 <span className="font-semibold">
-                  {c?.user
-                    ?.name ||
-                    "User"}
+                  {c?.user?.name || "User"}
                 </span>
 
                 <span className="ml-2">
@@ -824,6 +821,7 @@ return (
                 </span>
 
               </div>
+
             )
           )}
 
@@ -832,24 +830,16 @@ return (
           <div className="flex gap-2">
 
             <input
-              value={
-                commentText
-              }
-              onChange={(
-                e
-              ) =>
-                setCommentText(
-                  e.target.value
-                )
+              value={commentText}
+              onChange={(e) =>
+                setCommentText(e.target.value)
               }
               className="flex-1 border p-2 rounded-xl outline-none focus:ring-2 focus:ring-blue-400"
               placeholder="Write comment..."
             />
 
             <button
-              onClick={
-                handleComment
-              }
+              onClick={handleComment}
               className="bg-blue-600 hover:bg-blue-700 text-white px-4 rounded-xl"
             >
               Send
@@ -859,6 +849,16 @@ return (
 
         </div>
 
+      )}
+
+      {/* BOOST MODAL */}
+
+      {showBoost && canBoost && (
+        <BoostModal
+          post={post}
+          token={token}
+          onClose={() => setShowBoost(false)}
+        />
       )}
 
     </div>
