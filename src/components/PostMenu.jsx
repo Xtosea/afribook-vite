@@ -7,11 +7,13 @@ import {
   Link2,
   Pin,
   Flag,
+  Rocket,
 } from "lucide-react";
 
 import { API_BASE } from "../api/api";
 import EditPostModal from "./EditPostModal";
 import ReportPostModal from "./ReportPostModal";
+import BoostModal from "./BoostModal";
 import { toast } from "react-toastify";
 
 const PostMenu = ({
@@ -21,10 +23,10 @@ const PostMenu = ({
   onDeleted,
   onUpdated,
 }) => {
-
   const [open, setOpen] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
   const [showReport, setShowReport] = useState(false);
+  const [showBoost, setShowBoost] = useState(false);
 
   const [undoData, setUndoData] = useState(null);
   const [undoTimer, setUndoTimer] = useState(null);
@@ -35,24 +37,48 @@ const PostMenu = ({
     currentUser?._id?.toString() ===
     post?.user?._id?.toString();
 
+  // Boost is available for the owner's
+  // photo/image posts, video posts, and Reels.
+  // Text-only and shared posts are not eligible.
+  const hasMedia =
+    Array.isArray(post?.media) &&
+    post.media.length > 0;
+
+  const canBoost =
+    isOwner &&
+    hasMedia &&
+    post?.isSharedPost !== true;
+
   // CLOSE OUTSIDE
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(e.target)
+      ) {
         setOpen(false);
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener(
+      "mousedown",
+      handleClickOutside
+    );
+
     return () =>
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener(
+        "mousedown",
+        handleClickOutside
+      );
   }, []);
 
   // =========================
   // DELETE WITH UNDO
   // =========================
   const handleDelete = async () => {
-    const confirmDelete = window.confirm("Delete this post?");
+    const confirmDelete =
+      window.confirm("Delete this post?");
+
     if (!confirmDelete) return;
 
     try {
@@ -78,21 +104,30 @@ const PostMenu = ({
       );
 
       // delay real delete
-      const timer = setTimeout(async () => {
-        try {
-          await fetch(`${API_BASE}/api/posts/${post._id}`, {
-            method: "DELETE",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-        } catch (err) {
-          console.error("Final delete failed:", err);
-        }
-      }, 8000);
+      const timer = setTimeout(
+        async () => {
+          try {
+            await fetch(
+              `${API_BASE}/api/posts/${post._id}`,
+              {
+                method: "DELETE",
+                headers: {
+                  Authorization:
+                    `Bearer ${token}`,
+                },
+              }
+            );
+          } catch (err) {
+            console.error(
+              "Final delete failed:",
+              err
+            );
+          }
+        },
+        8000
+      );
 
       setUndoTimer(timer);
-
     } catch (err) {
       console.error(err);
       toast.error("Delete failed");
@@ -106,19 +141,24 @@ const PostMenu = ({
     if (!undoData) return;
 
     try {
-      if (undoTimer) clearTimeout(undoTimer);
+      if (undoTimer) {
+        clearTimeout(undoTimer);
+      }
 
       const res = await fetch(
         `${API_BASE}/api/posts/${post._id}/restore`,
         {
           method: "PUT",
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization:
+              `Bearer ${token}`,
           },
         }
       );
 
-      if (!res.ok) throw new Error("Restore failed");
+      if (!res.ok) {
+        throw new Error("Restore failed");
+      }
 
       const data = await res.json();
 
@@ -127,7 +167,6 @@ const PostMenu = ({
       setUndoData(null);
 
       toast.success("Post restored");
-
     } catch (err) {
       console.error(err);
       toast.error("Undo failed");
@@ -139,12 +178,16 @@ const PostMenu = ({
   // =========================
   const handleSave = async () => {
     try {
-      await fetch(`${API_BASE}/api/posts/${post._id}/save`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await fetch(
+        `${API_BASE}/api/posts/${post._id}/save`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization:
+              `Bearer ${token}`,
+          },
+        }
+      );
 
       toast.success("Post saved");
       setOpen(false);
@@ -158,12 +201,16 @@ const PostMenu = ({
   // =========================
   const handlePin = async () => {
     try {
-      await fetch(`${API_BASE}/api/posts/${post._id}/pin`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await fetch(
+        `${API_BASE}/api/posts/${post._id}/pin`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization:
+              `Bearer ${token}`,
+          },
+        }
+      );
 
       toast.success("Post pinned");
       setOpen(false);
@@ -188,9 +235,23 @@ const PostMenu = ({
     }
   };
 
+  // =========================
+  // OPEN BOOST
+  // =========================
+  const handleOpenBoost = () => {
+    setOpen(false);
+    setShowBoost(true);
+  };
+
   return (
-    <div className="relative" ref={menuRef}>
-      <button onClick={() => setOpen(!open)}>
+    <div
+      className="relative"
+      ref={menuRef}
+    >
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+      >
         <MoreHorizontal size={20} />
       </button>
 
@@ -200,38 +261,74 @@ const PostMenu = ({
           {isOwner && (
             <>
               <button
-                onClick={() => setShowEdit(true)}
+                type="button"
+                onClick={() =>
+                  setShowEdit(true)
+                }
                 className="p-3 w-full hover:bg-gray-100 flex gap-2"
               >
-                <Pencil size={16} /> Edit
+                <Pencil size={16} />
+                Edit
               </button>
 
               <button
+                type="button"
                 onClick={handleDelete}
                 className="p-3 w-full hover:bg-gray-100 flex gap-2 text-red-500"
               >
-                <Trash2 size={16} /> Delete
+                <Trash2 size={16} />
+                Delete
               </button>
 
               <button
+                type="button"
                 onClick={handlePin}
                 className="p-3 w-full hover:bg-gray-100 flex gap-2"
               >
-                <Pin size={16} /> Pin
+                <Pin size={16} />
+                Pin
               </button>
+
+              {canBoost && (
+                <button
+                  type="button"
+                  onClick={handleOpenBoost}
+                  className="p-3 w-full hover:bg-blue-50 flex gap-2 text-blue-600 font-medium"
+                >
+                  <Rocket size={16} />
+                  Boost Post
+                </button>
+              )}
             </>
           )}
 
-          <button onClick={handleSave} className="p-3 w-full hover:bg-gray-100">
-            <Bookmark size={16} /> Save
+          <button
+            type="button"
+            onClick={handleSave}
+            className="p-3 w-full hover:bg-gray-100 flex gap-2"
+          >
+            <Bookmark size={16} />
+            Save
           </button>
 
-          <button onClick={() => setShowReport(true)} className="p-3 w-full hover:bg-gray-100 text-red-500">
-            <Flag size={16} /> Report
+          <button
+            type="button"
+            onClick={() =>
+              setShowReport(true)
+            }
+            className="p-3 w-full hover:bg-gray-100 flex gap-2 text-red-500"
+          >
+            <Flag size={16} />
+            Report
           </button>
 
-          <button onClick={handleCopyLink} className="p-3 w-full hover:bg-gray-100">
-            <Link2 size={16} /> Copy Link
+          <button
+            type="button"
+            onClick={handleCopyLink}
+            className="p-3 w-full hover:bg-gray-100 flex gap-2"
+          >
+            <Link2 size={16} />
+            Copy Link
           </button>
 
         </div>
@@ -241,7 +338,9 @@ const PostMenu = ({
         <EditPostModal
           post={post}
           token={token}
-          onClose={() => setShowEdit(false)}
+          onClose={() =>
+            setShowEdit(false)
+          }
           onUpdated={onUpdated}
         />
       )}
@@ -250,7 +349,19 @@ const PostMenu = ({
         <ReportPostModal
           post={post}
           token={token}
-          onClose={() => setShowReport(false)}
+          onClose={() =>
+            setShowReport(false)
+          }
+        />
+      )}
+
+      {showBoost && (
+        <BoostModal
+          post={post}
+          token={token}
+          onClose={() =>
+            setShowBoost(false)
+          }
         />
       )}
     </div>

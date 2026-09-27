@@ -51,6 +51,7 @@ import AdminVerifications
 from "./pages/admin/AdminVerifications";
 import AdminCreators from "./pages/admin/AdminCreators";
 import AdminAdvertisers from "./pages/admin/AdminAdvertisers";
+import AdminBoosts from "./pages/admin/AdminBoosts";
 import AdminCampaigns
 from "./pages/admin/AdminCampaigns";
 import AdminFraud
@@ -233,6 +234,11 @@ useEffect(() => {
 <Route
   path="/admin/campaigns"
   element={<AdminRoute><AdminCampaigns /></AdminRoute>}
+/>
+
+<Route
+  path="/admin/boosts"
+  element={<AdminRoute><AdminBoosts /></AdminRoute>}
 />
 
 <Route

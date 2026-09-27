@@ -118,6 +118,11 @@ const AdminDashboard = () => {
   />
 
   <AdminLink
+    to="/admin/boosts"
+    label="Boost Approvals"
+  />
+
+  <AdminLink
     to="/admin/fraud"
     label="Fraud Detection"
   />
