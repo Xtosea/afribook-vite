@@ -10,6 +10,7 @@ export default function Premium() {
   const [premiumStatus, setPremiumStatus] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [processingProductId, setProcessingProductId] = useState(null);
 
   useEffect(() => {
     if (!token) return;
@@ -44,6 +45,45 @@ export default function Premium() {
 
     loadPremium();
   }, [token]);
+
+  const handlePurchase = async (product) => {
+    if (!token || !product?.id) return;
+
+    try {
+      setProcessingProductId(product.id);
+      setError("");
+
+      const result = await fetchWithToken(
+        "/api/payments/paystack/initialize",
+        token,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            productId: product.id,
+          }),
+        }
+      );
+
+      const authorizationUrl =
+        result?.payment?.authorizationUrl;
+
+      if (!authorizationUrl) {
+        throw new Error(
+          "Paystack checkout URL was not returned."
+        );
+      }
+
+      window.location.href = authorizationUrl;
+    } catch (err) {
+      console.error("PAYSTACK INITIALIZATION ERROR:", err);
+
+      setError(
+        err?.message ||
+          "Unable to start Paystack payment."
+      );
+      setProcessingProductId(null);
+    }
+  };
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat("en-NG", {
@@ -228,10 +268,21 @@ export default function Premium() {
 
               <button
                 type="button"
-                disabled
-                className="w-full mt-6 px-5 py-3 rounded-xl bg-gray-300 text-gray-600 font-semibold cursor-not-allowed"
+                onClick={() => handlePurchase(product)}
+                disabled={processingProductId === product.id}
+                className="w-full mt-6 px-5 py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                Payment Coming Soon
+                {processingProductId === product.id ? (
+                  <>
+                    <Loader2
+                      size={18}
+                      className="animate-spin"
+                    />
+                    Opening Paystack...
+                  </>
+                ) : (
+                  "Pay with Paystack"
+                )}
               </button>
             </div>
           ))}

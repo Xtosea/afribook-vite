@@ -99,6 +99,7 @@ import EditListing from "./pages/EditListing";
 import MyListings from "./pages/MyListings";
 import SavedListings from "./pages/SavedListings";
 import Premium from "./pages/Premium";
+import PaystackCallback from "./pages/PaystackCallback";
 import StickerTest from "./pages/StickerTest";
 import PKBattle from "./components/PKBattle";
 import PKCreate from "./pages/PKCreate";
@@ -469,6 +470,15 @@ useEffect(() => {
 />
 
         <Route
+  path="/payment/paystack/callback"
+  element={
+    <ProtectedRoute>
+      <PaystackCallback />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
   path="/premium"
   element={
     <ProtectedRoute>
