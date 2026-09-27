@@ -772,7 +772,10 @@ return (
   {canBoost && (
   <button
     type="button"
-    onClick={() => setShowBoost(true)}
+    onClick={() => {
+      console.log("BOOST BUTTON CLICKED");
+      setShowBoost(true);
+    }}
     className="flex flex-col items-center justify-center py-2 hover:bg-gray-100 rounded-lg transition text-blue-600"
   >
     <Rocket size={20} />
@@ -781,7 +784,6 @@ return (
     </span>
   </button>
 )}
-
   {/* SHARE */}
   <button
     onClick={handleShare}
