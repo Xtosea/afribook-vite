@@ -13,6 +13,7 @@ import {
 } from "../api/api";
 
 import PostMenu from "./PostMenu";
+import BoostModal from "./BoostModal";
 
 import renderContentWithLinks from "../utils/renderContentWithLinks";
 
@@ -24,6 +25,7 @@ import {
   ThumbsUp,
   MessageCircle,
   Share2,
+  Rocket,
 } from "lucide-react";
 import { BadgeCheck } from "lucide-react";
 
@@ -108,6 +110,9 @@ const displayContent = isLongPost
   const [showComments, setShowComments] =
     useState(false);
 
+  const [showBoost, setShowBoost] =
+    useState(false);
+
   const [liking, setLiking] =
     useState(false);
 
@@ -121,6 +126,21 @@ const [mediaOrientation, setMediaOrientation] =
 
   const likedByUser =
     likes.includes(currentUserId);
+
+  const isPostOwner =
+    currentUserId &&
+    String(post?.user?._id) === String(currentUserId);
+
+  const hasMedia =
+    Array.isArray(post?.media) &&
+    post.media.length > 0;
+
+  const canBoost =
+    Boolean(
+      isPostOwner &&
+      hasMedia &&
+      post?.isSharedPost !== true
+    );
 
   // ================= URLS =================
 
@@ -213,6 +233,8 @@ const [mediaOrientation, setMediaOrientation] =
 
     }
   };
+
+  
 
   // ================= SHARE =================
 
@@ -701,7 +723,11 @@ return (
 
 {/* ACTIONS */}
 
-<div className="grid grid-cols-4 border-t border-gray-200 pt-2">
+<div
+  className={`grid ${
+    canBoost ? "grid-cols-5" : "grid-cols-4"
+  } border-t border-gray-200 pt-2`}
+>
 
   {/* SHARE TO FEED */}
   <button
@@ -742,6 +768,19 @@ return (
       Comment ({comments.length})
     </span>
   </button>
+
+  {canBoost && (
+  <button
+    type="button"
+    onClick={() => setShowBoost(true)}
+    className="flex flex-col items-center justify-center py-2 hover:bg-gray-100 rounded-lg transition text-blue-600"
+  >
+    <Rocket size={20} />
+    <span className="text-xs mt-1">
+      Boost
+    </span>
+  </button>
+)}
 
   {/* SHARE */}
   <button
