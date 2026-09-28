@@ -45,6 +45,7 @@ const STEP_NAMES = [
 
 export default function BoostModal({
   post,
+  listing,
   token,
   onClose,
 }) {
@@ -269,10 +270,18 @@ export default function BoostModal({
   };
 
   const handlePurchase = async () => {
+    const targetId =
+      post?._id || listing?._id;
+
+    const targetField =
+      post?._id
+        ? "targetPostId"
+        : "targetListingId";
+
     if (
       !token ||
       !selectedProduct?.id ||
-      !post?._id
+      !targetId
     ) {
       setError(
         "Unable to prepare this Boost payment."
@@ -293,7 +302,7 @@ export default function BoostModal({
           method: "POST",
           body: JSON.stringify({
   productId: selectedProduct.id,
-  targetPostId: post._id,
+  [targetField]: targetId,
 
   boostConfig: {
     goal,

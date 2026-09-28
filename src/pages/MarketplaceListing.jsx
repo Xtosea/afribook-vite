@@ -9,6 +9,7 @@ import ListingInfo from "../components/marketplace/ListingInfo";
 import SellerCard from "../components/marketplace/SellerCard";
 import ContactButtons from "../components/marketplace/ContactButtons";
 import OwnerActions from "../components/marketplace/OwnerActions";
+import BoostModal from "../components/BoostModal";
 
 export default function MarketplaceListing() {
   const navigate = useNavigate();
@@ -19,6 +20,7 @@ export default function MarketplaceListing() {
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [showBoost, setShowBoost] = useState(false);
 
   useEffect(() => {
     loadListing();
@@ -106,25 +108,8 @@ export default function MarketplaceListing() {
     }
   };
 
-  const handlePromote = async () => {
-    try {
-      const res = await fetchWithToken(
-        `/api/marketplace/${id}`,
-        token,
-        {
-          method: "PUT",
-          body: JSON.stringify({
-            featured: true,
-          }),
-        }
-      );
-
-      setListing(res.listing);
-      alert("Listing promoted successfully.");
-    } catch (err) {
-      console.error(err);
-      alert(err.message || "Failed to promote listing.");
-    }
+  const handlePromote = () => {
+    setShowBoost(true);
   };
 
   const handleSave = async () => {
@@ -241,6 +226,14 @@ export default function MarketplaceListing() {
 
       </div>
 
-    </div>
+    
+      {showBoost && (
+        <BoostModal
+          listing={listing}
+          token={token}
+          onClose={() => setShowBoost(false)}
+        />
+      )}
+</div>
   );
 }

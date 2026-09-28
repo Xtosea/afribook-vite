@@ -375,6 +375,61 @@ const AdminBoosts = () => {
                 </div>
               )}
 
+              {boost.listing && (
+                <div className="mt-4 rounded-xl bg-black/40 p-3">
+                  <div className="flex items-center gap-2 text-sm text-gray-400 mb-2">
+                    <span>Marketplace Listing</span>
+                  </div>
+
+                  {boost.listing.title && (
+                    <h3 className="text-base font-semibold text-white">
+                      {boost.listing.title}
+                    </h3>
+                  )}
+
+                  <p className="text-sm text-gray-200 mt-1">
+                    {formatPrice(
+                      boost.listing.price,
+                      boost.listing.currency || "NGN"
+                    )}
+                  </p>
+
+                  {boost.listing.description && (
+                    <p className="text-sm text-gray-300 mt-2 whitespace-pre-wrap">
+                      {boost.listing.description}
+                    </p>
+                  )}
+
+                  {Array.isArray(boost.listing.images) &&
+                    boost.listing.images.length > 0 && (
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3">
+                        {boost.listing.images.slice(0, 4).map(
+                          (image, index) => {
+                            const src =
+                              typeof image === "string"
+                                ? image
+                                : image?.url ||
+                                  image?.secure_url ||
+                                  image?.src ||
+                                  "";
+
+                            if (!src) return null;
+
+                            return (
+                              <img
+                                key={`${boost.id}-listing-${index}`}
+                                src={src}
+                                alt={`Listing image ${index + 1}`}
+                                className="w-full h-32 object-cover rounded-lg bg-black"
+                              />
+                            );
+                          }
+                        )}
+                      </div>
+                    )}
+                </div>
+              )}
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-4 text-xs text-gray-500">
                 <p>
                   Payment reference:{" "}
