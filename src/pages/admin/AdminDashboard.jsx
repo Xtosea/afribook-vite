@@ -143,6 +143,11 @@ const AdminDashboard = () => {
     label="Wallet / Points"
   />
 
+  <AdminLink
+    to="/admin/kyc"
+    label="Seller KYC"
+  />
+
 </div>
     </div>
   );
