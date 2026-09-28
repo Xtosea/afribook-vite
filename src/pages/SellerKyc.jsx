@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Camera,
@@ -23,6 +23,11 @@ const ID_TYPES = [
 export default function SellerKyc() {
   const navigate = useNavigate();
   const { token, currentUser } = useAuth();
+
+  const governmentIdCameraRef = useRef(null);
+  const governmentIdMediaRef = useRef(null);
+  const selfieCameraRef = useRef(null);
+  const selfieMediaRef = useRef(null);
 
   const [kyc, setKyc] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -472,15 +477,7 @@ export default function SellerKyc() {
               Government ID
             </label>
 
-            <label className="block border-2 border-dashed rounded-2xl p-6 cursor-pointer hover:bg-gray-50">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleGovernmentIdChange}
-                disabled={submitting}
-                className="hidden"
-              />
-
+            <div className="border-2 border-dashed rounded-2xl p-6">
               <div className="flex flex-col items-center text-center">
                 <FileText
                   size={32}
@@ -490,14 +487,55 @@ export default function SellerKyc() {
                 <span className="font-semibold mt-2">
                   {governmentIdFile
                     ? governmentIdFile.name
-                    : "Upload or photograph your government ID"}
+                    : "Photograph or select your government ID"}
                 </span>
 
                 <span className="text-sm text-gray-500 mt-1">
                   Make sure the document is clear and all important details are visible.
                 </span>
+
+                <input
+                  ref={governmentIdCameraRef}
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  onChange={handleGovernmentIdChange}
+                  disabled={submitting}
+                  className="hidden"
+                />
+
+                <input
+                  ref={governmentIdMediaRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleGovernmentIdChange}
+                  disabled={submitting}
+                  className="hidden"
+                />
+
+                <div className="flex flex-col sm:flex-row gap-3 mt-5 w-full sm:w-auto">
+                  <button
+                    type="button"
+                    onClick={() => governmentIdCameraRef.current?.click()}
+                    disabled={submitting}
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-white font-semibold hover:bg-blue-700 disabled:opacity-50"
+                  >
+                    <Camera size={20} />
+                    Photograph Identity Document
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => governmentIdMediaRef.current?.click()}
+                    disabled={submitting}
+                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-300 px-5 py-3 font-semibold hover:bg-gray-50 disabled:opacity-50"
+                  >
+                    <Upload size={20} />
+                    Select from Media
+                  </button>
+                </div>
               </div>
-            </label>
+            </div>
 
             {governmentIdPreview && (
               <img
@@ -520,15 +558,7 @@ export default function SellerKyc() {
               Selfie
             </label>
 
-            <label className="block border-2 border-dashed rounded-2xl p-6 cursor-pointer hover:bg-gray-50">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleSelfieChange}
-                disabled={submitting}
-                className="hidden"
-              />
-
+            <div className="border-2 border-dashed rounded-2xl p-6">
               <div className="flex flex-col items-center text-center">
                 <Camera
                   size={32}
@@ -538,14 +568,55 @@ export default function SellerKyc() {
                 <span className="font-semibold mt-2">
                   {selfieFile
                     ? selfieFile.name
-                    : "Take or upload your selfie"}
+                    : "Take or select your selfie"}
                 </span>
 
                 <span className="text-sm text-gray-500 mt-1">
                   Use good lighting and keep your face clearly visible.
                 </span>
+
+                <input
+                  ref={selfieCameraRef}
+                  type="file"
+                  accept="image/*"
+                  capture="user"
+                  onChange={handleSelfieChange}
+                  disabled={submitting}
+                  className="hidden"
+                />
+
+                <input
+                  ref={selfieMediaRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleSelfieChange}
+                  disabled={submitting}
+                  className="hidden"
+                />
+
+                <div className="flex flex-col sm:flex-row gap-3 mt-5 w-full sm:w-auto">
+                  <button
+                    type="button"
+                    onClick={() => selfieCameraRef.current?.click()}
+                    disabled={submitting}
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-white font-semibold hover:bg-blue-700 disabled:opacity-50"
+                  >
+                    <Camera size={20} />
+                    Take Selfie
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => selfieMediaRef.current?.click()}
+                    disabled={submitting}
+                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-300 px-5 py-3 font-semibold hover:bg-gray-50 disabled:opacity-50"
+                  >
+                    <Upload size={20} />
+                    Select from Media
+                  </button>
+                </div>
               </div>
-            </label>
+            </div>
 
             {selfiePreview && (
               <img
