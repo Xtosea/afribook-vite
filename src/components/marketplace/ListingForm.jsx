@@ -11,6 +11,8 @@ const ListingForm = ({
   setFormData,
   onSubmit,
   loading,
+  isAdmin = false,
+  isPremium = false,
 }) => {
   const updateField = (field, value) => {
     setFormData((prev) => ({
@@ -259,6 +261,8 @@ const ListingForm = ({
         setImages={(images) =>
           updateField("images", images)
         }
+        isAdmin={isAdmin}
+        isPremium={isPremium}
       />
 
       <ImagePreview

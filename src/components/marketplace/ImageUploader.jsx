@@ -10,6 +10,7 @@ const UPLOAD_PRESET =
 export default function ImageUploader({
   images,
   setImages,
+  isAdmin = false,
   isPremium = false,
 }) {
   const inputRef = useRef(null);
@@ -17,7 +18,11 @@ export default function ImageUploader({
   const [uploading, setUploading] =
     useState(false);
 
-  const maxImages = isPremium ? 10 : 2;
+  const maxImages = isAdmin
+    ? Infinity
+    : isPremium
+    ? 10
+    : 1;
 
   const MAX_SIZE = 5 * 1024 * 1024;
 
@@ -53,7 +58,9 @@ export default function ImageUploader({
 
     if (images.length + files.length > maxImages) {
       alert(
-        `You can upload only ${maxImages} image(s).`
+        isAdmin
+          ? "Admins can upload unlimited images."
+          : `Your current seller plan allows only ${maxImages} image(s) per listing.`
       );
       return;
     }
@@ -157,7 +164,7 @@ export default function ImageUploader({
             </p>
 
             <p className="text-sm text-gray-500">
-              {images.length}/{maxImages} uploaded
+              {images.length}/{isAdmin ? "∞" : maxImages} uploaded
             </p>
           </div>
         )}

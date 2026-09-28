@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { fetchWithToken } from "../api/api";
@@ -6,19 +6,65 @@ import { useAuth } from "../context/AuthContext";
 
 import ListingForm from "../components/marketplace/ListingForm";
 
-const CLOUDINARY_URL =
-  import.meta.env.VITE_CLOUDINARY_UPLOAD_URL;
-
-const UPLOAD_PRESET =
-  import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
-
 export default function CreateListing() {
   const navigate = useNavigate();
 
-  const { token } = useAuth();
+  const { token, currentUser } = useAuth();
 
   const [loading, setLoading] =
     useState(false);
+
+  const [premiumLoading, setPremiumLoading] =
+    useState(true);
+
+  const [isPremium, setIsPremium] =
+    useState(false);
+
+  const isAdmin =
+    currentUser?.role === "admin";
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadPremiumStatus = async () => {
+      if (!token || isAdmin) {
+        setPremiumLoading(false);
+        return;
+      }
+
+      try {
+        const response = await fetchWithToken(
+          "/api/premium/status",
+          token
+        );
+
+        if (!cancelled) {
+          setIsPremium(
+            response?.isPremium === true
+          );
+        }
+      } catch (error) {
+        console.error(
+          "Failed to load Premium status:",
+          error
+        );
+
+        if (!cancelled) {
+          setIsPremium(false);
+        }
+      } finally {
+        if (!cancelled) {
+          setPremiumLoading(false);
+        }
+      }
+    };
+
+    loadPremiumStatus();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [token, isAdmin]);
 
   const [formData, setFormData] =
     useState({
@@ -53,59 +99,74 @@ export default function CreateListing() {
     });
 
   // ==========================
-  // Upload images to Cloudinary
-  // ==========================
-
-  
-  // ==========================
   // Submit Listing
   // ==========================
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  try {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    console.log("Submitting listing:", formData);
+      console.log(
+        "Submitting listing:",
+        formData
+      );
 
-    await fetchWithToken(
-      "/api/marketplace",
-      token,
-      {
-        method: "POST",
-        body: JSON.stringify(formData),
-      }
-    );
+      await fetchWithToken(
+        "/api/marketplace",
+        token,
+        {
+          method: "POST",
+          body: JSON.stringify(formData),
+        }
+      );
 
-    alert("Listing created successfully!");
-    navigate("/marketplace");
+      alert(
+        "Listing created successfully!"
+      );
 
-  } catch (err) {
-    console.error(err);
+      navigate("/marketplace");
+    } catch (err) {
+      console.error(err);
 
-    alert(
-      err.message || "Failed to create listing."
-    );
-  } finally {
-    setLoading(false);
-  }
-};
+      alert(
+        err.message ||
+          "Failed to create listing."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="max-w-3xl mx-auto p-5">
-
       <h1 className="text-3xl font-bold mb-6">
         Create Marketplace Listing
       </h1>
 
-      <ListingForm
+      {premiumLoading ? (
+        <div className="mb-6 rounded-lg border bg-gray-50 p-4 text-sm text-gray-600">
+          Checking your seller plan...
+        </div>
+      ) : (
+        <div className="mb-6 rounded-lg border bg-gray-50 p-4 text-sm text-gray-600">
+          {isAdmin
+            ? "Admin seller: unlimited images per listing."
+            : isPremium
+            ? "Premium seller: up to 10 images per listing."
+            : "Free seller: 1 image per listing."}
+        </div>
+      )}
+
+            <ListingForm
         formData={formData}
         setFormData={setFormData}
         onSubmit={handleSubmit}
-        loading={loading}
+        loading={loading || premiumLoading}
+        isAdmin={isAdmin}
+        isPremium={isPremium}
       />
-
     </div>
   );
 }

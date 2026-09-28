@@ -1,15 +1,21 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-
 import {
   Heart,
   Bookmark,
   Eye,
   MapPin,
   Clock3,
+  Megaphone,
 } from "lucide-react";
 
+import { useAuth } from "../../context/AuthContext";
+import BoostModal from "../BoostModal";
+
 const MarketplaceCard = ({ listing }) => {
+  const { currentUser, token } = useAuth();
+  const [showBoost, setShowBoost] = useState(false);
+
   const image =
     listing.images?.length
       ? listing.images[0].url
@@ -44,138 +50,175 @@ const MarketplaceCard = ({ listing }) => {
     .filter(Boolean)
     .join(", ");
 
+  const currentUserId = String(
+    currentUser?._id || ""
+  );
+
+  const sellerId = String(
+    listing.seller?._id ||
+      listing.seller ||
+      ""
+  );
+
+  const isOwner =
+    currentUserId !== "" &&
+    sellerId !== "" &&
+    currentUserId === sellerId;
+
+  const handleBoost = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setShowBoost(true);
+  };
+
   return (
-    <Link
-      to={`/marketplace/${listing._id}`}
-      className="group bg-white rounded-2xl border overflow-hidden shadow-sm hover:shadow-lg transition"
-    >
-      {/* Image */}
+    <>
+      <article className="group bg-white rounded-2xl border overflow-hidden shadow-sm hover:shadow-lg transition">
+        {/* Listing Link */}
+        <Link
+          to={`/marketplace/${listing._id}`}
+          className="block"
+        >
+          {/* Image */}
+          <div className="relative">
+            <img
+              src={image}
+              alt={listing.title}
+              className="w-full h-60 object-cover group-hover:scale-105 transition duration-300"
+            />
 
-      <div className="relative">
-        <img
-          src={image}
-          alt={listing.title}
-          className="w-full h-60 object-cover group-hover:scale-105 transition duration-300"
-        />
-
-        {/* Condition */}
-
-        <span className="absolute top-3 left-3 bg-blue-600 text-white text-xs px-3 py-1 rounded-full">
-          {listing.condition}
-        </span>
-
-        {/* Sold */}
-
-        {listing.status === "Sold" && (
-          <span className="absolute top-3 right-3 bg-red-600 text-white text-xs px-3 py-1 rounded-full">
-            SOLD
-          </span>
-        )}
-
-        {/* Featured */}
-
-        {listing.featured && (
-          <span className="absolute bottom-3 left-3 bg-yellow-500 text-white text-xs px-3 py-1 rounded-full">
-            Featured
-          </span>
-        )}
-      </div>
-
-      {/* Content */}
-
-      <div className="p-4 space-y-3">
-        {/* Price */}
-
-        <div>
-          <h2 className="text-xl font-bold text-blue-600">
-            {currency}
-            {price}
-          </h2>
-
-          {listing.negotiable && (
-            <span className="inline-block mt-1 text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
-              Negotiable
+            {/* Condition */}
+            <span className="absolute top-3 left-3 bg-blue-600 text-white text-xs px-3 py-1 rounded-full">
+              {listing.condition}
             </span>
-          )}
-        </div>
 
-        {/* Title */}
+            {/* Sold */}
+            {listing.status === "Sold" && (
+              <span className="absolute top-3 right-3 bg-red-600 text-white text-xs px-3 py-1 rounded-full">
+                SOLD
+              </span>
+            )}
 
-        <h3 className="font-semibold line-clamp-2">
-          {listing.title}
-        </h3>
-
-        {/* Location */}
-
-        <div className="flex items-center gap-2 text-gray-500 text-sm">
-          <MapPin size={16} />
-
-          <span>
-            {location || "Location not specified"}
-          </span>
-        </div>
-
-        {/* Seller */}
-
-        <div className="flex items-center gap-3">
-          <img
-            src={
-              listing.seller?.profilePic ||
-              "https://ui-avatars.com/api/?name=User"
-            }
-            alt={listing.seller?.name || "Seller"}
-            className="w-10 h-10 rounded-full object-cover"
-          />
-
-          <div>
-            <p className="font-medium">
-              {listing.seller?.name ||
-                "Unknown Seller"}
-            </p>
-
-            <p className="text-xs text-gray-500">
-              Seller
-            </p>
+            {/* Featured */}
+            {listing.featured && (
+              <span className="absolute bottom-3 left-3 bg-yellow-500 text-white text-xs px-3 py-1 rounded-full">
+                Featured
+              </span>
+            )}
           </div>
-        </div>
 
-        {/* Footer */}
+          {/* Content */}
+          <div className="p-4 space-y-3">
+            {/* Price */}
+            <div>
+              <h2 className="text-xl font-bold text-blue-600">
+                {currency}
+                {price}
+              </h2>
 
-        <div className="flex justify-between items-center pt-2 border-t">
-          <div className="flex gap-4 text-gray-500">
-            <div className="flex items-center gap-1">
-              <Heart size={18} />
+              {listing.negotiable && (
+                <span className="inline-block mt-1 text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
+                  Negotiable
+                </span>
+              )}
+            </div>
 
+            {/* Title */}
+            <h3 className="font-semibold line-clamp-2">
+              {listing.title}
+            </h3>
+
+            {/* Location */}
+            <div className="flex items-center gap-2 text-gray-500 text-sm">
+              <MapPin size={16} />
               <span>
-                {listing.likes?.length || 0}
+                {location || "Location not specified"}
               </span>
             </div>
 
-            <div className="flex items-center gap-1">
-              <Bookmark size={18} />
+            {/* Seller */}
+            <div className="flex items-center gap-3">
+              <img
+                src={
+                  listing.seller?.profilePic ||
+                  "https://ui-avatars.com/api/?name=User"
+                }
+                alt={
+                  listing.seller?.name ||
+                  "Seller"
+                }
+                className="w-10 h-10 rounded-full object-cover"
+              />
 
-              <span>
-                {listing.savedBy?.length || 0}
-              </span>
+              <div>
+                <p className="font-medium">
+                  {listing.seller?.name ||
+                    "Unknown Seller"}
+                </p>
+
+                <p className="text-xs text-gray-500">
+                  Seller
+                </p>
+              </div>
             </div>
 
-            <div className="flex items-center gap-1">
-              <Eye size={18} />
+            {/* Footer */}
+            <div className="flex justify-between items-center pt-2 border-t">
+              <div className="flex gap-4 text-gray-500">
+                <div className="flex items-center gap-1">
+                  <Heart size={18} />
+                  <span>
+                    {listing.likes?.length || 0}
+                  </span>
+                </div>
 
-              <span>
-                {listing.views || 0}
-              </span>
+                <div className="flex items-center gap-1">
+                  <Bookmark size={18} />
+                  <span>
+                    {listing.savedBy?.length || 0}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-1">
+                  <Eye size={18} />
+                  <span>
+                    {listing.views || 0}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-1 text-xs text-gray-400">
+                <Clock3 size={14} />
+                <span>{date}</span>
+              </div>
             </div>
           </div>
+        </Link>
 
-          <div className="flex items-center gap-1 text-xs text-gray-400">
-            <Clock3 size={14} />
-
-            <span>{date}</span>
+        {/* Owner Boost Action */}
+        {isOwner && (
+          <div className="px-4 pb-4">
+            <button
+              type="button"
+              onClick={handleBoost}
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition"
+            >
+              <Megaphone size={18} />
+              Boost Listing
+            </button>
           </div>
-        </div>
-      </div>
-    </Link>
+        )}
+      </article>
+
+      {/* Boost Modal */}
+      {showBoost && (
+        <BoostModal
+          listing={listing}
+          token={token}
+          onClose={() => setShowBoost(false)}
+        />
+      )}
+    </>
   );
 };
 

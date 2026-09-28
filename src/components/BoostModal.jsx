@@ -360,7 +360,7 @@ export default function BoostModal({
     }
   };
 
-  if (!post) return null;
+  if (!post && !listing) return null;
 
   return (
     <div className="fixed inset-0 z-[100] bg-black/60 flex items-center justify-center p-4">
@@ -378,7 +378,7 @@ export default function BoostModal({
 
             <div>
               <h2 className="text-lg sm:text-xl font-bold">
-                Boost Your Post
+                {listing ? "Boost Your Listing" : "Boost Your Post"}
               </h2>
 
               <p className="text-xs sm:text-sm text-gray-500">
