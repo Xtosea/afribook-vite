@@ -1,20 +1,35 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Heart,
   Bookmark,
   Eye,
+  Flag,
   MapPin,
   Clock3,
   Megaphone,
 } from "lucide-react";
 
 import { useAuth } from "../../context/AuthContext";
+import { fetchWithToken } from "../../api/api";
 import BoostModal from "../BoostModal";
 
 const MarketplaceCard = ({ listing }) => {
   const { currentUser, token } = useAuth();
   const [showBoost, setShowBoost] = useState(false);
+  const [liked, setLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(
+    Array.isArray(listing.likes)
+      ? listing.likes.length
+      : 0
+  );
+  const [saved, setSaved] = useState(false);
+  const [saveCount, setSaveCount] = useState(
+    Array.isArray(listing.savedBy)
+      ? listing.savedBy.length
+      : 0
+  );
+  const [actionLoading, setActionLoading] = useState(false);
 
   const image =
     listing.images?.length
@@ -64,6 +79,173 @@ const MarketplaceCard = ({ listing }) => {
     currentUserId !== "" &&
     sellerId !== "" &&
     currentUserId === sellerId;
+
+  useEffect(() => {
+    if (!currentUserId) {
+      setLiked(false);
+      setSaved(false);
+      return;
+    }
+
+    const likes = Array.isArray(listing.likes)
+      ? listing.likes
+      : [];
+
+    const savedBy = Array.isArray(listing.savedBy)
+      ? listing.savedBy
+      : [];
+
+    setLiked(
+      likes.some(
+        (userId) =>
+          String(userId) === currentUserId
+      )
+    );
+
+    setSaved(
+      savedBy.some(
+        (userId) =>
+          String(userId) === currentUserId
+      )
+    );
+
+    setLikeCount(likes.length);
+    setSaveCount(savedBy.length);
+  }, [
+    listing.likes,
+    listing.savedBy,
+    currentUserId,
+  ]);
+
+  const requireAuth = () => {
+    if (!token || !currentUser) {
+      alert("Please log in to perform this action.");
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleLike = async (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (!requireAuth() || actionLoading) {
+      return;
+    }
+
+    try {
+      setActionLoading(true);
+
+      const res = await fetchWithToken(
+        `/api/marketplace/${listing._id}/like`,
+        token,
+        {
+          method: "POST",
+        }
+      );
+
+      setLiked(!!res.liked);
+      setLikeCount(
+        Number(
+          res.likeCount ??
+            res.likes?.length ??
+            0
+        )
+      );
+    } catch (err) {
+      console.error("Marketplace like error:", err);
+      alert(
+        err.message ||
+          "Failed to like listing."
+      );
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleSave = async (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (!requireAuth() || actionLoading) {
+      return;
+    }
+
+    try {
+      setActionLoading(true);
+
+      const res = await fetchWithToken(
+        `/api/marketplace/${listing._id}/save`,
+        token,
+        {
+          method: "POST",
+        }
+      );
+
+      setSaved(!!res.saved);
+      setSaveCount(
+        Number(res.savedCount ?? 0)
+      );
+    } catch (err) {
+      console.error("Marketplace save error:", err);
+      alert(
+        err.message ||
+          "Failed to save listing."
+      );
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleReport = async (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (!requireAuth() || actionLoading) {
+      return;
+    }
+
+    const reason = window.prompt(
+      "Why are you reporting this listing?"
+    );
+
+    if (!reason || !reason.trim()) {
+      return;
+    }
+
+    try {
+      setActionLoading(true);
+
+      const res = await fetchWithToken(
+        `/api/marketplace/${listing._id}/report`,
+        token,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            reason: reason.trim(),
+          }),
+        }
+      );
+
+      alert(
+        res.message ||
+          "Listing reported successfully."
+      );
+    } catch (err) {
+      console.error(
+        "Marketplace report error:",
+        err
+      );
+
+      alert(
+        err.message ||
+          "Failed to report listing."
+      );
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
   const handleBoost = (event) => {
     event.preventDefault();
@@ -132,7 +314,8 @@ const MarketplaceCard = ({ listing }) => {
             <div className="flex items-center gap-2 text-gray-500 text-sm">
               <MapPin size={16} />
               <span>
-                {location || "Location not specified"}
+                {location ||
+                  "Location not specified"}
               </span>
             </div>
 
@@ -161,53 +344,97 @@ const MarketplaceCard = ({ listing }) => {
                 </p>
               </div>
             </div>
-
-            {/* Footer */}
-            <div className="flex justify-between items-center pt-2 border-t">
-              <div className="flex gap-4 text-gray-500">
-                <div className="flex items-center gap-1">
-                  <Heart size={18} />
-                  <span>
-                    {listing.likes?.length || 0}
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-1">
-                  <Bookmark size={18} />
-                  <span>
-                    {listing.savedBy?.length || 0}
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-1">
-                  <Eye size={18} />
-                  <span>
-                    {listing.views || 0}
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-1 text-xs text-gray-400">
-                <Clock3 size={14} />
-                <span>{date}</span>
-              </div>
-            </div>
           </div>
         </Link>
 
-        {/* Owner Boost Action */}
-        {isOwner && (
-          <div className="px-4 pb-4">
+        {/* Actions */}
+        <div className="px-4 pb-4">
+          <div className="flex items-center justify-between pt-3 border-t">
+            {/* Like */}
+            <button
+              type="button"
+              onClick={handleLike}
+              disabled={actionLoading}
+              className={`flex items-center gap-1 transition ${
+                liked
+                  ? "text-red-600"
+                  : "text-gray-500 hover:text-red-600"
+              }`}
+              aria-label={
+                liked
+                  ? "Unlike listing"
+                  : "Like listing"
+              }
+            >
+              <Heart
+                size={19}
+                fill={liked ? "currentColor" : "none"}
+              />
+              <span>{likeCount}</span>
+            </button>
+
+            {/* Save */}
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={actionLoading}
+              className={`flex items-center gap-1 transition ${
+                saved
+                  ? "text-blue-600"
+                  : "text-gray-500 hover:text-blue-600"
+              }`}
+              aria-label={
+                saved
+                  ? "Unsave listing"
+                  : "Save listing"
+              }
+            >
+              <Bookmark
+                size={19}
+                fill={saved ? "currentColor" : "none"}
+              />
+              <span>{saveCount}</span>
+            </button>
+
+            {/* Views */}
+            <div
+              className="flex items-center gap-1 text-gray-500"
+              aria-label="Listing views"
+            >
+              <Eye size={19} />
+              <span>{listing.views || 0}</span>
+            </div>
+
+            {/* Report */}
+            <button
+              type="button"
+              onClick={handleReport}
+              disabled={actionLoading}
+              className="flex items-center gap-1 text-gray-500 hover:text-red-600 transition"
+              aria-label="Report listing"
+            >
+              <Flag size={19} />
+            </button>
+
+            {/* Date */}
+            <div className="flex items-center gap-1 text-xs text-gray-400">
+              <Clock3 size={14} />
+              <span>{date}</span>
+            </div>
+          </div>
+
+          {/* Owner Boost Action */}
+          {isOwner && (
             <button
               type="button"
               onClick={handleBoost}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition"
+              className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition"
             >
               <Megaphone size={18} />
               Boost Listing
             </button>
-          </div>
-        )}
+          )}
+        </div>
       </article>
 
       {/* Boost Modal */}
