@@ -62,6 +62,7 @@ import AdminEarnings
 from "./pages/admin/AdminEarnings";
 import AdminWallet
 from "./pages/admin/AdminWallet";
+import AdminKyc from "./pages/admin/AdminKyc";
 import CreatorDashboard
 from "./pages/creator/CreatorDashboard";
 
@@ -79,6 +80,7 @@ from "./pages/ads/ApplyAdvertiser";
 
 import CreateCampaign
 from "./pages/ads/CreateCampaign";
+import SellerKyc from "./pages/SellerKyc";
 
 import MyCampaigns
 from "./pages/ads/MyCampaigns";
@@ -250,6 +252,7 @@ useEffect(() => {
 <Route path="/admin/earnings" element={<AdminRoute><AdminEarnings /></AdminRoute>} />
 <Route path="/admin/revenue" element={<AdminRoute><AdminRevenue /></AdminRoute>} />
 <Route path="/admin/wallet" element={<AdminRoute><AdminWallet /></AdminRoute>} />
+        <Route path="/admin/kyc" element={<AdminRoute><AdminKyc /></AdminRoute>} />
 <Route
   path="/creator"
   element={<CreatorDashboard />}
@@ -492,6 +495,15 @@ useEffect(() => {
     </ProtectedRoute>
   }
 />
+<Route
+  path="/marketplace/kyc"
+  element={
+    <ProtectedRoute>
+      <SellerKyc />
+    </ProtectedRoute>
+  }
+/>
+
 
 <Route
   path="/marketplace/:id"
