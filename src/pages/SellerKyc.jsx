@@ -476,7 +476,6 @@ export default function SellerKyc() {
               <input
                 type="file"
                 accept="image/*"
-                capture="environment"
                 onChange={handleGovernmentIdChange}
                 disabled={submitting}
                 className="hidden"
@@ -525,7 +524,6 @@ export default function SellerKyc() {
               <input
                 type="file"
                 accept="image/*"
-                capture="user"
                 onChange={handleSelfieChange}
                 disabled={submitting}
                 className="hidden"
