@@ -12,6 +12,7 @@ export default function PaystackCallback() {
   const [loading, setLoading] = useState(true);
   const [success, setSuccess] = useState(false);
   const [message, setMessage] = useState("");
+  const [paymentType, setPaymentType] = useState("premium");
 
   useEffect(() => {
     if (!token) return;
@@ -33,6 +34,18 @@ export default function PaystackCallback() {
           `/api/payments/paystack/verify/${encodeURIComponent(reference)}`,
           token
         );
+
+        /*
+         * Advertisement verification returns a campaign object.
+         * Premium/other payments do not use this field.
+         */
+        if (result?.campaign) {
+          setPaymentType("advertisement");
+        } else if (result?.boost) {
+          setPaymentType("boost");
+        } else {
+          setPaymentType("premium");
+        }
 
         setSuccess(result?.success === true);
         setMessage(
@@ -57,6 +70,20 @@ export default function PaystackCallback() {
 
     verifyPayment();
   }, [token, searchParams]);
+
+  const goToDestination = () => {
+    if (paymentType === "advertisement") {
+      navigate("/ads/campaigns");
+      return;
+    }
+
+    if (paymentType === "boost") {
+      navigate("/");
+      return;
+    }
+
+    navigate("/premium");
+  };
 
   return (
     <div className="min-h-[70vh] flex items-center justify-center p-6">
@@ -94,10 +121,14 @@ export default function PaystackCallback() {
 
             <button
               type="button"
-              onClick={() => navigate("/premium")}
+              onClick={goToDestination}
               className="mt-6 w-full px-5 py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700"
             >
-              Go to Premium
+              {paymentType === "advertisement"
+                ? "View My Campaigns"
+                : paymentType === "boost"
+                ? "Return to AfricSocial"
+                : "Go to Premium"}
             </button>
           </>
         ) : (
@@ -117,10 +148,14 @@ export default function PaystackCallback() {
 
             <button
               type="button"
-              onClick={() => navigate("/premium")}
+              onClick={goToDestination}
               className="mt-6 w-full px-5 py-3 rounded-xl bg-gray-800 text-white font-semibold hover:bg-gray-900"
             >
-              Return to Premium
+              {paymentType === "advertisement"
+                ? "Return to Campaigns"
+                : paymentType === "boost"
+                ? "Return to AfricSocial"
+                : "Return to Premium"}
             </button>
           </>
         )}
