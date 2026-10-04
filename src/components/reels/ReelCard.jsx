@@ -7,6 +7,7 @@ const ReelCard = ({
   activeIndex,
   reelRef,
   recordView,
+  recordQualifyingWatch,
   likeReel,
   shareReel,
   likes,
@@ -18,7 +19,83 @@ const ReelCard = ({
 
   const [showHeart, setShowHeart] = useState(false);
 
+  const watchSessionIdRef = useRef(
+    globalThis.crypto?.randomUUID?.() ||
+      `${Date.now()}-${Math.random().toString(36).slice(2)}`
+  );
+  const watchedSecondsRef = useRef(0);
+  const lastCurrentTimeRef = useRef(null);
+  const qualifyingSentRef = useRef(false);
+
   const isActive = index === activeIndex;
+
+  const handleWatchTimeUpdate = (event) => {
+    if (qualifyingSentRef.current) return;
+
+    const video = event.currentTarget;
+
+    if (video.paused || video.ended) return;
+
+    const currentTime = Number(video.currentTime);
+
+    if (!Number.isFinite(currentTime) || currentTime < 0) {
+      return;
+    }
+
+    const lastTime = lastCurrentTimeRef.current;
+
+    if (lastTime !== null) {
+      let delta = currentTime - lastTime;
+
+      // Handle the video looping back to the beginning.
+      if (delta < 0 && Number.isFinite(video.duration)) {
+        delta = (video.duration - lastTime) + currentTime;
+      }
+
+      // Ignore unusually large jumps so seeking cannot add a large
+      // amount of qualifying watch time in one update.
+      if (delta >= 0 && delta <= 1.5) {
+        watchedSecondsRef.current += delta;
+      }
+    }
+
+    lastCurrentTimeRef.current = currentTime;
+
+    const duration = Number(reel.durationSeconds);
+
+    if (!Number.isFinite(duration) || duration <= 0) {
+      return;
+    }
+
+    const requiredWatchSeconds = Math.max(
+      3,
+      Math.min(duration * 0.5, 10)
+    );
+
+    if (
+      watchedSecondsRef.current >= requiredWatchSeconds
+    ) {
+      qualifyingSentRef.current = true;
+
+      recordQualifyingWatch(
+        reel._id,
+        watchSessionIdRef.current,
+        watchedSecondsRef.current
+      );
+    }
+  };
+
+  const handleVideoPlay = (event) => {
+    lastCurrentTimeRef.current =
+      Number(event.currentTarget.currentTime) || 0;
+
+    recordView(reel._id);
+  };
+
+  const handleVideoPause = (event) => {
+    lastCurrentTimeRef.current =
+      Number(event.currentTarget.currentTime) || 0;
+  };
 
   const handleDoubleTap = () => {
     setShowHeart(true);
@@ -54,7 +131,9 @@ const ReelCard = ({
           preload="metadata"
           autoPlay={isActive}
           poster={reel.media?.[0]?.thumbnailUrl}
-          onPlay={() => recordView(reel._id)}
+          onPlay={handleVideoPlay}
+            onTimeUpdate={handleWatchTimeUpdate}
+            onPause={handleVideoPause}
         />
 
         {/* Dark Gradient */}
