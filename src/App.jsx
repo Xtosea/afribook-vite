@@ -16,10 +16,10 @@ import ResetPassword from "./pages/ResetPassword";
 import VerifyEmail from "./pages/VerifyEmail";
 import VerifySuccess from "./pages/VerifySuccess";
 import VerifyFailed from "./pages/VerifyFailed";
-import CreatePost from "./pages/CreatePost";
+
 import Reels from "./pages/Reels";
 import Messages from "./pages/Messages";
-import Chat from "./pages/Chat";
+
 import WelcomeOnboarding from "./pages/WelcomeOnboarding";
 import SyncContacts from "./pages/SyncContacts";
 import EditProfile from "./pages/EditProfile";
@@ -359,7 +359,7 @@ useEffect(() => {
             <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/profile/:userId" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-            <Route path="/create" element={<ProtectedRoute><CreatePost /></ProtectedRoute>} />
+            
             <Route path="/reels" element={<ProtectedRoute><Reels /></ProtectedRoute>} />
             <Route
   path="/messages/:id?"
@@ -370,9 +370,7 @@ useEffect(() => {
   }
 />
 
-
-            <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
-            <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
+<Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
 
             <Route path="/add-friends" element={<ProtectedRoute><AddFriends /></ProtectedRoute>} />
             <Route path="/sync-contacts" element={<ProtectedRoute><SyncContacts /></ProtectedRoute>} />
