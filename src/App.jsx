@@ -31,7 +31,7 @@ import FriendsList from "./pages/friends/FriendsList";
 import FriendSuggestions from "./pages/friends/FriendSuggestions";
 import Wallet from "./pages/Wallet";
 import Leaderboard from "./pages/Leaderboard";
-import PostPage from "./pages/PostPage";
+
 import SavedPosts from "./pages/SavedPosts";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -211,9 +211,7 @@ useEffect(() => {
     element={<AdminRoute><AdminWithdrawals /></AdminRoute>}
   />
 
-
- 
- <Route
+<Route
     path="/admindashboard"
     element={<AdminRoute><AdminDashboard /></AdminRoute>}
   />
@@ -247,7 +245,6 @@ useEffect(() => {
   path="/admin/fraud"
   element={<AdminRoute><AdminFraud /></AdminRoute>}
 />
-
 
 <Route path="/admin/earnings" element={<AdminRoute><AdminEarnings /></AdminRoute>} />
 <Route path="/admin/revenue" element={<AdminRoute><AdminRevenue /></AdminRoute>} />
@@ -286,15 +283,6 @@ useEffect(() => {
 <Route
   path="/ads/campaigns"
   element={<MyCampaigns />}
-/>
-
-<Route
-  path="/create-post"
-  element={
-    <PostComposer
-      
-    />}
-  
 />
 
 <Route
