@@ -148,6 +148,11 @@ const AdminDashboard = () => {
     label="Seller KYC"
   />
 
+  <AdminLink
+    to="/admin/story-music"
+    label="Story Music"
+  />
+
 </div>
     </div>
   );
