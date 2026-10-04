@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 
 const defaultProfile =
-  "https://afribook-backend.onrender.com/uploads/profiles/default-profile.png";
+  "https://africsocial-api.xto1971.workers.dev/uploads/profiles/default-profile.png";
 
 const UserCard = ({
   user,
