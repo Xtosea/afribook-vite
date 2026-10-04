@@ -4,6 +4,7 @@ import { API_BASE } from "../api/api";
 import { getSocket } from "../socket";
 import { use2Upload } from "../hooks/use2Upload";
 import generateThumbnail from "../utils/generateThumbnail";
+import validateVideoDuration from "../utils/validateVideoDuration";
 
 import ReelCard from "../components/reels/ReelCard";
 import ReelUploadModal from "../components/reels/ReelUploadModal";
@@ -21,6 +22,7 @@ const Reels = () => {
 
   const [activeIndex, setActiveIndex] = useState(0);
 const [selectedFile, setSelectedFile] = useState(null);
+const [durationSeconds, setDurationSeconds] = useState(null);
 
 
 const [songs, setSongs] = useState([]);
@@ -236,6 +238,52 @@ useEffect(() => {
     }
   };
 
+  /* ================= CREATOR QUALIFYING WATCH ================= */
+
+  const recordQualifyingWatch = async (
+    contentId,
+    sessionId,
+    watchedSeconds
+  ) => {
+    try {
+      const res = await fetch(
+        `${API_BASE}/api/posts/reels/watch`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            contentId,
+            sessionId,
+            watchedSeconds,
+          }),
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        console.error(
+          "QUALIFYING WATCH API ERROR:",
+          data
+        );
+        return;
+      }
+
+      console.log(
+        "QUALIFYING WATCH:",
+        data
+      );
+    } catch (err) {
+      console.error(
+        "QUALIFYING WATCH ERROR:",
+        err
+      );
+    }
+  };
+
 const uploadReel = async () => {
   try {
     if (!selectedFile) {
@@ -270,6 +318,7 @@ const { videoUrl: thumbnailUrl } =
   caption,
   videoUrl,
   thumbnailUrl,
+  durationSeconds,
 
   music: selectedSong,
 
@@ -286,6 +335,7 @@ const { videoUrl: thumbnailUrl } =
     setCaption("");
     setPreview(null);
     setSelectedFile(null);
+    setDurationSeconds(null);
     setShowUpload(false);
 
     fetchReels();
@@ -334,6 +384,7 @@ const { videoUrl: thumbnailUrl } =
           activeIndex={activeIndex}
           reelRef={(el) => (videoRefs.current[i] = el)}
           recordView={recordView}
+          recordQualifyingWatch={recordQualifyingWatch}
           likeReel={likeReel}
           shareReel={shareReel}
           likes={likes}
@@ -377,12 +428,34 @@ shadow-lg
 
   fileRef={fileRef}
 
-  handleFileChange={(e) => {
+  handleFileChange={async (e) => {
     const file = e.target.files[0];
-    if (!file) return;
 
-    setSelectedFile(file);
-    setPreview(URL.createObjectURL(file));
+    if (!file) {
+      setSelectedFile(null);
+      setDurationSeconds(null);
+      return;
+    }
+
+    try {
+      const duration = await validateVideoDuration(file, 60);
+
+      setSelectedFile(file);
+      setDurationSeconds(duration);
+      setPreview(URL.createObjectURL(file));
+    } catch (err) {
+      setSelectedFile(null);
+      setDurationSeconds(null);
+      setPreview(null);
+
+      alert(
+        typeof err === "string"
+          ? err
+          : err?.message || "Invalid video file"
+      );
+
+      e.target.value = "";
+    }
   }}
 
   uploadReel={uploadReel}
