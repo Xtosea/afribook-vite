@@ -19,6 +19,8 @@ import VerifyFailed from "./pages/VerifyFailed";
 
 import Reels from "./pages/Reels";
 
+import Messages from "./pages/Messages";
+
 import WelcomeOnboarding from "./pages/WelcomeOnboarding";
 import SyncContacts from "./pages/SyncContacts";
 import EditProfile from "./pages/EditProfile";
