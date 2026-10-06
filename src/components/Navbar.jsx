@@ -577,14 +577,7 @@ const currentUserId = currentUser?._id;
 
 {/* Creator, Events, Ads */}
 
-   <Link
-    to="/ads"
-    onClick={() => setMobileOpen(false)}
-    className="flex flex-col items-center justify-center rounded-xl p-4 bg-gray-50 hover:bg-gray-100"
-  >
-    <Megaphone size={30} className="text-orange-500" />
-    <span className="mt-2 text-sm font-medium">Create Ads</span>
-  </Link>
+
 
   <Link
     to="/events"
@@ -621,7 +614,17 @@ const currentUserId = currentUser?._id;
 
 <div className="grid grid-cols-2 gap-4">
 
-{/* Marketplace, Wallet, Leaderboard */}
+<Link
+    to="/ads"
+    onClick={() => setMobileOpen(false)}
+    className="flex flex-col items-center justify-center rounded-xl p-4 bg-gray-50 hover:bg-gray-100"
+  >
+    <Megaphone size={30} className="text-orange-500" />
+    <span className="mt-2 text-sm font-medium">Advertiser Center</span>
+  </Link>
+
+
+{/* Marketplace, Wallet, Advertiser Center, Leaderboard */}
 
 
 <Link
