@@ -16,10 +16,9 @@ import ResetPassword from "./pages/ResetPassword";
 import VerifyEmail from "./pages/VerifyEmail";
 import VerifySuccess from "./pages/VerifySuccess";
 import VerifyFailed from "./pages/VerifyFailed";
-import CreatePost from "./pages/CreatePost";
+
 import Reels from "./pages/Reels";
-import Messages from "./pages/Messages";
-import Chat from "./pages/Chat";
+
 import WelcomeOnboarding from "./pages/WelcomeOnboarding";
 import SyncContacts from "./pages/SyncContacts";
 import EditProfile from "./pages/EditProfile";
@@ -31,7 +30,7 @@ import FriendsList from "./pages/friends/FriendsList";
 import FriendSuggestions from "./pages/friends/FriendSuggestions";
 import Wallet from "./pages/Wallet";
 import Leaderboard from "./pages/Leaderboard";
-import PostPage from "./pages/PostPage";
+
 import SavedPosts from "./pages/SavedPosts";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -359,7 +358,7 @@ useEffect(() => {
             <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/profile/:userId" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-            <Route path="/create" element={<ProtectedRoute><CreatePost /></ProtectedRoute>} />
+            
             <Route path="/reels" element={<ProtectedRoute><Reels /></ProtectedRoute>} />
             <Route
   path="/messages/:id?"
@@ -371,7 +370,7 @@ useEffect(() => {
 />
 
 
-            <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
+            
             <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
 
             <Route path="/add-friends" element={<ProtectedRoute><AddFriends /></ProtectedRoute>} />
