@@ -189,16 +189,13 @@ useEffect(() => {
   element={<VerifyEmail />}
 />
 
-
-            <Route path="/verify-success" element={<VerifySuccess />} />
+<Route path="/verify-success" element={<VerifySuccess />} />
             <Route path="/verify-failed" element={<VerifyFailed />} />
             <Route path="/welcome" element={<WelcomeOnboarding />} />
             <Route path="/media/:postId" element={<MediaViewer />} />
             <Route path="/post/:id" element={<PostView />} />
 
-
 <Route path="/verify-email-sent" element={<VerifyEmailSent />} />
-
 
 <Route
   path="/admin/story-music"
@@ -306,8 +303,6 @@ useEffect(() => {
     element={<StickerTest />}
 />
 
-
-   
 <Route
   path="/pk/create"
   element={
@@ -369,9 +364,7 @@ useEffect(() => {
   }
 />
 
-
-            
-            <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
+<Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
 
             <Route path="/add-friends" element={<ProtectedRoute><AddFriends /></ProtectedRoute>} />
             <Route path="/sync-contacts" element={<ProtectedRoute><SyncContacts /></ProtectedRoute>} />
@@ -398,8 +391,7 @@ useEffect(() => {
   }
 />
 
-
-           <Route
+<Route
   path="/suggested-friends"
   element={
     <ProtectedRoute>
@@ -407,7 +399,6 @@ useEffect(() => {
     </ProtectedRoute>
   }
 />
-
 
 <Route
   path="/reelshorizontal"
@@ -418,9 +409,7 @@ useEffect(() => {
   }
 />
 
-
-
-            <Route path="/leaderboard" element={<Leaderboard />} />
+<Route path="/leaderboard" element={<Leaderboard />} />
             
             <Route
               path="/saved"
@@ -432,7 +421,7 @@ useEffect(() => {
             />
 
     <Route
-              path="/notifications"
+      path="/notifications"
               element={
                 <ProtectedRoute>
                   <Notifications/>
@@ -522,13 +511,7 @@ useEffect(() => {
   }
 />
 
-
-  
-
-           
-
-
-          </Routes>
+</Routes>
         </div>
 
         {/* Toast MUST be inside Router but OUTSIDE Routes */}
