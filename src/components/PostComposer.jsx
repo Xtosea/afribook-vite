@@ -285,23 +285,39 @@ const link = newPost.match(urlRegex)?.[0] || null;
       const {
         videoUrl,
         thumbnailBlob,
-      } = await uploadVideo(file);
+      } = await uploadVideo(file, token);
 
-      const thumbnailFile = new File(
-        [thumbnailBlob],
-        "thumbnail.jpg",
-        {
-          type: "image/jpeg",
+      let thumbnailUrl = "";
+
+      // A thumbnail is optional. A thumbnail failure must not
+      // cancel a successfully uploaded video post.
+      if (thumbnailBlob instanceof Blob && thumbnailBlob.size > 0) {
+        try {
+          const thumbnailFile = new File(
+            [thumbnailBlob],
+            "thumbnail.jpg",
+            {
+              type: "image/jpeg",
+            }
+          );
+
+          thumbnailUrl = await uploadImage(thumbnailFile);
+        } catch (thumbnailError) {
+          console.warn(
+            "Video uploaded, but thumbnail upload failed:",
+            thumbnailError
+          );
         }
-      );
-
-      const thumbnailUrl =
-        await uploadImage(thumbnailFile);
+      } else {
+        console.warn(
+          "Video uploaded without a thumbnail; continuing with the post."
+        );
+      }
 
       uploadedMedia.push({
         url: videoUrl,
         type: "video",
-        thumbnailUrl,
+        ...(thumbnailUrl ? { thumbnailUrl } : {}),
       });
     }
 
@@ -319,7 +335,8 @@ const editorData = link
         ? {
             _id: music._id,
             title: music.title,
-            url: music.url,
+            url: music.audioUrl || music.url,
+            audioUrl: music.audioUrl || music.url,
           }
         : null,
     };
@@ -502,4 +519,3 @@ applyAI={applyAI}
 };
 
 export default PostComposer;
-
