@@ -44,7 +44,7 @@ export async function onRequest(context) {
   }
 
   const backendUrl =
-    `https://afribook-backend.onrender.com/post/${id}`;
+    `africsocial-api.xto1971.workers.dev/post/${id}`;
 
   try {
     const response = await fetch(backendUrl, {
