@@ -64,8 +64,8 @@ useEffect(() => {
   const image = rawImage
     ? rawImage.startsWith("http")
       ? rawImage
-      : `https://africsocial.globelynks.com${rawImage}`
-    : "https://africsocial.globelynks.com/social-preview.png";
+      : `https://africsocial.com${rawImage}`
+    : "https://africsocial.com/social-preview.png";
 
   const title = post?.user?.name
     ? `${post.user.name}: ${post.content?.substring(0, 60) || ""}`
@@ -75,7 +75,7 @@ useEffect(() => {
     post?.content?.substring(0, 160) ||
     "Check this post on AfricSocial";
 
-  const url = `https://africsocial.globelynks.com/post/${post?._id || ""}`;
+  const url = `https://africsocia.com/post/${post?._id || ""}`;
 
   if (loading) {
     return <div className="p-4">Loading...</div>;
