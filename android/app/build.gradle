@@ -18,7 +18,6 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         aaptOptions {
-            // Files and dirs to omit from the packaged assets dir
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
@@ -35,10 +34,6 @@ android {
     }
 
     buildTypes {
-        debug {
-            signingConfig signingConfigs.release
-        }
-
         release {
             signingConfig signingConfigs.release
             minifyEnabled false
@@ -53,23 +48,8 @@ android {
     }
 }
 
-      
-
-  
-    buildTypes {
-    release {
-    if (System.getenv("KEYSTORE_FILE")) {
-        signingConfig signingConfigs.release
-    }
-
-    minifyEnabled false
-    proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-}
-    }
-}
-
 repositories {
-    flatDir{
+    flatDir {
         dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
     }
 }
