@@ -1,413 +1,280 @@
-import React, {
-useRef,
-useState,
-useEffect,
-} from "react";
+import React, { useRef, useState, useEffect } from "react";
 
 const VoiceRecorder = ({ onSend }) => {
-const mediaRecorderRef = useRef(null);
-const chunksRef = useRef([]);
-const streamRef = useRef(null);
-const analyserRef = useRef(null);
-const animationRef = useRef(null);
-const audioContextRef = useRef(null);
+  const mediaRecorderRef = useRef(null);
+  const chunksRef = useRef([]);
+  const streamRef = useRef(null);
+  const previewUrlRef = useRef(null);
 
-const startX = useRef(0);
+  const [recording, setRecording] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [previewBlob, setPreviewBlob] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState("");
+  const [recordingTime, setRecordingTime] = useState(0);
 
-const isRecordingRef = useRef(false);
-const isCancellingRef = useRef(false);
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const remaining = seconds % 60;
 
-const [recording, setRecording] =
-useState(false);
+    return `${minutes}:${String(remaining).padStart(2, "0")}`;
+  };
 
-const [uploading, setUploading] =
-useState(false);
+  useEffect(() => {
+    if (!recording) return;
 
-const [isCancelling, setIsCancelling] =
-useState(false);
+    const timer = setInterval(() => {
+      setRecordingTime((previous) => previous + 1);
+    }, 1000);
 
-const [waveHeights, setWaveHeights] =
-useState([
-8, 14, 10, 18, 12, 16, 9,
-]);
+    return () => clearInterval(timer);
+  }, [recording]);
 
-const isTouchDevice =
-typeof window !== "undefined" &&
-"ontouchstart" in window;
+  const clearPreview = () => {
+    if (previewUrlRef.current) {
+      URL.revokeObjectURL(previewUrlRef.current);
+      previewUrlRef.current = null;
+    }
 
-const stopWaveform = () => {
-cancelAnimationFrame(
-animationRef.current
-);
+    setPreviewUrl("");
+    setPreviewBlob(null);
+    setRecordingTime(0);
+  };
 
-if (audioContextRef.current) {
-  audioContextRef.current.close();
-  audioContextRef.current = null;
-}
+  const startRecording = async () => {
+    if (recording || uploading || mediaRecorderRef.current) return;
 
-setWaveHeights([
-  8, 14, 10, 18, 12, 16, 9,
-]);
-
-};
-
-const startWaveform = (stream) => {
-const audioContext =
-new AudioContext();
-
-audioContextRef.current =
-  audioContext;
-
-const analyser =
-  audioContext.createAnalyser();
-
-analyser.fftSize = 64;
-
-const source =
-  audioContext.createMediaStreamSource(
-    stream
-  );
-
-source.connect(analyser);
-
-analyserRef.current =
-  analyser;
-
-const dataArray =
-  new Uint8Array(
-    analyser.frequencyBinCount
-  );
-
-const updateWave = () => {
-  analyser.getByteFrequencyData(
-    dataArray
-  );
-
-  const bars = Array.from(
-    { length: 12 },
-    (_, i) =>
-      Math.max(
-        6,
-        dataArray[i] / 8
-      )
-  );
-
-  setWaveHeights(bars);
-
-  animationRef.current =
-    requestAnimationFrame(
-      updateWave
-    );
-};
-
-updateWave();
-
-};
-
-const startRecording =
-async () => {
-if (
-isRecordingRef.current ||
-uploading
-)
-return;
-
-  try {
-    isRecordingRef.current = true;
-
-    setRecording(true);
-
-    setIsCancelling(false);
-
-    isCancellingRef.current =
-      false;
-
-    const stream =
-      await navigator.mediaDevices.getUserMedia(
-        {
-          audio: true,
-        }
-      );
-
-    streamRef.current =
-      stream;
-
-    startWaveform(stream);
-
-    const mediaRecorder =
-      new MediaRecorder(
-        stream
-      );
-
-    mediaRecorderRef.current =
-      mediaRecorder;
-
+    clearPreview();
     chunksRef.current = [];
+    setRecordingTime(0);
 
-    mediaRecorder.ondataavailable =
-      (e) => {
-        if (e.data.size > 0) {
-          chunksRef.current.push(
-            e.data
-          );
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+      });
+
+      streamRef.current = stream;
+
+      const mimeType = MediaRecorder.isTypeSupported("audio/webm")
+        ? "audio/webm"
+        : "";
+
+      const recorder = new MediaRecorder(
+        stream,
+        mimeType ? { mimeType } : undefined
+      );
+
+      mediaRecorderRef.current = recorder;
+
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          chunksRef.current.push(event.data);
         }
       };
 
-    mediaRecorder.onstop =
-      async () => {
-        stopWaveform();
+      recorder.onstop = () => {
+        const blob = new Blob(chunksRef.current, {
+          type: recorder.mimeType || "audio/webm",
+        });
 
-        if (
-          isCancellingRef.current
-        ) {
-          chunksRef.current = [];
+        chunksRef.current = [];
 
-          streamRef.current
-            ?.getTracks()
-            .forEach((track) =>
-              track.stop()
-            );
+        if (blob.size > 0) {
+          const url = URL.createObjectURL(blob);
 
-          return;
+          previewUrlRef.current = url;
+          setPreviewBlob(blob);
+          setPreviewUrl(url);
         }
 
-        try {
-          setUploading(true);
-
-          const blob =
-            new Blob(
-              chunksRef.current,
-              {
-                type:
-                  "audio/webm",
-              }
-            );
-
-          if (
-            blob.size === 0
-          ) {
-            throw new Error(
-              "Empty recording"
-            );
-          }
-
-          const file =
-            new File(
-              [blob],
-              "voice-note.webm",
-              {
-                type:
-                  "audio/webm",
-              }
-            );
-
-          const formData =
-            new FormData();
-
-          formData.append(
-            "file",
-            file
-          );
-
-          formData.append(
-            "upload_preset",
-            "joblink_unsigned"
-          );
-
-          const cloudName =
-            "dycqfqqlc";
-
-          const res =
-            await fetch(
-              `https://api.cloudinary.com/v1_1/${cloudName}/video/upload`,
-              {
-                method:
-                  "POST",
-                body:
-                  formData,
-              }
-            );
-
-          const data =
-            await res.json();
-
-          console.log(
-            "Cloudinary Response:",
-            data
-          );
-
-          if (!res.ok) {
-            throw new Error(
-              data?.error
-                ?.message ||
-                "Cloudinary upload failed"
-            );
-          }
-
-          onSend(
-            data.secure_url
-          );
-        } catch (err) {
-          console.error(
-            "VOICE UPLOAD ERROR:",
-            err
-          );
-
-          alert(
-            err.message
-          );
-        } finally {
-          setUploading(
-            false
-          );
-
-          streamRef.current
-            ?.getTracks()
-            .forEach((track) =>
-              track.stop()
-            );
-        }
+        streamRef.current?.getTracks().forEach((track) => track.stop());
+        streamRef.current = null;
+        mediaRecorderRef.current = null;
       };
 
-    mediaRecorder.start();
-  } catch (err) {
-    console.error(err);
+      recorder.onerror = (event) => {
+        console.error("Recording error:", event.error);
+        alert("An error occurred while recording.");
+      };
 
-    isRecordingRef.current =
-      false;
+      recorder.start();
+      setRecording(true);
+    } catch (err) {
+      console.error("Microphone error:", err);
+
+      streamRef.current?.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+      mediaRecorderRef.current = null;
+
+      alert("Unable to access the microphone. Please check microphone permission.");
+    }
+  };
+
+  const stopRecording = () => {
+    const recorder = mediaRecorderRef.current;
+
+    if (!recorder || recorder.state === "inactive") return;
 
     setRecording(false);
+    recorder.stop();
+  };
 
-    alert(
-      "Microphone permission denied"
-    );
-  }
-};
+  const deleteRecording = () => {
+    if (recording) {
+      stopRecording();
+    }
 
-const stopRecording = () => {
-if (
-!isRecordingRef.current
-)
-return;
+    clearPreview();
+    chunksRef.current = [];
+  };
 
-isRecordingRef.current =
-  false;
+  const sendRecording = async () => {
+    if (!previewBlob || uploading) return;
 
-setRecording(false);
+    try {
+      setUploading(true);
 
-mediaRecorderRef.current?.stop();
+      const file = new File(
+        [previewBlob],
+        "voice-note.webm",
+        { type: previewBlob.type || "audio/webm" }
+      );
 
-};
+      const formData = new FormData();
 
-const handleTouchStart =
-async (e) => {
-startX.current =
-e.touches[0].clientX;
+      formData.append("file", file);
+      formData.append("upload_preset", "joblink_unsigned");
 
-  await startRecording();
-};
+      const cloudName = "dycqfqqlc";
 
-const handleTouchMove = (
-e
-) => {
-const currentX =
-e.touches[0].clientX;
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${cloudName}/video/upload`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
-const diff =
-  startX.current -
-  currentX;
+      const data = await response.json();
 
-if (diff > 80) {
-  setIsCancelling(true);
+      if (!response.ok) {
+        throw new Error(
+          data?.error?.message || "Cloudinary upload failed"
+        );
+      }
 
-  isCancellingRef.current =
-    true;
-} else {
-  setIsCancelling(false);
+      if (!data.secure_url) {
+        throw new Error("Cloudinary did not return an audio URL.");
+      }
 
-  isCancellingRef.current =
-    false;
-}
+      await onSend(data.secure_url);
 
-};
+      clearPreview();
+    } catch (err) {
+      console.error("VOICE UPLOAD ERROR:", err);
+      alert(err.message || "Unable to send voice note.");
+    } finally {
+      setUploading(false);
+    }
+  };
 
-useEffect(() => {
-return () => {
-stopWaveform();
+  useEffect(() => {
+    return () => {
+      if (
+        mediaRecorderRef.current &&
+        mediaRecorderRef.current.state !== "inactive"
+      ) {
+        mediaRecorderRef.current.onstop = null;
+        mediaRecorderRef.current.stop();
+      }
 
-  streamRef.current
-    ?.getTracks()
-    .forEach((track) =>
-      track.stop()
-    );
-};
+      streamRef.current?.getTracks().forEach((track) => track.stop());
 
-}, []);
+      if (previewUrlRef.current) {
+        URL.revokeObjectURL(previewUrlRef.current);
+      }
+    };
+  }, []);
 
-return (
-<div className="flex flex-col items-center">
-<button
-  onTouchStart={isTouchDevice ? handleTouchStart : undefined}
-  onTouchMove={isTouchDevice ? handleTouchMove : undefined}
-  onTouchEnd={isTouchDevice ? stopRecording : undefined}
-  onMouseDown={!isTouchDevice ? startRecording : undefined}
-  onMouseUp={!isTouchDevice ? stopRecording : undefined}
-  className={`w-14 h-14 rounded-full text-white shadow-lg flex items-center justify-center text-xl transition-all duration-300 ${
-    recording
-      ? isCancelling
-        ? "bg-red-700 scale-125"
-        : "bg-red-500 animate-pulse scale-110"
-      : uploading
-      ? "bg-gray-400"
-      : "bg-green-500"
-  }`}
->
-  {uploading ? "..." : recording ? "⏺" : "🎤"}
-</button>
+  return (
+    <div className="flex flex-col items-center gap-2">
 
-<span className="mt-1 text-[10px] font-bold text-gray-700">
-  Recorder
-</span>
+      {!previewBlob && (
+        <>
+          <button
+            type="button"
+            onClick={recording ? stopRecording : startRecording}
+            disabled={uploading}
+            aria-label={recording ? "Stop recording" : "Start recording"}
+            className={`w-14 h-14 rounded-full text-white shadow-lg flex items-center justify-center text-xl transition-all ${
+              recording
+                ? "bg-red-500 animate-pulse"
+                : "bg-green-500"
+            }`}
+          >
+            {recording ? "⏹" : "🎤"}
+          </button>
 
-  {recording && (
-    <>
-      <div className="flex items-end gap-[3px] mt-3 h-10">
-        {waveHeights.map(
-          (
-            height,
-            index
-          ) => (
-            <div
-              key={index}
-              className={`w-1 rounded-full ${
-                isCancelling
-                  ? "bg-red-500"
-                  : "bg-green-500"
-              }`}
-              style={{
-                height: `${height}px`,
-              }}
-            />
-          )
-        )}
-      </div>
+          <div className="text-xs font-medium text-gray-600">
+            {recording
+              ? `Recording ${formatTime(recordingTime)} · Tap to stop`
+              : "Voice Note"}
+          </div>
 
-      <div
-        className={`text-xs mt-2 ${
-          isCancelling
-            ? "text-red-500"
-            : "text-gray-500"
-        }`}
-      >
-        {isCancelling
-          ? "❌ Release to cancel"
-          : "⬅ Swipe left to cancel"}
-      </div>
-    </>
-  )}
-</div>
+          {recording && (
+            <div className="flex items-center gap-2 text-xs text-red-500">
+              <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+              Recording in progress
+            </div>
+          )}
+        </>
+      )}
 
-);
+      {previewBlob && previewUrl && (
+        <div className="w-full max-w-xs rounded-2xl bg-gray-100 p-3">
+
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-semibold text-gray-700">
+              Voice note preview
+            </span>
+
+            <span className="text-xs text-gray-500">
+              {formatTime(recordingTime)}
+            </span>
+          </div>
+
+          <audio
+            controls
+            preload="metadata"
+            src={previewUrl}
+            className="w-full h-10"
+          />
+
+          <div className="flex items-center gap-2 mt-3">
+
+            <button
+              type="button"
+              onClick={sendRecording}
+              disabled={uploading}
+              className="flex-1 rounded-full bg-green-600 text-white py-2 text-sm font-semibold disabled:opacity-50"
+            >
+              {uploading ? "Uploading..." : "➤ Send"}
+            </button>
+
+            <button
+              type="button"
+              onClick={deleteRecording}
+              disabled={uploading}
+              className="flex-1 rounded-full bg-red-100 text-red-600 py-2 text-sm font-semibold disabled:opacity-50"
+            >
+              🗑 Delete
+            </button>
+
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
 };
 
 export default VoiceRecorder;
