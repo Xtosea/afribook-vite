@@ -349,7 +349,21 @@ const currentUserId = currentUser?._id;
       </button>
 
       {showSettings && (
-        <div className="absolute right-0 mt-2 w-40 bg-white border shadow rounded-lg">
+        <div className="absolute right-0 mt-2 w-48 bg-white border shadow rounded-lg">
+          <Link
+            to="/privacy"
+            onClick={() => setShowSettings(false)}
+            className="block w-full text-left px-3 py-2 hover:bg-gray-100"
+          >
+            Privacy Policy
+          </Link>
+          <Link
+            to="/delete-account"
+            onClick={() => setShowSettings(false)}
+            className="block w-full text-left px-3 py-2 hover:bg-gray-100"
+          >
+            Delete Account
+          </Link>
           <button
             onClick={handleLogout}
             className="w-full text-left px-3 py-2 hover:bg-gray-100 flex items-center gap-2"
