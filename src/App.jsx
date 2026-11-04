@@ -9,6 +9,8 @@ import AdminRoute from "./components/AdminRoute";
 
 import Home from "./pages/Home";
 import Login from "./pages/Login";
+import DeleteAccount from "./pages/DeleteAccount";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Register from "./pages/Register";
 import Profile from "./pages/Profile.jsx";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -18,7 +20,6 @@ import VerifySuccess from "./pages/VerifySuccess";
 import VerifyFailed from "./pages/VerifyFailed";
 
 import Reels from "./pages/Reels";
-
 import Messages from "./pages/Messages";
 
 import WelcomeOnboarding from "./pages/WelcomeOnboarding";
@@ -64,6 +65,7 @@ from "./pages/admin/AdminEarnings";
 import AdminWallet
 from "./pages/admin/AdminWallet";
 import AdminKyc from "./pages/admin/AdminKyc";
+import AdminAccountDeletions from "./pages/admin/AdminAccountDeletions";
 import CreatorDashboard
 from "./pages/creator/CreatorDashboard";
 
@@ -175,6 +177,8 @@ useEffect(() => {
 
       <Routes>
             {/* PUBLIC */}
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/delete-account" element={<DeleteAccount />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -191,13 +195,16 @@ useEffect(() => {
   element={<VerifyEmail />}
 />
 
-<Route path="/verify-success" element={<VerifySuccess />} />
+
+            <Route path="/verify-success" element={<VerifySuccess />} />
             <Route path="/verify-failed" element={<VerifyFailed />} />
             <Route path="/welcome" element={<WelcomeOnboarding />} />
             <Route path="/media/:postId" element={<MediaViewer />} />
             <Route path="/post/:id" element={<PostView />} />
 
+
 <Route path="/verify-email-sent" element={<VerifyEmailSent />} />
+
 
 <Route
   path="/admin/story-music"
@@ -252,6 +259,10 @@ useEffect(() => {
 <Route path="/admin/wallet" element={<AdminRoute><AdminWallet /></AdminRoute>} />
         <Route path="/admin/kyc" element={<AdminRoute><AdminKyc /></AdminRoute>} />
 <Route
+  path="/admin/account-deletions"
+  element={<AdminRoute><AdminAccountDeletions /></AdminRoute>}
+/>
+<Route
   path="/creator"
   element={<CreatorDashboard />}
 />
@@ -305,6 +316,8 @@ useEffect(() => {
     element={<StickerTest />}
 />
 
+
+   
 <Route
   path="/pk/create"
   element={
@@ -366,7 +379,9 @@ useEffect(() => {
   }
 />
 
-<Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
+
+            
+            <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
 
             <Route path="/add-friends" element={<ProtectedRoute><AddFriends /></ProtectedRoute>} />
             <Route path="/sync-contacts" element={<ProtectedRoute><SyncContacts /></ProtectedRoute>} />
@@ -393,7 +408,8 @@ useEffect(() => {
   }
 />
 
-<Route
+
+           <Route
   path="/suggested-friends"
   element={
     <ProtectedRoute>
@@ -401,6 +417,7 @@ useEffect(() => {
     </ProtectedRoute>
   }
 />
+
 
 <Route
   path="/reelshorizontal"
@@ -411,7 +428,9 @@ useEffect(() => {
   }
 />
 
-<Route path="/leaderboard" element={<Leaderboard />} />
+
+
+            <Route path="/leaderboard" element={<Leaderboard />} />
             
             <Route
               path="/saved"
@@ -423,7 +442,7 @@ useEffect(() => {
             />
 
     <Route
-      path="/notifications"
+              path="/notifications"
               element={
                 <ProtectedRoute>
                   <Notifications/>
@@ -513,7 +532,13 @@ useEffect(() => {
   }
 />
 
-</Routes>
+
+  
+
+           
+
+
+          </Routes>
         </div>
 
         {/* Toast MUST be inside Router but OUTSIDE Routes */}
