@@ -34,174 +34,136 @@ const defaultProfile =
   "https://afribook-backend.onrender.com/uploads/profiles/default-profile.png";
 
 /* AUDIO MESSAGE COMPONENT */
-const AudioMessage = ({
-  src,
-  isMe,
-  onDelete,
-}) => {
+const AudioMessage = ({ src, isMe, onDelete }) => {
+  const audioRef = useRef(null);
 
-  const audioRef =
-    useRef(null);
+  const [playing, setPlaying] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
 
+  const formatTime = (time) => {
+    if (!Number.isFinite(time) || time < 0) return "0:00";
 
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
 
+    return `${minutes}:${String(seconds).padStart(2, "0")}`;
+  };
 
+  const togglePlay = async () => {
+    const audio = audioRef.current;
+    if (!audio) return;
 
-  const [playing, setPlaying] =
-    useState(false);
+    if (!audio.paused) {
+      audio.pause();
+      return;
+    }
 
-  const [muted, setMuted] =
-    useState(false);
+    try {
+      setLoading(true);
+      await audio.play();
+    } catch (err) {
+      console.log("Audio play error:", err);
+      setLoading(false);
+    }
+  };
 
-  const [loading, setLoading] =
-    useState(false);
+  const handleSeek = (event) => {
+    const audio = audioRef.current;
+    if (!audio || !Number.isFinite(audio.duration)) return;
 
-  // PLAY / PAUSE
-  const togglePlay =
-    async () => {
-
-      if (!audioRef.current)
-        return;
-
-      try {
-
-        if (playing) {
-
-          audioRef.current.pause();
-
-          setPlaying(false);
-
-        } else {
-
-          setLoading(true);
-
-          await audioRef.current.play();
-
-          setPlaying(true);
-
-          setLoading(false);
-        }
-
-      } catch (err) {
-
-        console.log(
-          "Audio play error:",
-          err
-        );
-
-        setLoading(false);
-      }
-    };
-
-  // MUTE
-  const toggleMute =
-    () => {
-
-      if (!audioRef.current)
-        return;
-
-      audioRef.current.muted =
-        !muted;
-
-      setMuted(!muted);
-    };
+    const newTime = Number(event.target.value);
+    audio.currentTime = newTime;
+    setCurrentTime(newTime);
+  };
 
   return (
-    <div className="flex items-center gap-2 mt-2 w-full">
-
-      {/* PLAY BUTTON */}
+    <div
+      className={`flex items-center gap-3 mt-2 w-full min-w-0 rounded-full px-3 py-2 ${
+        isMe
+          ? "bg-gradient-to-r from-green-500 to-green-700 text-white"
+          : "bg-green-100 text-gray-800"
+      }`}
+    >
       <button
+        type="button"
         onClick={togglePlay}
-        className={`w-11 h-11 rounded-full flex items-center justify-center text-lg shadow transition ${
+        disabled={loading}
+        aria-label={playing ? "Pause voice note" : "Play voice note"}
+        className={`w-9 h-9 shrink-0 rounded-full flex items-center justify-center text-sm transition ${
           isMe
             ? "bg-white/20 text-white"
-            : "bg-gray-200 text-gray-700"
+            : "bg-white text-green-700"
         }`}
       >
-        {loading
-          ? "..."
-          : playing
-          ? "⏸"
-          : "▶"}
+        {loading ? "…" : playing ? "Ⅱ" : "▶"}
       </button>
 
-      {/* AUDIO BODY */}
-      <div
-  className={`flex-1 rounded-2xl px-3 py-2 overflow-hidden ${
-    isMe
-      ? "bg-gradient-to-r from-green-500 to-green-700 text-white"
-      : "bg-green-100 text-gray-800"
-  }`}
->
-        {/* TOP ROW */}
-        <div className="flex items-center justify-between">
-
-          <p
-            className={`text-sm font-medium ${
-              isMe
-                ? "text-white"
-                : "text-gray-700"
-            }`}
-          >
-            🎙 Voice note
-          </p>
-
-          <div className="flex items-center gap-2">
-
-            {/* MUTE */}
-            <button
-              onClick={toggleMute}
-              className="text-xs"
-            >
-              {muted
-                ? "🔇"
-                : "🔊"}
-            </button>
-
-            {/* DELETE */}
-            {isMe && (
-              <button
-                onClick={onDelete}
-                className="text-xs text-red-400"
-              >
-                🗑
-              </button>
-            )}
-
-          </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center justify-between gap-2 mb-1">
+          <span className="text-xs font-medium">Voice note</span>
+          <span className="text-[11px] tabular-nums opacity-80">
+            {formatTime(currentTime)} / {formatTime(duration)}
+          </span>
         </div>
 
-        {/* WAVEFORM */}
-        <div className="flex items-center gap-[3px] h-6 mt-2">
-
-          <div className="w-1 h-2 bg-current rounded animate-pulse" />
-          <div className="w-1 h-4 bg-current rounded animate-pulse" />
-          <div className="w-1 h-3 bg-current rounded animate-pulse" />
-          <div className="w-1 h-5 bg-current rounded animate-pulse" />
-          <div className="w-1 h-2 bg-current rounded animate-pulse" />
-          <div className="w-1 h-4 bg-current rounded animate-pulse" />
-          <div className="w-1 h-3 bg-current rounded animate-pulse" />
-          <div className="w-1 h-5 bg-current rounded animate-pulse" />
-        </div>
-
-        {/* AUDIO */}
-        <audio
-          ref={audioRef}
-          preload="metadata"
-          onEnded={() =>
-            setPlaying(false)
-          }
-          onPause={() =>
-            setPlaying(false)
-          }
-        >
-          <source
-            src={src}
-            type="audio/webm"
-          />
-        </audio>
-
+        <input
+          type="range"
+          min="0"
+          max={duration || 0}
+          step="0.1"
+          value={Math.min(currentTime, duration || 0)}
+          onChange={handleSeek}
+          disabled={!duration}
+          aria-label="Seek voice note"
+          className="w-full h-1.5 block cursor-pointer accent-green-600 disabled:cursor-not-allowed"
+        />
       </div>
+
+      {isMe && (
+        <button
+          type="button"
+          onClick={onDelete}
+          aria-label="Delete voice note"
+          className="shrink-0 text-sm text-red-200 hover:text-white"
+        >
+          🗑
+        </button>
+      )}
+
+      <audio
+        ref={audioRef}
+        src={src}
+        preload="metadata"
+        onLoadedMetadata={(event) => {
+          setDuration(event.currentTarget.duration || 0);
+        }}
+        onDurationChange={(event) => {
+          setDuration(event.currentTarget.duration || 0);
+        }}
+        onTimeUpdate={(event) => {
+          setCurrentTime(event.currentTarget.currentTime || 0);
+        }}
+        onPlay={() => {
+          setPlaying(true);
+          setLoading(false);
+        }}
+        onPause={() => {
+          setPlaying(false);
+          setLoading(false);
+        }}
+        onEnded={() => {
+          setPlaying(false);
+          setCurrentTime(0);
+        }}
+        onError={() => {
+          setPlaying(false);
+          setLoading(false);
+          console.log("Unable to load voice note:", src);
+        }}
+        className="hidden"
+      />
     </div>
   );
 };
@@ -336,10 +298,20 @@ const deleteMessage = async (messageId) => {
 };
 
 
-const deleteForMe = (messageId) => {
-  setMessages((prev) =>
-    prev.filter((msg) => msg._id !== messageId)
-  );
+const deleteForMe = async (messageId) => {
+  try {
+    await fetchWithToken(
+      `${API_BASE}/api/messages/${messageId}`,
+      token,
+      { method: "DELETE" }
+    );
+
+    setMessages((prev) =>
+      prev.filter((msg) => msg._id !== messageId)
+    );
+  } catch (err) {
+    console.error("DELETE MESSAGE FOR ME ERROR:", err);
+  }
 };
 
 
@@ -874,7 +846,7 @@ console.log(
 
       
       {/* CHAT AREA */}
-<div className="flex-1 flex flex-col h-screen overflow-hidden">
+<div className="relative z-0 flex-1 flex flex-col h-screen overflow-hidden">
 
         {selectedUser ? (
           <>
@@ -1307,12 +1279,7 @@ console.log(
 {/* Voice Call */}
 <button
   onClick={() => {
-    if (!onlineUsers.includes(selectedUser._id)) {
-      alert("This user is currently offline.");
-      return;
-    }
-
-    setIsOutgoingCall(true);
+setIsOutgoingCall(true);
     setShowCall(true);
     webRTC.startVoiceCall();
   }}
@@ -1327,12 +1294,7 @@ console.log(
 {/* Video Call */}
 <button
   onClick={() => {
-    if (!onlineUsers.includes(selectedUser._id)) {
-      alert("This user is currently offline.");
-      return;
-    }
-
-    setIsOutgoingCall(true);
+setIsOutgoingCall(true);
     setShowCall(true);
     webRTC.startVideoCall();
   }}
