@@ -153,6 +153,11 @@ const AdminDashboard = () => {
     label="Story Music"
   />
 
+<AdminLink
+    to="/admin/account-deletions"
+    label="Delete Account"
+  />
+
 </div>
     </div>
   );
