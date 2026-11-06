@@ -72,6 +72,8 @@ const Navbar = () => {
 
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const notificationIdsRef = useRef(new Set());
+  const fetchNotificationsRef = useRef(null);
   const [onlineUsers, setOnlineUsers] = useState([]);
 const [showSearch, setShowSearch] = useState(false);
 
@@ -102,7 +104,27 @@ const currentUserId = currentUser?._id;
     if (socket.connected) joinUser();
     socket.on("connect", joinUser);
 
+    const refreshNotifications = () => {
+      fetchNotificationsRef.current?.();
+    };
+
+    socket.on("reconnect", refreshNotifications);
+
     socket.on("new-notification", (data) => {
+      const notificationKey = data?._id
+        ? `id:${data._id}`
+        : data?.callId
+          ? `call:${data.callId}`
+          : null;
+
+      if (notificationKey && notificationIdsRef.current.has(notificationKey)) {
+        return;
+      }
+
+      if (notificationKey) {
+        notificationIdsRef.current.add(notificationKey);
+      }
+
       setNotifications((prev) => [data, ...prev].slice(0, 50));
       setUnreadCount((c) => c + 1);
     });
@@ -111,6 +133,7 @@ const currentUserId = currentUser?._id;
 
     return () => {
       socket.off("connect", joinUser);
+      socket.off("reconnect", refreshNotifications);
       socket.off("new-notification");
       socket.off("online-users");
     };
@@ -157,9 +180,37 @@ const currentUserId = currentUser?._id;
               nData
             );
 
-            setNotifications(
-              Array.isArray(nData) ? nData : []
-            );
+            const apiNotifications = Array.isArray(nData) ? nData : [];
+
+            apiNotifications.forEach((item) => {
+              const key = item?._id
+                ? `id:${item._id}`
+                : item?.callId
+                  ? `call:${item.callId}`
+                  : null;
+
+              if (key) notificationIdsRef.current.add(key);
+            });
+
+            setNotifications((prev) => {
+              const merged = [];
+              const seen = new Set();
+
+              [...apiNotifications, ...prev].forEach((item) => {
+                const key = item?._id
+                  ? `id:${item._id}`
+                  : item?.callId
+                    ? `call:${item.callId}`
+                    : null;
+
+                if (key && seen.has(key)) return;
+                if (key) seen.add(key);
+
+                merged.push(item);
+              });
+
+              return merged.slice(0, 50);
+            });
           } else {
             console.error(
               "NOTIFICATIONS API ERROR:",
@@ -223,7 +274,12 @@ const currentUserId = currentUser?._id;
       }
     };
 
+    fetchNotificationsRef.current = fetchData;
     fetchData();
+
+    return () => {
+      fetchNotificationsRef.current = null;
+    };
   }, []);
 
   // ================= OUTSIDE CLICK =================
@@ -356,6 +412,27 @@ const currentUserId = currentUser?._id;
             className="block w-full text-left px-3 py-2 hover:bg-gray-100"
           >
             Privacy Policy
+          </Link>
+          <Link
+            to="/community-guidelines"
+            onClick={() => setShowSettings(false)}
+            className="block w-full text-left px-3 py-2 hover:bg-gray-100"
+          >
+            Community Guidelines
+          </Link>
+          <Link
+            to="/about"
+            onClick={() => setShowSettings(false)}
+            className="block w-full text-left px-3 py-2 hover:bg-gray-100"
+          >
+            <Building2 size={16} /> About AfricSocial
+          </Link>
+          <Link
+            to="/contact"
+            onClick={() => setShowSettings(false)}
+            className="block w-full text-left px-3 py-2 hover:bg-gray-100"
+          >
+            <MessageCircle size={16} /> Contact Us
           </Link>
           <Link
             to="/delete-account"
@@ -701,6 +778,32 @@ const currentUserId = currentUser?._id;
     <Bookmark size={30} className="text-cyan-600" />
     <span className="mt-2 text-sm font-medium">Saved</span>
   </Link>
+
+  <Link
+    to="/community-guidelines"
+    onClick={() => setMobileOpen(false)}
+    className="flex flex-col items-center justify-center rounded-xl p-4 bg-gray-50 hover:bg-gray-100"
+  >
+    <Users size={30} className="text-emerald-600" />
+    <span className="mt-2 text-sm font-medium text-center">Community Guidelines</span>
+  </Link>
+  <Link
+    to="/about"
+    onClick={() => setMobileOpen(false)}
+    className="flex flex-col items-center justify-center rounded-xl p-4 bg-gray-50 hover:bg-gray-100"
+  >
+    <Building2 size={30} className="text-green-600" />
+    <span className="mt-2 text-sm font-medium text-center">About AfricSocial</span>
+  </Link>
+  <Link
+    to="/contact"
+    onClick={() => setMobileOpen(false)}
+    className="flex flex-col items-center justify-center rounded-xl p-4 bg-gray-50 hover:bg-gray-100"
+  >
+    <MessageCircle size={30} className="text-blue-600" />
+    <span className="mt-2 text-sm font-medium text-center">Contact Us</span>
+  </Link>
+
 
 
 </div>
