@@ -11,6 +11,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import DeleteAccount from "./pages/DeleteAccount";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import CommunityGuidelines from "./pages/CommunityGuidelines";
 import Register from "./pages/Register";
 import Profile from "./pages/Profile.jsx";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -178,6 +179,9 @@ useEffect(() => {
       <Routes>
             {/* PUBLIC */}
             <Route path="/privacy" element={<PrivacyPolicy />} />
+
+‎<Route path="/community-guidelines" element={<CommunityGuidelines />} />
+
             <Route path="/delete-account" element={<DeleteAccount />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
