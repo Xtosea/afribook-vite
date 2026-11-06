@@ -3,7 +3,7 @@ import {
   Mail,
   MessageCircle,
   Music2,
-  Facebook,
+  Globe,
   MapPin,
   ExternalLink,
 } from "lucide-react";
@@ -40,7 +40,7 @@ const contactMethods = [
     external: true,
   },
   {
-    icon: Facebook,
+    icon: Globe,
     title: "Facebook",
     description: "Visit the AfricSocial Facebook page.",
     label: "AfricSocial on Facebook",
