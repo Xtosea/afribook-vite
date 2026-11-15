@@ -92,7 +92,7 @@ export default function StickerLibrary({ onSelect }) {
   }
 
   return (
-    <div className="flex min-h-0 flex-col gap-3 text-white">
+    <div className="flex flex-1 min-h-0 flex-col gap-3 text-white">
       {/* Search stays above the scrolling sticker grid. */}
       <div className="shrink-0">
         <input
@@ -139,7 +139,7 @@ export default function StickerLibrary({ onSelect }) {
       )}
 
       {/* Only the sticker grid scrolls vertically. */}
-      <div className="grid min-h-0 max-h-64 grid-cols-4 gap-2 overflow-x-hidden overflow-y-auto overscroll-contain rounded-lg">
+      <div className="grid flex-1 min-h-0 grid-cols-4 sm:grid-cols-5 content-start gap-2 overflow-x-hidden overflow-y-auto overscroll-contain rounded-lg pr-1">
         {stickers.map((sticker) => (
           <button
             key={sticker.id}
