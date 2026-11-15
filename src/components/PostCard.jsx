@@ -31,7 +31,7 @@ import { BadgeCheck } from "lucide-react";
 
 
 const defaultProfile =
-  https://africsocial-api.xto1971.workers.dev/uploads/profiles/default-profile.png";
+  "https://africsocial-api.xto1971.workers.dev/uploads/profiles/default-profile.png";
 
 const PostCard = ({
   post,
