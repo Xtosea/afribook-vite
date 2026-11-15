@@ -164,7 +164,7 @@ const [selectedSticker, setSelectedSticker] = useState(null);
 useEffect(() => {
   fetchReels();
 
-  fetch(`${API_BASE}/api/music`)
+  fetch(`${API_BASE}/api/story-music`)
     .then(r => r.json())
     .then(setSongs);
 
