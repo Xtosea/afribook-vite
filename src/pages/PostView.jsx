@@ -75,7 +75,7 @@ useEffect(() => {
     post?.content?.substring(0, 160) ||
     "Check this post on AfricSocial";
 
-  const url = `https://africsocia.com/post/${post?._id || ""}`;
+  const url = `https://africsocial.com/post/${post?._id || ""}`;
 
   if (loading) {
     return <div className="p-4">Loading...</div>;
