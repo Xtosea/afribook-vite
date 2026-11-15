@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import MusicLibrary from "./MusicLibrary";
 import StickerLibrary from "./StickerLibrary";
 
@@ -6,15 +6,12 @@ const ReelUploadModal = ({
   preview,
   caption,
   setCaption,
-
   songs,
   selectedSong,
   setSelectedSong,
-
   stickers,
   selectedSticker,
   setSelectedSticker,
-
   fileRef,
   handleFileChange,
   uploadReel,
@@ -22,117 +19,187 @@ const ReelUploadModal = ({
   progress,
   loading,
 }) => {
+  const [activeTab, setActiveTab] = useState("music");
+
   return (
-    <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-2 backdrop-blur-sm">
+      <div className="flex h-[92dvh] max-h-[760px] w-full max-w-md flex-col overflow-hidden rounded-2xl border border-zinc-700 bg-zinc-900 text-white shadow-2xl">
 
-      <div className="bg-zinc-900 p-4 rounded-2xl w-[95%] max-w-md max-h-[95vh] overflow-y-auto text-white shadow-2xl border border-zinc-700">
+        {/* Fixed header */}
+        <div className="flex shrink-0 items-center justify-between border-b border-white/10 px-4 py-3">
+          <h2 className="text-xl font-bold">Create Reel</h2>
 
-        <h2 className="text-xl font-bold mb-4">
-          Create Reel
-        </h2>
-
-        {preview && (
-          <video
-            src={preview}
-            className="w-full h-64 rounded-xl object-cover mb-4"
-            controls
-          />
-        )}
-
-        <textarea
-          placeholder="Write a caption..."
-          value={caption}
-          onChange={(e) => setCaption(e.target.value)}
-          className="w-full bg-black border border-zinc-700 p-3 rounded-xl mb-4 resize-none outline-none"
-          rows={4}
-        />
-
-        {/* MUSIC */}
-        <div className="mb-5">
-          <h3 className="font-semibold mb-2">
-            🎵 Choose Music
-          </h3>
-
-          <MusicLibrary
-            songs={songs}
-            onSelect={setSelectedSong}
-          />
-
-          {selectedSong && (
-            <p className="text-green-400 text-sm mt-2">
-              Selected: {selectedSong.title}
-            </p>
-          )}
+          <button
+            type="button"
+            onClick={() => setShowUpload(false)}
+            disabled={loading}
+            aria-label="Close Reel editor"
+            className="rounded-lg px-3 py-2 text-xl text-white/70 hover:bg-white/10 disabled:opacity-50"
+          >
+            ×
+          </button>
         </div>
 
-        {/* STICKERS */}
-        <div className="mb-5">
-          <h3 className="font-semibold mb-2">
-            😀 Choose Sticker
-          </h3>
+        {/* Scrollable content */}
+        <div className="flex-1 min-h-0 space-y-4 overflow-y-auto overscroll-contain p-4">
 
-          <div className="grid grid-cols-4 gap-3">
-            {stickers.map((sticker) => (
+          {preview && (
+            <video
+              src={preview}
+              className="max-h-52 w-full rounded-xl bg-black object-contain"
+              controls
+            />
+          )}
+
+          <textarea
+            placeholder="Write a caption..."
+            value={caption}
+            onChange={(e) => setCaption(e.target.value)}
+            className="w-full resize-none rounded-xl border border-zinc-700 bg-black p-3 text-white outline-none focus:border-blue-500"
+            rows={3}
+          />
+
+          {/* Selected music */}
+          {selectedSong && (
+            <div className="flex items-center justify-between gap-3 rounded-lg bg-blue-500/10 p-3">
+              <span className="min-w-0 truncate text-sm text-blue-300">
+                🎵 {selectedSong.title}
+              </span>
+
               <button
-                key={sticker._id}
-                onClick={() => setSelectedSticker(sticker)}
-                className={`rounded-xl p-1 ${
-                  selectedSticker?._id === sticker._id
-                    ? "ring-2 ring-blue-500"
-                    : ""
+                type="button"
+                onClick={() => setSelectedSong(null)}
+                className="shrink-0 text-sm text-red-400"
+              >
+                Remove
+              </button>
+            </div>
+          )}
+
+          {/* Selected sticker */}
+          {selectedSticker && (
+            <div className="flex items-center justify-between gap-3 rounded-lg bg-white/10 p-3">
+              <div className="flex min-w-0 items-center gap-3">
+                <img
+                  src={selectedSticker.url}
+                  alt={selectedSticker.name || "Selected sticker"}
+                  className="h-10 w-10 object-contain"
+                />
+                <span className="truncate text-sm">
+                  {selectedSticker.name || "Sticker selected"}
+                </span>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setSelectedSticker(null)}
+                className="shrink-0 text-sm text-red-400"
+              >
+                Remove
+              </button>
+            </div>
+          )}
+
+          {/* Library tabs */}
+          <div>
+            <div className="mb-3 grid grid-cols-2 gap-2 rounded-xl bg-black/40 p-1">
+              <button
+                type="button"
+                onClick={() => setActiveTab("music")}
+                aria-pressed={activeTab === "music"}
+                className={`rounded-lg py-3 text-sm font-semibold ${
+                  activeTab === "music"
+                    ? "bg-blue-600 text-white"
+                    : "text-white/60 hover:bg-white/10"
                 }`}
               >
-                <img
-                  src={sticker.url}
-                  alt=""
-                  className="w-16 h-16 object-contain"
-                />
+                🎵 Music
               </button>
-            ))}
+
+              <button
+                type="button"
+                onClick={() => setActiveTab("stickers")}
+                aria-pressed={activeTab === "stickers"}
+                className={`rounded-lg py-3 text-sm font-semibold ${
+                  activeTab === "stickers"
+                    ? "bg-blue-600 text-white"
+                    : "text-white/60 hover:bg-white/10"
+                }`}
+              >
+                😀 Stickers
+              </button>
+            </div>
+
+            {activeTab === "music" ? (
+              <div className="max-h-[42dvh] overflow-y-auto overscroll-contain">
+                <MusicLibrary
+                  songs={songs}
+                  selectedSong={selectedSong}
+                  onSelect={setSelectedSong}
+                />
+              </div>
+            ) : (
+              <div className="flex h-[42dvh] min-h-[240px] max-h-[380px] flex-col overflow-hidden">
+                <StickerLibrary
+                  onSelect={(sticker) =>
+                    setSelectedSticker({
+                      ...sticker,
+                      _id: sticker.id,
+                      url: sticker.url,
+                    })
+                  }
+                />
+              </div>
+            )}
           </div>
         </div>
 
+        {/* Upload progress */}
         {loading && (
-          <div className="mb-4">
-
-            <div className="w-full bg-zinc-700 h-3 rounded-full overflow-hidden">
+          <div className="shrink-0 border-t border-white/10 px-4 py-3">
+            <div className="h-3 w-full overflow-hidden rounded-full bg-zinc-700">
               <div
-                className="bg-blue-500 h-3 transition-all duration-300"
-                style={{ width: `${progress}%` }}
+                className="h-3 bg-blue-500 transition-all duration-300"
+                style={{
+                  width: `${Math.min(100, Math.max(0, Number(progress) || 0))}%`,
+                }}
               />
             </div>
 
-            <p className="text-center text-sm mt-2">
+            <p className="mt-2 text-center text-sm">
               Uploading... {progress}%
             </p>
-
           </div>
         )}
 
-        <div className="flex justify-between gap-3">
-
+        {/* Fixed action buttons */}
+        <div className="grid shrink-0 grid-cols-3 gap-2 border-t border-white/10 bg-zinc-900 p-3">
           <button
-            onClick={() => fileRef.current.click()}
-            className="flex-1 bg-zinc-700 py-3 rounded-xl hover:bg-zinc-600"
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            disabled={loading}
+            className="rounded-xl bg-zinc-700 py-3 text-sm font-medium hover:bg-zinc-600 disabled:opacity-50"
           >
             Select Video
           </button>
 
           <button
+            type="button"
             onClick={() => setShowUpload(false)}
-            className="flex-1 bg-red-500 py-3 rounded-xl hover:bg-red-600"
+            disabled={loading}
+            className="rounded-xl bg-red-600 py-3 text-sm font-medium hover:bg-red-700 disabled:opacity-50"
           >
             Cancel
           </button>
 
           <button
+            type="button"
             onClick={uploadReel}
             disabled={loading}
-            className="flex-1 bg-blue-500 py-3 rounded-xl disabled:opacity-50"
+            className="rounded-xl bg-blue-600 py-3 text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
           >
             {loading ? "Uploading..." : "Post"}
           </button>
-
         </div>
 
         <input
@@ -142,9 +209,7 @@ const ReelUploadModal = ({
           className="hidden"
           onChange={handleFileChange}
         />
-
       </div>
-
     </div>
   );
 };
