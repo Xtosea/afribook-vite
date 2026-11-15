@@ -31,7 +31,7 @@ import { BadgeCheck } from "lucide-react";
 
 
 const defaultProfile =
-  "https://afribook-backen--26q2cj27zn75.code.run/uploads/profiles/default-profile.png";
+  https://africsocial-api.xto1971.workers.dev/uploads/profiles/default-profile.png";
 
 const PostCard = ({
   post,
@@ -243,7 +243,7 @@ const [mediaOrientation, setMediaOrientation] =
     try {
 
      
-  const url = `https://africsocial.globelynks.com/post/${post._id}`;
+  const url = `https://africsocial.com/post/${post._id}`;
 
       const text =
         post?.content ||
