@@ -116,7 +116,7 @@ const handleShare = async () => {
   try {
     const token = localStorage.getItem("token");
 
-    const url = `https://africsocial.globelynks.com/post/${post._id}`;
+    const url = `https://africsocial.com/post/${post._id}`;
 
     if (navigator.share) {
       await navigator.share({
