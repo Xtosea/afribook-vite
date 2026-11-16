@@ -52,6 +52,7 @@ useState(false);
 
 const [location, setLocation] = useState("");
 const [feeling, setFeeling] = useState("");
+const [visibility, setVisibility] = useState("public");
 const [tagInput, setTagInput] = useState("");
 const [taggedFriends, setTaggedFriends] = useState([]);
 const [cloudinaryUrl, setCloudinaryUrl] = useState("");
@@ -351,6 +352,7 @@ const res = await fetch(
     },
     body: JSON.stringify({
       content: newPost,
+      visibility,
       media: uploadedMedia,
 
       type: link
@@ -377,6 +379,7 @@ if (!res.ok) {
   throw new Error(data.error || "Post failed");
 }
     setNewPost("");
+    setVisibility("public");
     setMediaFiles([]);
     setMusic(null);
     setStickers([]);
@@ -513,6 +516,22 @@ applyAI={applyAI}
   
 
 
+
+          <div className="mt-4 rounded-xl border border-gray-200 p-4">
+            <label htmlFor="post-visibility" className="block text-sm font-semibold text-gray-800">
+              Who can see this post?
+            </label>
+            <select
+              id="post-visibility"
+              value={visibility}
+              onChange={(e) => setVisibility(e.target.value)}
+              className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm"
+            >
+              <option value="public">Public — Everyone</option>
+              <option value="friends">Friends — Accepted friends</option>
+              <option value="private">Private — Only me</option>
+            </select>
+          </div>
  </form>
 
 );
