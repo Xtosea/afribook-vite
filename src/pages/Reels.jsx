@@ -29,7 +29,39 @@ const [songs, setSongs] = useState([]);
 const [selectedSong, setSelectedSong] = useState(null);
 
 const [stickers, setStickers] = useState([]);
-const [selectedSticker, setSelectedSticker] = useState(null);
+const [selectedStickers, setSelectedStickers] = useState([]);
+
+const addSticker = (sticker) => {
+  setSelectedStickers((current) => {
+    if (current.length >= 20) {
+      alert("You can add up to 20 stickers.");
+      return current;
+    }
+
+    const id = `${sticker.id}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    return [...current, {
+      ...sticker,
+      id,
+      _id: id,
+      x: 500,
+      y: 500,
+      scale: 1,
+      rotation: 0,
+    }];
+  });
+};
+
+const updateSticker = (id, updates) => {
+  setSelectedStickers((current) =>
+    current.map((item) => item.id === id ? { ...item, ...updates } : item)
+  );
+};
+
+const removeSticker = (id) => {
+  setSelectedStickers((current) =>
+    current.filter((item) => item.id !== id)
+  );
+};
 
 
   const videoRefs = useRef([]);
@@ -120,8 +152,8 @@ const [selectedSticker, setSelectedSticker] = useState(null);
               }
             });
 
-            // play current
-            video.muted = false;
+            // Keep the video muted when separate Reel music is attached.
+            video.muted = video.dataset.hasMusic === "true";
             video.play().catch(() => {});
           } else {
             video.pause();
@@ -322,9 +354,7 @@ const { videoUrl: thumbnailUrl } =
 
   music: selectedSong,
 
-  stickers: selectedSticker
-    ? [selectedSticker]
-    : [],
+  stickers: selectedStickers,
 }),
     });
 
@@ -336,6 +366,7 @@ const { videoUrl: thumbnailUrl } =
     setPreview(null);
     setSelectedFile(null);
     setDurationSeconds(null);
+    setSelectedStickers([]);
     setShowUpload(false);
 
     fetchReels();
@@ -423,8 +454,10 @@ shadow-lg
   setSelectedSong={setSelectedSong}
 
   stickers={stickers}
-  selectedSticker={selectedSticker}
-  setSelectedSticker={setSelectedSticker}
+  selectedStickers={selectedStickers}
+  addSticker={addSticker}
+  updateSticker={updateSticker}
+  removeSticker={removeSticker}
 
   fileRef={fileRef}
 
