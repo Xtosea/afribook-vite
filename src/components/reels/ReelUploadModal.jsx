@@ -7,6 +7,8 @@ const ReelUploadModal = ({
   preview,
   caption,
   setCaption,
+  visibility,
+  setVisibility,
   songs,
   selectedSong,
   setSelectedSong,
@@ -71,6 +73,23 @@ const ReelUploadModal = ({
             className="w-full resize-none rounded-xl border border-zinc-700 bg-black p-3 text-white outline-none focus:border-blue-500"
             rows={3}
           />
+
+          <div className="rounded-xl border border-zinc-700 bg-black/40 p-3">
+            <label htmlFor="reel-visibility" className="block text-sm font-semibold">
+              Who can see this reel?
+            </label>
+            <select
+              id="reel-visibility"
+              value={visibility}
+              onChange={(event) => setVisibility(event.target.value)}
+              disabled={loading}
+              className="mt-2 w-full rounded-lg border border-zinc-600 bg-zinc-800 px-3 py-2 text-sm text-white"
+            >
+              <option value="public">Public — Everyone</option>
+              <option value="friends">Friends — Accepted friends</option>
+              <option value="private">Private — Only me</option>
+            </select>
+          </div>
 
           {selectedSong && (
             <div className="flex items-center justify-between gap-3 rounded-lg bg-blue-500/10 p-3">
