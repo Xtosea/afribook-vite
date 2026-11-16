@@ -1,7 +1,55 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 const MusicLibrary = ({ songs = [], onSelect, selectedSong }) => {
   const tracks = Array.isArray(songs) ? songs : [];
+  const audioRef = useRef(null);
+  const [previewSong, setPreviewSong] = useState(null);
+
+  const getPlayableUrl = (song) =>
+    typeof song?.audioUrl === "string" &&
+    song.audioUrl.startsWith("https://") &&
+    !song.audioUrl.includes("your-domain.com")
+      ? song.audioUrl
+      : null;
+
+  const stopPreview = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+    setPreviewSong(null);
+  };
+
+  const playPreview = async (song) => {
+    const url = getPlayableUrl(song);
+    if (!url) return;
+
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+
+    setPreviewSong(song);
+
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    audio.src = url;
+    try {
+      await audio.play();
+    } catch (error) {
+      console.error("Music preview failed:", error);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = "";
+      }
+    };
+  }, []);
 
   if (!tracks.length) {
     return (
@@ -12,13 +60,14 @@ const MusicLibrary = ({ songs = [], onSelect, selectedSong }) => {
   }
 
   return (
-    <div className="space-y-2">
-      {tracks.map((song) => {
-        const playableUrl =
-          typeof song.audioUrl === "string" &&
-          song.audioUrl.startsWith("https://") &&
-          !song.audioUrl.includes("your-domain.com");
+    <div className="space-y-3">
+      <audio
+        ref={audioRef}
+        preload="none"
+      />
 
+      {tracks.map((song) => {
+        const playableUrl = getPlayableUrl(song);
         const isSelected = selectedSong?._id === song._id;
 
         return (
@@ -30,42 +79,67 @@ const MusicLibrary = ({ songs = [], onSelect, selectedSong }) => {
                 : "border-white/10 bg-white/5"
             }`}
           >
-            <button
-              type="button"
-              onClick={() => onSelect(song)}
-              aria-pressed={isSelected}
-              className="flex w-full items-center gap-3 text-left"
-            >
+            <div className="flex items-center gap-3">
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/10">
                 🎵
               </span>
 
-              <span className="min-w-0 flex-1">
-                <span className="block truncate font-medium text-white">
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-medium text-white">
                   {song.title || "Untitled track"}
-                </span>
-                <span className="block truncate text-sm text-white/60">
+                </p>
+                <p className="truncate text-sm text-white/60">
                   {song.artist || "Unknown artist"}
+                </p>
+              </div>
+
+              {isSelected && (
+                <span className="text-xs text-blue-400">Added</span>
+              )}
+            </div>
+
+            <div className="mt-3 flex flex-wrap gap-2">
+              {playableUrl ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => playPreview(song)}
+                    className="rounded-lg bg-white/10 px-4 py-2 text-sm text-white"
+                  >
+                    Play
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={stopPreview}
+                    disabled={!previewSong}
+                    className="rounded-lg bg-white/10 px-4 py-2 text-sm text-white disabled:opacity-40"
+                  >
+                    Stop
+                  </button>
+                </>
+              ) : (
+                <span className="py-2 text-xs text-amber-300/80">
+                  Audio preview unavailable
                 </span>
-              </span>
+              )}
 
-              <span className="shrink-0 text-sm text-blue-400">
-                {isSelected ? "Selected" : "Select"}
-              </span>
-            </button>
-
-            {playableUrl ? (
-              <audio
-                controls
-                preload="none"
-                src={song.audioUrl}
-                className="mt-3 w-full"
-              />
-            ) : (
-              <p className="mt-2 text-xs text-amber-300/80">
-                Audio preview is not available yet.
-              </p>
-            )}
+              <button
+                type="button"
+                onClick={() => {
+                  stopPreview();
+                  onSelect?.(song);
+                }}
+                aria-pressed={isSelected}
+                className={`ml-auto rounded-lg px-4 py-2 text-sm font-medium ${
+                  isSelected
+                    ? "bg-blue-500/20 text-blue-300"
+                    : "bg-blue-600 text-white"
+                }`}
+              >
+                {isSelected ? "Sent" : "Send"}
+              </button>
+            </div>
           </div>
         );
       })}
