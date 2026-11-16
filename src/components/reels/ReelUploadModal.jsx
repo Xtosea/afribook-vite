@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import MusicLibrary from "./MusicLibrary";
 import StickerLibrary from "./StickerLibrary";
+import ReelStickerEditor from "./ReelStickerEditor";
 
 const ReelUploadModal = ({
   preview,
@@ -10,8 +11,10 @@ const ReelUploadModal = ({
   selectedSong,
   setSelectedSong,
   stickers,
-  selectedSticker,
-  setSelectedSticker,
+  selectedStickers = [],
+  addSticker,
+  updateSticker,
+  removeSticker,
   fileRef,
   handleFileChange,
   uploadReel,
@@ -24,11 +27,8 @@ const ReelUploadModal = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-2 backdrop-blur-sm">
       <div className="flex h-[92dvh] max-h-[760px] w-full max-w-md flex-col overflow-hidden rounded-2xl border border-zinc-700 bg-zinc-900 text-white shadow-2xl">
-
-        {/* Fixed header */}
         <div className="flex shrink-0 items-center justify-between border-b border-white/10 px-4 py-3">
           <h2 className="text-xl font-bold">Create Reel</h2>
-
           <button
             type="button"
             onClick={() => setShowUpload(false)}
@@ -40,32 +40,43 @@ const ReelUploadModal = ({
           </button>
         </div>
 
-        {/* Scrollable content */}
-        <div className="flex-1 min-h-0 space-y-4 overflow-y-auto overscroll-contain p-4">
+        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain p-4">
+          {(preview || selectedStickers.length > 0) && (
+            <div>
+              <p className="mb-2 text-center text-xs text-white/60">
+                Drag stickers to move them. Use the controls to edit them.
+              </p>
 
-          {preview && (
-            <video
-              src={preview}
-              className="max-h-52 w-full rounded-xl bg-black object-contain"
-              controls
-            />
+              <ReelStickerEditor
+                stickers={selectedStickers}
+                onUpdate={updateSticker}
+                onRemove={removeSticker}
+              >
+                {preview && (
+                  <video
+                    src={preview}
+                    className="h-full w-full rounded-xl bg-black object-contain"
+                    controls
+                    playsInline
+                  />
+                )}
+              </ReelStickerEditor>
+            </div>
           )}
 
           <textarea
             placeholder="Write a caption..."
             value={caption}
-            onChange={(e) => setCaption(e.target.value)}
+            onChange={(event) => setCaption(event.target.value)}
             className="w-full resize-none rounded-xl border border-zinc-700 bg-black p-3 text-white outline-none focus:border-blue-500"
             rows={3}
           />
 
-          {/* Selected music */}
           {selectedSong && (
             <div className="flex items-center justify-between gap-3 rounded-lg bg-blue-500/10 p-3">
               <span className="min-w-0 truncate text-sm text-blue-300">
                 🎵 {selectedSong.title}
               </span>
-
               <button
                 type="button"
                 onClick={() => setSelectedSong(null)}
@@ -76,31 +87,12 @@ const ReelUploadModal = ({
             </div>
           )}
 
-          {/* Selected sticker */}
-          {selectedSticker && (
-            <div className="flex items-center justify-between gap-3 rounded-lg bg-white/10 p-3">
-              <div className="flex min-w-0 items-center gap-3">
-                <img
-                  src={selectedSticker.url}
-                  alt={selectedSticker.name || "Selected sticker"}
-                  className="h-10 w-10 object-contain"
-                />
-                <span className="truncate text-sm">
-                  {selectedSticker.name || "Sticker selected"}
-                </span>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setSelectedSticker(null)}
-                className="shrink-0 text-sm text-red-400"
-              >
-                Remove
-              </button>
-            </div>
+          {selectedStickers.length > 0 && (
+            <p className="rounded-lg bg-white/10 p-3 text-sm text-white/70">
+              😀 {selectedStickers.length} sticker(s) added to this Reel.
+            </p>
           )}
 
-          {/* Library tabs */}
           <div>
             <div className="mb-3 grid grid-cols-2 gap-2 rounded-xl bg-black/40 p-1">
               <button
@@ -140,21 +132,12 @@ const ReelUploadModal = ({
               </div>
             ) : (
               <div className="flex h-[42dvh] min-h-[240px] max-h-[380px] flex-col overflow-hidden">
-                <StickerLibrary
-                  onSelect={(sticker) =>
-                    setSelectedSticker({
-                      ...sticker,
-                      _id: sticker.id,
-                      url: sticker.url,
-                    })
-                  }
-                />
+                <StickerLibrary onSelect={addSticker} />
               </div>
             )}
           </div>
         </div>
 
-        {/* Upload progress */}
         {loading && (
           <div className="shrink-0 border-t border-white/10 px-4 py-3">
             <div className="h-3 w-full overflow-hidden rounded-full bg-zinc-700">
@@ -165,14 +148,12 @@ const ReelUploadModal = ({
                 }}
               />
             </div>
-
             <p className="mt-2 text-center text-sm">
               Uploading... {progress}%
             </p>
           </div>
         )}
 
-        {/* Fixed action buttons */}
         <div className="grid shrink-0 grid-cols-3 gap-2 border-t border-white/10 bg-zinc-900 p-3">
           <button
             type="button"
