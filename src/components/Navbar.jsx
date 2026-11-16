@@ -69,6 +69,8 @@ const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   
   const [showSettings, setShowSettings] = useState(false);
+  const [privacySaving, setPrivacySaving] = useState(false);
+  const [privacyError, setPrivacyError] = useState("");
 
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -84,9 +86,46 @@ const {
   token,
   isLoggedIn,
   logout,
+  updateCurrentUser,
 } = useAuth();
 
 const currentUserId = currentUser?._id;
+
+const handleToggleAccountPrivacy = async () => {
+  if (!currentUserId || !token || privacySaving) return;
+
+  const nextValue = currentUser?.isPrivate !== true;
+  setPrivacySaving(true);
+  setPrivacyError("");
+
+  try {
+    const response = await fetch(
+      `${API_BASE}/api/users/${currentUserId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ isPrivate: nextValue }),
+      }
+    );
+
+    const result = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      throw new Error(
+        result.error || result.message || "Could not update account privacy."
+      );
+    }
+
+    updateCurrentUser({ isPrivate: nextValue });
+  } catch (error) {
+    setPrivacyError(error.message || "Could not update account privacy.");
+  } finally {
+    setPrivacySaving(false);
+  }
+};
 
   const isActive = (path) => location.pathname === path;
 
@@ -405,7 +444,34 @@ const currentUserId = currentUser?._id;
       </button>
 
       {showSettings && (
-        <div className="absolute right-0 mt-2 w-48 bg-white border shadow rounded-lg">
+        <div className="absolute right-0 mt-2 w-64 bg-white border shadow rounded-lg">
+          <div className="px-3 py-3 border-b">
+            <p className="text-sm font-semibold">
+              Account privacy
+            </p>
+            <p className="text-xs text-gray-500 mt-1">
+              {currentUser?.isPrivate === true
+                ? "Private account"
+                : "Public account"}
+            </p>
+            <button
+              type="button"
+              onClick={handleToggleAccountPrivacy}
+              disabled={privacySaving}
+              className="mt-2 w-full rounded-md bg-gray-100 px-3 py-2 text-sm font-medium hover:bg-gray-200 disabled:opacity-50"
+            >
+              {privacySaving
+                ? "Saving..."
+                : currentUser?.isPrivate === true
+                  ? "Make account public"
+                  : "Make account private"}
+            </button>
+            {privacyError && (
+              <p className="mt-2 text-xs text-red-600" role="alert">
+                {privacyError}
+              </p>
+            )}
+          </div>
           <Link
             to="/privacy"
             onClick={() => setShowSettings(false)}
@@ -526,7 +592,9 @@ const currentUserId = currentUser?._id;
       </h3>
 
       <p className="text-sm text-gray-500">
-        🌎 Public
+        {currentUser?.isPrivate === true
+          ? "🔒 Private account"
+          : "🌎 Public account"}
       </p>
     </div>
    </div>
@@ -806,6 +874,32 @@ const currentUserId = currentUser?._id;
 
 
 
+</div>
+
+<div className="mt-5 rounded-xl border p-4">
+  <p className="font-semibold text-sm">Account privacy</p>
+  <p className="text-xs text-gray-500 mt-1">
+    {currentUser?.isPrivate === true
+      ? "Only accepted friends can see your posts."
+      : "Your public posts can be seen by everyone."}
+  </p>
+  <button
+    type="button"
+    onClick={handleToggleAccountPrivacy}
+    disabled={privacySaving}
+    className="w-full mt-3 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 py-3 rounded-xl font-semibold text-sm"
+  >
+    {privacySaving
+      ? "Saving..."
+      : currentUser?.isPrivate === true
+        ? "Make account public"
+        : "Make account private"}
+  </button>
+  {privacyError && (
+    <p className="mt-2 text-xs text-red-600" role="alert">
+      {privacyError}
+    </p>
+  )}
 </div>
 
 <button
