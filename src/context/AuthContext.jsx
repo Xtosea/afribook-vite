@@ -57,6 +57,20 @@ export const AuthProvider = ({ children }) => {
   setCurrentUser(user);
 };
 
+const updateCurrentUser = (updates) => {
+  setCurrentUser((previousUser) => {
+    if (!previousUser) return previousUser;
+
+    const updatedUser = {
+      ...previousUser,
+      ...updates,
+    };
+
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+    return updatedUser;
+  });
+};
+
 const logout = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
@@ -77,6 +91,7 @@ const logout = () => {
         currentUser,
         isLoggedIn: !!token,
         login,
+        updateCurrentUser,
         logout,
       }}
     >
